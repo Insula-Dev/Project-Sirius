@@ -12,7 +12,9 @@ embedRules.add_field(name="Line1", value="1. No british people, will be banned o
 embedRules.add_field(name="Line2", value="2. People from Michigan will be banned on sight", inline=False)
 embedRules.add_field(name="Line3", value="3. transgenders boost or ban", inline=False)
 
-embedRoles = discord.Embed(title="[Roles embed]")
+embedRoles = discord.Embed(title="[Roles embed]", description="[Select your roles by reacting below.]", color=0x4f7bc5)
+embedRoles.add_field(name="[name]", value="[value]", inline=False)
+embedRoles.add_field(name="[name]", value="[value]", inline=True)
 
 
 #Definitions
@@ -20,7 +22,7 @@ class MyClient(discord.Client):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.role_message_id = 832309110061137940  # ID of the message that can be reacted to to add/remove a role.
+		self.role_message_id = 832293063803142235  # ID of the message that can be reacted to to add/remove a role.
 		self.emoji_to_role = {
 			discord.PartialEmoji(name='🦴'): 832309999908421702,  # ID of the role associated with unicode emoji '🔴'.
 			discord.PartialEmoji(name='tooth'): 202,  # ID of the role associated with unicode emoji '🟡'.
