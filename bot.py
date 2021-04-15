@@ -33,6 +33,7 @@ async def on_member_join(member):
 
 @client.event
 async def arun_message(message):
+	print("Trigger 1")
 	print(message.author)
 
 @client.event
