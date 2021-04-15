@@ -1,4 +1,5 @@
 #Imports
+from random import randint
 import discord
 
 
@@ -7,47 +8,43 @@ DISCORD_TOKEN = "ODMxOTQ0NTIyNzQ4NTI2Njg0.YHcmtw.HdYMiGOB9aCX1d_CGUYC8Cqkdew"
 GUILD = "The Hat Shop"
 
 
+#Definitions
+class MyClient(discord.Client):
+
+	async def on_ready(self):
+
+		for guild in self.guilds:
+			if guild.name == GUILD:
+				break
+
+		print(self.user, "is connected to the following guild:")
+		print(guild.name, "(id:", {guild.id})
+		print()
+		print(self.user.name)
+		print(self.user.id)
+		print('------')
+
+	async def on_message(self, message):
+
+		print(message.author, type(message.author))
+		print(message.author.id, type(message.author.id))
+
+		if message.author.id == self.user.id:
+			return
+
+		if message.content.startswith('!rules'):
+			print("!rules called by", message.author)
+			await message.channel.send('!rules')
+
+		if message.author.id == 258284765776576512:
+			print("Arun sighted. Locking on.")
+			if randint(1, 10) == 10:
+				await message.channel.send("shut up Arun")
+				print("Doggie down.")
+			else:
+				print("RTB.")
+
+
 #Main body
-client = discord.Client()
-
-@client.event
-async def on_ready():
-	for guild in client.guilds:
-		if guild.name == GUILD:
-			break
-
-	print(
-		f'{client.user} is connected to the following guild:\n'
-		f'{guild.name}(id: {guild.id})\n'
-	)
-
-	members = '\n - '.join([member.name for member in guild.members])
-	print(f'Guild Members:\n - {members}')
-
-@client.event
-async def on_member_join(member):
-	await member.create_dm()
-	await member.dm_channel.send(
-		f'Hi {member.name}, welcome to my Discord server!'
-	)
-
-@client.event
-async def arun_message(message):
-	print("Trigger 1")
-	print(message.author)
-
-@client.event
-async def on_message(message):
-	if message.content.startswith("$rules"):
-		print(message.content.startswith("$rules"))
-		embedVar = discord.Embed(title="rules", description="Desc", color=0x4f7bc5)
-		embedVar.add_field(name="Line1", value="1. hello we are not cringe gaming and surival games", inline=False)
-		embedVar.add_field(name="Line2", value="2. which is why I say ac", inline=False)
-		embedVar.add_field(name="Line3", value="3. disco boost or ban", inline=False)
-		await message.channel.send(embed=embedVar)
-	elif message.content.startswith("$nice"):
-		print("Nice one")
-	else:
-		print("what?")
-
+client = MyClient()
 client.run(DISCORD_TOKEN)
