@@ -10,7 +10,18 @@ GUILD_NAME = "The Hat Shop"
 role_emojis = ["🔔", "🦴"]
 
 embedRules = discord.Embed(title="Rules", description="The rules innit", color=0x4f7bc5)
-embedRules.add_field(name="Server-wide rules", value="1. Keep spam to a minimum\n\n2. NSFW in appropriate channels\n\n3. Use appropriate text / voice channels depending on your activity\n\n4. Keep fighting and arguing to a minimum, keep it to a DM or another server\n\n5. No pictures of other people even with said persons permission\n\n6. No posting other peoples or your personal details\n\n7. No advertising of any kind including other discord servers\n\n8. No impersonating other people\n\n9. Do not ask for Staff\n\n10. No unnecessary pings\n\n11. Do not bot abuse\n\n12. Do not music bot abuse (E . G Earrape, Repeating songs, Ultra Long 'songs')", inline=False)
+embedRules.add_field(name="Server-wide rules", value="1. Keep spam to a minimum\n\n"
+													 "2. NSFW in appropriate channels\n\n"
+													 "3. Use appropriate text / voice channels depending on your activity\n\n"
+													 "4. Keep fighting and arguing to a minimum, keep it to a DM or another server\n\n"
+													 "5. No pictures of other people even with said persons permission\n\n"
+													 "6. No posting other peoples or your personal details\n\n"
+													 "7. No advertising of any kind including other discord servers\n\n"
+													 "8. No impersonating other people\n\n"
+													 "9. Do not ask for Staff\n\n"
+													 "10. No unnecessary pings\n\n"
+													 "11. Do not bot abuse\n\n"
+													 "12. Do not music bot abuse (E . G Earrape, Repeating songs, Ultra Long 'songs')", inline=False)
 embedRules.add_field(name="Banned list", value="1. Lindsey#2249", inline=False)
 
 embedRoles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
@@ -24,7 +35,8 @@ class MyClient(discord.Client):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.role_message_id = 832335885470662717  # ID of the message that can be reacted to to add/remove a role.
-		self.emoji_to_role = {
+		self.emoji_to_role =\
+		{
 			discord.PartialEmoji(name='🔔'): 831945402265239562,  # ID of the role associated with unicode emoji '🔔'.
 			discord.PartialEmoji(name='🦴'): 832309999908421702,  # ID of the role associated with unicode emoji '🦴'.
 			discord.PartialEmoji(name='jamesracist', id=0): 0,  # ID of the role associated with a partial emoji's ID.
