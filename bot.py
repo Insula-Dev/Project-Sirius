@@ -14,7 +14,7 @@ embedRules.add_field(name="Server-wide rules", value="1. Keep spam to a minimum\
 embedRules.add_field(name="Banned list", value="1. Lindsey#2249", inline=False)
 
 embedRoles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
-embedRoles.add_field(name="Server", value="🔔 Ping\nother\nroles\nrelevant", inline=False)
+embedRoles.add_field(name="Server", value="🔔 Ping", inline=False)
 embedRoles.add_field(name="Games", value="Destiny 2\nRisk of Rain 2\nMinecraft\nJackbox", inline=False)
 
 
@@ -142,6 +142,11 @@ class MyClient(discord.Client):
 				print("Doggie down.")  # Event log
 			else:
 				print("Mission failed, RTB.")  # Event log
+
+		if message.content.startswith("!kill"):
+			print("You sick bastard.")
+			await message.channel.send("https://cdn.discordapp.com/attachments/832293063803142235/832340900587110450/dogdeadinnit.mp3")
+			exit()  # THIS IS A HORRIBLE HEURISTIC
 
 
 #Main body
