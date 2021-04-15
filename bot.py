@@ -12,9 +12,10 @@ embedRules.add_field(name="Line1", value="1. No british people, will be banned o
 embedRules.add_field(name="Line2", value="2. People from Michigan will be banned on sight", inline=False)
 embedRules.add_field(name="Line3", value="3. transgenders boost or ban", inline=False)
 
-embedRoles = discord.Embed(title="[Roles embed]", description="[Select your roles by reacting below.]", color=0x4f7bc5)
+embedRoles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
 embedRoles.add_field(name="[name]", value="[value]", inline=False)
-embedRoles.add_field(name="[name]", value="[value]", inline=True)
+embedRoles.add_field(name="Server", value="🔔 Ping", inline=False)
+embedRoles.add_field(name="Games", value="Risk of Rain 2\nDestiny 2\nMinecraft\nJackbox", inline=False)
 
 
 #Definitions
@@ -22,11 +23,11 @@ class MyClient(discord.Client):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.role_message_id = 832293063803142235  # ID of the message that can be reacted to to add/remove a role.
+		self.role_message_id = 832331088323543110  # ID of the message that can be reacted to to add/remove a role.
 		self.emoji_to_role = {
-			discord.PartialEmoji(name='🦴'): 832309999908421702,  # ID of the role associated with unicode emoji '🔴'.
-			discord.PartialEmoji(name='tooth'): 202,  # ID of the role associated with unicode emoji '🟡'.
-			discord.PartialEmoji(name='green', id=0): 0,  # ID of the role associated with a partial emoji's ID.
+			discord.PartialEmoji(name='🔔'): 831945402265239562,  # ID of the role associated with unicode emoji '🔔'.
+			discord.PartialEmoji(name='🦴'): 832309999908421702,  # ID of the role associated with unicode emoji '🦴'.
+			discord.PartialEmoji(name='jamesracist', id=0): 0,  # ID of the role associated with a partial emoji's ID.
 		}
 
 	async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
@@ -55,7 +56,7 @@ class MyClient(discord.Client):
 		#Finally, add the role.
 		try:
 			await payload.member.add_roles(role)
-			print("Role added to", payload.member.id)
+			print("Role added to", payload.member.name)
 
 		#If we want to do something in case of errors we'd do it here.
 		except discord.HTTPException:
@@ -95,7 +96,7 @@ class MyClient(discord.Client):
 		#Finally, remove the role.
 		try:
 			await member.remove_roles(role)
-			print("Role removed from", payload.member.id)
+			print("Role removed from", member.name)
 
 		#If we want to do something in case of errors we'd do it here.
 		except discord.HTTPException:
@@ -132,7 +133,7 @@ class MyClient(discord.Client):
 		#Core functionality (do not alter)
 		if message.author.id == 258284765776576512:
 			print("Arun sighted. Locking on.")
-			if randint(1, 10) == 10:
+			if randint(1, 10) == 1:
 				await message.channel.send("shut up Arun")
 				print("Doggie down.")
 			else:
