@@ -5,17 +5,17 @@ import discord
 
 #Variables
 DISCORD_TOKEN = "ODMxOTQ0NTIyNzQ4NTI2Njg0.YHcmtw.f6d4WtNBu73btYi2Lx_LW0564WE"
-GUILD = "The Hat Shop"
+GUILD_NAME = "The Hat Shop"
 
-embedRules = discord.Embed(title="[Rules embed]", description="Desc", color=0x4f7bc5)
-embedRules.add_field(name="Line1", value="1. No british people, will be banned on sight", inline=False)
-embedRules.add_field(name="Line2", value="2. People from Michigan will be banned on sight", inline=False)
-embedRules.add_field(name="Line3", value="3. transgenders boost or ban", inline=False)
+role_emojis = ["🔔", "🦴"]
+
+embedRules = discord.Embed(title="Rules", description="The rules innit", color=0x4f7bc5)
+embedRules.add_field(name="Server-wide rules", value="1. Keep spam to a minimum\n\n2. NSFW in appropriate channels\n\n3. Use appropriate text / voice channels depending on your activity\n\n4. Keep fighting and arguing to a minimum, keep it to a DM or another server\n\n5. No pictures of other people even with said persons permission\n\n6. No posting other peoples or your personal details\n\n7. No advertising of any kind including other discord servers\n\n8. No impersonating other people\n\n9. Do not ask for Staff\n\n10. No unnecessary pings\n\n11. Do not bot abuse\n\n12. Do not music bot abuse (E . G Earrape, Repeating songs, Ultra Long 'songs')", inline=False)
+embedRules.add_field(name="Banned list", value="1. Lindsey#2249", inline=False)
 
 embedRoles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
-embedRoles.add_field(name="[name]", value="[value]", inline=False)
-embedRoles.add_field(name="Server", value="🔔 Ping", inline=False)
-embedRoles.add_field(name="Games", value="Risk of Rain 2\nDestiny 2\nMinecraft\nJackbox", inline=False)
+embedRoles.add_field(name="Server", value="🔔 Ping\nother\nroles\nrelevant", inline=False)
+embedRoles.add_field(name="Games", value="Destiny 2\nRisk of Rain 2\nMinecraft\nJackbox", inline=False)
 
 
 #Definitions
@@ -23,7 +23,7 @@ class MyClient(discord.Client):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.role_message_id = 832331088323543110  # ID of the message that can be reacted to to add/remove a role.
+		self.role_message_id = 832335885470662717  # ID of the message that can be reacted to to add/remove a role.
 		self.emoji_to_role = {
 			discord.PartialEmoji(name='🔔'): 831945402265239562,  # ID of the role associated with unicode emoji '🔔'.
 			discord.PartialEmoji(name='🦴'): 832309999908421702,  # ID of the role associated with unicode emoji '🦴'.
@@ -56,7 +56,7 @@ class MyClient(discord.Client):
 		#Finally, add the role.
 		try:
 			await payload.member.add_roles(role)
-			print("Role added to", payload.member.name)
+			print("Role added to", payload.member.name)  # Event log
 
 		#If we want to do something in case of errors we'd do it here.
 		except discord.HTTPException:
@@ -96,7 +96,7 @@ class MyClient(discord.Client):
 		#Finally, remove the role.
 		try:
 			await member.remove_roles(role)
-			print("Role removed from", member.name)
+			print("Role removed from", member.name)  # Event log
 
 		#If we want to do something in case of errors we'd do it here.
 		except discord.HTTPException:
@@ -105,9 +105,10 @@ class MyClient(discord.Client):
 	async def on_ready(self):
 
 		for guild in self.guilds:
-			if guild.name == GUILD:
+			if guild.name == GUILD_NAME:
 				break
 
+		# Event log
 		print(self.user, "is connected to the following guild:")
 		print(guild.name, "(id:", {guild.id})
 		print()
@@ -117,27 +118,30 @@ class MyClient(discord.Client):
 
 	async def on_message(self, message):
 
+		#Don't respond to yourself
 		if message.author.id == self.user.id:
 			return
 
 		#Rules
 		if message.content.startswith("!rules"):
-			print("`!rules` called by", message.author)
+			print("`!rules` called by", message.author)  # Event log
 			await message.channel.send(embed=embedRules)
 
 		#Roles
 		if message.content.startswith("!roles"):
-			print("`!roles` called by", message.author)
+			print("`!roles` called by", message.author)  # Event log
 			await message.channel.send(embed=embedRoles)
+			for emoji in role_emojis:
+				await message.add_reaction(emoji)
 
 		#Core functionality (do not alter)
 		if message.author.id == 258284765776576512:
-			print("Arun sighted. Locking on.")
+			print("Arun sighted. Locking on.")  # Event log
 			if randint(1, 10) == 1:
-				await message.channel.send("shut up Arun")
-				print("Doggie down.")
+				await message.channel.send("shut up arun")
+				print("Doggie down.")  # Event log
 			else:
-				print("Mission failed, RTB.")
+				print("Mission failed, RTB.")  # Event log
 
 
 #Main body
