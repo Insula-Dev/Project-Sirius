@@ -8,7 +8,9 @@ DISCORD_TOKEN = "ODMxOTQ0NTIyNzQ4NTI2Njg0.YHcmtw.f6d4WtNBu73btYi2Lx_LW0564WE"
 GUILD_NAME = "The Hat Shop"
 
 role_emojis = ["🔔", "🦴"]
+prefix = "!" # The thing before the command
 
+# Rules Response
 embedRules = discord.Embed(title="Rules", description="The rules innit", color=0x4f7bc5)
 embedRules.add_field(name="Server-wide rules", value="1. Keep spam to a minimum\n\n"
 													 "2. NSFW in appropriate channels\n\n"
@@ -24,6 +26,7 @@ embedRules.add_field(name="Server-wide rules", value="1. Keep spam to a minimum\
 													 "12. Do not music bot abuse (E . G Earrape, Repeating songs, Ultra Long 'songs')", inline=False)
 embedRules.add_field(name="Banned list", value="1. Lindsey#2249", inline=False)
 
+# Roles Response
 embedRoles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
 embedRoles.add_field(name="Server", value="🔔 Ping", inline=False)
 embedRoles.add_field(name="Games", value="Destiny 2\nRisk of Rain 2\nMinecraft\nJackbox", inline=False)
@@ -128,6 +131,7 @@ class MyClient(discord.Client):
 		print(self.user.id)
 		print('------')
 
+	# Runs when any message is received
 	async def on_message(self, message):
 
 		#Don't respond to yourself
@@ -135,12 +139,12 @@ class MyClient(discord.Client):
 			return
 
 		#Rules
-		if message.content.startswith("!rules"):
+		if message.content.startswith(prefix+"rules"):
 			print("`!rules` called by", message.author)  # Event log
 			await message.channel.send(embed=embedRules)
 
 		#Roles
-		if message.content.startswith("!roles"):
+		if message.content.startswith(prefix+"roles"):
 			print("`!roles` called by", message.author)  # Event log
 			await message.channel.send(embed=embedRoles)
 			for emoji in role_emojis:
