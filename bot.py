@@ -26,9 +26,6 @@ class MyClient(discord.Client):
 
 	async def on_message(self, message):
 
-		print(message.author, type(message.author))
-		print(message.author.id, type(message.author.id))
-
 		if message.author.id == self.user.id:
 			return
 
