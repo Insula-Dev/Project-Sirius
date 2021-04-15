@@ -32,21 +32,17 @@ async def on_member_join(member):
 	)
 
 @client.event
-async def arun_message(member):
-	await member.create_dm()
-	await member.dm_channel.send(
-		f'Shut up Arun'
-	)
+async def arun_message(message):
+	print(message.author)
 
 @client.event
 async def on_message(message):
-	print(message)
 	if message.content.startswith("$rules"):
 		print(message.content.startswith("$rules"))
 		embedVar = discord.Embed(title="rules", description="Desc", color=0x4f7bc5)
-		embedVar.add_field(name="Line1", value="1. No british people, will be banned on sight", inline=False)
-		embedVar.add_field(name="Line2", value="2. People from Michigan will be banned on sight", inline=False)
-		embedVar.add_field(name="Line3", value="3. transgenders boost or ban", inline=False)
+		embedVar.add_field(name="Line1", value="1. hello we are not cringe gaming and surival games", inline=False)
+		embedVar.add_field(name="Line2", value="2. which is why I say ac", inline=False)
+		embedVar.add_field(name="Line3", value="3. disco boost or ban", inline=False)
 		await message.channel.send(embed=embedVar)
 	elif message.content.startswith("$nice"):
 		print("Nice one")
