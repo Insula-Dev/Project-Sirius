@@ -10,6 +10,9 @@ GUILD_NAME = "The Hat Shop"
 role_emojis = ["🔔", "🦴"]
 prefix = "!" # The thing before the command
 
+def getUsername(author):
+	return str(author)[:-5]
+
 # Rules Response
 embedRules = discord.Embed(title="Rules", description="The rules innit", color=0x4f7bc5)
 embedRules.add_field(name="Server-wide rules", value="1. Keep spam to a minimum\n\n"
@@ -163,6 +166,7 @@ class MyClient(discord.Client):
 			print("You sick bastard.")
 			await message.channel.send("https://cdn.discordapp.com/attachments/832293063803142235/832340900587110450/dogdeadinnit.mp3")
 			exit()  # THIS IS A HORRIBLE HEURISTIC
+		print("User ID of message:"+getUsername(message.author))
 
 
 #Main body
