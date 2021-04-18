@@ -2,6 +2,7 @@
 from random import randint
 import discord
 from discord.ext import commands
+from discord import File
 
 # Variables
 DISCORD_TOKEN = "ODMxOTQ0NTIyNzQ4NTI2Njg0.YHcmtw.f6d4WtNBu73btYi2Lx_LW0564WE"
@@ -31,7 +32,8 @@ def getUsername(author):
 
 
 # Rules Response
-embedRules = discord.Embed(title="Rules", description="The rules innit", color=0x4f7bc5)
+embedRules = discord.Embed(title="Rules", description="The rules innit", color=0xCE6A76)
+embedRules.set_image(url="https://media.discordapp.net/attachments/504791913241772052/504817198028816395/RULES.jpg")
 embedRules.add_field(name="Server-wide rules", value="1. Keep spam to a minimum\n\n"
                                                      "2. NSFW in appropriate channels\n\n"
                                                      "3. Use appropriate text / voice channels depending on your activity\n\n"
@@ -47,22 +49,26 @@ embedRules.add_field(name="Server-wide rules", value="1. Keep spam to a minimum\
                      inline=False)
 embedRules.add_field(name="Banned list", value="1. Lindsey#2249", inline=False)
 
+
+
 # Roles Response
 embedRoles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.",
                            color=0x4f7bc5)
 embedRoles.add_field(name="Server", value="🔔 Ping", inline=False)
 
 gamesList = ""
-for i in range(1,len(roles)):
+for i in range(2,len(roles)):
     gamesList += roles[i][0] + roles[i][2] + "\n"
 
 embedRoles.add_field(name="Games", value=gamesList, inline=False)
-"""
-embedRoles.add_field(name="Games", value=stardew[0] + stardew[2]+"\n"
-                                         +ror[0] + ror[2]+"\n"
-                                         +minecraft[0] + minecraft[2]+"\n"
-                                         +party[0] + party[2]+"\n"
-                                         +zombies[0] + zombies[2], inline=False)
+
+
+""" # This code can be used to quickly do ... other things instead without using Pablo's convoluted class
+@client.command()
+async def hello(ctx):
+    print("Hello activated")
+    await ctx.send("Hi")
+client.run(DISCORD_TOKEN)
 """
 
 # Definitions
@@ -190,6 +196,8 @@ class MyClient(discord.Client):
 
         # Rules
         if message.content.startswith(prefix + "rules"):
+            embedRules.set_author(name=self.get_guild(message.guild.id).name, icon_url=self.get_guild(message.guild.id).icon_url)
+            embedRules.set_thumbnail(url="https://media.discordapp.net/attachments/504791913241772052/504817198028816395/RULES.jpg")
             print("`!rules` called by", message.author)  # Event log
             await message.channel.send(embed=embedRules)
 
@@ -197,6 +205,7 @@ class MyClient(discord.Client):
         if message.content.startswith(prefix + "roles"):
             print("`!roles` called by", message.author)  # Event log
             rolesMessage = await message.channel.send(embed=embedRoles)
+            self.role_message_id = rolesMessage.id
             for emoji in role_emojis:
                 await rolesMessage.add_reaction(emoji)
 
@@ -217,17 +226,12 @@ class MyClient(discord.Client):
 
         if message.content.startswith("!kill"):
             print("You sick bastard.")
-            await message.channel.send(
-                "https://cdn.discordapp.com/attachments/832293063803142235/832340900587110450/dogdeadinnit.mp3")
+            await message.channel.send(file=File("dogdeadinnit.mp3"))
 
             exit()  # THIS IS A HORRIBLE HEURISTIC
-        print("User ID of message:" + getUsername(message.author))
 
 
-@client.command()
-async def hello(ctx):
-    print("Hello activated")
-    await ctx.send("Hi")
+
 
 
 # Main body
