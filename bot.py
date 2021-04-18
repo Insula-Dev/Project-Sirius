@@ -209,6 +209,10 @@ class MyClient(discord.Client):
             for emoji in role_emojis:
                 await rolesMessage.add_reaction(emoji)
 
+        # Important saftey reminder
+        if message.content.lower().find("gameboy") != -1:
+            await message.channel.send("Gameboys are worthless (apart from micro. micro is cool)")
+
         # Core functionality (do not alter)
         if getUsername(message.author) == "MUIArun":
             print("Arun sighted. Locking on.")  # Event log
