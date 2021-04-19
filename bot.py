@@ -155,11 +155,17 @@ class MyClient(discord.Client):
 			else:
 				print("Mission failed, RTB.")  # Event log
 
+		#Raspberry Racers functionality
+		if "raspberries" in message.content or "raspberry" in message.content:
+			print("Raspberry Racers")
+			await message.channel.send("The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019. ")
+
+		#Bot kill command
 		if message.content.startswith("!kill"):
 			print("You sick bastard.")
 			await message.channel.send("https://cdn.discordapp.com/attachments/832293063803142235/832340900587110450/dogdeadinnit.mp3")
 
-			exit()  # THIS IS A HORRIBLE HEURISTIC
+			exit()  # This isn't a good heuristic. Find discord.py way of getting this done.
 
 
 #Main body
