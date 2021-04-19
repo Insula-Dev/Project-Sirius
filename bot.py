@@ -3,25 +3,26 @@ from random import randint
 import discord
 from discord.ext import commands
 from discord import File
+from Roles import Role
 
 # Variables
 DISCORD_TOKEN = "ODMxOTQ0NTIyNzQ4NTI2Njg0.YHcmtw.f6d4WtNBu73btYi2Lx_LW0564WE"
 GUILD_NAME = "The Hat Shop" # The Hat Shop (id: {489893521176920076}
 
 # Easy to reference roles and emojis (name, role id, emoji id)
-ping = ["Ping",831945402265239562,"🔔"]
-test = ["Test role",832309999908421702,"🦴"]
-stardew = ["Stardew",832997725883596820,"<:stardew:832999319665246308>"]
-ror = ["Risk Of Rain",832658067158073406,"<:ror:832655432127610880>"]
-minecraft = ["Minecraft",832998331756183632,"<:minecraft:832659767951622185>"]
-party = ["Party Games",832997546157932585,"<:jackbox:832660115739770961>"]
-zombies = ["Zombies",832997616245407815,"<:zombies:833001048867864607>"]
+ping = Role("Ping",831945402265239562,"🔔")
+test = Role("Test role",832309999908421702,"🦴")
+stardew = Role("Stardew",832997725883596820,"<:stardew:832999319665246308>")
+ror = Role("Risk Of Rain",832658067158073406,"<:ror:832655432127610880>")
+minecraft = Role("Minecraft",832998331756183632,"<:minecraft:832659767951622185>")
+party = Role("Party Games",832997546157932585,"<:jackbox:832660115739770961>")
+zombies = Role("Zombies",832997616245407815,"<:zombies:833001048867864607>")
 
 roles = [ping,test,stardew,ror,minecraft,party,zombies]
 
 role_emojis = [] # List of emojis
 for x in range(len(roles)):
-    role_emojis.append(roles[x][2])
+    role_emojis.append(roles[x].getEmoji())
 prefix = "!"  # The thing before the command
 
 client = commands.Bot(command_prefix=prefix)
@@ -58,7 +59,7 @@ embedRoles.add_field(name="Server", value="🔔 Ping", inline=False)
 
 gamesList = ""
 for i in range(2,len(roles)):
-    gamesList += roles[i][0] + roles[i][2] + "\n"
+    gamesList += roles[i].getName() + roles[i].getEmoji() + "\n"
 
 embedRoles.add_field(name="Games", value=gamesList, inline=False)
 
@@ -81,19 +82,19 @@ class MyClient(discord.Client):
         # Dictoinary of emojis reffering to roles
         self.emoji_to_role = \
             {
-                discord.PartialEmoji(name='🔔'): 831945402265239562, # Number is the role id
+                discord.PartialEmoji(name='🔔'): ping.roleID, # Number is the role id
                 # ID of the role associated with unicode emoji '🔔'
-                discord.PartialEmoji(name='🦴'): 832309999908421702,
+                discord.PartialEmoji(name='🦴'): test.roleID,
                 # ID of the role associated with unicode emoji '🦴'
-                discord.PartialEmoji(name=stardew[2]): stardew[1], # Change to stardew
+                discord.PartialEmoji(name=stardew.emoji): stardew.roleID, # Change to stardew
                 # ID of the role associated with a partial emoji's ID
-                discord.PartialEmoji(name=ror[2]): ror[1],
+                discord.PartialEmoji(name=ror.emoji): ror.roleID,
                 # ID of the role associated with a partial emoji's ID
-                discord.PartialEmoji(name=minecraft[2]): minecraft[1],
+                discord.PartialEmoji(name=minecraft.emoji): minecraft.roleID,
                 # ID of the role associated with a partial emoji's ID
-                discord.PartialEmoji(name=party[2]): party[1], # Change to party games
+                discord.PartialEmoji(name=party.emoji): party.roleID, # Change to party games
                 # ID of the role associated with a partial emoji's ID
-                discord.PartialEmoji(name=zombies[2]): zombies[1],  # Change to COD "Zombies"
+                discord.PartialEmoji(name=zombies.emoji): zombies.roleID,  # Change to COD "Zombies"
                 # ID of the role associated with a partial emoji's ID
             }
 
@@ -112,9 +113,17 @@ class MyClient(discord.Client):
         print(payload.emoji)
         # If the emoji isn't the one we care about then exit as well.
         try:
-            print(self.emoji_to_role)
-            role_id = self.emoji_to_role[payload.emoji]
-            print("Emoji identified")
+            emojiFound = False
+            for x in range(len(roles)):
+                if roles[x].getEmoji() == str(payload.emoji):
+                    emojiFound = True
+                    print("Emoji identified with loop")
+                    role_id = roles[x].roleID
+            if emojiFound == False:
+                print("Emoji failed to be identified with loop")
+                return
+            #role_id = self.emoji_to_role[str(payload.emoji)]
+            #print("Emoji identified")
         except KeyError:
             print("Emoji failed to be identified")
             return
@@ -127,7 +136,7 @@ class MyClient(discord.Client):
         # Finally, add the role.
         try:
             await payload.member.add_roles(role)
-            print("Role added to", payload.member.name)  # Event log
+            print("Role \"" + str(role) + "\" added to", payload.member.name)  # Event log
 
         # If we want to do something in case of errors we'd do it here.
         except discord.HTTPException:
