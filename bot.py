@@ -25,22 +25,17 @@ class MyClient(discord.Client):
 			print(self.user, "is connected to the following guild:")  # Event log
 			with open("data.json") as data_file:
 				for guild in self.guilds:
-					print("Loading data of " + guild.name, "(id:", guild.id,")")  # Event log
-					guild_data = json.load(data_file)["servers"][str(guild.id)] # Loads server's dictionary
+					print(guild.name, "(id: " + str(guild.id) + ")")  # Event log
+					guild_data = json.load(data_file)["servers"][str(guild.id)]
 
-					# New fancy thing Arun made to make guild_data["roles"] correct for python
-					print("Guild data" + str(guild_data))
-					guild_data_roles = guild_data["roles"].copy()
+					# Make the roles integer-indexed
+					roles = {}
 					for role in guild_data["roles"]:
-						guild_data_roles[int(role)] = guild_data_roles[role]
-						del guild_data_roles[role]
-					guild_data["roles"] = guild_data_roles
-					print("The new roles of guild data: "+str(guild_data["roles"]))
+						roles[int(role)] = guild_data["roles"][role]
 
-					data.update({int(guild.id):guild_data})
-
-
-		print("Data big: "+str(data))
+					data[guild.id] = guild_data
+					# Replace string-indexed roles with integer-indexed roles
+					data[guild.id]["roles"] = roles
 		print('------')
 
 	async def on_message(self, message):
@@ -55,7 +50,7 @@ class MyClient(discord.Client):
 		# Rules
 		if message.content == "!rules":
 			print("`!rules` called by", message.author)  # Event log
-			embed_rules = discord.Embed(title=data[guild.id]["rules"]["title"], description=data[guild.id]["rules"]["description"], color=data[guild.id]["rules"]["color"])
+			embed_rules = discord.Embed(title=data[guild.id]["rules"]["title"], description=data[guild.id]["rules"]["description"], color=0x4f7bc5)
 			embed_rules.set_author(name=guild.name, icon_url=guild.icon_url)
 			embed_rules.set_thumbnail(url=data[guild.id]["rules"]["thumbnail link"])
 			embed_rules.add_field(name="Server rules", value="\n".join(data[guild.id]["rules"]["list"]), inline=False)
@@ -67,13 +62,13 @@ class MyClient(discord.Client):
 			embed_roles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
 			value = ""
 			for role in data[message.guild.id]["roles"]:
-				value += role["emoji"], role["name"] + "\n"
+				value += data[message.guild.id]["roles"][role]["emoji"] + " " + data[message.guild.id]["roles"][role]["name"] + "\n"
 			embed_roles.add_field(name="[Games]", value=value[:-2], inline=False)
 			roles_message = await message.channel.send(embed=embed_roles)
 
 			# Add emojis to roles message
 			for role in data[message.guild.id]["roles"]:
-				await roles_message.add_reaction(role["emoji"])
+				await roles_message.add_reaction(data[message.guild.id]["roles"][role]["emoji"])
 
 		# Core functionality (do not alter)
 		if message.author.id == 258284765776576512:

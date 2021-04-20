@@ -4,7 +4,6 @@
             "rules": {
                 "title": "TITLE",
                 "description": "DESCRIPTION",
-                "colour": "0xffffff",
                 "thumbnail link": "https://media.discordapp.net/attachments/504791913241772052/504817198028816395/RULES.jpg",
                 "list": [
                     "1. Keep spam to a minimum",
@@ -21,7 +20,7 @@
                     "12. Do not music bot abuse (E . G Earrape, Repeating songs, Ultra Long 'songs')"
                 ]
             },
-            "roles message id": 832335885470662717,
+            "roles message id": 834175260898885684,
             "roles": {
                 "834023105718517781": {
                     "name": "Destiny 2",
