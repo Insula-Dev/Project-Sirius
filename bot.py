@@ -25,7 +25,7 @@ class MyClient(discord.Client):
 			print(self.user, "is connected to the following guild:")  # Event log
 			with open("data.json") as data_file:
 				for guild in self.guilds:
-					print(guild.name, "(id:", guild.id)  # Event log
+					print(guild.name, "(id:", guild.id,")")  # Event log
 					guild_data = json.load(data_file)["servers"][str(guild.id)]
 
 					roles = {}
