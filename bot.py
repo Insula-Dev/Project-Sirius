@@ -9,7 +9,7 @@ from Roles import Role
 DISCORD_TOKEN = "ODMxOTQ0NTIyNzQ4NTI2Njg0.YHcmtw.f6d4WtNBu73btYi2Lx_LW0564WE"
 GUILD_NAME = "The Hat Shop" # The Hat Shop (id: {489893521176920076}
 
-# Easy to reference roles and emojis (name, role id, emoji id)
+# Instantiates role objects. Easy to reference roles and emojis (name, role id, emoji id)
 ping = Role("Ping",831945402265239562,"🔔")
 test = Role("Test role",832309999908421702,"🦴")
 stardew = Role("Stardew",832997725883596820,"<:stardew:832999319665246308>")
