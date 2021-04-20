@@ -88,7 +88,7 @@ class MyClient(discord.Client):
 		# Raspberry Racers functionality. Needs fixing
 		if "raspberries" in message.content or "raspberry" in message.content:
 			print("Raspberry Racers")  # Event log
-			await message.channel.send("The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019. ")
+			await message.channel.send("The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019.")
 
 		# Bot kill command
 		if message.content.startswith("!kill"):
