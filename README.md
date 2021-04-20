@@ -1,5 +1,5 @@
 # Project-Sirius
- 
+
 Sirius rises late in the dark, liquid sky
 On summer nights, star of stars,
 Orion's Dog they call it, brightest
@@ -13,3 +13,32 @@ If you're just touching up some of the main code, pull from and push to master b
 That is all.
 
 Thanks.
+
+# File structure
+
+## data.json
+
+```
+{
+    "servers": {
+        "SERVER_ID": {
+            "rules": [
+                "RULE_1",
+                ...
+                "RULE_N"
+            ]
+            "roles message id": ROLES_MESSAGE_ID
+            "roles": {
+                "ROLE_ID": {
+                    "name": "ROLE_NAME",
+                    "emoji": "ROLE_EMOJI"
+                }
+            }
+        }
+    }
+}
+```
+
+Add rules to code.
+
+Protocol for adding bot to new server needed...
