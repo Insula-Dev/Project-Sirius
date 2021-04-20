@@ -25,18 +25,32 @@ class MyClient(discord.Client):
 			print(self.user, "is connected to the following guild:")  # Event log
 			with open("data.json") as data_file:
 				for guild in self.guilds:
-					print(guild.name, "(id:", guild.id,")")  # Event log
-					guild_data = json.load(data_file)["servers"][str(guild.id)]
+					print("Loading data of " + guild.name, "(id:", guild.id,")")  # Event log
+					guild_data = json.load(data_file)["servers"][str(guild.id)] # Loads server's dictionary
 
+					# New fancy thing Arun made to make guild_data["roles"] correct for python
+					print("Guild data" + str(guild_data))
+					guild_data_roles = guild_data["roles"].copy()
+					for role in guild_data["roles"]:
+						guild_data_roles[int(role)] = guild_data_roles[role]
+						del guild_data_roles[role]
+					guild_data["roles"] = guild_data_roles
+					print("The new roles of guild data: "+str(guild_data["roles"]))
+
+					# Prepares roles dict to put in data dict, converting role IDs
 					roles = {}
 					for role in guild_data["roles"]:
 						roles[int(role)] = role
 
 						print(role)
 
+					# Adds python readable roles dict to data dict and converts server IDs
 					data[guild.id] = guild_data
+					print("Data: "+str(data[guild.id]))
 					for role in guild_data["roles"]:
-						data[guild.id]["roles"][int(role.keys())] = role
+						print("Role: "+role)
+						data[guild.id]["roles"][int(roles.keys())] = role
+
 		print(data)
 		print('------')
 
