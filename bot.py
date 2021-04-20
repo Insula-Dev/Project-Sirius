@@ -38,24 +38,9 @@ class MyClient(discord.Client):
 					print("The new roles of guild data: "+str(guild_data["roles"]))
 
 					data.update({int(guild.id):guild_data})
-					print("Data big: "+str(data))
 
-					"""
-					# Prepares roles dict to put in data dict, converting role IDs
-					roles = {}
-					for role in guild_data["roles"]:
-						roles[int(role)] = role
 
-						print(role)
-
-					# Adds python readable roles dict to data dict and converts server IDs
-					data[guild.id] = guild_data
-					print("Data: "+str(data[guild.id]))
-					for role in guild_data["roles"]:
-						print("Role: "+role)
-						data[guild.id]["roles"][int(roles.keys())] = role"""
-
-		print(data)
+		print("Data big: "+str(data))
 		print('------')
 
 	async def on_message(self, message):
