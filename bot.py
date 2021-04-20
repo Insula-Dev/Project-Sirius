@@ -81,11 +81,12 @@ class MyClient(discord.Client):
 
 		# Important saftey reminder
 		if "gameboy" in message.content.lower():
+			print("`gameboy` mentioned by", message.author)  # Event log
 			await message.channel.send("Gameboys are worthless (apart from micro. micro is cool)")
 
 		# Raspberry Racers functionality. Needs fixing
 		if "raspberries" in message.content or "raspberry" in message.content:
-			print("Raspberry Racers")  # Event log
+			print("`raspberry racers` mentioned by", message.author)  # Event log
 			await message.channel.send("The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019.")
 
 		if message.content == "!token":
@@ -94,7 +95,7 @@ class MyClient(discord.Client):
 
 		# Bot kill command
 		if message.content.startswith("!kill"):
-			print("You sick bastard.")  # Event log
+			print("`!kill` called by", message.author)  # Event log
 			await message.channel.send("https://cdn.discordapp.com/attachments/832293063803142235/832340900587110450/dogdeadinnit.mp3")
 
 			await client.close()
@@ -128,7 +129,7 @@ class MyClient(discord.Client):
 		# Finally, add the role.
 		try:
 			await payload.member.add_roles(role)
-			print("Role added to", payload.member.name)  # Event log
+			print("Role `" + role.name + "` added to", payload.member.name)  # Event log
 
 		# If we want to do something in case of errors we'd do it here.
 		except discord.HTTPException:
@@ -171,7 +172,7 @@ class MyClient(discord.Client):
 		# Finally, remove the role.
 		try:
 			await member.remove_roles(role)
-			print("Role removed from", member.name)  # Event log
+			print("Role `" + role.name + "` removed from", member.name)  # Event log
 
 		# If we want to do something in case of errors we'd do it here.
 		except discord.HTTPException:
