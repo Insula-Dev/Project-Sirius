@@ -1,10 +1,12 @@
 # Imports
 from random import randint
+import json
 import discord
 
 
 # Variables
-DISCORD_TOKEN = "ODMxOTQ0NTIyNzQ4NTI2Njg0.YHcmtw.f6d4WtNBu73btYi2Lx_LW0564WE"
+with open("token.txt") as token_file:
+	DISCORD_TOKEN = token_file.read()
 #GUILD_NAME = "The Hat Shop"
 
 data = {}
@@ -18,12 +20,24 @@ class MyClient(discord.Client):
 
 	async def on_ready(self):
 
+		# Maintenance problem with translation between JSON string-keys and Python int-keys below
 		if self.guilds != []:
 			print(self.user, "is connected to the following guild:")  # Event log
 			with open("data.json") as data_file:
 				for guild in self.guilds:
-					print(guild.name, "(id:", guild.id)  # Check how i did it earlier...
-					data[guild.id] = data_file.load()["servers"][guild.id]
+					print(guild.name, "(id:", guild.id)  # Event log
+					guild_data = json.load(data_file)["servers"][str(guild.id)]
+
+					roles = {}
+					for role in guild_data["roles"]:
+						roles[int(role)] = role
+
+						print(role)
+
+					data[guild.id] = guild_data
+					for role in guild_data["roles"]:
+						data[guild.id]["roles"][int(role.keys())] = role
+		print(data)
 		print('------')
 
 	async def on_message(self, message):
@@ -135,8 +149,8 @@ class MyClient(discord.Client):
 		try:
 			for role in data[payload.guild_id]["roles"]:
 				if role["emoji"] == payload.emoji:  # TYPE? AS ABOVE
-				role_id = role.key()
-				break
+					role_id = role.key()
+					break
 		except KeyError:
 			return
 

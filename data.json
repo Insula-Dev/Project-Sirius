@@ -1,10 +1,10 @@
 {
     "servers": {
-        489893521176920076: {
+        "489893521176920076": {
             "rules": {
                 "title": "TITLE",
                 "description": "DESCRIPTION",
-                "colour": 0xffffff,
+                "colour": "0xffffff",
                 "thumbnail link": "https://media.discordapp.net/attachments/504791913241772052/504817198028816395/RULES.jpg",
                 "list": [
                     "1. Keep spam to a minimum",
@@ -23,27 +23,27 @@
             },
             "roles message id": 832335885470662717,
             "roles": {
-                834023105718517781: {
+                "834023105718517781": {
                     "name": "Destiny 2",
                     "emoji": "<:destiny2:834024599410180160>"
                 },
-                832997725883596820: {
+                "832997725883596820": {
                     "name": "Stardew",
                     "emoji": "<:stardew:832999319665246308>"
                 },
-                832658067158073406: {
+                "832658067158073406": {
                     "name": "Risk of Rain",
                     "emoji": "<:ror:832655432127610880>"
                 },
-                832998331756183632: {
+                "832998331756183632": {
                     "name": "Minecraft",
                     "emoji": "<:minecraft:832659767951622185>"
                 },
-                832997546157932585: {
+                "832997546157932585": {
                     "name": "Party Games",
                     "emoji": "<:jackbox:832660115739770961>"
                 },
-                832997616245407815: {
+                "832997616245407815": {
                     "name": "Zombies",
                     "emoji": "<:zombies:833001048867864607>"
                 }
