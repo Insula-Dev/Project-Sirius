@@ -88,6 +88,10 @@ class MyClient(discord.Client):
 			print("Raspberry Racers")  # Event log
 			await message.channel.send("The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019.")
 
+		if message.content == "!token":
+			print("`!token` called by", message.author)  # Event log
+			await message.channel.send("IdrOppED ThE TokEN gUYS!!!!")
+
 		# Bot kill command
 		if message.content.startswith("!kill"):
 			print("You sick bastard.")  # Event log
@@ -111,7 +115,7 @@ class MyClient(discord.Client):
 		# If the emoji isn't the one we care about then exit as well.
 		try:
 			for role in data[payload.guild_id]["roles"]:
-				if role["emoji"] == payload.emoji:  # TYPE? AS BELOW
+				if data[payload.guild_id]["roles"][role]["emoji"] == payload.emoji:  # TYPE? AS BELOW
 					role_id = role.key()
 					break
 		except KeyError:
@@ -146,7 +150,7 @@ class MyClient(discord.Client):
 		# If the emoji isn't the one we care about then exit as well.
 		try:
 			for role in data[payload.guild_id]["roles"]:
-				if role["emoji"] == payload.emoji:  # TYPE? AS ABOVE
+				if data[payload.guild_id]["roles"][role]["emoji"] == payload.emoji:  # TYPE? AS ABOVE
 					role_id = role.key()
 					break
 		except KeyError:
