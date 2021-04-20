@@ -37,6 +37,10 @@ class MyClient(discord.Client):
 					guild_data["roles"] = guild_data_roles
 					print("The new roles of guild data: "+str(guild_data["roles"]))
 
+					data.update({int(guild.id):guild_data})
+					print("Data big: "+str(data))
+
+					"""
 					# Prepares roles dict to put in data dict, converting role IDs
 					roles = {}
 					for role in guild_data["roles"]:
@@ -49,7 +53,7 @@ class MyClient(discord.Client):
 					print("Data: "+str(data[guild.id]))
 					for role in guild_data["roles"]:
 						print("Role: "+role)
-						data[guild.id]["roles"][int(roles.keys())] = role
+						data[guild.id]["roles"][int(roles.keys())] = role"""
 
 		print(data)
 		print('------')
