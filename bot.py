@@ -8,7 +8,7 @@ from Roles import Role
 DISCORD_TOKEN = "ODMxOTQ0NTIyNzQ4NTI2Njg0.YHcmtw.f6d4WtNBu73btYi2Lx_LW0564WE"
 GUILD_NAME = "The Hat Shop"  # The Hat Shop (id: {489893521176920076}
 
-# Easy to reference roles and emojis (name, role id, emoji id)
+# Instantiates Role objects. Easy to reference roles and emojis (name, role id, emoji id)
 ping = Role("Ping", 831945402265239562, "🔔")
 test = Role("Test role", 832309999908421702, "🦴")
 stardew = Role("Stardew", 832997725883596820, "<:stardew:832999319665246308>")
@@ -16,19 +16,9 @@ ror = Role("Risk Of Rain", 832658067158073406, "<:ror:832655432127610880>")
 minecraft = Role("Minecraft", 832998331756183632, "<:minecraft:832659767951622185>")
 party = Role("Party Games", 832997546157932585, "<:jackbox:832660115739770961>")
 zombies = Role("Zombies", 832997616245407815, "<:zombies:833001048867864607>")
-
 roles = [ping, test, stardew, ror, minecraft, party, zombies]
 
-role_emojis = []  # List of emojis
-for x in range(len(roles)):
-	role_emojis.append(roles[x].getEmoji())
 prefix = "!"  # The thing before the command
-
-client = discord.ext.commands.Bot(command_prefix=prefix)
-
-
-def getUsername(author):
-	return str(author)[:-5]
 
 
 # Rules Response
@@ -211,10 +201,10 @@ class MyClient(discord.Client):
 		# Roles
 		if message.content.startswith(prefix + "roles"):
 			print("`!roles` called by", message.author)  # Event log
-			rolesMessage = await message.channel.send(embed=embedRoles)
-			self.role_message_id = rolesMessage.id
-			for emoji in role_emojis:
-				await rolesMessage.add_reaction(emoji)
+			roles_message = await message.channel.send(embed=embedRoles)
+			self.role_message_id = roles_message.id
+			for x in range(len(roles)):
+				await roles_message.add_reaction(roles[x].getEmoji())
 
 		# Important saftey reminder
 		if message.content.lower().find("gameboy") != -1:
