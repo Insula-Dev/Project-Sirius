@@ -2,7 +2,7 @@
     "servers": {
         "489893521176920076": {
             "rules": {
-                "title": "TITLE",
+                "title": "Rules",
                 "description": "DESCRIPTION",
                 "thumbnail link": "https://media.discordapp.net/attachments/504791913241772052/504817198028816395/RULES.jpg",
                 "list": [
@@ -17,10 +17,14 @@
                     "9. Do not ask for Staff",
                     "10. No unnecessary pings",
                     "11. Do not bot abuse",
-                    "12. Do not music bot abuse (E . G Earrape, Repeating songs, Ultra Long 'songs')"
+                    "12. Do not music bot abuse (E . G Earrape, Repeating songs, Ultra Long 'songs')",
+                    "",
+                    "STAFF WILL PUNISH AT THEIR OWN DISCRETION, STAFF SAY IS FINAL.",
+                    "JUST BECAUSE A RULE IS NOT STATED HERE DOES NOT GIVE YOU THE RIGHT TO CAUSE OTHER TYPES OF HAVOC,",
+                    "STAFF MEMBERS CAN AND WILL PUNISH UNDER THEIR OWN JURISDICTION."
                 ]
             },
-            "roles message id": 834179382816800798,
+            "roles message id": 834205426999492658,
             "roles": {
                 "834023105718517781": {
                     "name": "Destiny 2",

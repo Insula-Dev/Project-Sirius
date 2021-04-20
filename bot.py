@@ -113,15 +113,15 @@ class MyClient(discord.Client):
 			return
 
 		# If the emoji isn't the one we care about then exit as well.
-		try:
-			for role in data[payload.guild_id]["roles"]:
-				if data[payload.guild_id]["roles"][role]["emoji"] == payload.emoji:  # TYPE? AS BELOW
-					role = guild.get_role(role.key())
-					break
-		except KeyError:
+		role_id = -1
+		for id_counter in data[guild.id]["roles"]:
+			if data[guild.id]["roles"][id_counter]["emoji"] == str(payload.emoji):
+				role_id = id_counter
+		if role_id == -1:
 			return
 
 		# Make sure the role still exists and is valid.
+		role = guild.get_role(role_id)
 		if role is None:
 			return
 
@@ -147,15 +147,16 @@ class MyClient(discord.Client):
 			return
 
 		# If the emoji isn't the one we care about then exit as well.
-		try:
-			for role in data[payload.guild_id]["roles"]:
-				if data[payload.guild_id]["roles"][role]["emoji"] == payload.emoji:  # TYPE? AS ABOVE
-					role = guild.get_role(role.key())
-					break
-		except KeyError:
+		role_id = -1
+		for id_counter in data[guild.id]["roles"]:
+			if data[guild.id]["roles"][id_counter]["emoji"] == str(payload.emoji):  # TYPE? AS ABOVE
+				role_id = id_counter
+				break
+		if role_id == -1:
 			return
 
 		# Make sure the role still exists and is valid.
+		role = guild.get_role(role_id)
 		if role is None:
 			return
 
