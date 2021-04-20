@@ -1,119 +1,108 @@
 # Imports
 from random import randint
 import discord
-from Roles import Role
 
 
 # Variables
 DISCORD_TOKEN = "ODMxOTQ0NTIyNzQ4NTI2Njg0.YHcmtw.f6d4WtNBu73btYi2Lx_LW0564WE"
-GUILD_NAME = "The Hat Shop"  # The Hat Shop (id: {489893521176920076}
+#GUILD_NAME = "The Hat Shop"
 
-# Instantiates Role objects. Easy to reference roles and emojis (name, role id, emoji id)
-ping = Role("Ping", 831945402265239562, "🔔")
-test = Role("Test role", 832309999908421702, "🦴")
-stardew = Role("Stardew", 832997725883596820, "<:stardew:832999319665246308>")
-ror = Role("Risk Of Rain", 832658067158073406, "<:ror:832655432127610880>")
-minecraft = Role("Minecraft", 832998331756183632, "<:minecraft:832659767951622185>")
-party = Role("Party Games", 832997546157932585, "<:jackbox:832660115739770961>")
-zombies = Role("Zombies", 832997616245407815, "<:zombies:833001048867864607>")
-roles = [ping, test, stardew, ror, minecraft, party, zombies]
+data = {}
 
-prefix = "!"  # The thing before the command
-
-
-# Rules Response
-embedRules = discord.Embed(title="Rules", description="The rules innit", color=0xCE6A76)
-embedRules.set_image(url="https://media.discordapp.net/attachments/504791913241772052/504817198028816395/RULES.jpg")
-embedRules.add_field(name="Server-wide rules", value="1. Keep spam to a minimum\n\n"
-													 "2. NSFW in appropriate channels\n\n"
-													 "3. Use appropriate text / voice channels depending on your activity\n\n"
-													 "4. Keep fighting and arguing to a minimum, keep it to a DM or another server\n\n"
-													 "5. No pictures of other people even with said persons permission\n\n"
-													 "6. No posting other peoples or your personal details\n\n"
-													 "7. No advertising of any kind including other discord servers\n\n"
-													 "8. No impersonating other people\n\n"
-													 "9. Do not ask for Staff\n\n"
-													 "10. No unnecessary pings\n\n"
-													 "11. Do not bot abuse\n\n"
-													 "12. Do not music bot abuse (E . G Earrape, Repeating songs, Ultra Long 'songs')",
-					 inline=False)
-embedRules.add_field(name="Banned list", value="1. Lindsey#2249", inline=False)
-
-
-# Roles Response
-embedRoles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.",
-						   color=0x4f7bc5)
-embedRoles.add_field(name="Server", value="🔔 Ping", inline=False)
-
-gamesList = ""
-for i in range(2, len(roles)):
-	gamesList += roles[i].getName() + roles[i].getEmoji() + "\n"
-
-embedRoles.add_field(name="Games", value=gamesList, inline=False)
-
-
-""" # This code can be used to quickly do ... other things instead without using Pablo's convoluted class
-@client.command()
-async def hello(ctx):
-	print("Hello activated")
-	await ctx.send("Hi")
-client.run(DISCORD_TOKEN)
-"""
 
 # Definitions
 class MyClient(discord.Client):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.role_message_id = 833006606609678376
-		#self.role_message_id = 832335885470662717  # ID of the message that can be reacted to to add/remove a role.
-		# Dictoinary of emojis reffering to roles
-		self.emoji_to_role = \
-			{
-				discord.PartialEmoji(name='🔔'): ping.roleID,  # Number is the role id
-				# ID of the role associated with unicode emoji '🔔'
-				discord.PartialEmoji(name='🦴'): test.roleID,
-				# ID of the role associated with unicode emoji '🦴'
-				discord.PartialEmoji(name=stardew.emoji): stardew.roleID,  # Change to stardew
-				# ID of the role associated with a partial emoji's ID
-				discord.PartialEmoji(name=ror.emoji): ror.roleID,
-				# ID of the role associated with a partial emoji's ID
-				discord.PartialEmoji(name=minecraft.emoji): minecraft.roleID,
-				# ID of the role associated with a partial emoji's ID
-				discord.PartialEmoji(name=party.emoji): party.roleID,  # Change to party games
-				# ID of the role associated with a partial emoji's ID
-				discord.PartialEmoji(name=zombies.emoji): zombies.roleID,  # Change to COD "Zombies"
-				# ID of the role associated with a partial emoji's ID
-			}
+
+	async def on_ready(self):
+
+		if self.guilds != []:
+			print(self.user, "is connected to the following guild:")  # Event log
+			with open("data.json") as data_file:
+				for guild in self.guilds:
+					print(guild.name, "(id:", guild.id)  # Check how i did it earlier...
+					data[guild.id] = data_file.load()["servers"][guild.id]
+		print('------')
+
+	async def on_message(self, message):
+
+		# Don't respond to yourself
+		if message.author.id == self.user.id:
+			return
+
+		# Set message origin's guild
+		guild = self.get_guild(message.guild.id)
+
+		# Rules
+		if message.content == "!rules":
+			print("`!rules` called by", message.author)  # Event log
+			embed_rules = discord.Embed(title=data[guild.id]["rules"]["title"], description=data[guild.id]["rules"]["description"], color=data[guild.id]["rules"]["color"])
+			embed_rules.set_author(name=guild.name, icon_url=guild.icon_url)
+			embed_rules.set_thumbnail(url=data[guild.id]["rules"]["thumbnail link"])
+			embed_rules.add_field(name="Server rules", value="\n".join(data[guild.id]["rules"]["list"]), inline=False)
+			await message.channel.send(embed=embed_rules)
+
+		# Roles
+		if message.content == "!roles":
+			print("`!roles` called by", message.author)  # Event log
+			embed_roles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
+			value = ""
+			for role in data[message.guild.id]["roles"]:
+				value += role["emoji"], role["name"] + "\n"
+			embed_roles.add_field(name="[Games]", value=value[:-2], inline=False)
+			roles_message = await message.channel.send(embed=embed_roles)
+
+			# Add emojis to roles message
+			for role in data[message.guild.id]["roles"]:
+				await roles_message.add_reaction(role["emoji"])
+
+		# Core functionality (do not alter)
+		if message.author.id == 258284765776576512:
+			print("Arun sighted. Locking on.")  # Event log
+			if randint(1, 10) == 1:
+				await message.channel.send("shut up arun")
+				print("Doggie down.")  # Event log
+			else:
+				print("Mission failed, RTB.")  # Event log
+
+		# Important saftey reminder
+		if "gameboy" in message.content.lower():
+			await message.channel.send("Gameboys are worthless (apart from micro. micro is cool)")
+
+		# Raspberry Racers functionality. Needs fixing
+		if "raspberries" in message.content or "raspberry" in message.content:
+			print("Raspberry Racers")  # Event log
+			await message.channel.send("The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019. ")
+
+		# Bot kill command
+		if message.content.startswith("!kill"):
+			print("You sick bastard.")  # Event log
+			await message.channel.send("https://cdn.discordapp.com/attachments/832293063803142235/832340900587110450/dogdeadinnit.mp3")
+
+			await client.close()
+			exit()  # This isn't a good heuristic. Find discord.py way of getting this done.
 
 	async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
 		"""Gives a role based on a reaction emoji."""
 
 		# Make sure that the message the user is reacting to is the one we care about.
-		if payload.message_id != self.role_message_id:
+		if payload.message_id != data[payload.guild_id]["roles message id"]:
 			return
 
 		# Check if we're still in the guild and it's cached.
-		guild = self.get_guild(payload.guild_id)
+		guild = self.get_guild(payload.guild_id)  # DISTINCTION BEWEEN THIS AND payload.guild_id ABOVE? AS BELOW
 		if guild is None:
 			return
 
-		print(payload.emoji)
 		# If the emoji isn't the one we care about then exit as well.
 		try:
-			emojiFound = False
-			for x in range(len(roles)):
-				if roles[x].getEmoji() == str(payload.emoji):
-					emojiFound = True
-					print("Emoji identified with loop")
-					role_id = roles[x].roleID
-			if emojiFound == False:
-				print("Emoji failed to be identified with loop")
-				return
-			#role_id = self.emoji_to_role[str(payload.emoji)]
-			#print("Emoji identified")
+			for role in data[payload.guild_id]["roles"]:
+				if role["emoji"] == payload.emoji:  # TYPE? AS BELOW
+					role_id = role.key()
+					break
 		except KeyError:
-			print("Emoji failed to be identified")
 			return
 
 		# Make sure the role still exists and is valid.
@@ -124,7 +113,7 @@ class MyClient(discord.Client):
 		# Finally, add the role.
 		try:
 			await payload.member.add_roles(role)
-			print("Role \"" + str(role) + "\" added to", payload.member.name)  # Event log
+			print("Role added to", payload.member.name)  # Event log
 
 		# If we want to do something in case of errors we'd do it here.
 		except discord.HTTPException:
@@ -134,17 +123,20 @@ class MyClient(discord.Client):
 		"""Removes a role based on a reaction emoji."""
 
 		# Make sure that the message the user is reacting to is the one we care about.
-		if payload.message_id != self.role_message_id:
+		if payload.message_id != data[payload.guild_id]["roles message id"]:
 			return
 
 		# Check if we're still in the guild and it's cached.
-		guild = self.get_guild(payload.guild_id)
+		guild = self.get_guild(payload.guild_id)  # DISTINCTION BEWEEN THIS AND payload.guild_id ABOVE? AS ABOVE
 		if guild is None:
 			return
 
 		# If the emoji isn't the one we care about then exit as well.
 		try:
-			role_id = self.emoji_to_role[payload.emoji]
+			for role in data[payload.guild_id]["roles"]:
+				if role["emoji"] == payload.emoji:  # TYPE? AS ABOVE
+				role_id = role.key()
+				break
 		except KeyError:
 			return
 
@@ -169,61 +161,6 @@ class MyClient(discord.Client):
 		# If we want to do something in case of errors we'd do it here.
 		except discord.HTTPException:
 			pass
-
-	async def on_ready(self):
-
-		for guild in self.guilds:
-			if guild.name == GUILD_NAME:
-				break
-
-		# Event log
-		print(self.user, "is connected to the following guild:")
-		print(guild.name, "(id:", {guild.id})
-		print()
-		print(self.user.name)
-		print(self.user.id)
-		print('------')
-
-	# Runs when any message is received
-	async def on_message(self, message):
-
-		# Don't respond to yourself
-		if message.author.id == self.user.id:
-			return
-
-		# Rules
-		if message.content.startswith(prefix + "rules"):
-			embedRules.set_author(name=self.get_guild(message.guild.id).name, icon_url=self.get_guild(message.guild.id).icon_url)
-			embedRules.set_thumbnail(url="https://media.discordapp.net/attachments/504791913241772052/504817198028816395/RULES.jpg")
-			print("`!rules` called by", message.author)  # Event log
-			await message.channel.send(embed=embedRules)
-
-		# Roles
-		if message.content.startswith(prefix + "roles"):
-			print("`!roles` called by", message.author)  # Event log
-			roles_message = await message.channel.send(embed=embedRoles)
-			self.role_message_id = roles_message.id
-			for x in range(len(roles)):
-				await roles_message.add_reaction(roles[x].getEmoji())
-
-		# Important saftey reminder
-		if message.content.lower().find("gameboy") != -1:
-			await message.channel.send("Gameboys are worthless (apart from micro. micro is cool)")
-
-		# Core functionality (do not alter)
-		if getUsername(message.author) == "MUIArun":
-			print("Arun sighted. Locking on.")  # Event log
-			if randint(1, 10) == 1:
-				await message.channel.send("shut up arun")
-				print("Doggie down.")  # Event log
-			else:
-				print("Mission failed, RTB.")  # Event log
-
-		if message.content.startswith("!kill"):
-			print("You sick bastard.")
-			await message.channel.send(file=discord.File("dogdeadinnit.mp3"))
-
-			exit()  # THIS IS A HORRIBLE HEURISTIC
 
 
 # Main body
