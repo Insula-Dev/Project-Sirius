@@ -18,25 +18,45 @@ class MyClient(discord.Client):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
+	async def on_guild_join(self,guild):
+		pass
+		print(self.user, "is connected to the following guild:")  # Event log
+		with open("data.json") as data_file:
+			for guild in self.guilds:
+				print(guild.name, "(id: " + str(guild.id) + ")")  # Event log
+				guild_data = json.load(data_file)["servers"][str(guild.id)]
+
+				# Make the roles integer-indexed
+				roles = {}
+				for role in guild_data["roles"]:
+					roles[int(role)] = guild_data["roles"][role]
+
+				data[guild.id] = guild_data
+				# Replace string-indexed roles with integer-indexed roles
+				data[guild.id]["roles"] = roles
+
 	async def on_ready(self):
 
 		# Maintenance problem with translation between JSON string-keys and Python int-keys below
-		if self.guilds != []:
-			print(self.user, "is connected to the following guild:")  # Event log
-			with open("data.json") as data_file:
-				for guild in self.guilds:
-					print(guild.name, "(id: " + str(guild.id) + ")")  # Event log
-					guild_data = json.load(data_file)["servers"][str(guild.id)]
+		try:
+			if self.guilds != []:
+				print(self.user, "is connected to the following guild:")  # Event log
+				with open("data.json") as data_file:
+					for guild in self.guilds:
+						print(guild.name, "(id: " + str(guild.id) + ")")  # Event log
+						guild_data = json.load(data_file)["servers"][str(guild.id)]
 
-					# Make the roles integer-indexed
-					roles = {}
-					for role in guild_data["roles"]:
-						roles[int(role)] = guild_data["roles"][role]
+						# Make the roles integer-indexed
+						roles = {}
+						for role in guild_data["roles"]:
+							roles[int(role)] = guild_data["roles"][role]
 
-					data[guild.id] = guild_data
-					# Replace string-indexed roles with integer-indexed roles
-					data[guild.id]["roles"] = roles
-		print('------')
+						data[guild.id] = guild_data
+						# Replace string-indexed roles with integer-indexed roles
+						data[guild.id]["roles"] = roles
+			print('------')
+		except json.decoder.JSONDecodeError:
+			pass
 
 	async def on_message(self, message):
 
@@ -77,6 +97,7 @@ class MyClient(discord.Client):
 				await message.channel.send("shut up arun")
 				print("Doggie down.")  # Event log
 			else:
+				await guild.get_member(message.author.id).add_roles(guild.get_role(831928625082794066))
 				print("Mission failed, RTB.")  # Event log
 
 		# Important saftey reminder
