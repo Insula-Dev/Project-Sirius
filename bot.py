@@ -3,11 +3,10 @@ from random import randint
 import json
 import discord
 
-
 # Variables
 with open("token.txt") as token_file:
 	DISCORD_TOKEN = token_file.read()
-#GUILD_NAME = "The Hat Shop"
+# GUILD_NAME = "The Hat Shop"
 
 data = {}
 
@@ -17,23 +16,6 @@ class MyClient(discord.Client):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-
-	async def on_guild_join(self,guild):
-		pass
-		print(self.user, "is connected to the following guild:")  # Event log
-		with open("data.json") as data_file:
-			for guild in self.guilds:
-				print(guild.name, "(id: " + str(guild.id) + ")")  # Event log
-				guild_data = json.load(data_file)["servers"][str(guild.id)]
-
-				# Make the roles integer-indexed
-				roles = {}
-				for role in guild_data["roles"]:
-					roles[int(role)] = guild_data["roles"][role]
-
-				data[guild.id] = guild_data
-				# Replace string-indexed roles with integer-indexed roles
-				data[guild.id]["roles"] = roles
 
 	async def on_ready(self):
 
@@ -45,6 +27,7 @@ class MyClient(discord.Client):
 					for guild in self.guilds:
 						print(guild.name, "(id: " + str(guild.id) + ")")  # Event log
 						guild_data = json.load(data_file)["servers"][str(guild.id)]
+						print(guild_data)
 
 						# Make the roles integer-indexed
 						roles = {}
@@ -58,6 +41,32 @@ class MyClient(discord.Client):
 		except json.decoder.JSONDecodeError:
 			pass
 
+	async def on_guild_join(self, guild):
+		print(self.user, "has joined the guild: " + guild.name + " with id:", guild.id)  # Event log
+		# Read the data from the file
+		with open("data.json") as data_file:
+			data = json.load(data_file)["servers"]
+			print(data)
+
+		# Create the data for the new server
+
+		new_guild = {"rules":
+					{
+					"title": "[Rules]",
+					"description": "[Description]",
+					"thumbnail link": "none",
+					"list": ["No porn"]
+			 		},
+					"roles message id":"none",
+					"roles":{}
+		}
+		data.update({str(guild.id):new_guild})
+		#data["servers"][str(guild.id)].update(new_guild)
+
+		# Write the updated data to the file
+		with open("data.json", "w") as data_file:
+			json.dump(data, data_file, indent=4)
+
 	async def on_message(self, message):
 
 		# Don't respond to yourself
@@ -70,7 +79,8 @@ class MyClient(discord.Client):
 		# Rules
 		if message.content == "!rules":
 			print("`!rules` called by", message.author)  # Event log
-			embed_rules = discord.Embed(title=data[guild.id]["rules"]["title"], description=data[guild.id]["rules"]["description"], color=0x4f7bc5)
+			embed_rules = discord.Embed(title=data[guild.id]["rules"]["title"],
+										description=data[guild.id]["rules"]["description"], color=0x4f7bc5)
 			embed_rules.set_author(name=guild.name, icon_url=guild.icon_url)
 			embed_rules.set_thumbnail(url=data[guild.id]["rules"]["thumbnail link"])
 			embed_rules.add_field(name="Server rules", value="\n".join(data[guild.id]["rules"]["list"]), inline=False)
@@ -79,10 +89,12 @@ class MyClient(discord.Client):
 		# Roles
 		if message.content == "!roles":
 			print("`!roles` called by", message.author)  # Event log
-			embed_roles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
+			embed_roles = discord.Embed(title="Role selection",
+										description="React to get a role, unreact to remove it.", color=0x4f7bc5)
 			value = ""
 			for role in data[message.guild.id]["roles"]:
-				value += data[message.guild.id]["roles"][role]["emoji"] + " " + data[message.guild.id]["roles"][role]["name"] + "\n"
+				value += data[message.guild.id]["roles"][role]["emoji"] + " " + data[message.guild.id]["roles"][role][
+					"name"] + "\n"
 			embed_roles.add_field(name="[Games]", value=value[:-2], inline=False)
 			roles_message = await message.channel.send(embed=embed_roles)
 
@@ -108,7 +120,8 @@ class MyClient(discord.Client):
 		# Raspberry Racers functionality. Needs fixing
 		if "raspberries" in message.content or "raspberry" in message.content:
 			print("`raspberry racers` mentioned by", message.author)  # Event log
-			await message.channel.send("The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019.")
+			await message.channel.send(
+				"The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019.")
 
 		if message.content == "!token":
 			print("`!token` called by", message.author)  # Event log
@@ -117,7 +130,8 @@ class MyClient(discord.Client):
 		# Bot kill command
 		if message.content.startswith("!kill"):
 			print("`!kill` called by", message.author)  # Event log
-			await message.channel.send("https://cdn.discordapp.com/attachments/832293063803142235/832340900587110450/dogdeadinnit.mp3")
+			await message.channel.send(
+				"https://cdn.discordapp.com/attachments/832293063803142235/832340900587110450/dogdeadinnit.mp3")
 
 			await client.close()
 			exit()  # This isn't a good heuristic. Find discord.py way of getting this done.
