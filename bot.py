@@ -5,11 +5,9 @@ import discord
 
 
 # Variables
+data = {}
 with open("token.txt") as token_file:
 	DISCORD_TOKEN = token_file.read()
-#GUILD_NAME = "The Hat Shop"
-
-data = {}
 
 
 # Definitions
@@ -18,7 +16,7 @@ class MyClient(discord.Client):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-	async def on_guild_join(self,guild):
+	async def on_guild_join(self, guild):
 		pass
 		print(self.user, "is connected to the following guild:")  # Event log
 		with open("data.json") as data_file:
@@ -55,6 +53,7 @@ class MyClient(discord.Client):
 						# Replace string-indexed roles with integer-indexed roles
 						data[guild.id]["roles"] = roles
 			print('------')
+			print(data)
 		except json.decoder.JSONDecodeError:
 			pass
 
@@ -97,7 +96,6 @@ class MyClient(discord.Client):
 				await message.channel.send("shut up arun")
 				print("Doggie down.")  # Event log
 			else:
-				await guild.get_member(message.author.id).add_roles(guild.get_role(831928625082794066))
 				print("Mission failed, RTB.")  # Event log
 
 		# Important saftey reminder
