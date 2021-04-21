@@ -2,8 +2,8 @@
     "servers": {
         "489893521176920076": {
             "rules": {
-                "title": "Rules",
-                "description": "DESCRIPTION",
+                "title": "[Rules]",
+                "description": "[Description]",
                 "thumbnail link": "https://media.discordapp.net/attachments/504791913241772052/504817198028816395/RULES.jpg",
                 "list": [
                     "1. Keep spam to a minimum",
