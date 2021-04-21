@@ -52,20 +52,21 @@ class MyClient(discord.Client):
 
 		new_guild = {"rules":
 					{
-					"title": "[Rules]",
+					"title": "Rules for "+guild.name,
 					"description": "[Description]",
 					"thumbnail link": "none",
-					"list": ["No porn"]
+					"list": ["No low quality porn"]
 			 		},
 					"roles message id":"none",
 					"roles":{}
 		}
 		data.update({str(guild.id):new_guild})
-		#data["servers"][str(guild.id)].update(new_guild)
 
 		# Write the updated data to the file
 		with open("data.json", "w") as data_file:
 			json.dump(data, data_file, indent=4)
+
+		await guild.channels.me.send("Please setup the rules and roles for this bot")
 
 	async def on_message(self, message):
 
