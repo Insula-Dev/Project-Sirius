@@ -2,6 +2,7 @@
 from random import randint
 import json
 import discord
+import re # Needed for propper regex
 
 # Variables
 with open("token.txt") as token_file:
@@ -112,7 +113,23 @@ class MyClient(discord.Client):
 				await roles_message.add_reaction(data[message.guild.id]["roles"][role]["emoji"])
 
 		# Set Rules
-		if message.content == "!set rules":
+		if message.content.startswith("!set rules"):
+			parameter = message.content[len("!set rules "):] # Sets parameter to everything after the command
+			parameters = parameter.split(",") # Splits parameter string into a list
+			title = "Rules for " + guild.name
+			description = "[Description]"
+			thumbnail = "none"
+			rules = ["No low quality porn"]
+			for param in parameters:
+				if param.startswith("title="):
+					title = param[len("title="):]
+				elif param.startswith("description="):
+					description = param[len("description="):]
+				elif param.startswith("thumbnail="):
+					thumbnail = param[len("thumbnail="):]
+				elif param.startswith("rules="):
+					rules = re.split("\.\s|\.",param[len("rules="):]) # Splits the rules after every full stop or, preferably, a full stop followed by a space
+
 			# Read the data from the file
 			with open("data.json") as data_file:
 				data = json.load(data_file)
@@ -121,10 +138,10 @@ class MyClient(discord.Client):
 
 			# Creates new data for server
 			new_rules = {
-					"title": "Rules for " + guild.name,
-					"description": "[Description]",
-					"thumbnail link": "none",
-					"list": ["No low quality porn"]
+					"title": title,
+					"description": description,
+					"thumbnail link": thumbnail,
+					"list": rules
 					}
 			print("Old rules: "+str(rules_data))
 			print("New rules: "+str(new_rules))

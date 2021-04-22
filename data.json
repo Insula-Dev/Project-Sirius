@@ -54,11 +54,15 @@
         },
         "834213187468394517": {
             "rules": {
-                "title": "Rules for Arun Testing Co.",
-                "description": "[Description]",
+                "title": "My Rules",
+                "description": "This is a description",
                 "thumbnail link": "none",
                 "list": [
-                    "No low quality porn"
+                    "Don't blink",
+                    "Don't even blink",
+                    "Blink and you're dead",
+                    "Don't turn your back and don't turn away",
+                    "And don't blink"
                 ]
             },
             "roles message id": "none",
