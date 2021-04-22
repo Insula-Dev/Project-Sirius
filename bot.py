@@ -165,7 +165,6 @@ class MyClient(discord.Client):
 
 		# Make sure the member still exists and is valid.
 		member = guild.get_member(payload.user_id)
-		print(payload.user_id, member)
 		if member is None:
 			return
 
