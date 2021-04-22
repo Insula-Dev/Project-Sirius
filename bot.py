@@ -111,6 +111,30 @@ class MyClient(discord.Client):
 			for role in data[message.guild.id]["roles"]:
 				await roles_message.add_reaction(data[message.guild.id]["roles"][role]["emoji"])
 
+		# Set Rules
+		if message.content == "!set rules":
+			# Read the data from the file
+			with open("data.json") as data_file:
+				data = json.load(data_file)
+			rules_data = data["servers"][str(message.guild.id)]["rules"]
+			print(rules_data)
+
+			# Creates new data for server
+			new_rules = {
+					"title": "Rules for " + guild.name,
+					"description": "[Description]",
+					"thumbnail link": "none",
+					"list": ["No low quality porn"]
+					}
+			print("Old rules: "+str(rules_data))
+			print("New rules: "+str(new_rules))
+			rules_data=new_rules
+
+			data["servers"][str(message.guild.id)]["rules"] = rules_data
+			# Write the updated data to the file
+			with open("data.json", "w") as data_file:
+				json.dump(data, data_file, indent=4)
+
 		# Core functionality (do not alter)
 		if message.author.id == 258284765776576512:
 			print("Arun sighted. Locking on.")  # Event log
@@ -118,7 +142,6 @@ class MyClient(discord.Client):
 				await message.channel.send("shut up arun")
 				print("Doggie down.")  # Event log
 			else:
-				await guild.get_member(message.author.id).add_roles(guild.get_role(831928625082794066))
 				print("Mission failed, RTB.")  # Event log
 
 		# Important saftey reminder
