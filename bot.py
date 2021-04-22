@@ -5,11 +5,9 @@ import discord
 import re # Needed for propper regex
 
 # Variables
+data = {}
 with open("token.txt") as token_file:
 	DISCORD_TOKEN = token_file.read()
-# GUILD_NAME = "The Hat Shop"
-
-data = {}
 
 
 # Definitions
@@ -39,6 +37,7 @@ class MyClient(discord.Client):
 						# Replace string-indexed roles with integer-indexed roles
 						data[guild.id]["roles"] = roles
 			print('------')
+			print(data)
 		except json.decoder.JSONDecodeError:
 			pass
 
