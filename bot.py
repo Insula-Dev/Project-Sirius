@@ -21,7 +21,7 @@ class MyClient(discord.Client):
 		# Event log
 		print(self.user, "is ready.")
 		if self.guilds != []:
-			print(self.user, "is connected to the following guilds:")
+			print("Connected to the following guilds:")
 			for guild in self.guilds:
 				print(guild.name + " (ID: " + str(guild.id) + ")")
 
@@ -82,9 +82,12 @@ class MyClient(discord.Client):
 			print("`!rules` called by", message.author)  # Event log
 
 			# Create and send rules embed
-			embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description="\n".join(self.data["servers"][str(guild.id)]["rules"]["rules list"]), color=0x4f7bc5)
+			embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), color=0x4f7bc5)
 			embed_rules.set_author(name=guild.name, icon_url=guild.icon_url)
-			embed_rules.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
+			if self.data["servers"][str(guild.id)]["rules"]["thumbnail link"] != "none":
+				embed_rules.set_image(url=self.data["servers"][str(guild.id)]["rules"]["thumbnail link"])
+			else:
+				print("No thumbnail set")
 			await message.channel.send(embed=embed_rules)
 
 		# Roles command
@@ -108,10 +111,10 @@ class MyClient(discord.Client):
 		if message.content.startswith("!set rules"):
 			parameter = message.content[len("!set rules "):] # Sets parameter to everything after the command
 			parameters = parameter.split(",") # Splits parameter string into a list
-			title = "Rules for " + guild.name
-			description = "[Description]"
-			thumbnail = "none"
-			rules = ["No low quality porn"]
+			title = self.data["servers"][str(guild.id)]["rules"]["title"]
+			description = self.data["servers"][str(guild.id)]["rules"]["description"]
+			thumbnail = self.data["servers"][str(guild.id)]["rules"]["thumbnail link"]
+			rules = self.data["servers"][str(guild.id)]["rules"]["list"]
 			for param in parameters:
 				if param.startswith("title="):
 					title = param[len("title="):]
