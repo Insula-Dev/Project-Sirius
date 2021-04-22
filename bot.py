@@ -45,28 +45,36 @@ class MyClient(discord.Client):
 		print(self.user, "has joined the guild: " + guild.name + " with id:", guild.id)  # Event log
 		# Read the data from the file
 		with open("data.json") as data_file:
-			data = json.load(data_file)["servers"]
-			print(data)
+			data = json.load(data_file)
+		servers_data = data["servers"]
+		print(servers_data)
 
-		# Create the data for the new server
+		# Checks if the server has already been joined in the past
+		try:
+			if servers_data[str(guild.id)] != None:
+				print("Data for " + guild.name + " already stored.")
+		except KeyError:
+			print(guild.name + " identified as a new server. First time setup starting.")
 
-		new_guild = {"rules":
-					{
-					"title": "Rules for "+guild.name,
-					"description": "[Description]",
-					"thumbnail link": "none",
-					"list": ["No low quality porn"]
-			 		},
-					"roles message id":"none",
-					"roles":{}
-		}
-		data.update({str(guild.id):new_guild})
+			# Create the data for the new server
+			new_guild = {"rules":
+						{
+						"title": "Rules for "+guild.name,
+						"description": "[Description]",
+						"thumbnail link": "none",
+						"list": ["No low quality porn"]
+						},
+						"roles message id":"none",
+						"roles":{}
+			}
+			servers_data.update({str(guild.id):new_guild})
 
-		# Write the updated data to the file
-		with open("data.json", "w") as data_file:
-			json.dump(data, data_file, indent=4)
+			data["servers"] = servers_data
+			# Write the updated data to the file
+			with open("data.json", "w") as data_file:
+				json.dump(data, data_file, indent=4)
 
-		await guild.channels.me.send("Please setup the rules and roles for this bot")
+		#await guild.channels[0].send("Please setup the rules and roles for this bot")
 
 	async def on_message(self, message):
 
