@@ -16,27 +16,11 @@ class MyClient(discord.Client):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-	async def on_guild_join(self, guild):
-		pass
-		print(self.user, "is connected to the following guild:")  # Event log
-		with open("data.json") as data_file:
-			for guild in self.guilds:
-				print(guild.name, "(id: " + str(guild.id) + ")")  # Event log
-				guild_data = json.load(data_file)["servers"][str(guild.id)]
-
-				# Make the roles integer-indexed
-				roles = {}
-				for role in guild_data["roles"]:
-					roles[int(role)] = guild_data["roles"][role]
-
-				data[guild.id] = guild_data
-				# Replace string-indexed roles with integer-indexed roles
-				data[guild.id]["roles"] = roles
-
 	async def on_ready(self):
 
 		# Maintenance problem with translation between JSON string-keys and Python int-keys below
 		try:
+			await self.change_presence(activity=discord.Streaming(name="my token", url="https://www.twitch.tv/rickemortyqui"))
 			if self.guilds != []:
 				print(self.user, "is connected to the following guild:")  # Event log
 				with open("data.json") as data_file:
