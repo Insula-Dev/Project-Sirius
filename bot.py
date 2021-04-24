@@ -20,6 +20,9 @@ class MyClient(discord.Client):
 
 		# Event log
 		print(self.user, "is ready.")
+		self.load_data()
+
+	def load_data(self):
 		if self.guilds != []:
 			print("Connected to the following guilds:")
 			for guild in self.guilds:
@@ -146,6 +149,8 @@ class MyClient(discord.Client):
 			# Write the updated data to the file
 			with open("data.json", "w") as data_file:
 				json.dump(data, data_file, indent=4)
+
+			self.load_data()
 
 		# Joke functionality, shut up Arun
 		# Core functionality (do not alter)
