@@ -54,7 +54,7 @@
         },
         "834213187468394517": {
             "rules": {
-                "title": "Rules Time",
+                "title": "My Rules",
                 "description": "This is a description",
                 "thumbnail link": "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fstatic3.wikia.nocookie.net%2F__cb20120607032338%2Ftardis%2Fimages%2F9%2F98%2FDon%27t_blink.jpg&f=1&nofb=1",
                 "list": [
@@ -62,7 +62,8 @@
                     "Don't even blink",
                     "Blink and you're dead",
                     "Don't turn your back and don't turn away",
-                    "And don't blink"
+                    "And don't blink",
+                    ""
                 ]
             },
             "roles message id": "none",
@@ -75,6 +76,23 @@
                 "thumbnail link": "none",
                 "list": [
                     "No low quality porn"
+                ]
+            },
+            "roles message id": "none",
+            "roles": {}
+        },
+        "808266016614121512": {
+            "rules": {
+                "title": "Very Important",
+                "description": "From a collection of dvd easter eggs",
+                "thumbnail link": "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fstatic3.wikia.nocookie.net%2F__cb20120607032338%2Ftardis%2Fimages%2F9%2F98%2FDon%27t_blink.jpg&f=1&nofb=1",
+                "list": [
+                    "Don't blink",
+                    "Don't even blink",
+                    "Blink and you're dead",
+                    "Don't turn your back and don't turn away",
+                    "And don't blink",
+                    ""
                 ]
             },
             "roles message id": "none",

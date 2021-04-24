@@ -85,10 +85,13 @@ class MyClient(discord.Client):
 			print("`!rules` called by", message.author)  # Event log
 
 			# Create and send rules embed
-			embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), color=0x4f7bc5)
+			embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), color=0x4f7bc5, inline=False)
 			embed_rules.set_author(name=guild.name, icon_url=guild.icon_url)
 			if self.data["servers"][str(guild.id)]["rules"]["thumbnail link"] != "none":
-				embed_rules.set_image(url=self.data["servers"][str(guild.id)]["rules"]["thumbnail link"])
+				try:
+					embed_rules.set_image(url=self.data["servers"][str(guild.id)]["rules"]["thumbnail link"])
+				except discord.erros.HTTPException:
+					print("Image broken for "+message.guild.name)
 			else:
 				print("No thumbnail set")
 			await message.channel.send(embed=embed_rules)
@@ -113,20 +116,30 @@ class MyClient(discord.Client):
 		# Set Rules
 		if message.content.startswith("!set rules"):
 			parameter = message.content[len("!set rules "):] # Sets parameter to everything after the command
-			parameters = parameter.split(",") # Splits parameter string into a list
-			title = self.data["servers"][str(guild.id)]["rules"]["title"]
-			description = self.data["servers"][str(guild.id)]["rules"]["description"]
-			thumbnail = self.data["servers"][str(guild.id)]["rules"]["thumbnail link"]
-			rules = self.data["servers"][str(guild.id)]["rules"]["list"]
-			for param in parameters:
-				if param.startswith("title="):
-					title = param[len("title="):]
-				elif param.startswith("description="):
-					description = param[len("description="):]
-				elif param.startswith("thumbnail="):
-					thumbnail = param[len("thumbnail="):]
-				elif param.startswith("rules="):
-					rules = re.split("\.\s|\.",param[len("rules="):]) # Splits the rules after every full stop or, preferably, a full stop followed by a space
+
+			if parameter == "default": # Resets rules back to default
+
+				title = "Title"
+				description = "Description"
+				thumbnail = "none"
+				rules = "Rule 1.Rule 2. Rule 3"
+
+			else: # Alters rules using the parameters given
+
+				parameters = parameter.split(",") # Splits parameter string into a list
+				title = self.data["servers"][str(guild.id)]["rules"]["title"]
+				description = self.data["servers"][str(guild.id)]["rules"]["description"]
+				thumbnail = self.data["servers"][str(guild.id)]["rules"]["thumbnail link"]
+				rules = self.data["servers"][str(guild.id)]["rules"]["list"]
+				for param in parameters:
+					if param.startswith("title="):
+						title = param[len("title="):]
+					elif param.startswith("description="):
+						description = param[len("description="):]
+					elif param.startswith("thumbnail="):
+						thumbnail = param[len("thumbnail="):]
+					elif param.startswith("rules="):
+						rules = re.split("\.\s|\.",param[len("rules="):]) # Splits the rules after every full stop or, preferably, a full stop followed by a space
 
 			# Read the data from the file
 			with open("data.json") as data_file:
