@@ -29,13 +29,16 @@ class MyClient(discord.Client):
 				logger.info(guild.name + " (ID: " + str(guild.id) + ")")  # Event log
 
 		# Load the file data into the data variable
-		with open("data.json", encoding='utf-8') as file:
-			self.data = json.load(file)
-		logger.info("Data successfully loaded.")  # Event log
+		try:
+			with open("data.json", encoding='utf-8') as file:
+				self.data = json.load(file)
+			logger.info("Loaded data.json.")  # Event log
+		except:
+			logger.critical("Could not load data.json.")  # Event log
 
 	async def on_message(self, message):
 
-		logger.info("Message sent by " + message.author)  # Event log
+		logger.debug("Message sent by " + message.author.name)  # Event log
 
 		# Don't respond to yourself
 		if message.author.id == self.user.id:
@@ -47,7 +50,7 @@ class MyClient(discord.Client):
 		# Rules command
 		if message.content == "!rules":
 
-			logger.info("`!rules` called by " + message.author)  # Event log
+			logger.info("`!rules` called by " + message.author.name)  # Event log
 
 			# Create and send rules embed
 			embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description="\n".join(self.data["servers"][str(guild.id)]["rules"]["rules list"]), color=0x4f7bc5)
@@ -58,7 +61,7 @@ class MyClient(discord.Client):
 		# Roles command
 		if message.content == "!roles":
 
-			logger.info("`!roles` called by " + message.author)  # Event log
+			logger.info("`!roles` called by " + message.author.name)  # Event log
 
 			# Create and send roled embed
 			embed_roles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
@@ -70,7 +73,6 @@ class MyClient(discord.Client):
 
 			# Add emojis to the roles message
 			for role in self.data["servers"][str(guild.id)]["roles"]:
-				print(role, self.data["servers"][str(guild.id)]["roles"][role]["emoji"])
 				await roles_message.add_reaction(self.data["servers"][str(guild.id)]["roles"][role]["emoji"])
 
 		# Joke functionality: Shut up Arun
@@ -86,34 +88,40 @@ class MyClient(discord.Client):
 
 		# Joke functionality: Gameboy mention
 		if "gameboy" in message.content.lower():
-			logger.info("`gameboy` mentioned by " + message.author)  # Event log
+			logger.info("`gameboy` mentioned by " + message.author.name)  # Event log
 			await message.channel.send("Gameboys are worthless (apart from micro. micro is cool)")
 
 		# Joke functionality: Raspberry mention
 		if "raspberries" in message.content or "raspberry" in message.content:
-			logger.info("`raspberry racers` mentioned by " + message.author)  # Event log
+			logger.info("`raspberry racers` mentioned by " + message.author.name)  # Event log
 			await message.channel.send("The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019.")
 
 		# Joke functionality: Token command
 		if message.content == "!token":
-			logger.info("`!token` called by " + message.author)  # Event log
+			logger.info("`!token` called by " + message.author.name)  # Event log
 			await message.channel.send("IdrOppED ThE TokEN gUYS!!!!")
 
 		# Joke functionality: Summon lizzie command
 		if message.content == "!summon_lizzie":
-			logger.info("`!summon_lizzie` called by " + message.author)  # Event log
+			logger.info("`!summon_lizzie` called by " + message.author.name)  # Event log
 			for x in range(100):
-				await message.channel.send(guild.get_member(258284765776576512).mention)
+				await message.channel.send(guild.get_member(692684372247314445).mention)
+
+		# Joke functionality: Teaching bitches how to swim
+		if message.content == "!swim":
+			logger.info("`!swim` called by " + message.author.name)  # Event log
+			await message.channel.send("/play https://youtu.be/uoZgZT4DGSY")
+			await message.channel.send("No swimming lessons today ):")
 
 		# Locate command
 		if message.content == "!locate":
-			logger.info("`!locate` called by " + message.author)  # Event log
+			logger.info("`!locate` called by " + message.author.name)  # Event log
 			hostname = socket.gethostname()
 			await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.")
 
 		# Kill command
 		if message.content == "!kill":
-			logger.info("`!kill` called by " + message.author)  # Event log
+			logger.info("`!kill` called by " + message.author.name)  # Event log
 			await message.channel.send("Doggie down")
 			await client.close()
 
@@ -193,7 +201,7 @@ class MyClient(discord.Client):
 
 		# If we want to do something in case of errors we'd do it here.
 		except discord.HTTPException:
-			logger.error("Exception: discord.HTTPException. Could not remove role " + role.name + "from", payload.member.name)  # Event log
+			logger.error("Exception: discord.HTTPException. Could not remove role " + role.name + "from", member.name)  # Event log
 
 
 # Main body
