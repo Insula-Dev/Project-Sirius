@@ -20,20 +20,23 @@ class MyClient(discord.Client):
 
 		# Event log
 		print(self.user, "is ready.")
-		self.load_data()
+		self.load_data(printed=True)
 
-	def load_data(self):
-		print("---Starting loading process---")
+	def load_data(self,printed=False):
+		if printed:
+			print("---Starting loading process---")
 		if self.guilds != []:
-			print("Connected to the following guilds:")
-			for guild in self.guilds:
-				print("  "+guild.name + " (ID: " + str(guild.id) + ")")
+			if printed:
+				print("Connected to the following guilds:")
+				for guild in self.guilds:
+					print("  "+guild.name + " (ID: " + str(guild.id) + ")")
 
 		# Load the file data into the data variable
 		with open("data.json", encoding='utf-8') as file:
 			self.data = json.load(file)
 
-		print("---Finished loading process---")  # Event log
+		if printed:
+			print("---Finished loading process---")  # Event log
 
 	async def on_guild_join(self, guild):
 		print(self.user, "has joined the guild: " + guild.name + " with id:", guild.id)  # Event log
@@ -113,6 +116,25 @@ class MyClient(discord.Client):
 			for role in self.data["servers"][str(guild.id)]["roles"]:
 				print(role, self.data["servers"][str(guild.id)]["roles"][role]["emoji"])
 				await roles_message.add_reaction(self.data["servers"][str(guild.id)]["roles"][role]["emoji"])
+
+			# Read the data from the file
+			with open("data.json") as data_file:
+				data = json.load(data_file)
+			roles_message_data = data["servers"][str(message.guild.id)]["rules"]
+			print(roles_message_data)
+
+			# Creates new data for server
+			new_message_data = roles_message.id
+			print("Old role message: " + str(roles_message_data))
+			print("New role message: " + str(new_message_data))
+			rules_data = new_message_data
+
+			data["servers"][str(message.guild.id)]["roles message id"] = rules_data
+			# Write the updated data to the file
+			with open("data.json", "w") as data_file:
+				json.dump(data, data_file, indent=4)
+
+			self.load_data()
 
 		# Add Roles
 		if message.content.startswith("!add role"):
