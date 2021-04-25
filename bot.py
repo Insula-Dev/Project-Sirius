@@ -23,16 +23,17 @@ class MyClient(discord.Client):
 		self.load_data()
 
 	def load_data(self):
+		print("---Starting loading process---")
 		if self.guilds != []:
 			print("Connected to the following guilds:")
 			for guild in self.guilds:
-				print(guild.name + " (ID: " + str(guild.id) + ")")
+				print("	  "+guild.name + " (ID: " + str(guild.id) + ")")
 
 		# Load the file data into the data variable
 		with open("data.json", encoding='utf-8') as file:
 			self.data = json.load(file)
 
-		print("------")  # Event log
+		print("---Finished loading process---")  # Event log
 
 	async def on_guild_join(self, guild):
 		print(self.user, "has joined the guild: " + guild.name + " with id:", guild.id)  # Event log
@@ -113,57 +114,113 @@ class MyClient(discord.Client):
 				print(role, self.data["servers"][str(guild.id)]["roles"][role]["emoji"])
 				await roles_message.add_reaction(self.data["servers"][str(guild.id)]["roles"][role]["emoji"])
 
-		# Set Rules
-		if message.content.startswith("!set rules"):
-			parameter = message.content[len("!set rules "):] # Sets parameter to everything after the command
+		# Add Roles
+		if message.content.startswith("!add role"):
+			parameter = message.content[len("!set roles "):] # Sets parameter to everything after the command
+			# Alters rules using the parameters given
 
-			if parameter == "default": # Resets rules back to default
+			role_name = ""
+			role_id = 0
+			role_emoji = ""
+			parameters = parameter.split(",") # Splits parameter string into a list
+			for param in parameters:
+				if param == "name=":
+					role_name = param[len("name="):]
+					# Find role id for role with name
+					for role in message.guild.roles:
+						print("Role "+role.name)
+						if role.name == role_name:
+							role_id = role.id
+							break
+					if role_id == 0:
+						print("Role \""+role_name+"\"was not identified")
+				elif param == "emoji=":
+					role_emoji_name = param[len("emoji="):]
+					for emoji in message.guild.emojis:
+						print("Emoji "+emoji.name)
+						if emoji.name == role_emoji_name:
+							role_emoji = emoji.id
+							break
+					if role_emoji == "":
+						print("Emoji \""+role_emoji_name+"\"was not identified")
 
-				title = "Title"
-				description = "Description"
-				thumbnail = "none"
-				rules = "Rule 1.Rule 2. Rule 3"
-
-			else: # Alters rules using the parameters given
-
-				parameters = parameter.split(",") # Splits parameter string into a list
-				title = self.data["servers"][str(guild.id)]["rules"]["title"]
-				description = self.data["servers"][str(guild.id)]["rules"]["description"]
-				thumbnail = self.data["servers"][str(guild.id)]["rules"]["thumbnail link"]
-				rules = self.data["servers"][str(guild.id)]["rules"]["list"]
-				for param in parameters:
-					if param.startswith("title="):
-						title = param[len("title="):]
-					elif param.startswith("description="):
-						description = param[len("description="):]
-					elif param.startswith("thumbnail="):
-						thumbnail = param[len("thumbnail="):]
-					elif param.startswith("rules="):
-						rules = re.split("\.\s|\.",param[len("rules="):]) # Splits the rules after every full stop or, preferably, a full stop followed by a space
 
 			# Read the data from the file
 			with open("data.json") as data_file:
 				data = json.load(data_file)
-			rules_data = data["servers"][str(message.guild.id)]["rules"]
-			print(rules_data)
+			roles_data = data["servers"][str(message.guild.id)]["roles"]
+			print(roles_data)
 
 			# Creates new data for server
-			new_rules = {
-					"title": title,
-					"description": description,
-					"thumbnail link": thumbnail,
-					"list": rules
+			new_roles = {
+				role_id :{
+					"name":role_name,
+					"emoji":role_emoji
 					}
-			print("Old rules: "+str(rules_data))
-			print("New rules: "+str(new_rules))
-			rules_data=new_rules
+				}
+			print("Old roles: "+str(roles_data))
+			print("New roles: "+str(new_roles))
+			roles_data=new_roles
 
-			data["servers"][str(message.guild.id)]["rules"] = rules_data
+			data["servers"][str(message.guild.id)]["roles"] = roles_data
 			# Write the updated data to the file
 			with open("data.json", "w") as data_file:
 				json.dump(data, data_file, indent=4)
 
 			self.load_data()
+
+			# Set Rules
+			if message.content.startswith("!set rules"):
+				parameter = message.content[len("!set rules "):]  # Sets parameter to everything after the command
+
+				if parameter == "default":  # Resets rules back to default
+
+					title = "Title"
+					description = "Description"
+					thumbnail = "none"
+					rules = "Rule 1.Rule 2. Rule 3"
+
+				else:  # Alters rules using the parameters given
+
+					parameters = parameter.split(",")  # Splits parameter string into a list
+					title = self.data["servers"][str(guild.id)]["rules"]["title"]
+					description = self.data["servers"][str(guild.id)]["rules"]["description"]
+					thumbnail = self.data["servers"][str(guild.id)]["rules"]["thumbnail link"]
+					rules = self.data["servers"][str(guild.id)]["rules"]["list"]
+					for param in parameters:
+						if param.startswith("title="):
+							title = param[len("title="):]
+						elif param.startswith("description="):
+							description = param[len("description="):]
+						elif param.startswith("thumbnail="):
+							thumbnail = param[len("thumbnail="):]
+						elif param.startswith("rules="):
+							rules = re.split("\.\s|\.", param[len(
+								"rules="):])  # Splits the rules after every full stop or, preferably, a full stop followed by a space
+
+				# Read the data from the file
+				with open("data.json") as data_file:
+					data = json.load(data_file)
+				rules_data = data["servers"][str(message.guild.id)]["rules"]
+				print(rules_data)
+
+				# Creates new data for server
+				new_rules = {
+					"title": title,
+					"description": description,
+					"thumbnail link": thumbnail,
+					"list": rules
+				}
+				print("Old rules: " + str(rules_data))
+				print("New rules: " + str(new_rules))
+				rules_data = new_rules
+
+				data["servers"][str(message.guild.id)]["rules"] = rules_data
+				# Write the updated data to the file
+				with open("data.json", "w") as data_file:
+					json.dump(data, data_file, indent=4)
+
+				self.load_data()
 
 		# Joke functionality, shut up Arun
 		# Core functionality (do not alter)

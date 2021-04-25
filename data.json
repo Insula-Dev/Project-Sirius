@@ -67,7 +67,12 @@
                 ]
             },
             "roles message id": "none",
-            "roles": {}
+            "roles": {
+                "0": {
+                    "name": "",
+                    "emoji": ""
+                }
+            }
         },
         "509437716123877397": {
             "rules": {
