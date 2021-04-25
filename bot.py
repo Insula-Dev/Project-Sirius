@@ -1,6 +1,7 @@
 #Imports
 from random import randint
 import json
+import socket
 import discord
 import re # Needed for propper regex
 
@@ -86,7 +87,6 @@ class MyClient(discord.Client):
 
 		# Rules command
 		if message.content == "!rules":
-			print("`!rules` called by", message.author)  # Event log
 
 			# Create and send rules embed
 			embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), color=0x4f7bc5, inline=False)
@@ -276,6 +276,18 @@ class MyClient(discord.Client):
 			print("`!token` called by", message.author)  # Event log
 			await message.channel.send("IdrOppED ThE TokEN gUYS!!!!")
 
+		# Joke functionality: Summon lizzie command
+		if message.content == "!summon_lizzie":
+			print("`!summon_lizzie` called by", message.author)
+			for x in range(100):
+				await message.channel.send(guild.get_member(258284765776576512).mention)
+
+		# Locate command
+		if message.content == "!locate":
+			print("`!locate` called by", message.author)  # Event log
+			hostname = socket.gethostname()
+			await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.")
+
 		# Kill command
 		if message.content == "!kill":
 			print("`!kill` called by", message.author)  # Event log
@@ -348,7 +360,6 @@ class MyClient(discord.Client):
 
 		# Make sure the member still exists and is valid.
 		member = guild.get_member(payload.user_id)
-		print(payload.user_id, member)
 		if member is None:
 			return
 
