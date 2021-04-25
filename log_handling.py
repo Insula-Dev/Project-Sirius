@@ -15,3 +15,14 @@ formatter = logging.Formatter("%(asctime)s.%(msecs)03d | %(levelname)s | %(filen
 
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
+
+
+# Functions
+def LoggerExamples():
+	"""Writes example logs for each log level."""
+
+	logger.debug("This is a debug message.")
+	logger.info("This is an info message.")
+	logger.warning("This is a warning message.")
+	logger.error("This is an error message.")
+	logger.critical("This is a critical message.")
