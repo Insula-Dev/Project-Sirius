@@ -44,7 +44,6 @@ class MyClient(discord.Client):
 
 		# Rules command
 		if message.content == "!rules":
-			print("`!rules` called by", message.author)  # Event log
 
 			# Create and send rules embed
 			embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description="\n".join(self.data["servers"][str(guild.id)]["rules"]["rules list"]), color=0x4f7bc5)
@@ -92,6 +91,11 @@ class MyClient(discord.Client):
 		if message.content == "!token":
 			print("`!token` called by", message.author)  # Event log
 			await message.channel.send("IdrOppED ThE TokEN gUYS!!!!")
+
+		if message.content == "!summon_lizzie":
+			print("`!summon_lizzie` called by", message.author)
+			for x in range(100):
+				await message.channel.send(guild.get_member(258284765776576512).mention)
 
 		# Kill command
 		if message.content == "!kill":
