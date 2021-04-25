@@ -1,6 +1,7 @@
 #Imports
 from random import randint
 import json
+import socket
 import discord
 
 
@@ -92,10 +93,17 @@ class MyClient(discord.Client):
 			print("`!token` called by", message.author)  # Event log
 			await message.channel.send("IdrOppED ThE TokEN gUYS!!!!")
 
+		# Joke functionality: Summon lizzie command
 		if message.content == "!summon_lizzie":
 			print("`!summon_lizzie` called by", message.author)
 			for x in range(100):
 				await message.channel.send(guild.get_member(258284765776576512).mention)
+
+		# Locate command
+		if message.content == "!locate":
+			print("`!locate` called by", message.author)  # Event log
+			hostname = socket.gethostname()
+			await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.")
 
 		# Kill command
 		if message.content == "!kill":
