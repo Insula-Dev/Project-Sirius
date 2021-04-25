@@ -68,9 +68,9 @@
             },
             "roles message id": "none",
             "roles": {
-                "0": {
-                    "name": "",
-                    "emoji": ""
+                "835665116895772722": {
+                    "name": "test role",
+                    "emoji": "<:Aruncartoon:835665329761943582>"
                 }
             }
         },

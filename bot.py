@@ -27,7 +27,7 @@ class MyClient(discord.Client):
 		if self.guilds != []:
 			print("Connected to the following guilds:")
 			for guild in self.guilds:
-				print("	  "+guild.name + " (ID: " + str(guild.id) + ")")
+				print("  "+guild.name + " (ID: " + str(guild.id) + ")")
 
 		# Load the file data into the data variable
 		with open("data.json", encoding='utf-8') as file:
@@ -116,7 +116,8 @@ class MyClient(discord.Client):
 
 		# Add Roles
 		if message.content.startswith("!add role"):
-			parameter = message.content[len("!set roles "):] # Sets parameter to everything after the command
+			parameter = message.content[len("!add role "):] # Sets parameter to everything after the command
+			print("Parameter: "+parameter)
 			# Alters rules using the parameters given
 
 			role_name = ""
@@ -124,9 +125,12 @@ class MyClient(discord.Client):
 			role_emoji = ""
 			parameters = parameter.split(",") # Splits parameter string into a list
 			for param in parameters:
-				if param == "name=":
+				print("Checking: "+param)
+				if param.startswith("name="):
+					print("name")
 					role_name = param[len("name="):]
 					# Find role id for role with name
+					print("Roles are:\n"+str(message.guild.roles))
 					for role in message.guild.roles:
 						print("Role "+role.name)
 						if role.name == role_name:
@@ -134,12 +138,14 @@ class MyClient(discord.Client):
 							break
 					if role_id == 0:
 						print("Role \""+role_name+"\"was not identified")
-				elif param == "emoji=":
+				elif param.startswith("emoji="):
+					print("emoji")
 					role_emoji_name = param[len("emoji="):]
+					print(message.guild.emojis)
 					for emoji in message.guild.emojis:
 						print("Emoji "+emoji.name)
 						if emoji.name == role_emoji_name:
-							role_emoji = emoji.id
+							role_emoji = "<:"+role_emoji_name+":"+str(emoji.id)+">"
 							break
 					if role_emoji == "":
 						print("Emoji \""+role_emoji_name+"\"was not identified")
