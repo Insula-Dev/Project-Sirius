@@ -101,7 +101,7 @@ class MyClient(discord.Client):
 
 		# Joke functionality: Summon lizzie command
 		if message.content == "!summon_lizzie":
-			logger.info("`!summon_lizzie` called by " + message.author)
+			logger.info("`!summon_lizzie` called by " + message.author)  # Event log
 			for x in range(100):
 				await message.channel.send(guild.get_member(258284765776576512).mention)
 
@@ -203,4 +203,4 @@ intents.members = True
 client = MyClient(intents=intents)
 client.run(DISCORD_TOKEN)
 
-logger.info("That's all.\n\n")
+logger.info("That's all.\n")  # Event log
