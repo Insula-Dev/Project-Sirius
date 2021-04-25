@@ -136,7 +136,7 @@ class MyClient(discord.Client):
 
 			self.load_data()
 
-		# Add Roles
+		# Add Role
 		if message.content.startswith("!add role"):
 			parameter = message.content[len("!add role "):] # Sets parameter to everything after the command
 			print("Parameter: "+parameter)
@@ -188,7 +188,15 @@ class MyClient(discord.Client):
 				}
 			print("Old roles: "+str(roles_data))
 			print("New roles: "+str(new_roles))
-			roles_data=new_roles
+
+			# Merges old and new versions, adding new ones and updating existing ones
+			for old_role in roles_data:
+				if old_role == new_roles.keys():
+					roles_data[old_role.key()] = new_roles
+					new_roles.pop(new_roles.keys())
+
+			roles_data.update(new_roles)
+			print("Updated roles: "+str(roles_data))
 
 			data["servers"][str(message.guild.id)]["roles"] = roles_data
 			# Write the updated data to the file
@@ -322,6 +330,7 @@ class MyClient(discord.Client):
 
 		# Finally, add the role.
 		try:
+			print("Try to Role `" + role.name + "` added to", payload.member.name)
 			await payload.member.add_roles(role)
 			print("Role `" + role.name + "` added to", payload.member.name)  # Event log
 
