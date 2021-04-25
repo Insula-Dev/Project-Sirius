@@ -22,7 +22,7 @@ class MyClient(discord.Client):
 
 	async def on_ready(self):
 
-		logger.info(self.user.name + " is ready.")  # Event log
+		logger.info(self.user.name + " is ready")  # Event log
 		if self.guilds != []:
 			logger.info(self.user.name + " is connected to the following guilds:")  # Event log
 			for guild in self.guilds:
@@ -32,13 +32,13 @@ class MyClient(discord.Client):
 		try:
 			with open("data.json", encoding='utf-8') as file:
 				self.data = json.load(file)
-			logger.info("Loaded data.json.")  # Event log
+			logger.info("Loaded data.json")  # Event log
 		except:
-			logger.critical("Could not load data.json.")  # Event log
+			logger.critical("Could not load data.json")  # Event log
 
 	async def on_message(self, message):
 
-		logger.debug("Message sent by " + message.author.name)  # Event log
+		#logger.debug("Message sent by " + message.author.name)  # Event log
 
 		# Don't respond to yourself
 		if message.author.id == self.user.id:
@@ -78,13 +78,13 @@ class MyClient(discord.Client):
 		# Joke functionality: Shut up Arun
 		if message.author.id == 258284765776576512:
 
-			logger.info("Arun sighted. Locking on.")  # Event log
+			logger.info("Arun sighted. Locking on")  # Event log
 
 			if randint(1, 10) == 1:
 				await message.channel.send("shut up arun")
 				logger.info("Arun down.")  # Event log
 			else:
-				logger.info("Mission failed, RTB.")  # Event log
+				logger.info("Mission failed, RTB")  # Event log
 
 		# Joke functionality: Gameboy mention
 		if "gameboy" in message.content.lower():
@@ -131,11 +131,13 @@ class MyClient(discord.Client):
 		# Make sure that the message the user is reacting to is the one we care about.
 		if payload.message_id != self.data["servers"][str(payload.guild_id)]["roles message id"]:
 			return
+		print(1)
 
 		# Check if we're still in the guild and it's cached.
 		guild = self.get_guild(payload.guild_id)
 		if guild is None:
 			return
+		print(2)
 
 		# If the emoji isn't the one we care about then exit as well.
 		role_id = -1
@@ -145,11 +147,13 @@ class MyClient(discord.Client):
 				break
 		if role_id == -1:
 			return
+		print(3)
 
 		# Make sure the role still exists and is valid.
 		role = guild.get_role(role_id)
 		if role is None:
 			return
+		print(4)
 
 		# Finally, add the role.
 		try:
@@ -158,7 +162,7 @@ class MyClient(discord.Client):
 
 		# If we want to do something in case of errors we'd do it here.
 		except discord.HTTPException:
-			logger.error("Exception: discord.HTTPException. Could not add role " + role.name + "to" + payload.member.name)  # Event log
+			logger.error("Exception: discord.HTTPException. Could not add role " + role.name + " to " + payload.member.name)  # Event log
 
 	async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
 		"""Removes a role based on a reaction emoji."""
@@ -201,7 +205,7 @@ class MyClient(discord.Client):
 
 		# If we want to do something in case of errors we'd do it here.
 		except discord.HTTPException:
-			logger.error("Exception: discord.HTTPException. Could not remove role " + role.name + "from", member.name)  # Event log
+			logger.error("Exception: discord.HTTPException. Could not remove role " + role.name + " from ", member.name)  # Event log
 
 
 # Main body
@@ -211,4 +215,4 @@ intents.members = True
 client = MyClient(intents=intents)
 client.run(DISCORD_TOKEN)
 
-logger.info("That's all.\n")  # Event log
+logger.info("That's all\n")  # Event log
