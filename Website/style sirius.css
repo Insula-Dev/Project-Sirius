@@ -1,0 +1,134 @@
+@import "style dark.css";
+
+body {
+	background-color: #dddbb7;
+}
+
+/*Global*/
+#container
+{
+}
+
+main
+{
+	background-color: #dddbb7;
+}
+
+mark {
+	background: #361999;
+	color: #35424a;
+}
+
+footer
+{
+	color: #35424a;
+}
+
+
+/*Header*/
+header {
+	background: #dddbb7;
+	color: #bb4829;
+}
+
+
+/*nav*/
+header a
+{
+	color: #dddbb7;
+}
+header a:hover
+{
+	color: #8f8f8f;
+}
+
+
+/*logo*/
+#logo img
+{
+}
+
+.header-text
+{
+	background-color: #dddbb7;
+	border-bottom: #79070c 3px solid;
+}
+
+header .highlight
+{
+	color: #d87432;
+}
+
+/*Main in Page*/
+
+main
+{
+	border: #79070c 5px solid;
+}
+
+h2
+{
+	color: #79070c;
+	border-bottom: #79070c 6px double;
+}
+
+h3, h4
+{
+	color: #79070c;
+}
+
+
+p,q
+{
+	color: #35424a;
+}
+
+a
+{
+	color: #00abe1;
+}
+
+
+.split
+{
+	border: #00abe1 2.5px solid;
+}
+
+.highlight
+{
+	color: #bb4829;
+}
+
+main ul, ol
+{
+	background: #bb4829;
+	border: #91133F 3px solid;
+	color: white;
+}
+mark
+{
+	background-color: #ffffff;
+}
+
+.channel
+{
+	color: #6C7EB8;
+}
+
+/** Mobile Devices **/
+@media only all and (max-width:768px)
+{
+    main
+    {
+		background-color: #b3cbda;
+		border: #00abe1 0px solid;
+    }
+	.header-text nav
+	{
+		background-color: #b3cbda;
+	}
+}
+
+footer
+{
+}

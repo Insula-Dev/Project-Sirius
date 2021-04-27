@@ -1,0 +1,517 @@
+body
+{
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 15.5px;
+	line-height: 1.5;
+
+	padding: 0px;
+	margin-top: 0px;
+
+	background-color: #35424a;
+
+	position: relative;
+	min-height: 100vh;
+}
+
+main
+{
+	width: 80%;
+	margin: auto;
+	padding-top: 50px;
+	position:sticky;
+	overflow: hidden;
+	z-index: 0;
+	background-color: #CAE9FC;
+}
+
+footer
+{
+	padding-top: 2%;
+	position: static;
+	color: white;
+	bottom: 0;
+}
+
+mark
+{
+	background: #361999;
+	color: white;
+}
+
+#container
+{
+	position: relative;
+	width: 80%;
+	margin-left: 10%;
+	margin-right: 10%;
+	overflow: visible;
+	align-content: center;
+	min-height: 12vh; /* 17 is deafult */
+}
+
+/*Header*/
+header
+{
+	z-index: 1;
+	color: white;
+	width: 100%;
+}
+
+
+header .header-text
+{
+	width: 75%;
+	background-color: transparent;
+	border-bottom: #00abe1 0px solid;
+	margin-bottom: 3px;
+}
+
+header #logo
+{
+	float: right;
+}
+
+header .highlight, header .current a {
+	color: #00abe1;
+	font-weight: bold;
+}
+
+header label
+{
+	float: left;
+}
+/*logo*/
+#logo
+{
+	position: absolute;
+	right: 10px;
+	z-index: 2;
+}
+#logo img
+{
+	height:100px;
+}
+
+/*nav*/
+.header-text nav a
+{
+	color: white;
+	text-decoration: none;
+	text-transform: uppercase;
+	font-size: 16px;
+}
+.header-text nav a:hover
+{
+	color: #00abe1;
+}
+
+.header-text nav ul
+{
+	padding: 0;
+	margin: 0;
+}
+
+.header-text nav li,.header-text nav
+{
+	float: left;
+	display: inline;
+	padding: 0px 45px 15px 0;
+	font-weight: bold;
+}
+
+.header-text nav
+{
+	margin: 10px 10% 0 10%;
+	float: left;
+	width: 100%;
+}
+.header-text
+{
+	z-index: 1;
+	float: left;
+	width: 100%;
+	position: sticky;
+	top: 0;
+	background-color: #35424a;
+	border-bottom: #00abe1 3px solid;
+	margin-bottom: 5px;
+}
+
+#login
+{
+	color:#d87432;
+}
+
+/*Main in Page*/
+
+main
+{
+	background-color: #2e3542;
+	margin-top: 20px;
+	padding: 20px;
+	border: #00abe1 5px solid;
+	border-style:solid;
+}
+
+h2
+{
+	color: #3E73DE;
+	margin: 0px 0 5px 0;
+	border-bottom: #00abe1 6px double;
+}
+
+h3
+{
+	color: #3E73DE;
+	margin: 0px 0 5px 0;
+}
+
+h4
+{
+	font-size: medium;
+	padding: 2px;
+	line-height: 1px;
+}
+h5
+{
+	font-size: small;
+	padding: 2px;
+	line-height: 1px;
+	height: 4px;
+}
+h6
+{
+	font-size: x-small;
+	padding: 2px;
+	line-height: 1px;
+	height: 3px;
+}
+
+
+p
+{
+	color: white;
+	margin: 0;
+	padding-bottom: 25px;
+}
+
+q
+{
+	color: white;
+}
+
+a
+{
+	color: #00abe1;
+}
+
+
+.split
+{
+	margin: 15px 10px 15px 10px;
+	border: #00abe1 2.5px solid;
+}
+
+main ul, ol
+{
+	background: #DE2868;
+	border: #91133F 3px solid;
+	color: white;
+	width: 60%;
+}
+
+.center
+{
+	text-align: center;
+}
+
+.pp,.arun-pp
+{
+	height: 40px;
+	border-radius: 50%;
+}
+
+/** https://www.youtube.com/watch?v=tXiWZTg4aGE **/
+.switch
+{
+	opacity: 0;
+}
+.switch-vis
+{
+	width: 80px;
+	height: 40px;
+	background: white;
+	border-radius: 20px;
+	position: relative;
+	cursor: pointer;
+	box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.switch-vis::before
+{
+	content: '';
+	position: absolute;
+	height: 32px;
+	width: 32px;
+	background: #b3cbda;
+	border-radius: 50%;
+	left: 4px;
+	top: 4px;
+	transition: all 150ms ease-out;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+input[type=checkbox]:checked + .switch-vis::before
+{
+	left: 42px;
+	background: #35424a;
+}
+input[type=checkbox]:checked + .switch-vis
+{
+	background: #7cff6b;
+}
+
+mark
+{
+	background-color: #3C414F;
+	border-radius: 3px;
+	padding: 2px;
+}
+
+.channel
+{
+	color: #6C7EB8;
+}
+
+#icons img
+{
+	height: 240px;
+}
+
+#percentImg
+{
+	height: 350px;
+	position: left;
+}
+
+#numberImg
+{
+	height: 350px;
+	position: right;
+}
+
+#floating-notice
+{
+	background-color: #00abe1;
+	color: rgb(51, 51, 51);
+	border: #d3d3d3 4px solid;
+	border-radius: 0px;
+	bottom: 20px;
+	padding: 20px 20px 0px 20px;
+	position: fixed;
+	z-index: 1;
+	display:block;
+}
+#floating-notice img
+{
+	float: right;
+	cursor: pointer;
+}
+
+.table-area
+{
+	display: table;
+	table-layout: 10%;
+	width: 100%;
+}
+
+#logo-left
+{
+	display: table-cell;
+	float: left;
+}
+#logo-left img, #logo-right img
+{
+	width: 10vw;
+}
+#logo-right
+{
+	display: table-cell;
+	float: right;
+}
+#center-text
+{
+	text-align: center;
+}
+#vertical-nav
+{
+	display: inline-block;
+	width: 30%;
+	padding: 1%;
+}
+#vertical-nav ul
+{
+	padding: 0;
+	margin: 0 auto auto auto;
+	display: block;
+	background: none;
+	border: #00abe1 solid;
+	
+}
+#vertical-nav li
+{
+	float: none;
+	display: block;
+	text-align: center;
+	line-height: 10vh;
+}
+#vertical-nav a
+{
+	color: white;
+	display: block;
+	text-transform: uppercase;
+	text-decoration: none;
+	font-size: 16px;
+	font-weight: bold;
+}
+
+/** Mobile Devices **/
+@media only all and (max-width:768px)
+{
+	/*
+	header
+	{
+		padding-top: 0px;
+		min-height: 50px;
+		text-align: center;
+	}
+	header a
+	{
+		align-content: center;
+		font-size: 16px;
+	}
+	header #text
+	{
+		float: none;
+		width: 75%
+	}
+	#container
+	{
+		width: 100%;
+	}
+    main
+    {
+        padding: 0;
+		margin-top: 2px;
+		background-color: #35424a;
+		border: #00abe1 0px solid;
+    }
+    h1
+    {
+        font-size: 2em;
+        padding-top: 0px;
+        padding-left: 1.5em;
+        width: 85%;
+        text-align: center;
+    }
+    nav a
+    {
+		display:flex;
+        padding: 0.5em;
+        width: 10%;
+        float: left;
+        min-width: 63m;
+        margin-left: 0.5em;
+    }
+	body
+    {
+        margin: 0px;
+        padding: 0%;
+    }
+    #hero
+    {
+        display: none;
+    }
+    footer
+    {
+        padding: 0.5em;
+        margin: 0;
+    }
+    #mobile {display: inline;}
+    #desktop {display: none;}
+	*/
+	body
+	{
+		padding: 0;
+		display: block;
+		background-color: #2e3542;
+	}
+	main
+	{
+		display: block;
+		width: 100%;
+		border: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	#container
+	{
+		margin-left: 2%;
+		margin-right: 2%;
+	}
+	header .header-text
+	{
+		width: 100%;
+	}
+	.header-text nav
+	{
+		/*margin: 5px 40% 0 10%;*/
+		margin: 0px;
+		padding: 2%;
+		background-color: #2e3542;
+	}
+	.header-text nav li
+	{
+		padding: 0px 40px 1px 0;
+		display: inline-block;
+		width: 50%;
+	}
+	#logo
+	{
+		display: none;
+	}
+	header label
+	{
+		float: right;
+	}
+	.switch-vis
+	{
+		width: 40px;
+		height: 20px;
+	}
+	.switch-vis::before
+	{
+		width: 16px;
+		height: 16px;
+		top: 2px;
+	}
+	input[type=checkbox]:checked + .switch-vis::before
+	{
+	left: 21px;
+	background: #35424a;
+	}
+	div .header-text
+	{
+		font-size: 10px;
+	}
+	#vertical-nav
+	{
+		width: 100%;
+	}
+}
+
+footer
+{
+    font-size: 0.6em;
+    text-align: center;
+    font-style: italic;
+}
