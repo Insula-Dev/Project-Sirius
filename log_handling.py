@@ -17,7 +17,6 @@ file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
 
-
 # Functions
 def LoggerExamples():
 	"""Writes example logs for each log level."""
@@ -27,6 +26,3 @@ def LoggerExamples():
 	logger.warning("This is a warning message.")
 	logger.error("This is an error message.")
 	logger.critical("This is a critical message.")
-
-if __name__ == "__main__":
-	LoggerExamples()
