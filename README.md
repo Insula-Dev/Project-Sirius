@@ -42,3 +42,11 @@ Thanks.
 Add rules to code.
 
 Protocol for adding bot to new server needed...
+
+# History
+
+The annals of dog.
+
+## The Holy Merge
+
+It is wrought in the eternal will of the creator that someday the Two Branches of Sirius should finally merge properly. The day of reckoning is feared amongst all competent programmers, and otherwise dismissed by those who do not understand its gravity...
