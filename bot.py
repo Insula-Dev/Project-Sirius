@@ -92,9 +92,15 @@ class MyClient(discord.Client):
 			await message.channel.send("Gameboys are worthless (apart from micro. micro is cool)")
 
 		# Joke functionality: Raspberry mention
-		if "raspberries" in message.content or "raspberry" in message.content:
+		if "raspberries" in message.content.lower() or "raspberry" in message.content.lower():
 			logger.info("`raspberry racers` mentioned by " + message.author.name)  # Event log
 			await message.channel.send("The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019.")
+
+		# Joke functionality: Pycharm mention
+		if "pycharm" in message.content.lower():
+			logger.info("`pycharm` mentioned by " + message.author.name)  # Event log
+			await message.channel.send("Pycharm enthusiasts vs Sublime Text enjoyers: https://youtu.be/HrkNwjruz5k")
+			await message.channel.send("85 commits in and haha bot print funny is still our sense of humour.")
 
 		# Joke functionality: Token command
 		if message.content == "!token":
