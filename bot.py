@@ -100,7 +100,7 @@ class MyClient(discord.Client):
 		if "pycharm" in message.content.lower():
 			logger.info("`pycharm` mentioned by " + message.author.name)  # Event log
 			await message.channel.send("Pycharm enthusiasts vs Sublime Text enjoyers: https://youtu.be/HrkNwjruz5k")
-			await message.channel.send("85 commits in and haha bot print funny is still our sense of humour.")
+			await message.channel.send("85 commits in and haha bot print funny is still your sense of humour.")
 
 		# Joke functionality: Token command
 		if message.content == "!token":
