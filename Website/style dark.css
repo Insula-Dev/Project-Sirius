@@ -15,21 +15,20 @@ body
 
 main
 {
-	width: 80%;
-	margin: auto;
-	padding-top: 50px;
-	position:sticky;
-	overflow: hidden;
-	z-index: 0;
-	background-color: #CAE9FC;
+    width: 56%;
+    margin: auto;
+    margin-top: 15%;
 }
 
 footer
 {
-	padding-top: 2%;
-	position: static;
-	color: white;
+	position: fixed;
+	padding-top: 5px;
+	left: 0;
 	bottom: 0;
+	width: 100%;
+	background-color: #8f8f8f73;
+	color: white;
 }
 
 mark
@@ -136,21 +135,16 @@ header label
 	margin-bottom: 5px;
 }
 
-#login
+#add-bot
 {
-	color:#d87432;
+	color:#3E73DE;
+	padding: 5px;
+	background-color: white;
+	border: white 3px solid;
+	border-radius: 20px;
 }
 
 /*Main in Page*/
-
-main
-{
-	background-color: #2e3542;
-	margin-top: 20px;
-	padding: 20px;
-	border: #00abe1 5px solid;
-	border-style:solid;
-}
 
 h2
 {
@@ -213,10 +207,12 @@ a
 
 main ul, ol
 {
-	background: #DE2868;
-	border: #91133F 3px solid;
-	color: white;
-	width: 60%;
+    background: #de2868a6;
+    border: #91133fbb 3px solid;
+    color: white;
+    width: 80%;
+    margin: auto;
+	padding: 4px 2px 2px 20px;
 }
 
 .center

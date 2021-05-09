@@ -21,7 +21,13 @@ mark {
 
 footer
 {
-	color: #35424a;
+	position: fixed;
+	padding-top: 5px;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	background-color: #8f8f8f73;
+	color: white;
 }
 
 
@@ -51,7 +57,7 @@ header a:hover
 .header-text
 {
 	background-color: #dddbb7;
-	border-bottom: #79070c 3px solid;
+	border-bottom: #79070c 3px dashed;
 }
 
 header .highlight
@@ -59,11 +65,16 @@ header .highlight
 	color: #d87432;
 }
 
+#add-bot
+{
+	color:#d87432;
+}
+
 /*Main in Page*/
 
 main
 {
-	border: #79070c 5px solid;
+	border: #79070c 5px hidden;
 }
 
 h2
