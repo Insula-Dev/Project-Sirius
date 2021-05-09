@@ -19,17 +19,6 @@ mark {
 	color: #35424a;
 }
 
-footer
-{
-	position: fixed;
-	padding-top: 5px;
-	left: 0;
-	bottom: 0;
-	width: 100%;
-	background-color: #8f8f8f73;
-	color: white;
-}
-
 
 /*Header*/
 header {
@@ -128,18 +117,5 @@ mark
 
 /** Mobile Devices **/
 @media only all and (max-width:768px)
-{
-    main
-    {
-		background-color: #b3cbda;
-		border: #00abe1 0px solid;
-    }
-	.header-text nav
-	{
-		background-color: #b3cbda;
-	}
-}
-
-footer
 {
 }

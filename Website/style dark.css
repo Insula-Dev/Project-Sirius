@@ -17,7 +17,7 @@ main
 {
     width: 56%;
     margin: auto;
-    margin-top: 15%;
+    margin-top: 160px;
 }
 
 footer
@@ -29,6 +29,8 @@ footer
 	width: 100%;
 	background-color: #8f8f8f73;
 	color: white;
+	font-size: 0.6em;
+	text-align: center;
 }
 
 mark
@@ -220,6 +222,13 @@ main ul, ol
 	text-align: center;
 }
 
+.embed
+{
+	border-radius: 10px;
+	padding: 10px;
+	background-color: #8f8f8f73;
+}
+
 .pp,.arun-pp
 {
 	height: 40px;
@@ -266,7 +275,7 @@ input[type=checkbox]:checked + .switch-vis
 
 mark
 {
-	background-color: #3C414F;
+	background-color: #f1f1f1a4;
 	border-radius: 3px;
 	padding: 2px;
 }
@@ -447,11 +456,31 @@ mark
 		margin: 0;
 		padding: 0;
 	}
+	footer
+	{
+	position: relative;
+	padding-top: 5px;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	background-color: transparent;
+	color: white;
+	font-size: 0.3em;
+	text-align: center;
+	}
 
 	#container
 	{
 		margin-left: 2%;
 		margin-right: 2%;
+	}
+	#add-bot
+	{
+		display: inline flow-root;
+		padding: 2px;
+		background-color: white;
+		border-radius: 20px;
+		right: 0;
 	}
 	header .header-text
 	{
@@ -462,7 +491,6 @@ mark
 		/*margin: 5px 40% 0 10%;*/
 		margin: 0px;
 		padding: 2%;
-		background-color: #2e3542;
 	}
 	.header-text nav li
 	{
@@ -504,9 +532,3 @@ mark
 	}
 }
 
-footer
-{
-    font-size: 0.6em;
-    text-align: center;
-    font-style: italic;
-}
