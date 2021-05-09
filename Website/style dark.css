@@ -69,6 +69,7 @@ header .header-text
 
 header #logo
 {
+	margin: 5px;
 	float: right;
 }
 
@@ -91,6 +92,7 @@ header label
 #logo img
 {
 	height:100px;
+	border-radius: 50%;
 }
 
 /*nav*/
@@ -219,6 +221,7 @@ main ul, ol
 
 .center
 {
+	margin: auto;
 	text-align: center;
 }
 
@@ -283,6 +286,18 @@ mark
 .channel
 {
 	color: #6C7EB8;
+}
+
+.feature
+{
+	margin: 20px;
+	display: inline-block;
+	text-align: center;
+	color: #FFC000;
+}
+.feature img
+{
+	height: 80px;
 }
 
 #icons img

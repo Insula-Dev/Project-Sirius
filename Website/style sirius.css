@@ -115,6 +115,11 @@ mark
 	color: #6C7EB8;
 }
 
+.feature
+{
+	color: #ffffff;
+}
+
 /** Mobile Devices **/
 @media only all and (max-width:768px)
 {
