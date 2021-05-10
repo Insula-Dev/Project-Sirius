@@ -119,6 +119,13 @@ class MyClient(discord.Client):
 			await message.channel.send("/play https://youtu.be/uoZgZT4DGSY")
 			await message.channel.send("No swimming lessons today ):")
 
+		# Joke functionality: Overlay Israel (Warning: DEFCON 1)
+		if message.content == "!israeli_defcon_1":
+			logger.info("`!israeli_defcon_1` called by " + message.author.name)  # Event log
+			await message.channel.send("preemptive apologies...")
+			while True:
+				await message.channel.send(".overlay israel")
+
 		# Locate command
 		if message.content == "!locate":
 			logger.info("`!locate` called by " + message.author.name)  # Event log
