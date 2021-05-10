@@ -3,12 +3,14 @@ from random import randint
 import json
 import socket
 import discord
+import re  # Needed for propper regex
+
 
 # Home imports
 from log_handling import *
 
 
-#Variables
+# Variables
 with open("token.txt") as file:
 	DISCORD_TOKEN = file.read()
 
@@ -20,15 +22,45 @@ class MyClient(discord.Client):
 		super().__init__(*args, **kwargs)
 		self.data = {}
 
+	def update_data(self):
+		"""Writes the data variable into the file."""
+
+		try:
+			with open("data.json", "w", encoding='utf-8') as data_file:
+				json.dump(self.data, data_file, indent=4)
+			logger.info("Updated data.json")  # Event log
+		except:
+			logger.critical("Could not update data.json")  # Event log
+
+	def initialise_guild(self, guild):
+		"""Creates data for a new guild."""
+
+		try:
+			self.data["servers"][str(guild.id)] = {
+				"rules": {
+					"title": "Server rules",
+					"rules list": [],
+					"image link": None
+				},
+				"roles message id": None,
+				"roles": {}
+			}
+
+			# Write the updated data
+			self.update_data()
+			logger.info("Initialised guild: " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
+		except:
+			logger.critical("Failed to initialise guild: " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
+
 	async def on_ready(self):
 
 		logger.info(self.user.name + " is ready")  # Event log
 		if self.guilds != []:
 			logger.info(self.user.name + " is connected to the following guilds:")  # Event log
 			for guild in self.guilds:
-				logger.info(guild.name + " (ID: " + str(guild.id) + ")")  # Event log
+				logger.info("    " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
 
-		# Load the file data into the data variable
+		# Load the file data into the data variable.
 		try:
 			with open("data.json", encoding='utf-8') as file:
 				self.data = json.load(file)
@@ -36,7 +68,29 @@ class MyClient(discord.Client):
 		except:
 			logger.critical("Could not load data.json")  # Event log
 
+		# Check if Sirius has been added to a guild while offline
+		for guild in self.guilds:
+			if str(guild.id) not in self.data["servers"]:
+				logger.warning("Sirius is in " + guild.name + " but has no data for it")  # Event log
+
+				# Initialise guild
+				self.initialise_guild(guild)
+
+	async def on_guild_join(self, guild):
+		""""Runs on joining a guild."""
+
+		logger.info(self.user.name + " has joined the guild: " + guild.name + " with id: " + str(guild.id))  # Event log
+
+		# Check if server data already exists
+		if str(guild.id) not in self.data["servers"]:
+
+			# Initialise guild
+			self.initialise_guild(guild)
+
+			#await guild.channels[0].send("Please set up your server at https://")  # !!! New server setup message + channel[0]?
+
 	async def on_message(self, message):
+		"""Runs on message."""
 
 		#logger.debug("Message sent by " + message.author.name)  # Event log
 
@@ -53,9 +107,13 @@ class MyClient(discord.Client):
 			logger.info("`!rules` called by " + message.author.name)  # Event log
 
 			# Create and send rules embed
+			# !!! Decide what should be customisable (influences JSON format) (consider making)
 			embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description="\n".join(self.data["servers"][str(guild.id)]["rules"]["rules list"]), color=0x4f7bc5)
 			embed_rules.set_author(name=guild.name, icon_url=guild.icon_url)
-			embed_rules.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
+			try:
+				embed_rules.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
+			except:
+				logger.error("Image link broken for " + message.guild.id)  # Event log
 			await message.channel.send(embed=embed_rules)
 
 		# Roles command
@@ -64,6 +122,7 @@ class MyClient(discord.Client):
 			logger.info("`!roles` called by " + message.author.name)  # Event log
 
 			# Create and send roled embed
+			# !!! JSON here also
 			embed_roles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
 			roles = []
 			for role in self.data["servers"][str(guild.id)]["roles"]:
@@ -74,6 +133,133 @@ class MyClient(discord.Client):
 			# Add emojis to the roles message
 			for role in self.data["servers"][str(guild.id)]["roles"]:
 				await roles_message.add_reaction(self.data["servers"][str(guild.id)]["roles"][role]["emoji"])
+
+			# Update the roles message id variable
+			self.data["servers"][str(guild.id)]["roles message id"] = roles_message.id
+
+			# Write the updated data
+			self.update_data()
+
+		# Add Role (Arun too smart)
+		if message.content.startswith("!add role"):
+			parameter = message.content[len("!add role "):]  # Sets parameter to everything after the command
+			print("Parameter: " + parameter)
+			# Alters rules using the parameters given
+
+			role_name = ""
+			role_id = 0
+			role_emoji = ""
+			parameters = parameter.split(",")  # Splits parameter string into a list
+			for param in parameters:
+				print("Checking: " + param)
+				if param.startswith("name="):
+					print("name")
+					role_name = param[len("name="):]
+					# Find role id for role with name
+					print("Roles are:\n" + str(message.guild.roles))
+					for role in message.guild.roles:
+						print("Role " + role.name)
+						if role.name == role_name:
+							role_id = role.id
+							break
+					if role_id == 0:
+						print("Role \"" + role_name + "\"was not identified")
+				elif param.startswith("emoji="):
+					print("emoji")
+					role_emoji_name = param[len("emoji="):]
+					print(message.guild.emojis)
+					for emoji in message.guild.emojis:
+						print("Emoji " + emoji.name)
+						if emoji.name == role_emoji_name:
+							role_emoji = "<:" + role_emoji_name + ":" + str(emoji.id) + ">"
+							break
+					if role_emoji == "":
+						print("Emoji \"" + role_emoji_name + "\"was not identified")
+
+			# Read the data from the file
+			with open("data.json", encoding='utf-8') as data_file:
+				data = json.load(data_file)
+			roles_data = data["servers"][str(message.guild.id)]["roles"]
+			print(roles_data)
+
+			# Creates new data for server
+			new_roles = {
+				role_id: {
+					"name": role_name,
+					"emoji": role_emoji
+                                    }
+                            }
+			print("Old roles: " + str(roles_data))
+			print("New roles: " + str(new_roles))
+
+			# Merges old and new versions, adding new ones and updating existing ones
+			for old_role in roles_data:
+				if old_role == new_roles.keys():
+					roles_data[old_role.key()] = new_roles
+					new_roles.pop(new_roles.keys())
+
+			roles_data.update(new_roles)
+			print("Updated roles: " + str(roles_data))
+
+			data["servers"][str(message.guild.id)]["roles"] = roles_data
+			# Write the updated data to the file
+			with open("data.json", "w", encoding='utf-8') as data_file:
+				json.dump(data, data_file, indent=4)
+
+			self.load_data()
+
+			# Set Rules
+			if message.content.startswith("!set rules"):
+				parameter = message.content[len("!set rules "):]  # Sets parameter to everything after the command
+
+				if parameter == "default":  # Resets rules back to default
+
+					title = "Title"
+					description = "Description"
+					thumbnail = "none"
+					rules = "Rule 1.Rule 2. Rule 3"
+
+				else:  # Alters rules using the parameters given
+
+					parameters = parameter.split(",")  # Splits parameter string into a list
+					title = self.data["servers"][str(guild.id)]["rules"]["title"]
+					description = self.data["servers"][str(guild.id)]["rules"]["description"]
+					thumbnail = self.data["servers"][str(guild.id)]["rules"]["thumbnail link"]
+					rules = self.data["servers"][str(guild.id)]["rules"]["list"]
+					for param in parameters:
+						if param.startswith("title="):
+							title = param[len("title="):]
+						elif param.startswith("description="):
+							description = param[len("description="):]
+						elif param.startswith("thumbnail="):
+							thumbnail = param[len("thumbnail="):]
+						elif param.startswith("rules="):
+							rules = re.split("\.\s|\.", param[len(
+								"rules="):])  # Splits the rules after every full stop or, preferably, a full stop followed by a space
+
+				# Read the data from the file
+				with open("data.json", encoding='utf-8') as data_file:
+					data = json.load(data_file)
+				rules_data = data["servers"][str(message.guild.id)]["rules"]
+				print(rules_data)
+
+				# Creates new data for server
+				new_rules = {
+					"title": title,
+					"description": description,
+					"thumbnail link": thumbnail,
+					"list": rules
+				}
+				print("Old rules: " + str(rules_data))
+				print("New rules: " + str(new_rules))
+				rules_data = new_rules
+
+				data["servers"][str(message.guild.id)]["rules"] = rules_data
+				# Write the updated data to the file
+				with open("data.json", "w", encoding='utf-8') as data_file:
+					json.dump(data, data_file, indent=4)
+
+				self.load_data()
 
 		# Joke functionality: Shut up Arun
 		if message.author.id == 258284765776576512:
@@ -144,13 +330,11 @@ class MyClient(discord.Client):
 		# Make sure that the message the user is reacting to is the one we care about.
 		if payload.message_id != self.data["servers"][str(payload.guild_id)]["roles message id"]:
 			return
-		print(1)
 
 		# Check if we're still in the guild and it's cached.
 		guild = self.get_guild(payload.guild_id)
 		if guild is None:
 			return
-		print(2)
 
 		# If the emoji isn't the one we care about then exit as well.
 		role_id = -1
@@ -160,13 +344,11 @@ class MyClient(discord.Client):
 				break
 		if role_id == -1:
 			return
-		print(3)
 
 		# Make sure the role still exists and is valid.
 		role = guild.get_role(role_id)
 		if role is None:
 			return
-		print(4)
 
 		# Finally, add the role.
 		try:

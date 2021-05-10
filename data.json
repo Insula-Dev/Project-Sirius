@@ -1,60 +1,69 @@
 {
-	"bot": {},
-	"servers": {
-		"489893521176920076": {
-			"rules": {
-				"title": "Server rules",
-				"rules list": [
-					"1. Keep spam to a minimum",
-					"2. NSFW in appropriate channels",
-					"3. Use appropriate text / voice channels depending on your activity",
-					"4. Keep fighting and arguing to a minimum, keep it to a DM or another server",
-					"5. No pictures of other people even with said persons permission",
-					"6. No posting other peoples or your personal details",
-					"7. No advertising of any kind including other discord servers",
-					"8. No impersonating other people",
-					"9. Do not ask for Staff",
-					"10. No unnecessary pings",
-					"11. Do not bot abuse",
-					"12. Do not music bot abuse (E . G Earrape, Repeating songs, Ultra Long 'songs')",
-					"",
-					"STAFF WILL PUNISH AT THEIR OWN DISCRETION, STAFF SAY IS FINAL.",
-					"JUST BECAUSE A RULE IS NOT STATED HERE DOES NOT GIVE YOU THE RIGHT TO CAUSE OTHER TYPES OF HAVOC,",
-					"STAFF MEMBERS CAN AND WILL PUNISH UNDER THEIR OWN JURISDICTION."
-				],
-				"image link": "https://media.discordapp.net/attachments/504791913241772052/504817198028816395/RULES.jpg"
-			},
-			"roles message id": 834210577412259911,
-			"roles": {
-				"831945402265239562": {
-					"name": "Ping",
-					"emoji": "🔔"
-				},
-				"834023105718517781": {
-					"name": "Destiny 2",
-					"emoji": "<:destiny2:834175548921741342>"
-				},
-				"832997725883596820": {
-					"name": "Stardew",
-					"emoji": "<:stardew:832999319665246308>"
-				},
-				"832658067158073406": {
-					"name": "Risk of Rain",
-					"emoji": "<:ror:832655432127610880>"
-				},
-				"832998331756183632": {
-					"name": "Minecraft",
-					"emoji": "<:minecraft:832659767951622185>"
-				},
-				"832997546157932585": {
-					"name": "Party Games",
-					"emoji": "<:jackbox:832660115739770961>"
-				},
-				"832997616245407815": {
-					"name": "Zombies",
-					"emoji": "<:zombies:833001048867864607>"
-				}
-			}
-		}
-	}
+    "bot": {},
+    "servers": {
+        "489893521176920076": {
+            "rules": {
+                "title": "Server rules",
+                "rules list": [
+                    "1. Keep spam to a minimum",
+                    "2. NSFW in appropriate channels",
+                    "3. Use appropriate text / voice channels depending on your activity",
+                    "4. Keep fighting and arguing to a minimum, keep it to a DM or another server",
+                    "5. No pictures of other people even with said persons permission",
+                    "6. No posting other peoples or your personal details",
+                    "7. No advertising of any kind including other discord servers",
+                    "8. No impersonating other people",
+                    "9. Do not ask for Staff",
+                    "10. No unnecessary pings",
+                    "11. Do not bot abuse",
+                    "12. Do not music bot abuse (E . G Earrape, Repeating songs, Ultra Long 'songs')",
+                    "",
+                    "STAFF WILL PUNISH AT THEIR OWN DISCRETION, STAFF SAY IS FINAL.",
+                    "JUST BECAUSE A RULE IS NOT STATED HERE DOES NOT GIVE YOU THE RIGHT TO CAUSE OTHER TYPES OF HAVOC,",
+                    "STAFF MEMBERS CAN AND WILL PUNISH UNDER THEIR OWN JURISDICTION."
+                ],
+                "image link": "https://media.discordapp.net/attachments/504791913241772052/504817198028816395/RULES.jpg"
+            },
+            "roles message id": 841434413899579413,
+            "roles": {
+                "831945402265239562": {
+                    "name": "Ping",
+                    "emoji": "\ud83d\udd14"
+                },
+                "834023105718517781": {
+                    "name": "Destiny 2",
+                    "emoji": "<:destiny2:834175548921741342>"
+                },
+                "832997725883596820": {
+                    "name": "Stardew",
+                    "emoji": "<:stardew:832999319665246308>"
+                },
+                "832658067158073406": {
+                    "name": "Risk of Rain",
+                    "emoji": "<:ror:832655432127610880>"
+                },
+                "832998331756183632": {
+                    "name": "Minecraft",
+                    "emoji": "<:minecraft:832659767951622185>"
+                },
+                "832997546157932585": {
+                    "name": "Party Games",
+                    "emoji": "<:jackbox:832660115739770961>"
+                },
+                "832997616245407815": {
+                    "name": "Zombies",
+                    "emoji": "<:zombies:833001048867864607>"
+                }
+            }
+        },
+        "834213187468394517": {
+            "rules": {
+                "title": "Server rules",
+                "rules list": [],
+                "image link": null
+            },
+            "roles message id": null,
+            "roles": {}
+        }
+    }
 }

@@ -20,14 +20,19 @@ Thanks.
 
 ```
 {
+    "bot": {},
     "servers": {
         "SERVER_ID": {
-            "rules": [
-                "RULE_1",
-                ...
-                "RULE_N"
-            ]
-            "roles message id": ROLES_MESSAGE_ID
+            "rules": {
+                "title": "RULES_TITLE",
+                "rules list": [
+                    "RULE_1",
+                    ...
+                    "RULE_N"
+                ],
+                "image link": "IMAGE_LINK"
+            },
+            "roles message id": ROLES_MESSAGE_ID,
             "roles": {
                 "ROLE_ID": {
                     "name": "ROLE_NAME",
