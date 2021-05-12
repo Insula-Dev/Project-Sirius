@@ -92,7 +92,7 @@ class MyClient(discord.Client):
 	async def on_message(self, message):
 		"""Runs on message."""
 
-		#logger.debug("Message sent by " + message.author.name)  # Event log
+		logger.debug("Message sent by " + message.author.name)  # Event log
 
 		# Don't respond to yourself
 		if message.author.id == self.user.id:
@@ -260,6 +260,23 @@ class MyClient(discord.Client):
 					json.dump(data, data_file, indent=4)
 
 				self.load_data()
+
+		if message.content == "!server stats":
+
+			print("Server stats command")
+			channelsDict = {}
+
+			guild = message.guild
+			for channel in guild.text_channels:
+				try:
+					count = 0
+					async for x in channel.history(limit=None):
+						count += 1
+					channelsDict.update({channel.name: count})
+				except:
+					pass
+			print(channelsDict)
+			await message.channel.send(channelsDict)
 
 		# Joke functionality: Shut up Arun
 		if message.author.id == 258284765776576512:

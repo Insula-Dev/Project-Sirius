@@ -64,6 +64,15 @@
             },
             "roles message id": null,
             "roles": {}
+        },
+        "808266016614121512": {
+            "rules": {
+                "title": "Server rules",
+                "rules list": [],
+                "image link": null
+            },
+            "roles message id": null,
+            "roles": {}
         }
     }
 }
