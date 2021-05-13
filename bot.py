@@ -276,10 +276,15 @@ class MyClient(discord.Client):
 					channelsDict.update({channel.name: count})
 				except:
 					pass
-			print(channelsDict)
 
+			statsString = ""
+			for key in channelsDict:
+				statsString += "\n"+str(key)+": "+str(channelsDict[key])
+			#await message.channel.send(statsString)
 
-			await message.channel.send(channelsDict)
+			embed_stats = discord.Embed(title="Message breakdown for this server",description=statsString, color=0xba5245)
+			embed_stats.set_author(name=guild.name, icon_url=guild.icon_url)
+			await message.channel.send(embed=embed_stats)
 
 
 
