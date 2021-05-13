@@ -108,12 +108,14 @@ class MyClient(discord.Client):
 
 			# Create and send rules embed
 			# !!! Decide what should be customisable (influences JSON format) (consider making)
+			print("Data"+str(self.data))
 			embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description="\n".join(self.data["servers"][str(guild.id)]["rules"]["rules list"]), color=0x4f7bc5)
 			embed_rules.set_author(name=guild.name, icon_url=guild.icon_url)
-			try:
-				embed_rules.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
-			except:
-				logger.error("Image link broken for " + message.guild.id)  # Event log
+			image = self.data["servers"][str(guild.id)]["rules"]["image link"]
+			if str(image).startswith("https:"):
+				embed_rules.set_image(url=image)
+			else:
+				logger.debug("Image link non-existant for " + str(message.guild.id))  # Event log
 			await message.channel.send(embed=embed_rules)
 
 		# Roles command
@@ -215,24 +217,24 @@ class MyClient(discord.Client):
 			if parameter == "default":  # Resets rules back to default
 
 				title = "Title"
-				description = "Description"
-				thumbnail = "none"
+				#description = "Description"
+				image = "none"
 				rules = "Rule 1.Rule 2. Rule 3"
 
 			else:  # Alters rules using the parameters given
 
 				parameters = parameter.split(",")  # Splits parameter string into a list
 				title = self.data["servers"][str(guild.id)]["rules"]["title"]
-				description = self.data["servers"][str(guild.id)]["rules"]["description"]
-				thumbnail = self.data["servers"][str(guild.id)]["rules"]["thumbnail link"]
-				rules = self.data["servers"][str(guild.id)]["rules"]["list"]
+				#description = self.data["servers"][str(guild.id)]["rules"]["description"]
+				image = self.data["servers"][str(guild.id)]["rules"]["image link"]
+				rules = self.data["servers"][str(guild.id)]["rules"]["rules list"]
 				for param in parameters:
 					if param.startswith("title="):
 						title = param[len("title="):]
-					elif param.startswith("description="):
-						description = param[len("description="):]
-					elif param.startswith("thumbnail="):
-						thumbnail = param[len("thumbnail="):]
+					#elif param.startswith("description="):
+					#	description = param[len("description="):]
+					elif param.startswith("image="):
+						image = param[len("image="):]
 					elif param.startswith("rules="):
 						rules = re.split("\.\s|\.", param[len(
 							"rules="):])  # Splits the rules after every full stop or, preferably, a full stop followed by a space
@@ -246,9 +248,9 @@ class MyClient(discord.Client):
 			# Creates new data for server
 			new_rules = {
 				"title": title,
-				"description": description,
-				"thumbnail link": thumbnail,
-				"list": rules
+				#"description": description,
+				"image link": image,
+				"rules list": rules
 			}
 			print("Old rules: " + str(rules_data))
 			print("New rules: " + str(new_rules))
@@ -259,7 +261,6 @@ class MyClient(discord.Client):
 			with open("data.json", "w", encoding='utf-8') as data_file:
 				json.dump(data, data_file, indent=4)
 
-			self.load_data()
 
 		if message.content == "!server stats":
 
