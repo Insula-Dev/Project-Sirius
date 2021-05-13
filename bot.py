@@ -208,58 +208,58 @@ class MyClient(discord.Client):
 
 			self.load_data()
 
-			# Set Rules
-			if message.content.startswith("!set rules"):
-				parameter = message.content[len("!set rules "):]  # Sets parameter to everything after the command
+		# Set Rules
+		if message.content.startswith("!set rules"):
+			parameter = message.content[len("!set rules "):]  # Sets parameter to everything after the command
 
-				if parameter == "default":  # Resets rules back to default
+			if parameter == "default":  # Resets rules back to default
 
-					title = "Title"
-					description = "Description"
-					thumbnail = "none"
-					rules = "Rule 1.Rule 2. Rule 3"
+				title = "Title"
+				description = "Description"
+				thumbnail = "none"
+				rules = "Rule 1.Rule 2. Rule 3"
 
-				else:  # Alters rules using the parameters given
+			else:  # Alters rules using the parameters given
 
-					parameters = parameter.split(",")  # Splits parameter string into a list
-					title = self.data["servers"][str(guild.id)]["rules"]["title"]
-					description = self.data["servers"][str(guild.id)]["rules"]["description"]
-					thumbnail = self.data["servers"][str(guild.id)]["rules"]["thumbnail link"]
-					rules = self.data["servers"][str(guild.id)]["rules"]["list"]
-					for param in parameters:
-						if param.startswith("title="):
-							title = param[len("title="):]
-						elif param.startswith("description="):
-							description = param[len("description="):]
-						elif param.startswith("thumbnail="):
-							thumbnail = param[len("thumbnail="):]
-						elif param.startswith("rules="):
-							rules = re.split("\.\s|\.", param[len(
-								"rules="):])  # Splits the rules after every full stop or, preferably, a full stop followed by a space
+				parameters = parameter.split(",")  # Splits parameter string into a list
+				title = self.data["servers"][str(guild.id)]["rules"]["title"]
+				description = self.data["servers"][str(guild.id)]["rules"]["description"]
+				thumbnail = self.data["servers"][str(guild.id)]["rules"]["thumbnail link"]
+				rules = self.data["servers"][str(guild.id)]["rules"]["list"]
+				for param in parameters:
+					if param.startswith("title="):
+						title = param[len("title="):]
+					elif param.startswith("description="):
+						description = param[len("description="):]
+					elif param.startswith("thumbnail="):
+						thumbnail = param[len("thumbnail="):]
+					elif param.startswith("rules="):
+						rules = re.split("\.\s|\.", param[len(
+							"rules="):])  # Splits the rules after every full stop or, preferably, a full stop followed by a space
 
-				# Read the data from the file
-				with open("data.json", encoding='utf-8') as data_file:
-					data = json.load(data_file)
-				rules_data = data["servers"][str(message.guild.id)]["rules"]
-				print(rules_data)
+			# Read the data from the file
+			with open("data.json", encoding='utf-8') as data_file:
+				data = json.load(data_file)
+			rules_data = data["servers"][str(message.guild.id)]["rules"]
+			print(rules_data)
 
-				# Creates new data for server
-				new_rules = {
-					"title": title,
-					"description": description,
-					"thumbnail link": thumbnail,
-					"list": rules
-				}
-				print("Old rules: " + str(rules_data))
-				print("New rules: " + str(new_rules))
-				rules_data = new_rules
+			# Creates new data for server
+			new_rules = {
+				"title": title,
+				"description": description,
+				"thumbnail link": thumbnail,
+				"list": rules
+			}
+			print("Old rules: " + str(rules_data))
+			print("New rules: " + str(new_rules))
+			rules_data = new_rules
 
-				data["servers"][str(message.guild.id)]["rules"] = rules_data
-				# Write the updated data to the file
-				with open("data.json", "w", encoding='utf-8') as data_file:
-					json.dump(data, data_file, indent=4)
+			data["servers"][str(message.guild.id)]["rules"] = rules_data
+			# Write the updated data to the file
+			with open("data.json", "w", encoding='utf-8') as data_file:
+				json.dump(data, data_file, indent=4)
 
-				self.load_data()
+			self.load_data()
 
 		if message.content == "!server stats":
 
