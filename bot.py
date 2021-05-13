@@ -276,7 +276,11 @@ class MyClient(discord.Client):
 				except:
 					pass
 			print(channelsDict)
+
+
 			await message.channel.send(channelsDict)
+
+
 
 		# Joke functionality: Shut up Arun
 		if message.author.id == 258284765776576512:
