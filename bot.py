@@ -263,29 +263,54 @@ class MyClient(discord.Client):
 
 
 		if message.content == "!server stats":
-
 			print("Server stats command")
 			channelsDict = {}
+			membersDict = {}
 
 			guild = message.guild
 			for channel in guild.text_channels:
+				logger.debug("Checking channel: " + channel.name)
+				print("Checking channel: " + channel.name)
 				try:
 					count = 0
-					async for x in channel.history(limit=None):
+					messages = channel.history(oldest_first=True,limit=None)
+					async for x in messages:
 						count += 1
+
 					channelsDict.update({channel.name: count})
 				except:
-					pass
+					logger.error("Error occurred when scanning channel: "+channel.name+" in server "+guild.name)
 
-			statsString = ""
+			logger.debug("Finished getting messages per channel for "+guild.name)
+			print("Finished getting messages per channel for " + guild.name)
+			for channel in guild.text_channels:
+				logger.debug("Checking channel: " + channel.name)
+				print("Checking channel: " + channel.name)
+				messages = channel.history(oldest_first=True, limit=None)
+				async for message in messages:
+					try:
+						membersDict[message.author] = membersDict[message.author] + 1  # Increases message count for member in dicitonary
+					except KeyError:  # Adds new member to dictionary if they haven't been added before
+						try:
+							membersDict.update({message.author: 1})
+							logger.debug("New member " + str(message.author) + " added to stats dict")
+						except UnicodeEncodeError:
+							logger.error("A username was too advanced for little Sirius to handle.")
+
+			channelsString = ""
 			for key in channelsDict:
-				statsString += "\n"+str(key)+": "+str(channelsDict[key])
-			#await message.channel.send(statsString)
+				channelsString += "\n"+str(key)+": "+str(channelsDict[key])+"⠀⠀⠀⠀⠀"
+			membersString = ""
+			for key in membersDict:
+				membersString += "\n" + str(key) + ": " + str(membersDict[key])
 
-			embed_stats = discord.Embed(title="Message breakdown for this server",description=statsString, color=0xba5245)
+			embed_stats = discord.Embed(title="Message breakdown for this server", color=0xba5245)
+			embed_stats.add_field(name="Channels",value=channelsString,inline=True)
+			embed_stats.add_field(name="Members",value=membersString,inline=True)
 			embed_stats.set_author(name=guild.name, icon_url=guild.icon_url)
 			await message.channel.send(embed=embed_stats)
-
+			logger.info("Server stats for "+guild.name+" compiled and sent!")
+			print("Server stats for " + guild.name + " compiled and sent!")
 
 
 		# Joke functionality: Shut up Arun
