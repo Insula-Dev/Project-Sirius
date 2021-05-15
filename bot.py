@@ -19,6 +19,7 @@ with open("token.txt") as file:
 class MyClient(discord.Client):
 
 	def __init__(self, debug=False, *args, **kwargs):
+
 		super().__init__(*args, **kwargs)
 		self.data = {}
 		if debug is True:
@@ -346,6 +347,28 @@ class MyClient(discord.Client):
 			logger.info("`!kill` called by " + message.author.name)  # Event log
 			await message.channel.send("Doggie down")
 			await client.close()
+
+	async def on_member_join(self, member):
+		"""Sends a welcome message directly to the user."""
+
+		try:
+			await member.create_dm()
+			await member.dm_channel.send("Welcome to [GUILD NAME], " + member.name)
+			logger.debug("Sent welcome message to " + member.name + " (ID: " + member.id + ")")  # Event log
+		except:
+			# If user has impeded direct messages
+			logger.debug("Failed to send welcome message to " + member.name + " (ID: " + member.id + ")")  # Event log
+
+	async def on_member_remove(self, member):
+		"""Sends a goodbye message directly to the user."""
+
+		try:
+			await member.create_dm()
+			await member.dm_channel.send("Goodbye ;)")
+			logger.debug("Sent goodbye message to " + member.name + " (ID: " + member.id + ")")  # Event log
+		except:
+			# If the user has impeded direct messages
+			logger.debug("Failed to send goodbye message to " + member.name + " (ID: " + member.id + ")")  # Event log
 
 	async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
 		"""Gives a role based on a reaction emoji."""
