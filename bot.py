@@ -114,7 +114,6 @@ class MyClient(discord.Client):
 
 			# Create and send rules embed
 			# !!! Decide what should be customisable (influences JSON format) (consider making)
-			print("Data" + str(self.data))
 			embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description="\n".join(self.data["servers"][str(guild.id)]["rules"]["rules list"]), color=0x4f7bc5)
 			embed_rules.set_author(name=guild.name, icon_url=guild.icon_url)
 			image = self.data["servers"][str(guild.id)]["rules"]["image link"]
@@ -216,7 +215,7 @@ class MyClient(discord.Client):
 
 			self.load_data()
 
-		# Set Rules
+		# Set Rules (Arun too smart)
 		if message.content.startswith("!set rules"):
 			parameter = message.content[len("!set rules "):]  # Sets parameter to everything after the command
 
@@ -351,24 +350,26 @@ class MyClient(discord.Client):
 	async def on_member_join(self, member):
 		"""Sends a welcome message directly to the user."""
 
+		logger.debug("Member " + member.name + " joined guild [GUILD_NAME]")
 		try:
 			await member.create_dm()
-			await member.dm_channel.send("Welcome to [GUILD NAME], " + member.name)
-			logger.debug("Sent welcome message to " + member.name + " (ID: " + member.id + ")")  # Event log
+			await member.dm_channel.send("Welcome to the server, " + member.name + ".")
+			logger.debug("Sent welcome message to " + member.name)  # Event log
 		except:
 			# If user has impeded direct messages
-			logger.debug("Failed to send welcome message to " + member.name + " (ID: " + member.id + ")")  # Event log
+			logger.debug("Failed to send welcome message to " + member.name)  # Event log
 
 	async def on_member_remove(self, member):
 		"""Sends a goodbye message directly to the user."""
 
+		logger.debug("Member " + member.name + " left guild [GUILD_NAME]")
 		try:
 			await member.create_dm()
 			await member.dm_channel.send("Goodbye ;)")
-			logger.debug("Sent goodbye message to " + member.name + " (ID: " + member.id + ")")  # Event log
+			logger.debug("Sent goodbye message to " + member.name)  # Event log
 		except:
 			# If the user has impeded direct messages
-			logger.debug("Failed to send goodbye message to " + member.name + " (ID: " + member.id + ")")  # Event log
+			logger.debug("Failed to send goodbye message to " + member.name)  # Event log
 
 	async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
 		"""Gives a role based on a reaction emoji."""
