@@ -450,4 +450,6 @@ try:
 
 	logger.info("That's all\n")  # Event log
 except:
-	logger.error("Unexpected exception... Say that ten times fast")
+
+	# This is intended to catch all unexpected shutdowns and put a newline in the log file, since otherwise it becomes concatenated and horrible... Does on_kill exist?
+	logger.error("Unexpected exception... Say that ten times fast\n")  # Event log
