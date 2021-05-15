@@ -22,18 +22,18 @@ def mask_circle_solid(pil_img, background_color, blur_radius, offset=0): # From 
 def makeRankCard(profile_url,rank):
     with requests.get(profile_url) as r:
         img_data = r.content
-    profilePic = Image.open("Untitled.png")
-    profilePic.show()
+    profilePic = Image.open("card.png")
+    #profilePic.show()
 
     card = Image.new(mode="RGB",size=(500,200),color=bg_colour)
-    card.show()
+    #card.show()
     profilePic = mask_circle_solid(profilePic, bg_colour, 1)
 
     card.paste(profilePic,(20,20))
-    card.show()
+    #card.show()
 
     drawn = ImageDraw.Draw(card)
     font = font = ImageFont.truetype("./arial.ttf", 30)
     drawn.text((160, 20),"Rank: "+str(rank),(255,255,255),font=font)
-    card.show()
-    return card
+    #card.show()
+    card.save("card.png")

@@ -19,8 +19,8 @@ with open("token.txt") as file:
 
 
 # Definitions
-def getRankImage(user): # Might be able to skip this and go straight to imaging lib
-	return imaging.makeRankCard(user.avatar_url,2)
+def updateRankImage(user): # Might be able to skip this and go straight to imaging lib
+	imaging.makeRankCard(user.avatar_url,2)
 
 class MyClient(discord.Client):
 
@@ -316,10 +316,11 @@ class MyClient(discord.Client):
 
 		# Sends user rank image
 		if message.content.startswith("!get rank"):
-			getRankImage(message.author)
+			updateRankImage(message.author)
 			embed_rank = discord.Embed()
-			embed_rank.set_image(url=message.author.avatar_url)
-			await message.channel.send(embed=embed_rank)
+			file = discord.File("card.png")
+			embed_rank.set_image(url="attachment://card.png")
+			await message.channel.send(file=file,embed=embed_rank)
 
 		# Joke functionality: Shut up Arun
 		if message.author.id == 258284765776576512:
