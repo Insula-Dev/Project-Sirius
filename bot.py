@@ -18,9 +18,13 @@ with open("token.txt") as file:
 # Definitions
 class MyClient(discord.Client):
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self, debug=False, *args, **kwargs):
+
 		super().__init__(*args, **kwargs)
 		self.data = {}
+		if debug is True:
+			# Print logs to the console too (for debugging)
+			logger.addHandler(logging.StreamHandler())
 
 	def update_data(self):
 		"""Writes the data variable into the file."""
@@ -54,7 +58,7 @@ class MyClient(discord.Client):
 
 	async def on_ready(self):
 
-		logger.info(self.user.name + " is ready")  # Event log
+		logger.info(self.user.name + " is ready (commencing on_ready)")  # Event log
 		if self.guilds != []:
 			logger.info(self.user.name + " is connected to the following guilds:")  # Event log
 			for guild in self.guilds:
@@ -64,7 +68,7 @@ class MyClient(discord.Client):
 		try:
 			with open("data.json", encoding='utf-8') as file:
 				self.data = json.load(file)
-			logger.info("Loaded data.json")  # Event log
+			logger.debug("Loaded data.json")  # Event log
 		except:
 			logger.critical("Could not load data.json")  # Event log
 
@@ -75,6 +79,8 @@ class MyClient(discord.Client):
 
 				# Initialise guild
 				self.initialise_guild(guild)
+
+		logger.info(self.user.name + " is ready (finished on_ready)")  # Event log
 
 	async def on_guild_join(self, guild):
 		""""Runs on joining a guild."""
@@ -108,7 +114,6 @@ class MyClient(discord.Client):
 
 			# Create and send rules embed
 			# !!! Decide what should be customisable (influences JSON format) (consider making)
-			print("Data"+str(self.data))
 			embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description="\n".join(self.data["servers"][str(guild.id)]["rules"]["rules list"]), color=0x4f7bc5)
 			embed_rules.set_author(name=guild.name, icon_url=guild.icon_url)
 			image = self.data["servers"][str(guild.id)]["rules"]["image link"]
@@ -210,7 +215,7 @@ class MyClient(discord.Client):
 
 			self.load_data()
 
-		# Set Rules
+		# Set Rules (Arun too smart)
 		if message.content.startswith("!set rules"):
 			parameter = message.content[len("!set rules "):]  # Sets parameter to everything after the command
 
@@ -376,11 +381,39 @@ class MyClient(discord.Client):
 			await message.channel.send("Doggie down")
 			await client.close()
 
+	async def on_member_join(self, member):
+		"""Sends a welcome message directly to the user."""
+
+		logger.debug("Member " + member.name + " joined guild [GUILD_NAME]")
+		try:
+			await member.create_dm()
+			await member.dm_channel.send("Welcome to the server, " + member.name + ".")
+			logger.debug("Sent welcome message to " + member.name)  # Event log
+		except:
+			# If user has impeded direct messages
+			logger.debug("Failed to send welcome message to " + member.name)  # Event log
+
+	async def on_member_remove(self, member):
+		"""Sends a goodbye message directly to the user."""
+
+		logger.debug("Member " + member.name + " left guild [GUILD_NAME]")
+		try:
+			await member.create_dm()
+			await member.dm_channel.send("Goodbye ;)")
+			logger.debug("Sent goodbye message to " + member.name)  # Event log
+		except:
+			# If the user has impeded direct messages
+			logger.debug("Failed to send goodbye message to " + member.name)  # Event log
+
 	async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
 		"""Gives a role based on a reaction emoji."""
 
 		# Make sure that the message the user is reacting to is the one we care about.
 		if payload.message_id != self.data["servers"][str(payload.guild_id)]["roles message id"]:
+			return
+
+		# Make sure the user isn't the bot.
+		if payload.author.id == self.user.id:
 			return
 
 		# Check if we're still in the guild and it's cached.
@@ -416,6 +449,10 @@ class MyClient(discord.Client):
 
 		# Make sure that the message the user is reacting to is the one we care about.
 		if payload.message_id != self.data["servers"][str(payload.guild_id)]["roles message id"]:
+			return
+
+		# Make sure the user isn't the bot.
+		if payload.author.id == self.user.id:
 			return
 
 		# Check if we're still in the guild and it's cached.
@@ -456,10 +493,15 @@ class MyClient(discord.Client):
 
 
 # Main body
-intents = discord.Intents.default()
-intents.members = True
+try:
+	intents = discord.Intents.default()
+	intents.members = True
 
-client = MyClient(intents=intents)
-client.run(DISCORD_TOKEN)
+	client = MyClient(intents=intents, debug=True)
+	client.run(DISCORD_TOKEN)
 
-logger.info("That's all\n")  # Event log
+	logger.info("That's all\n")  # Event log
+except:
+
+	# This is intended to catch all unexpected shutdowns and put a newline in the log file, since otherwise it becomes concatenated and horrible... Does on_kill exist?
+	logger.error("Unexpected exception... Say that ten times fast\n")  # Event log
