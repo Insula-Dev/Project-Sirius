@@ -3,7 +3,10 @@ from random import randint
 import json
 import socket
 import discord
-import re  # Needed for propper regex
+import re  # Needed for proper regex
+from PIL import Image
+import requests
+import imaging
 
 
 # Home imports
@@ -16,6 +19,9 @@ with open("token.txt") as file:
 
 
 # Definitions
+def getRankImage(user): # Might be able to skip this and go straight to imaging lib
+	return imaging.makeRankCard(user.avatar_url,2)
+
 class MyClient(discord.Client):
 
 	def __init__(self, debug=False, *args, **kwargs):
@@ -170,24 +176,21 @@ class MyClient(discord.Client):
 							role_id = role.id
 							break
 					if role_id == 0:
-						print("Role \"" + role_name + "\"was not identified")
+						logger.error("Role \"" + role_name + "\"was not identified")
 				elif param.startswith("emoji="):
-					print("emoji")
 					role_emoji_name = param[len("emoji="):]
-					print(message.guild.emojis)
 					for emoji in message.guild.emojis:
-						print("Emoji " + emoji.name)
 						if emoji.name == role_emoji_name:
 							role_emoji = "<:" + role_emoji_name + ":" + str(emoji.id) + ">"
 							break
 					if role_emoji == "":
-						print("Emoji \"" + role_emoji_name + "\"was not identified")
+						logger.error("Emoji \"" + role_emoji_name + "\"was not identified")
 
 			# Read the data from the file
 			with open("data.json", encoding='utf-8') as data_file:
 				data = json.load(data_file)
 			roles_data = data["servers"][str(message.guild.id)]["roles"]
-			print(roles_data)
+			logger.debug(roles_data)
 
 			# Creates new data for server
 			new_roles = {
@@ -196,8 +199,8 @@ class MyClient(discord.Client):
 					"emoji": role_emoji
                                     }
                             }
-			print("Old roles: " + str(roles_data))
-			print("New roles: " + str(new_roles))
+			logger.debug("Old roles: " + str(roles_data))
+			logger.debug("New roles: " + str(new_roles))
 
 			# Merges old and new versions, adding new ones and updating existing ones
 			for old_role in roles_data:
@@ -206,7 +209,7 @@ class MyClient(discord.Client):
 					new_roles.pop(new_roles.keys())
 
 			roles_data.update(new_roles)
-			print("Updated roles: " + str(roles_data))
+			logger.info("Updated roles for "+message.guild+": " + str(roles_data))
 
 			data["servers"][str(message.guild.id)]["roles"] = roles_data
 			# Write the updated data to the file
@@ -248,7 +251,6 @@ class MyClient(discord.Client):
 			with open("data.json", encoding='utf-8') as data_file:
 				data = json.load(data_file)
 			rules_data = data["servers"][str(message.guild.id)]["rules"]
-			print(rules_data)
 
 			# Creates new data for server
 			new_rules = {
@@ -257,8 +259,8 @@ class MyClient(discord.Client):
 				"image link": image,
 				"rules list": rules
 			}
-			print("Old rules: " + str(rules_data))
-			print("New rules: " + str(new_rules))
+			logger.debug("Old rules: " + str(rules_data))
+			logger.debug("New rules: " + str(new_rules))
 			rules_data = new_rules
 
 			data["servers"][str(message.guild.id)]["rules"] = rules_data
@@ -268,14 +270,12 @@ class MyClient(discord.Client):
 
 
 		if message.content == "!server stats":
-			print("Server stats command")
 			channelsDict = {}
 			membersDict = {}
 
 			guild = message.guild
 			for channel in guild.text_channels:
 				logger.debug("Checking channel: " + channel.name)
-				print("Checking channel: " + channel.name)
 				try:
 					count = 0
 					messages = channel.history(oldest_first=True,limit=None)
@@ -287,10 +287,8 @@ class MyClient(discord.Client):
 					logger.error("Error occurred when scanning channel: "+channel.name+" in server "+guild.name)
 
 			logger.debug("Finished getting messages per channel for "+guild.name)
-			print("Finished getting messages per channel for " + guild.name)
 			for channel in guild.text_channels:
 				logger.debug("Checking channel: " + channel.name)
-				print("Checking channel: " + channel.name)
 				messages = channel.history(oldest_first=True, limit=None)
 				async for message in messages:
 					try:
@@ -315,8 +313,13 @@ class MyClient(discord.Client):
 			embed_stats.set_author(name=guild.name, icon_url=guild.icon_url)
 			await message.channel.send(embed=embed_stats)
 			logger.info("Server stats for "+guild.name+" compiled and sent!")
-			print("Server stats for " + guild.name + " compiled and sent!")
 
+		# Sends user rank image
+		if message.content.startswith("!get rank"):
+			getRankImage(message.author)
+			embed_rank = discord.Embed()
+			embed_rank.set_image(url=message.author.avatar_url)
+			await message.channel.send(embed=embed_rank)
 
 		# Joke functionality: Shut up Arun
 		if message.author.id == 258284765776576512:
