@@ -16,9 +16,6 @@ formatter = logging.Formatter("%(asctime)s.%(msecs)03d | %(levelname)s | %(filen
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
-# Print logs to the console too (for debugging)
-logger.addHandler(logging.StreamHandler())
-
 
 # Functions
 def LoggerExamples():

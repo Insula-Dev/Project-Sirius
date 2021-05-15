@@ -18,9 +18,12 @@ with open("token.txt") as file:
 # Definitions
 class MyClient(discord.Client):
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self, debug=False, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.data = {}
+		if debug is True:
+			# Print logs to the console too (for debugging)
+			logger.addHandler(logging.StreamHandler())
 
 	def update_data(self):
 		"""Writes the data variable into the file."""
@@ -54,7 +57,7 @@ class MyClient(discord.Client):
 
 	async def on_ready(self):
 
-		logger.info(self.user.name + " is ready")  # Event log
+		logger.info(self.user.name + " is ready (commencing on_ready)")  # Event log
 		if self.guilds != []:
 			logger.info(self.user.name + " is connected to the following guilds:")  # Event log
 			for guild in self.guilds:
@@ -64,7 +67,7 @@ class MyClient(discord.Client):
 		try:
 			with open("data.json", encoding='utf-8') as file:
 				self.data = json.load(file)
-			logger.info("Loaded data.json")  # Event log
+			logger.debug("Loaded data.json")  # Event log
 		except:
 			logger.critical("Could not load data.json")  # Event log
 
@@ -75,6 +78,8 @@ class MyClient(discord.Client):
 
 				# Initialise guild
 				self.initialise_guild(guild)
+
+		logger.info(self.user.name + " is ready (finished on_ready)")  # Event log
 
 	async def on_guild_join(self, guild):
 		""""Runs on joining a guild."""
@@ -108,7 +113,7 @@ class MyClient(discord.Client):
 
 			# Create and send rules embed
 			# !!! Decide what should be customisable (influences JSON format) (consider making)
-			print("Data"+str(self.data))
+			print("Data" + str(self.data))
 			embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description="\n".join(self.data["servers"][str(guild.id)]["rules"]["rules list"]), color=0x4f7bc5)
 			embed_rules.set_author(name=guild.name, icon_url=guild.icon_url)
 			image = self.data["servers"][str(guild.id)]["rules"]["image link"]
@@ -261,7 +266,6 @@ class MyClient(discord.Client):
 			with open("data.json", "w", encoding='utf-8') as data_file:
 				json.dump(data, data_file, indent=4)
 
-
 		if message.content == "!server stats":
 
 			print("Server stats command")
@@ -278,10 +282,7 @@ class MyClient(discord.Client):
 					pass
 			print(channelsDict)
 
-
 			await message.channel.send(channelsDict)
-
-
 
 		# Joke functionality: Shut up Arun
 		if message.author.id == 258284765776576512:
@@ -353,6 +354,10 @@ class MyClient(discord.Client):
 		if payload.message_id != self.data["servers"][str(payload.guild_id)]["roles message id"]:
 			return
 
+		# Make sure the user isn't the bot.
+		if payload.author.id == self.user.id:
+			return
+
 		# Check if we're still in the guild and it's cached.
 		guild = self.get_guild(payload.guild_id)
 		if guild is None:
@@ -386,6 +391,10 @@ class MyClient(discord.Client):
 
 		# Make sure that the message the user is reacting to is the one we care about.
 		if payload.message_id != self.data["servers"][str(payload.guild_id)]["roles message id"]:
+			return
+
+		# Make sure the user isn't the bot.
+		if payload.author.id == self.user.id:
 			return
 
 		# Check if we're still in the guild and it's cached.
@@ -426,10 +435,13 @@ class MyClient(discord.Client):
 
 
 # Main body
-intents = discord.Intents.default()
-intents.members = True
+try:
+	intents = discord.Intents.default()
+	intents.members = True
 
-client = MyClient(intents=intents)
-client.run(DISCORD_TOKEN)
+	client = MyClient(intents=intents, debug=True)
+	client.run(DISCORD_TOKEN)
 
-logger.info("That's all\n")  # Event log
+	logger.info("That's all\n")  # Event log
+except:
+	logger.error("Unexpected exception... Say that ten times fast")
