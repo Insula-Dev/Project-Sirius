@@ -1,3 +1,4 @@
+import PIL.Image
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 import requests
 """
@@ -17,15 +18,32 @@ def mask_circle_solid(pil_img, background_color, blur_radius, offset=0): # From 
     draw = ImageDraw.Draw(mask)
     draw.ellipse((offset, offset, pil_img.size[0] - offset, pil_img.size[1] - offset), fill=255)
     mask = mask.filter(ImageFilter.GaussianBlur(blur_radius))
-
     return Image.composite(pil_img, background, mask)
+
+def add_corners(self, im, rad=100):
+    circle = Image.new('L', (rad * 2, rad * 2), 0)
+    draw = ImageDraw.Draw(circle)
+    draw.ellipse((0, 0, rad * 2, rad * 2), fill=255)
+    alpha = Image.new('L', im.size, "white")
+    w, h = im.size
+    alpha.paste(circle.crop((0, 0, rad, rad)), (0, 0))
+    alpha.paste(circle.crop((0, rad, rad, rad * 2)), (0, h - rad))
+    alpha.paste(circle.crop((rad, 0, rad * 2, rad)), (w - rad, 0))
+    alpha.paste(circle.crop((rad, rad, rad * 2, rad * 2)), (w - rad, h - rad))
+    im.putalpha(alpha)
+    return im
+
 def makeRankCard(profile_url,rank):
     with requests.get(profile_url) as r:
         img_data = r.content
+    with open('card.png', 'wb') as img:
+        img.write(img_data)
     profilePic = Image.open("card.png")
+    profilePic = profilePic.resize((150,150),PIL.Image.NEAREST)
     #profilePic.show()
 
     card = Image.new(mode="RGB",size=(500,200),color=bg_colour)
+    card = add_corners(card,card,rad=15)
     #card.show()
     profilePic = mask_circle_solid(profilePic, bg_colour, 1)
 
@@ -33,7 +51,10 @@ def makeRankCard(profile_url,rank):
     #card.show()
 
     drawn = ImageDraw.Draw(card)
-    font = font = ImageFont.truetype("./arial.ttf", 30)
-    drawn.text((160, 20),"Rank: "+str(rank),(255,255,255),font=font)
+    font = ImageFont.truetype("./comic.ttf", 20)
+    drawn.text((180, 20),"Rank: "+str(rank),(230,230,255),font=font)
     #card.show()
     card.save("card.png")
+
+if __name__ == '__main__':
+    makeRankCard("https://cdn.discordapp.com/avatars/258284765776576512/72490d3f18dafda1528ad68fa421d1dc.webp?size=128",3)

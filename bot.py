@@ -320,7 +320,9 @@ class MyClient(discord.Client):
 			embed_rank = discord.Embed()
 			file = discord.File("card.png")
 			embed_rank.set_image(url="attachment://card.png")
-			await message.channel.send(file=file,embed=embed_rank)
+			await message.channel.send(file=file)
+			#await message.channel.send(file=file,embed=embed_rank)
+
 
 		# Joke functionality: Shut up Arun
 		if message.author.id == 258284765776576512:
