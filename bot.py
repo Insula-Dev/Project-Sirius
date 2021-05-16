@@ -5,6 +5,8 @@ import socket
 import discord
 import re  # Needed for propper regex
 
+# New comment
+
 # Another new comment
 
 
