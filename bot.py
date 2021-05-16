@@ -5,10 +5,6 @@ import socket
 import discord
 import re  # Needed for propper regex
 
-# New comment
-
-# Another new comment
-
 
 # Home imports
 from log_handling import *
