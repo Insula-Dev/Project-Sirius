@@ -4,8 +4,6 @@ import json
 import socket
 import discord
 import re  # Needed for proper regex
-from PIL import Image
-import requests
 import imaging
 
 
@@ -19,8 +17,9 @@ with open("token.txt") as file:
 
 
 # Definitions
-def updateRankImage(user): # Might be able to skip this and go straight to imaging lib
-	imaging.makeRankCard(user.avatar_url,2)
+def updateRankImage(user,rank): # Might be able to skip this and go straight to imaging lib
+	logger.debug("Percentage to next rank: "+str((rank%10)/100))
+	imaging.makeRankCard(user.avatar_url,(rank/10),((rank%10)/10))
 
 class MyClient(discord.Client):
 
@@ -32,7 +31,7 @@ class MyClient(discord.Client):
 			# Print logs to the console too (for debugging)
 			logger.addHandler(logging.StreamHandler())
 
-	def update_data(self):
+	async def update_data(self):
 		"""Writes the data variable into the file."""
 
 		try:
@@ -53,7 +52,8 @@ class MyClient(discord.Client):
 					"image link": None
 				},
 				"roles message id": None,
-				"roles": {}
+				"roles": {},
+				"ranks": {}
 			}
 
 			# Write the updated data
@@ -112,6 +112,19 @@ class MyClient(discord.Client):
 
 		# Set guild of origin
 		guild = self.get_guild(message.guild.id)
+
+		# XP
+		try:
+			ranks = self.data["servers"][str(guild.id)]["ranks"]
+		except KeyError:
+			self.data["servers"][str(guild.id)].update({"ranks":{}}) # Adds ranks section to data to upgrade the server's data
+			ranks = self.data["servers"][str(guild.id)]["ranks"]
+		try:
+			ranks[message.author] = ranks[message.author]+1
+		except KeyError:
+			ranks.update({message.author:0}) # Adds person to ranks list
+		print(self.data)
+		self.update_data()
 
 		# Rules command
 		if message.content == "!rules":
@@ -268,7 +281,6 @@ class MyClient(discord.Client):
 			with open("data.json", "w", encoding='utf-8') as data_file:
 				json.dump(data, data_file, indent=4)
 
-
 		if message.content == "!server stats":
 			channelsDict = {}
 			membersDict = {}
@@ -316,7 +328,7 @@ class MyClient(discord.Client):
 
 		# Sends user rank image
 		if message.content.startswith("!get rank"):
-			updateRankImage(message.author)
+			updateRankImage(message.author,ranks[message.author])
 			embed_rank = discord.Embed()
 			file = discord.File("card.png")
 			embed_rank.set_image(url="attachment://card.png")
