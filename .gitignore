@@ -1,4 +1,7 @@
 __pycache__
+venv
+.idea
 token.txt
 log_file.log
-.idea
+.idea/misc.xml
+.idea/Project-Sirius.iml
