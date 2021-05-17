@@ -54,6 +54,9 @@
                     "name": "Zombies",
                     "emoji": "<:zombies:833001048867864607>"
                 }
+            },
+            "ranks": {
+                "258284765776576512": 14
             }
         },
         "834213187468394517": {
@@ -80,7 +83,16 @@
             },
             "roles message id": null,
             "roles": {}
+        },
+        "831596325140824074": {
+            "rules": {
+                "title": "Server rules",
+                "rules list": [],
+                "image link": null
+            },
+            "roles message id": null,
+            "roles": {},
+            "ranks": {}
         }
     }
 }
-                

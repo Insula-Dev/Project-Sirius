@@ -19,7 +19,7 @@ with open("token.txt") as file:
 # Definitions
 def updateRankImage(user,rank): # Might be able to skip this and go straight to imaging lib
 	logger.debug("Percentage to next rank: "+str((rank%10)/100))
-	imaging.makeRankCard(user.avatar_url,(rank/10),((rank%10)/10))
+	imaging.makeRankCard(user.avatar_url,(rank//10),((rank%10)/10))
 
 class MyClient(discord.Client):
 
@@ -120,11 +120,12 @@ class MyClient(discord.Client):
 			self.data["servers"][str(guild.id)].update({"ranks":{}}) # Adds ranks section to data to upgrade the server's data
 			ranks = self.data["servers"][str(guild.id)]["ranks"]
 		try:
-			ranks[message.author] = ranks[message.author]+1
+			ranks[str(message.author.id)] = ranks[str(message.author.id)]+1
 		except KeyError:
-			ranks.update({message.author:0}) # Adds person to ranks list
-		print(self.data)
-		self.update_data()
+			ranks.update({message.author.id:0}) # Adds person to ranks list
+		self.data["servers"][str(guild.id)]["ranks"] = ranks
+		print(self.data["servers"][str(guild.id)]["ranks"])
+		await self.update_data()
 
 		# Rules command
 		if message.content == "!rules":
@@ -328,7 +329,7 @@ class MyClient(discord.Client):
 
 		# Sends user rank image
 		if message.content.startswith("!get rank"):
-			updateRankImage(message.author,ranks[message.author])
+			updateRankImage(message.author,ranks[str(message.author.id)])
 			embed_rank = discord.Embed()
 			file = discord.File("card.png")
 			embed_rank.set_image(url="attachment://card.png")
