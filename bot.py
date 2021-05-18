@@ -5,6 +5,7 @@ import socket
 import discord
 import re  # Needed for proper regex
 import imaging
+import requests
 
 
 # Home imports
@@ -119,12 +120,14 @@ class MyClient(discord.Client):
 		except KeyError:
 			self.data["servers"][str(guild.id)].update({"ranks":{}}) # Adds ranks section to data to upgrade the server's data
 			ranks = self.data["servers"][str(guild.id)]["ranks"]
-		try:
-			ranks[str(message.author.id)] = ranks[str(message.author.id)]+1
+
+		try: # Adds xp to user
+			authorID = str(message.author.id)
+			ranks[authorID] = ranks[authorID]+1
 		except KeyError:
-			ranks.update({message.author.id:0}) # Adds person to ranks list
+			ranks.update({authorID:0}) # Adds person to ranks list
 		self.data["servers"][str(guild.id)]["ranks"] = ranks
-		print(self.data["servers"][str(guild.id)]["ranks"])
+		print(self.data["servers"][str(guild.id)])
 		await self.update_data()
 
 		# Rules command
@@ -416,13 +419,13 @@ class MyClient(discord.Client):
 		"""Sends a goodbye message directly to the user."""
 
 		logger.debug("Member " + member.name + " left guild [GUILD_NAME]")
-		try:
-			await member.create_dm()
-			await member.dm_channel.send("Goodbye ;)")
-			logger.debug("Sent goodbye message to " + member.name)  # Event log
-		except:
+		#try:
+		await member.create_dm()
+		await member.dm_channel.send("Goodbye ;)")
+		logger.debug("Sent goodbye message to " + member.name)  # Event log
+		#except:
 			# If the user has impeded direct messages
-			logger.debug("Failed to send goodbye message to " + member.name)  # Event log
+		#	logger.debug("Failed to send goodbye message to " + member.name)  # Event log
 
 	async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
 		"""Gives a role based on a reaction emoji."""
