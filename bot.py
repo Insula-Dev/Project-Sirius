@@ -22,11 +22,14 @@ with open("token.txt") as file:
 def updateRankImage(user,xp): # Might be able to skip this and go straight to imaging lib
 	#current_rank = xp/10
 	#percent_to_next = xp%10
-	current_rank = math.sqrt(xp-10/1.8)
+	try:
+		current_rank = math.sqrt(xp-10/1.8)
+	except ValueError: # If value is too low (can't square root negative) it defaults to zero
+		current_rank = 0
 	percent_to_rank = (xp%(1.8*((current_rank)**2)+10))
 	print("Current rank: "+str(current_rank)+" xp: "+str(xp)+" next rank xp: "+str((1.8*((current_rank)**2)+10)))
 	logger.debug("Percentage to next rank: "+str(percent_to_rank))
-	imaging.makeRankCard(user.avatar_url,(current_rank),percent_to_rank)
+	imaging.makeRankCard(user.avatar_url,(current_rank),percent_to_rank,name=user.name)
 
 class MyClient(discord.Client):
 
