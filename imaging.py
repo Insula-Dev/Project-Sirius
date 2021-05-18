@@ -1,3 +1,5 @@
+import math
+
 import PIL.Image
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 import requests
@@ -55,13 +57,13 @@ def makeRankCard(profile_url,rank,percentage_to_rank):
 
     drawn = ImageDraw.Draw(card)
     font = ImageFont.truetype("./comic.ttf", 28)
-    drawn.text((180, 20),"Rank: "+str(rank),(230,230,255),font=font)
+    drawn.text((180, 20),"Rank: "+str(math.floor(rank)),(230,230,255),font=font)
     #card.show()
 
     print("Percentage to rank "+str(percentage_to_rank))
     barBackground = Image.new(mode="RGB", size=(300, 20), color=grey_colour)
     #barBackground = add_corners(barBackground, barBackground, rad=10)
-    barOverlay = Image.new(mode="RGB", size=(round(300*percentage_to_rank), 20), color=theme_colour)
+    barOverlay = Image.new(mode="RGB", size=(round(300*percentage_to_rank/100), 20), color=theme_colour)
     #barOverlay = add_corners(barOverlay, barOverlay, rad=10)
     card.paste(barBackground,(180,110))
     card.paste(barOverlay,(180,110))

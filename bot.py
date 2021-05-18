@@ -1,4 +1,5 @@
 # Imports
+import math
 from random import randint
 import json
 import socket
@@ -18,9 +19,14 @@ with open("token.txt") as file:
 
 
 # Definitions
-def updateRankImage(user,rank): # Might be able to skip this and go straight to imaging lib
-	logger.debug("Percentage to next rank: "+str((rank%10)/100))
-	imaging.makeRankCard(user.avatar_url,(rank//10),((rank%10)/10))
+def updateRankImage(user,xp): # Might be able to skip this and go straight to imaging lib
+	#current_rank = xp/10
+	#percent_to_next = xp%10
+	current_rank = math.sqrt(xp-10/1.8)
+	percent_to_rank = (xp%(1.8*((current_rank)**2)+10))
+	print("Current rank: "+str(current_rank)+" xp: "+str(xp)+" next rank xp: "+str((1.8*((current_rank)**2)+10)))
+	logger.debug("Percentage to next rank: "+str(percent_to_rank))
+	imaging.makeRankCard(user.avatar_url,(current_rank),percent_to_rank)
 
 class MyClient(discord.Client):
 
