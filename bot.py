@@ -1,5 +1,6 @@
 # Imports
 import math
+import time
 from random import randint
 import json
 import socket
@@ -72,6 +73,13 @@ class MyClient(discord.Client):
 		except:
 			logger.critical("Failed to initialise guild: " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
 
+	def resetCache(self):
+		self.cache = {}
+		for server in self.guilds:
+			self.cache.update({server.name:{}})
+		self.cacheTimer = time.time()
+		logger.debug("Cache successfully created at "+str(self.cacheTimer)+" seconds")
+
 	async def on_ready(self):
 
 		logger.info(self.user.name + " is ready (commencing on_ready)")  # Event log
@@ -95,6 +103,9 @@ class MyClient(discord.Client):
 
 				# Initialise guild
 				self.initialise_guild(guild)
+
+		# Creates cache
+		self.resetCache()
 
 		logger.info(self.user.name + " is ready (finished on_ready)")  # Event log
 
@@ -121,7 +132,15 @@ class MyClient(discord.Client):
 			return
 
 		# Set guild of origin
-		guild = self.get_guild(message.guild.id)
+		guild = message.guild
+
+		# Refresh cache
+		print(self.cache)
+		if time.time() - self.cacheTimer > 60:
+			print("Resetting")
+			self.resetCache()
+		else:
+			print("There's still time... "+str(round((time.time() - self.cacheTimer)*10)/10)+" seconds of it used")
 
 		# XP
 		try:
@@ -132,11 +151,18 @@ class MyClient(discord.Client):
 
 		try: # Adds xp to user
 			authorID = str(message.author.id)
-			ranks[authorID] = ranks[authorID]+1
+			if authorID not in self.cache[guild.name]:
+				print("got")
+				ranks[authorID] = ranks[authorID]+1
+				self.cache[guild.name].update({authorID:True})
+			else:
+				print("Already been got")
 		except KeyError:
+			print("key error")
 			ranks.update({authorID:0}) # Adds person to ranks list
 		self.data["servers"][str(guild.id)]["ranks"] = ranks
 		print(self.data["servers"][str(guild.id)])
+		print(self.cache[guild.name])
 		await self.update_data()
 
 		# Rules command
@@ -152,7 +178,7 @@ class MyClient(discord.Client):
 			if str(image).startswith("https:"):
 				embed_rules.set_image(url=image)
 			else:
-				logger.debug("Image link non-existant for " + str(message.guild.id))  # Event log
+				logger.debug("Image link non-existant for " + str(guild.id))  # Event log
 			await message.channel.send(embed=embed_rules)
 
 		# Roles command
@@ -195,8 +221,8 @@ class MyClient(discord.Client):
 					print("name")
 					role_name = param[len("name="):]
 					# Find role id for role with name
-					print("Roles are:\n" + str(message.guild.roles))
-					for role in message.guild.roles:
+					print("Roles are:\n" + str(guild.roles))
+					for role in guild.roles:
 						print("Role " + role.name)
 						if role.name == role_name:
 							role_id = role.id
@@ -205,7 +231,7 @@ class MyClient(discord.Client):
 						logger.error("Role \"" + role_name + "\"was not identified")
 				elif param.startswith("emoji="):
 					role_emoji_name = param[len("emoji="):]
-					for emoji in message.guild.emojis:
+					for emoji in guild.emojis:
 						if emoji.name == role_emoji_name:
 							role_emoji = "<:" + role_emoji_name + ":" + str(emoji.id) + ">"
 							break
@@ -215,7 +241,7 @@ class MyClient(discord.Client):
 			# Read the data from the file
 			with open("data.json", encoding='utf-8') as data_file:
 				data = json.load(data_file)
-			roles_data = data["servers"][str(message.guild.id)]["roles"]
+			roles_data = data["servers"][str(guild.id)]["roles"]
 			logger.debug(roles_data)
 
 			# Creates new data for server
@@ -235,9 +261,9 @@ class MyClient(discord.Client):
 					new_roles.pop(new_roles.keys())
 
 			roles_data.update(new_roles)
-			logger.info("Updated roles for "+message.guild+": " + str(roles_data))
+			logger.info("Updated roles for "+guild+": " + str(roles_data))
 
-			data["servers"][str(message.guild.id)]["roles"] = roles_data
+			data["servers"][str(guild.id)]["roles"] = roles_data
 			# Write the updated data to the file
 			with open("data.json", "w", encoding='utf-8') as data_file:
 				json.dump(data, data_file, indent=4)
@@ -276,7 +302,7 @@ class MyClient(discord.Client):
 			# Read the data from the file
 			with open("data.json", encoding='utf-8') as data_file:
 				data = json.load(data_file)
-			rules_data = data["servers"][str(message.guild.id)]["rules"]
+			rules_data = data["servers"][str(guild.id)]["rules"]
 
 			# Creates new data for server
 			new_rules = {
@@ -289,7 +315,7 @@ class MyClient(discord.Client):
 			logger.debug("New rules: " + str(new_rules))
 			rules_data = new_rules
 
-			data["servers"][str(message.guild.id)]["rules"] = rules_data
+			data["servers"][str(guild.id)]["rules"] = rules_data
 			# Write the updated data to the file
 			with open("data.json", "w", encoding='utf-8') as data_file:
 				json.dump(data, data_file, indent=4)
@@ -298,7 +324,6 @@ class MyClient(discord.Client):
 			channelsDict = {}
 			membersDict = {}
 
-			guild = message.guild
 			for channel in guild.text_channels:
 				logger.debug("Checking channel: " + channel.name)
 				try:
@@ -352,11 +377,30 @@ class MyClient(discord.Client):
 		# Joke functionality: Shut up Arun
 		if message.author.id == 258284765776576512:
 
-			logger.info("Arun sighted. Locking on")  # Event log
+			#logger.info("Arun sighted. Locking on")  # Event log
 
 			if randint(1, 10) == 1:
-				await message.channel.send("shut up arun")
-				logger.info("Arun down.")  # Event log
+				if randint(1, 2) == 1:
+					await message.channel.send("shut up arun")
+				else:
+					await message.channel.send("arun, why are you still talking")
+				#logger.info("Arun down.")  # Event log
+			else:
+				pass
+				#logger.info("Mission failed, RTB")  # Event log
+
+		# Joke functionality: Shut up Pablo
+		if message.author.id == 241772848564142080:
+
+			logger.info("Pablo sighted. Locking on")  # Event log
+
+			if randint(1, 10) == 1:
+				logger.info("Revenge protocol ready: affirmative")
+				if randint(1, 2) == 1:
+					await message.channel.send("shut up pablo")
+				else:
+					await message.channel.send("pablo, put that big brain back on sleep mode")
+				logger.info("Pablo down.")  # Event log
 			else:
 				logger.info("Mission failed, RTB")  # Event log
 
