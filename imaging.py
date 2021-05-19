@@ -52,8 +52,10 @@ def makeRankCard(profile_url,rank,percentage_to_rank,name=""):
     card = Image.new(mode="RGB",size=(500,200),color=bg_colour)
     card = add_corners(card,card,rad=15)
     #card.show()
+    #ppBorder = mask_circle_solid(Image.new("RGB",(160,160),grey_colour),bg_colour,1)
     profilePic = mask_circle_solid(profilePic, bg_colour, 1)
 
+    #card.paste(ppBorder,(15,15))
     card.paste(profilePic,(20,20))
     #card.show()
 
@@ -66,11 +68,11 @@ def makeRankCard(profile_url,rank,percentage_to_rank,name=""):
     #card.show()
 
     print("Percentage to rank "+str(percentage_to_rank))
-    barBackground = Image.new(mode="RGB", size=(300, 20), color=grey_colour)
+    barBackground = Image.new(mode="RGB", size=(310, 30), color=grey_colour)
     #barBackground = add_corners(barBackground, barBackground, rad=10)
     barOverlay = Image.new(mode="RGB", size=(round(300*percentage_to_rank/100), 20), color=alt_colour)
     #barOverlay = add_corners(barOverlay, barOverlay, rad=10)
-    card.paste(barBackground,(180,110))
+    card.paste(barBackground,(175,105))
     card.paste(barOverlay,(180,110))
     card.save("card.png")
 
