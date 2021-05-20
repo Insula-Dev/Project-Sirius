@@ -136,11 +136,11 @@ class MyClient(discord.Client):
 
 		# Refresh cache
 		print(self.cache)
-		if time.time() - self.cacheTimer > 60:
-			print("Resetting")
+		if time.time() - self.cacheTimer > 60: # After 60 seconds, cache reset
 			self.resetCache()
 		else:
-			print("There's still time... "+str(round((time.time() - self.cacheTimer)*10)/10)+" seconds of it used")
+			pass
+			#logger.debug("There's still time... "+str(round((time.time() - self.cacheTimer)*10)/10)+" seconds of it used")
 
 		# XP
 		try:
@@ -152,17 +152,14 @@ class MyClient(discord.Client):
 		try: # Adds xp to user
 			authorID = str(message.author.id)
 			if authorID not in self.cache[guild.name]:
-				print("got")
 				ranks[authorID] = ranks[authorID]+1
 				self.cache[guild.name].update({authorID:True})
-			else:
-				print("Already been got")
 		except KeyError:
-			print("key error")
+			logger.info("New member "+authorID+" sent first registered message in "+guild.name)
 			ranks.update({authorID:0}) # Adds person to ranks list
 		self.data["servers"][str(guild.id)]["ranks"] = ranks
-		print(self.data["servers"][str(guild.id)])
-		print(self.cache[guild.name])
+		#print(self.data["servers"][str(guild.id)])
+		#print(self.cache[guild.name])
 		await self.update_data()
 
 		# Rules command

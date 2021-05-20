@@ -52,11 +52,14 @@ def makeRankCard(profile_url,rank,percentage_to_rank,name=""):
     card = Image.new(mode="RGB",size=(500,200),color=bg_colour)
     card = add_corners(card,card,rad=15)
     #card.show()
-    #ppBorder = mask_circle_solid(Image.new("RGB",(160,160),grey_colour),bg_colour,1)
-    profilePic = mask_circle_solid(profilePic, bg_colour, 1)
+    ppBorder = Image.new("RGB",(152,152),grey_colour)
+    ppBorder.paste(profilePic, (1, 1))
+    ppBorder = mask_circle_solid(ppBorder,bg_colour,2)
 
-    #card.paste(ppBorder,(15,15))
-    card.paste(profilePic,(20,20))
+    #profilePic = mask_circle_solid(profilePic, bg_colour, 1)
+
+
+    card.paste(ppBorder,(20,20))
     #card.show()
 
     drawn = ImageDraw.Draw(card)
@@ -76,5 +79,14 @@ def makeRankCard(profile_url,rank,percentage_to_rank,name=""):
     card.paste(barOverlay,(180,110))
     card.save("card.png")
 
+
+# Fun image processing
+
+def smackImage(image):
+    image = image.filter(ImageFilter.CONTOUR)
+    return image
+
 if __name__ == '__main__':
-    makeRankCard("https://cdn.discordapp.com/avatars/258284765776576512/72490d3f18dafda1528ad68fa421d1dc.webp?size=128",3)
+    makeRankCard("https://cdn.discordapp.com/avatars/258284765776576512/72490d3f18dafda1528ad68fa421d1dc.webp?size=128",3,5,name="Bob")
+    image = Image.open("card.png")
+    smackImage(image).show()
