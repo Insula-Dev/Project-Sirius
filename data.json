@@ -1,12 +1,13 @@
 {
     "config": {
         "jokes": false,
-        "secure": false
+        "secure": true
     },
     "servers": {
         "489893521176920076": {
             "rules": {
-                "title": "Server rules",
+                "title": "\ud83d\udcc3 Server rules",
+                "description": "We're pretty chill here, but we've set down some ground rules so that everyone has a good experience on the server.",
                 "rules list": [
                     "1. Keep spam to a minimum",
                     "2. NSFW in appropriate channels",
@@ -27,7 +28,7 @@
                 ],
                 "image link": "https://media.discordapp.net/attachments/504791913241772052/504817198028816395/RULES.jpg"
             },
-            "roles message id": 843067616653606973,
+            "roles message id": 845301220751310891,
             "roles": {
                 "831945402265239562": {
                     "name": "Ping",
@@ -61,7 +62,8 @@
         },
         "834213187468394517": {
             "rules": {
-                "title": "My Rules",
+                "title": "\ud83d\udcc3 My Rules",
+                "description": "",
                 "image link": "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fstatic3.wikia.nocookie.net%2F__cb20120607032338%2Ftardis%2Fimages%2F9%2F98%2FDon%27t_blink.jpg&f=1&nofb=1",
                 "rules list": [
                     "Don't blink",
@@ -77,7 +79,8 @@
         },
         "808266016614121512": {
             "rules": {
-                "title": "Server rules",
+                "title": "\ud83d\udcc3 Server rules",
+                "description": "",
                 "rules list": [],
                 "image link": null
             },
@@ -86,7 +89,8 @@
         },
         "831596325140824074": {
             "rules": {
-                "title": "Server rules",
+                "title": "\ud83d\udcc3 Server rules",
+                "description": "",
                 "rules list": [],
                 "image link": null
             },
@@ -95,12 +99,52 @@
         },
         "844942677594472481": {
             "rules": {
-                "title": "Server rules",
-                "rules list": [],
-                "image link": null
+                "title": "\ud83d\udcc3 Server rules",
+                "description": "We're pretty chill here, but we've set down some ground rules so that everyone has a good experience on the server.",
+                "rules list": [
+                    "\u2022 Respect fellow members of the Discord server.",
+                    "\u2022 No slurs of any kind allowed.",
+                    "\u2022 Please use each channel for its intended purpose. If there is a channel to post something, post it there.",
+                    "\u2022 Please respect York's policies on plagiarism and collusion. This includes asking for or supplying help with assessments which are intended to be independent. Any such breach will reflect badly on the whole discord.",
+                    "\u2022 Please keep in line with the Discord Terms of Service.",
+                    "\u2022 Please only ping @Moderator if you have an issue.",
+                    "\u2022 Do not flood/spam the channels.",
+                    "\u2022 Do not try to loophole/bypass punishments or rules. Or do. It's more entertaining.",
+                    "\u2022 Images/videos/gifs etc. containing inappropriate content will incur punishment",
+                    "",
+                    "Punishments are decided by moderators at their discretion. Repeated offenders will receive worse punishments.",
+                    "",
+                    "To summarise, use your brain and you'll be okay. Report any issues."
+                ],
+                "image link": "https://db3pap006files.storage.live.com/y4mr-Wa5qCDxmSvDCXA2h2E0Qu6kkJTcs1kKQjn14yUQfboZWyy_9sX8naYjeiEk-fuM6ltxX-9Jndyx9EvnUYJJlVdLao9OgREvEaNcFpMtmE0aqTUOLJZ11U1-HexXR6uk7M8rI9iEJ-8jDjHUFUF1YHNbYYKhO5JN4ghZzlJKU9Dx8B0mpRnQinFP10F4n_s?width=1772&height=938&cropmode=none"
             },
-            "roles message id": null,
-            "roles": {}
+            "roles message id": 845318158830272522,
+            "roles": {
+                "845309847640473641": {
+                    "name": "Foundation",
+                    "emoji": "0\ufe0f\u20e3"
+                },
+                "844943772043444234": {
+                    "name": "Year 1",
+                    "emoji": "1\ufe0f\u20e3"
+                },
+                "844943944319893564": {
+                    "name": "Year 2",
+                    "emoji": "2\ufe0f\u20e3"
+                },
+                "844943919786622988": {
+                    "name": "Year 3",
+                    "emoji": "3\ufe0f\u20e3"
+                },
+                "844943891928580107": {
+                    "name": "Year 4",
+                    "emoji": "4\ufe0f\u20e3"
+                },
+                "845309888028344381": {
+                    "name": "Postgrad",
+                    "emoji": "\ud83c\udd7f\ufe0f"
+                }
+            }
         }
     }
 }
