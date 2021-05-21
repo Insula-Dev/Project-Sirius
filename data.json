@@ -1,5 +1,8 @@
 {
-    "bot": {},
+    "config": {
+        "jokes": false,
+        "secure": false
+    },
     "servers": {
         "489893521176920076": {
             "rules": {
@@ -82,6 +85,15 @@
             "roles": {}
         },
         "831596325140824074": {
+            "rules": {
+                "title": "Server rules",
+                "rules list": [],
+                "image link": null
+            },
+            "roles message id": null,
+            "roles": {}
+        },
+        "844942677594472481": {
             "rules": {
                 "title": "Server rules",
                 "rules list": [],
