@@ -1,4 +1,5 @@
 # Imports
+from datetime import date
 import json
 import socket
 import discord
@@ -41,6 +42,7 @@ class MyClient(discord.Client):
 			self.data["servers"][str(guild.id)] = {
 				"rules": {
 					"title": "Server rules",
+					"description": "",
 					"rules list": [],
 					"image link": None
 				},
@@ -114,11 +116,11 @@ class MyClient(discord.Client):
 			await message.channel.purge(limit=1)
 
 			# Create and send rules embed
-			# !!! Decide what should be customisable (influences JSON format) (consider making)
-			embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description="\n".join(self.data["servers"][str(guild.id)]["rules"]["rules list"]), color=0x4f7bc5)
-			embed_rules.set_author(name=guild.name, icon_url=guild.icon_url)
+			embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0x4f7bc5, inline=False)
+			embed_rules.set_footer(text="Rules updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
+			embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["rules list"]), inline=True)
 			image = self.data["servers"][str(guild.id)]["rules"]["image link"]
-			if str(image).startswith("https:"):
+			if image.startswith("https:"):
 				embed_rules.set_image(url=image)
 			else:
 				logger.debug("Image link non-existant for " + str(message.guild.id))  # Event log
@@ -133,12 +135,11 @@ class MyClient(discord.Client):
 			await message.channel.purge(limit=1)
 
 			# Create and send roled embed
-			# !!! JSON here also
 			embed_roles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
 			roles = []
 			for role in self.data["servers"][str(guild.id)]["roles"]:
 				roles.append(self.data["servers"][str(guild.id)]["roles"][role]["emoji"] + " " + self.data["servers"][str(guild.id)]["roles"][role]["name"])
-			embed_roles.add_field(name="[Games]", value="\n".join(roles))
+			embed_roles.add_field(name="Roles", value="\n".join(roles))
 			roles_message = await message.channel.send(embed=embed_roles)
 
 			# Add emojis to the roles message
