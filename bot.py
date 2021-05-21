@@ -107,50 +107,65 @@ class MyClient(discord.Client):
 		# Set guild of origin
 		guild = self.get_guild(message.guild.id)
 
-		# Rules command
-		if message.content == "!rules":
+		if self.data["config"]["secure"] is True:
 
-			logger.info("`!rules` called by " + message.author.name)  # Event log
+			# Rules command
+			if message.content == "!rules":
 
-			# Delete the command message
-			await message.channel.purge(limit=1)
+				logger.info("`!rules` called by " + message.author.name)  # Event log
 
-			# Create and send rules embed
-			embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0x4f7bc5, inline=False)
-			embed_rules.set_footer(text="Rules updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
-			embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["rules list"]), inline=True)
-			image = self.data["servers"][str(guild.id)]["rules"]["image link"]
-			if image.startswith("https:"):
-				embed_rules.set_image(url=image)
-			else:
-				logger.debug("Image link non-existant for " + str(message.guild.id))  # Event log
-			await message.channel.send(embed=embed_rules)
+				# Delete the command message
+				await message.channel.purge(limit=1)
 
-		# Roles command
-		if message.content == "!roles":
+				# Create and send rules embed
+				embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0x4f7bc5, inline=False)
+				embed_rules.set_footer(text="Rules updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
+				embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["rules list"]), inline=True)
+				image = self.data["servers"][str(guild.id)]["rules"]["image link"]
+				if image.startswith("https:"):
+					embed_rules.set_image(url=image)
+				else:
+					logger.debug("Image link non-existant for " + str(message.guild.id))  # Event log
+				await message.channel.send(embed=embed_rules)
 
-			logger.info("`!roles` called by " + message.author.name)  # Event log
+			# Roles command
+			if message.content == "!roles":
 
-			# Delete the command message
-			await message.channel.purge(limit=1)
+				logger.info("`!roles` called by " + message.author.name)  # Event log
 
-			# Create and send roled embed
-			embed_roles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
-			roles = []
-			for role in self.data["servers"][str(guild.id)]["roles"]:
-				roles.append(self.data["servers"][str(guild.id)]["roles"][role]["emoji"] + " " + self.data["servers"][str(guild.id)]["roles"][role]["name"])
-			embed_roles.add_field(name="Roles", value="\n".join(roles))
-			roles_message = await message.channel.send(embed=embed_roles)
+				# Delete the command message
+				await message.channel.purge(limit=1)
 
-			# Add emojis to the roles message
-			for role in self.data["servers"][str(guild.id)]["roles"]:
-				await roles_message.add_reaction(self.data["servers"][str(guild.id)]["roles"][role]["emoji"])
+				# Create and send roled embed
+				embed_roles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
+				embed_roles.set_footer(text="Roles updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=self.user.avatar_url)
+				roles = []
+				for role in self.data["servers"][str(guild.id)]["roles"]:
+					roles.append(self.data["servers"][str(guild.id)]["roles"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"][role]["name"] + "\n")
+				embed_roles.add_field(name="Roles", value="\n".join(roles))
+				roles_message = await message.channel.send(embed=embed_roles)
 
-			# Update the roles message id variable
-			self.data["servers"][str(guild.id)]["roles message id"] = roles_message.id
+				# Add emojis to the roles message
+				for role in self.data["servers"][str(guild.id)]["roles"]:
+					await roles_message.add_reaction(self.data["servers"][str(guild.id)]["roles"][role]["emoji"])
 
-			# Write the updated data
-			self.update_data()
+				# Update the roles message id variable
+				self.data["servers"][str(guild.id)]["roles message id"] = roles_message.id
+
+				# Write the updated data
+				self.update_data()
+
+			# Locate command
+			if message.content == "!locate":
+				logger.info("`!locate` called by " + message.author.name)  # Event log
+				hostname = socket.gethostname()
+				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.")
+
+			# Kill command
+			if message.content == "!kill":
+				logger.info("`!kill` called by " + message.author.name)  # Event log
+				await message.channel.send("Doggie down")
+				await client.close()
 
 		# Joke functionality
 		if self.data["config"]["jokes"] is True:
@@ -211,20 +226,6 @@ class MyClient(discord.Client):
 				await message.channel.send("preemptive apologies...")
 				while True:
 					await message.channel.send(".overlay israel")
-
-		if self.data["config"]["secure"] is True:
-
-			# Locate command
-			if message.content == "!locate":
-				logger.info("`!locate` called by " + message.author.name)  # Event log
-				hostname = socket.gethostname()
-				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.")
-
-			# Kill command
-			if message.content == "!kill":
-				logger.info("`!kill` called by " + message.author.name)  # Event log
-				await message.channel.send("Doggie down")
-				await client.close()
 
 	async def on_member_join(self, member):
 		"""Sends a welcome message directly to the user."""
