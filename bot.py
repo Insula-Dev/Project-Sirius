@@ -304,6 +304,12 @@ class MyClient(discord.Client):
 			for x in range(100):
 				await message.channel.send(guild.get_member(692684372247314445).mention)
 
+		# Joke functionality: Summon leo command
+		if message.content == "!summon_leo":
+			logger.info("`!summon_leo` called by " + message.author.name)  # Event log
+			for x in range(100):
+				await message.channel.send(guild.get_member(242790351524462603).mention)
+
 		# Joke functionality: Teaching bitches how to swim
 		if message.content == "!swim":
 			logger.info("`!swim` called by " + message.author.name)  # Event log
