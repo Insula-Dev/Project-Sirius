@@ -258,7 +258,7 @@ class MyClient(discord.Client):
 			return
 
 		# Make sure the user isn't the bot.
-		if payload.author.id == self.user.id:
+		if payload.member.id == self.user.id:  # was payload.author
 			return
 
 		# Check if we're still in the guild and it's cached.
@@ -266,7 +266,7 @@ class MyClient(discord.Client):
 		if guild is None:
 			return
 
-		# If the emoji isn't the one we care about then exit as well.
+		# If the emoji isn't the one we care about then delete it and exit as well.
 		role_id = -1
 		for id_counter in self.data["servers"][str(guild.id)]["roles"]:
 			if self.data["servers"][str(guild.id)]["roles"][id_counter]["emoji"] == str(payload.emoji):
@@ -302,12 +302,20 @@ class MyClient(discord.Client):
 		if payload.message_id != self.data["servers"][str(payload.guild_id)]["roles message id"]:
 			return
 
+		# The payload for `on_raw_reaction_remove` does not provide `.member`
+		# so we must get the member ourselves from the payload's `.user_id`.
+
+		# Make sure the member still exists and is valid.
+		guild = self.get_guild(payload.guild_id)
+		member = guild.get_member(payload.user_id)
+		if member is None:
+			return
+
 		# Make sure the user isn't the bot.
-		if payload.author.id == self.user.id:
+		if member.id == self.user.id:
 			return
 
 		# Check if we're still in the guild and it's cached.
-		guild = self.get_guild(payload.guild_id)
 		if guild is None:
 			return
 
@@ -323,14 +331,6 @@ class MyClient(discord.Client):
 		# Make sure the role still exists and is valid.
 		role = guild.get_role(role_id)
 		if role is None:
-			return
-
-		# The payload for `on_raw_reaction_remove` does not provide `.member`
-		# so we must get the member ourselves from the payload's `.user_id`.
-
-		# Make sure the member still exists and is valid.
-		member = guild.get_member(payload.user_id)
-		if member is None:
 			return
 
 		# Finally, remove the role.
