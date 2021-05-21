@@ -110,6 +110,9 @@ class MyClient(discord.Client):
 
 			logger.info("`!rules` called by " + message.author.name)  # Event log
 
+			# Delete the command message
+			await message.channel.purge(limit=1)
+
 			# Create and send rules embed
 			# !!! Decide what should be customisable (influences JSON format) (consider making)
 			embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description="\n".join(self.data["servers"][str(guild.id)]["rules"]["rules list"]), color=0x4f7bc5)
@@ -125,6 +128,9 @@ class MyClient(discord.Client):
 		if message.content == "!roles":
 
 			logger.info("`!roles` called by " + message.author.name)  # Event log
+
+			# Delete the command message
+			await message.channel.purge(limit=1)
 
 			# Create and send roled embed
 			# !!! JSON here also
