@@ -266,6 +266,12 @@ class MyClient(discord.Client):
 				role_id = int(id_counter)
 				break
 		if role_id == -1:
+			# Not very efficient... comes from (https://stackoverflow.com/questions/63418818/python-discord-bot-python-clear-reaction-clears-all-reactions-instead-of-a-s)
+			channel = await self.fetch_channel(payload.channel_id)
+			message = await channel.fetch_message(payload.message_id)
+			reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
+			await reaction.remove(payload.member)
+
 			return
 
 		# Make sure the role still exists and is valid.
