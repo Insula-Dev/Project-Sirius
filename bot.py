@@ -28,8 +28,7 @@ def updateRankImage(user,xp): # Might be able to skip this and go straight to im
 	except ValueError: # If value is too low (can't square root negative) it defaults to zero
 		current_rank = 0
 	percent_to_rank = (xp%(1.8*((current_rank)**2)+10))
-	print("Current rank: "+str(current_rank)+" xp: "+str(xp)+" next rank xp: "+str((1.8*((current_rank)**2)+10)))
-	logger.debug("Percentage to next rank: "+str(percent_to_rank))
+	logger.debug("Current rank: " + str(current_rank) + " xp: " + str(xp) + " next rank xp: " + str((1.8 * ((current_rank) ** 2) + 10)))
 	imaging.makeRankCard(user.avatar_url,(current_rank),percent_to_rank,name=user.name)
 
 class MyClient(discord.Client):
@@ -80,9 +79,31 @@ class MyClient(discord.Client):
 		self.cacheTimer = time.time()
 		logger.debug("Cache successfully created at "+str(self.cacheTimer)+" seconds")
 
-	async def on_ready(self):
+	def getGuildRanks(self,guild):
+		# XP
+		try:
+			ranks = self.data["servers"][str(guild.id)]["ranks"]
+		except KeyError:
+			self.data["servers"][str(guild.id)].update(
+				{"ranks": {}})  # Adds ranks section to data to upgrade the server's data
+			ranks = self.data["servers"][str(guild.id)]["ranks"]
+		return ranks
 
-		logger.info(self.user.name + " is ready (commencing on_ready)")  # Event log
+	async def addXP(self,author,guild):
+		logger.debug("Adding xp to "+author.name)
+		ranks = self.getGuildRanks(guild)
+		try:  # Adds xp to user
+			authorID = str(author.id)
+			ranks[authorID] = ranks[authorID] + 1
+		except KeyError:
+			logger.info("New member " + author.name + " sent first registered message in " + guild.name)
+			ranks.update({authorID: 0})  # Adds person to ranks list
+		self.data["servers"][str(guild.id)]["ranks"] = ranks
+		await self.update_data()
+
+	async def on_ready(self):
+		global startTime
+		logger.info(self.user.name + " is starting (commencing on_ready)")  # Event log
 		if self.guilds != []:
 			logger.info(self.user.name + " is connected to the following guilds:")  # Event log
 			for guild in self.guilds:
@@ -107,7 +128,7 @@ class MyClient(discord.Client):
 		# Creates cache
 		self.resetCache()
 
-		logger.info(self.user.name + " is ready (finished on_ready)")  # Event log
+		logger.info(self.user.name + " is ready (finished on_ready). Finished in "+str(time.time() - startTime)+" seconds")  # Event log
 
 	async def on_guild_join(self, guild):
 		""""Runs on joining a guild."""
@@ -127,39 +148,28 @@ class MyClient(discord.Client):
 
 		logger.debug("Message sent by " + message.author.name)  # Event log
 
+		# Set author of origin
+		author = message.author
+
 		# Don't respond to yourself
-		if message.author.id == self.user.id:
+		if author.id == self.user.id:
 			return
 
 		# Set guild of origin
 		guild = message.guild
 
 		# Refresh cache
-		if time.time() - self.cacheTimer > 60: # After 60 seconds, cache reset
-			self.resetCache()
+		if author.name in self.cache[guild.name]:
+			if time.time() - self.cache[guild.name][author.name] > 60: # After 60 seconds, guild-user cache reset
+				self.cache[guild.name][author.name] = time.time()
+				await self.addXP(author,guild) # Adds xp to author
+			else: # Already sent message during time
+				pass
+				logger.debug("Time left on cooldown: "+str(round((time.time() - self.cache[guild.name][author.name])*10)/10)+" seconds")
 		else:
-			pass
-			#logger.debug("There's still time... "+str(round((time.time() - self.cacheTimer)*10)/10)+" seconds of it used")
+			self.cache[guild.name].update({author.name:time.time()}) # Creates new cache for author on guild
+			await self.addXP(author, guild) # Adds xp to author
 
-		# XP
-		try:
-			ranks = self.data["servers"][str(guild.id)]["ranks"]
-		except KeyError:
-			self.data["servers"][str(guild.id)].update({"ranks":{}}) # Adds ranks section to data to upgrade the server's data
-			ranks = self.data["servers"][str(guild.id)]["ranks"]
-
-		try: # Adds xp to user
-			authorID = str(message.author.id)
-			if authorID not in self.cache[guild.name]:
-				ranks[authorID] = ranks[authorID]+1
-				self.cache[guild.name].update({authorID:True})
-		except KeyError:
-			logger.info("New member "+authorID+" sent first registered message in "+guild.name)
-			ranks.update({authorID:0}) # Adds person to ranks list
-		self.data["servers"][str(guild.id)]["ranks"] = ranks
-		#print(self.data["servers"][str(guild.id)])
-		#print(self.cache[guild.name])
-		await self.update_data()
 
 		# Rules command
 		if message.content == "!rules":
@@ -204,7 +214,7 @@ class MyClient(discord.Client):
 		# Add Role (Arun too smart)
 		if message.content.startswith("!add role"):
 			parameter = message.content[len("!add role "):]  # Sets parameter to everything after the command
-			print("Parameter: " + parameter)
+			logger.debug("Parameter: " + parameter)
 			# Alters rules using the parameters given
 
 			role_name = ""
@@ -212,14 +222,13 @@ class MyClient(discord.Client):
 			role_emoji = ""
 			parameters = parameter.split(",")  # Splits parameter string into a list
 			for param in parameters:
-				print("Checking: " + param)
+				logger.debug("Checking: " + param)
 				if param.startswith("name="):
-					print("name")
 					role_name = param[len("name="):]
 					# Find role id for role with name
-					print("Roles are:\n" + str(guild.roles))
+					logger.debug("Roles are:\n" + str(guild.roles))
 					for role in guild.roles:
-						print("Role " + role.name)
+						logger.debug("Role " + role.name)
 						if role.name == role_name:
 							role_id = role.id
 							break
@@ -362,7 +371,8 @@ class MyClient(discord.Client):
 
 		# Sends user rank image
 		if message.content.startswith("!get rank"):
-			updateRankImage(message.author,ranks[str(message.author.id)])
+			ranks = self.getGuildRanks(guild)
+			updateRankImage(author,ranks[str(author.id)])
 			embed_rank = discord.Embed()
 			file = discord.File("card.png")
 			embed_rank.set_image(url="attachment://card.png")
@@ -564,6 +574,7 @@ class MyClient(discord.Client):
 
 
 # Main body
+startTime = time.time()
 try:
 	intents = discord.Intents.default()
 	intents.members = True
