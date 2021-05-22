@@ -135,7 +135,6 @@ class MyClient(discord.Client):
 		guild = message.guild
 
 		# Refresh cache
-		print(self.cache)
 		if time.time() - self.cacheTimer > 60: # After 60 seconds, cache reset
 			self.resetCache()
 		else:
