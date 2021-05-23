@@ -1,14 +1,16 @@
 {
     "config": {
-        "jokes": false,
-        "secure": false
+        "developers": [
+            241772848564142080,
+            258284765776576512
+        ]
     },
     "servers": {
         "489893521176920076": {
             "rules": {
                 "title": "\ud83d\udcc3 Server rules",
                 "description": "We're pretty chill here, but we've set down some ground rules so that everyone has a good experience on the server.",
-                "rules list": [
+                "list": [
                     "1. Keep spam to a minimum",
                     "2. NSFW in appropriate channels",
                     "3. Use appropriate text / voice channels depending on your activity",
@@ -28,35 +30,38 @@
                 ],
                 "image link": "https://media.discordapp.net/attachments/504791913241772052/504817198028816395/RULES.jpg"
             },
-            "roles message id": 845301220751310891,
             "roles": {
-                "831945402265239562": {
-                    "name": "Ping",
-                    "emoji": "\ud83d\udd14"
-                },
-                "834023105718517781": {
-                    "name": "Destiny 2",
-                    "emoji": "<:destiny2:834175548921741342>"
-                },
-                "832997725883596820": {
-                    "name": "Stardew",
-                    "emoji": "<:stardew:832999319665246308>"
-                },
-                "832658067158073406": {
-                    "name": "Risk of Rain",
-                    "emoji": "<:ror:832655432127610880>"
-                },
-                "832998331756183632": {
-                    "name": "Minecraft",
-                    "emoji": "<:minecraft:832659767951622185>"
-                },
-                "832997546157932585": {
-                    "name": "Party Games",
-                    "emoji": "<:jackbox:832660115739770961>"
-                },
-                "832997616245407815": {
-                    "name": "Zombies",
-                    "emoji": "<:zombies:833001048867864607>"
+                "admin role id": null,
+                "roles message id": 845301220751310891,
+                "list": {
+                    "831945402265239562": {
+                        "name": "Ping",
+                        "emoji": "\ud83d\udd14"
+                    },
+                    "834023105718517781": {
+                        "name": "Destiny 2",
+                        "emoji": "<:destiny2:834175548921741342>"
+                    },
+                    "832997725883596820": {
+                        "name": "Stardew",
+                        "emoji": "<:stardew:832999319665246308>"
+                    },
+                    "832658067158073406": {
+                        "name": "Risk of Rain",
+                        "emoji": "<:ror:832655432127610880>"
+                    },
+                    "832998331756183632": {
+                        "name": "Minecraft",
+                        "emoji": "<:minecraft:832659767951622185>"
+                    },
+                    "832997546157932585": {
+                        "name": "Party Games",
+                        "emoji": "<:jackbox:832660115739770961>"
+                    },
+                    "832997616245407815": {
+                        "name": "Zombies",
+                        "emoji": "<:zombies:833001048867864607>"
+                    }
                 }
             }
         },
@@ -64,44 +69,55 @@
             "rules": {
                 "title": "\ud83d\udcc3 My Rules",
                 "description": "",
-                "image link": "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fstatic3.wikia.nocookie.net%2F__cb20120607032338%2Ftardis%2Fimages%2F9%2F98%2FDon%27t_blink.jpg&f=1&nofb=1",
-                "rules list": [
+                "list": [
                     "Don't blink",
                     "Don't even blink",
                     "Blink and you're dead",
                     "Don't turn your back and don't turn away",
                     "And don't blink",
                     ""
-                ]
+                ],
+                "image link": "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fstatic3.wikia.nocookie.net%2F__cb20120607032338%2Ftardis%2Fimages%2F9%2F98%2FDon%27t_blink.jpg&f=1&nofb=1"
             },
-            "roles message id": null,
-            "roles": {}
+            "roles": {
+                "admin role id": null,
+                "roles message id": null,
+                "list": {}
+            }
         },
         "808266016614121512": {
             "rules": {
                 "title": "\ud83d\udcc3 Server rules",
                 "description": "",
-                "rules list": [],
+                "list": [],
                 "image link": null
             },
             "roles message id": null,
-            "roles": {}
+            "roles": {
+                "admin role id": null,
+                "roles message id": null,
+                "list": {}
+            }
         },
         "831596325140824074": {
             "rules": {
                 "title": "\ud83d\udcc3 Server rules",
                 "description": "",
-                "rules list": [],
+                "list": [],
                 "image link": null
             },
             "roles message id": null,
-            "roles": {}
+            "roles": {
+                "admin role id": null,
+                "roles message id": null,
+                "list": {}
+            }
         },
         "844942677594472481": {
             "rules": {
                 "title": "\ud83d\udcc3 Server rules",
                 "description": "We're pretty chill here, but we've set down some ground rules so that everyone has a good experience on the server.",
-                "rules list": [
+                "list": [
                     "\u2022 Respect fellow members of the Discord server.",
                     "\u2022 No slurs of any kind allowed.",
                     "\u2022 Please use each channel for its intended purpose. If there is a channel to post something, post it there.",
@@ -118,32 +134,52 @@
                 ],
                 "image link": "https://db3pap006files.storage.live.com/y4mr-Wa5qCDxmSvDCXA2h2E0Qu6kkJTcs1kKQjn14yUQfboZWyy_9sX8naYjeiEk-fuM6ltxX-9Jndyx9EvnUYJJlVdLao9OgREvEaNcFpMtmE0aqTUOLJZ11U1-HexXR6uk7M8rI9iEJ-8jDjHUFUF1YHNbYYKhO5JN4ghZzlJKU9Dx8B0mpRnQinFP10F4n_s?width=1772&height=938&cropmode=none"
             },
-            "roles message id": 845318158830272522,
             "roles": {
-                "845309847640473641": {
-                    "name": "Foundation",
-                    "emoji": "0\ufe0f\u20e3"
-                },
-                "844943772043444234": {
-                    "name": "Year 1",
-                    "emoji": "1\ufe0f\u20e3"
-                },
-                "844943944319893564": {
-                    "name": "Year 2",
-                    "emoji": "2\ufe0f\u20e3"
-                },
-                "844943919786622988": {
-                    "name": "Year 3",
-                    "emoji": "3\ufe0f\u20e3"
-                },
-                "844943891928580107": {
-                    "name": "Year 4",
-                    "emoji": "4\ufe0f\u20e3"
-                },
-                "845309888028344381": {
-                    "name": "Postgrad",
-                    "emoji": "\ud83c\udd7f\ufe0f"
+                "admin role id": 844943189063630879,
+                "roles message id": 846158251375722507,
+                "list": {
+                    "845309847640473641": {
+                        "name": "Foundation",
+                        "emoji": "0\ufe0f\u20e3"
+                    },
+                    "844943772043444234": {
+                        "name": "Year 1",
+                        "emoji": "1\ufe0f\u20e3"
+                    },
+                    "844943944319893564": {
+                        "name": "Year 2",
+                        "emoji": "2\ufe0f\u20e3"
+                    },
+                    "844943919786622988": {
+                        "name": "Year 3",
+                        "emoji": "3\ufe0f\u20e3"
+                    },
+                    "844943891928580107": {
+                        "name": "Year 4",
+                        "emoji": "4\ufe0f\u20e3"
+                    },
+                    "845309888028344381": {
+                        "name": "Postgrad",
+                        "emoji": "\ud83c\udd7f\ufe0f"
+                    },
+                    "844948245570387969": {
+                        "name": "Outsider",
+                        "emoji": "\ud83d\udc12"
+                    }
                 }
+            }
+        },
+        "509437716123877397": {
+            "rules": {
+                "title": "Server rules",
+                "description": "",
+                "list": [],
+                "image link": null
+            },
+            "roles": {
+                "admin role id": null,
+                "message id": null,
+                "list": {}
             }
         }
     }

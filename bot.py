@@ -1,4 +1,5 @@
 # Imports
+from random import randint
 from datetime import date
 import json
 import socket
@@ -43,11 +44,14 @@ class MyClient(discord.Client):
 				"rules": {
 					"title": "Server rules",
 					"description": "",
-					"rules list": [],
+					"list": [],
 					"image link": None
 				},
-				"roles message id": None,
-				"roles": {}
+				"roles": {
+					"admin role id": None,
+					"message id": None,
+					"list": {}
+				}
 			}
 
 			# Write the updated data
@@ -107,7 +111,8 @@ class MyClient(discord.Client):
 		# Set guild of origin
 		guild = self.get_guild(message.guild.id)
 
-		if self.data["config"]["secure"] is True:
+		# If the message was sant by the admins
+		if guild.get_role(self.data["servers"][str(message.guild.id)]["roles"]["admin role id"]) in message.author.roles:
 
 			# Rules command
 			if message.content == "!rules":
@@ -120,7 +125,7 @@ class MyClient(discord.Client):
 				# Create and send rules embed
 				embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0x4f7bc5, inline=False)
 				embed_rules.set_footer(text="Rules updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
-				embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["rules list"]), inline=True)
+				embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
 				image = self.data["servers"][str(guild.id)]["rules"]["image link"]
 				if image.startswith("https:"):
 					embed_rules.set_image(url=image)
@@ -140,20 +145,23 @@ class MyClient(discord.Client):
 				embed_roles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
 				embed_roles.set_footer(text="Roles updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=self.user.avatar_url)
 				roles = []
-				for role in self.data["servers"][str(guild.id)]["roles"]:
-					roles.append(self.data["servers"][str(guild.id)]["roles"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"][role]["name"] + "\n")
+				for role in self.data["servers"][str(guild.id)]["roles"]["list"]:
+					roles.append(self.data["servers"][str(guild.id)]["roles"]["list"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["list"][role]["name"] + "\n")
 				embed_roles.add_field(name="Roles", value="\n".join(roles))
 				roles_message = await message.channel.send(embed=embed_roles)
 
 				# Add emojis to the roles message
-				for role in self.data["servers"][str(guild.id)]["roles"]:
-					await roles_message.add_reaction(self.data["servers"][str(guild.id)]["roles"][role]["emoji"])
+				for role in self.data["servers"][str(guild.id)]["roles"]["list"]:
+					await roles_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["list"][role]["emoji"])
 
 				# Update the roles message id variable
-				self.data["servers"][str(guild.id)]["roles message id"] = roles_message.id
+				self.data["servers"][str(guild.id)]["roles"]["roles message id"] = roles_message.id
 
 				# Write the updated data
 				self.update_data()
+
+		# If the message was sent by the developers
+		if message.author.id in self.data["config"]["developers"]:
 
 			# Locate command
 			if message.content == "!locate":
@@ -168,61 +176,61 @@ class MyClient(discord.Client):
 				await client.close()
 
 		# Joke functionality
-		if self.data["config"]["jokes"] is True:
+		if message.guild.id == 489893521176920076:
 
 			# Shut up Arun
 			if message.author.id == 258284765776576512:
 
-				logger.info("Arun sighted. Locking on")  # Event log
+				logger.debug("Arun sighted. Locking on")  # Event log
 
 				if randint(1, 10) == 1:
 					await message.channel.send("shut up arun")
-					logger.info("Arun down.")  # Event log
+					logger.debug("Arun down.")  # Event log
 				else:
-					logger.info("Mission failed, RTB")  # Event log
+					logger.debug("Mission failed, RTB")  # Event log
 
 			# Gameboy mention
 			if "gameboy" in message.content.lower():
-				logger.info("`gameboy` mentioned by " + message.author.name)  # Event log
+				logger.debug("`gameboy` mentioned by " + message.author.name)  # Event log
 				await message.channel.send("Gameboys are worthless (apart from micro. micro is cool)")
 
 			# Raspberry mention
 			if "raspberries" in message.content.lower() or "raspberry" in message.content.lower():
-				logger.info("`raspberry racers` mentioned by " + message.author.name)  # Event log
+				logger.debug("`raspberry racers` mentioned by " + message.author.name)  # Event log
 				await message.channel.send("The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019.")
 
 			# Pycharm mention
 			if "pycharm" in message.content.lower():
-				logger.info("`pycharm` mentioned by " + message.author.name)  # Event log
+				logger.debug("`pycharm` mentioned by " + message.author.name)  # Event log
 				await message.channel.send("Pycharm enthusiasts vs Sublime Text enjoyers: https://youtu.be/HrkNwjruz5k")
 				await message.channel.send("85 commits in and haha bot print funny is still your sense of humour.")
 
 			# Token command
 			if message.content == "!token":
-				logger.info("`!token` called by " + message.author.name)  # Event log
+				logger.debug("`!token` called by " + message.author.name)  # Event log
 				await message.channel.send("IdrOppED ThE TokEN gUYS!!!!")
 
 			# Summon lizzie command
 			if message.content == "!summon_lizzie":
-				logger.info("`!summon_lizzie` called by " + message.author.name)  # Event log
+				logger.debug("`!summon_lizzie` called by " + message.author.name)  # Event log
 				for x in range(100):
 					await message.channel.send(guild.get_member(692684372247314445).mention)
 
 			# Summon leo command
 			if message.content == "!summon_leo":
-				logger.info("`!summon_leo` called by " + message.author.name)  # Event log
+				logger.debug("`!summon_leo` called by " + message.author.name)  # Event log
 				for x in range(100):
 					await message.channel.send(guild.get_member(242790351524462603).mention)
 
 			# Teaching bitches how to swim
 			if message.content == "!swim":
-				logger.info("`!swim` called by " + message.author.name)  # Event log
+				logger.debug("`!swim` called by " + message.author.name)  # Event log
 				await message.channel.send("/play https://youtu.be/uoZgZT4DGSY")
 				await message.channel.send("No swimming lessons today ):")
 
 			# Overlay Israel (Warning: DEFCON 1)
 			if message.content == "!israeli_defcon_1":
-				logger.info("`!israeli_defcon_1` called by " + message.author.name)  # Event log
+				logger.debug("`!israeli_defcon_1` called by " + message.author.name)  # Event log
 				await message.channel.send("preemptive apologies...")
 				while True:
 					await message.channel.send(".overlay israel")
@@ -255,7 +263,7 @@ class MyClient(discord.Client):
 		"""Gives a role based on a reaction emoji."""
 
 		# Make sure that the message the user is reacting to is the one we care about.
-		if payload.message_id != self.data["servers"][str(payload.guild_id)]["roles message id"]:
+		if payload.message_id != self.data["servers"][str(payload.guild_id)]["roles"]["roles message id"]:
 			return
 
 		# Make sure the user isn't the bot.
@@ -269,8 +277,8 @@ class MyClient(discord.Client):
 
 		# If the emoji isn't the one we care about then delete it and exit as well.
 		role_id = -1
-		for id_counter in self.data["servers"][str(guild.id)]["roles"]:
-			if self.data["servers"][str(guild.id)]["roles"][id_counter]["emoji"] == str(payload.emoji):
+		for id_counter in self.data["servers"][str(guild.id)]["roles"]["list"]:
+			if self.data["servers"][str(guild.id)]["roles"]["list"][id_counter]["emoji"] == str(payload.emoji):
 				role_id = int(id_counter)
 				break
 		if role_id == -1:
@@ -300,7 +308,7 @@ class MyClient(discord.Client):
 		"""Removes a role based on a reaction emoji."""
 
 		# Make sure that the message the user is reacting to is the one we care about.
-		if payload.message_id != self.data["servers"][str(payload.guild_id)]["roles message id"]:
+		if payload.message_id != self.data["servers"][str(payload.guild_id)]["roles"]["roles message id"]:
 			return
 
 		# The payload for `on_raw_reaction_remove` does not provide `.member`
@@ -322,8 +330,8 @@ class MyClient(discord.Client):
 
 		# If the emoji isn't the one we care about then exit as well.
 		role_id = -1
-		for id_counter in self.data["servers"][str(guild.id)]["roles"]:
-			if self.data["servers"][str(guild.id)]["roles"][id_counter]["emoji"] == str(payload.emoji):
+		for id_counter in self.data["servers"][str(guild.id)]["roles"]["list"]:
+			if self.data["servers"][str(guild.id)]["roles"]["list"][id_counter]["emoji"] == str(payload.emoji):
 				role_id = int(id_counter)
 				break
 		if role_id == -1:

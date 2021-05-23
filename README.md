@@ -20,24 +20,32 @@ Thanks.
 
 ```
 {
-    "bot": {},
+    "config": {
+        "developers": [
+            DEVELOPER_ID_1,
+            ...
+            DEVELOPER_ID_N
+        ]
+    },
     "servers": {
         "SERVER_ID": {
             "rules": {
                 "title": "RULES_TITLE",
-                "rules list": [
+                "list": [
                     "RULE_1",
                     ...
                     "RULE_N"
                 ],
                 "image link": "IMAGE_LINK"
             },
-            "roles message id": ROLES_MESSAGE_ID,
             "roles": {
-                "ROLE_ID": {
-                    "name": "ROLE_NAME",
-                    "emoji": "ROLE_EMOJI"
-                }
+                "admin role id": ADMIN_ROLE_ID,
+                "message id": ROLES_MESSAGE_ID,
+                "list":
+                    "ROLE_ID": {
+                        "name": "ROLE_NAME",
+                        "emoji": "ROLE_EMOJI"
+                    }
             }
         }
     }
