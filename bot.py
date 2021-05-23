@@ -78,8 +78,6 @@ class MyClient(discord.Client):
 		self.cache = {}
 		for server in self.guilds:
 			self.cache.update({server.name:{}})
-		self.cacheTimer = time.time()
-		logger.debug("Cache successfully created at "+str(self.cacheTimer)+" seconds")
 
 	def getGuildRanks(self,guild):
 		# XP
@@ -376,7 +374,7 @@ class MyClient(discord.Client):
 				await message.channel.send(embed=embed_stats)
 				logger.info("Server stats for "+guild.name+" compiled and sent!")
 
-			# Sends user rank image
+			# Sends user rank card image
 			if message.content.startswith("!get rank"):
 				ranks = self.getGuildRanks(guild)
 				updateRankImage(author,ranks[str(author.id)])
@@ -395,9 +393,14 @@ class MyClient(discord.Client):
 						hostname) + "**.")
 
 			# Kill command
-			if message.content == "!kill":
-				logger.info("`!kill` called by " + message.author.name)  # Event log
-				await message.channel.send("Doggie down")
+			if message.content.startswith("!kill"):
+				params = message.content[len("!kill "):]
+				# Delete the command message
+				await message.channel.purge(limit=1)
+				logger.info("`!kill` called by " + message.author.name +params)  # Event log
+				if self.data["config"]["jokes"] is True:
+					await message.channel.send("Doggie down")
+				await message.channel.send(self.user.name+" shutting down after "+str(round((time.time()-startTime)*100)/100)+" seconds uptime\n"+params)
 				await client.close()
 
 		if self.data["config"]["jokes"] is True:
