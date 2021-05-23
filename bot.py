@@ -101,6 +101,17 @@ class MyClient(discord.Client):
 		self.data["servers"][str(guild.id)]["ranks"] = ranks
 		await self.update_data()
 
+	def getUptime(self):
+		uptime = time.time() - startTime
+		if uptime>60:
+			if round(uptime//60) > 1:
+				min = " minutes "
+			else:
+				min = " minute "
+			return str(round(uptime//60)) + min + str(round((uptime%60) * 100) / 100) + " seconds"
+		else:
+			return str(round((uptime) * 100) / 100) + " seconds"
+
 	async def on_ready(self):
 		logger.info(self.user.name + " is starting (commencing on_ready)")  # Event log
 		if self.guilds != []:
@@ -127,7 +138,7 @@ class MyClient(discord.Client):
 		# Creates cache
 		self.resetCache()
 
-		logger.info(self.user.name + " is ready (finished on_ready). Finished in "+str(time.time() - startTime)+" seconds")  # Event log
+		logger.info(self.user.name + " is ready (finished on_ready). Finished in "+self.getUptime())  # Event log
 
 	async def on_guild_join(self, guild):
 		""""Runs on joining a guild."""
@@ -373,23 +384,13 @@ class MyClient(discord.Client):
 				await message.channel.send(embed=embed_stats)
 				logger.info("Server stats for "+guild.name+" compiled and sent!")
 
-			# Sends user rank card image
-			if message.content.startswith("!get rank"):
-				ranks = self.getGuildRanks(guild)
-				updateRankImage(author,ranks[str(author.id)])
-				embed_rank = discord.Embed()
-				file = discord.File("card.png")
-				embed_rank.set_image(url="attachment://card.png")
-				await message.channel.send(file=file)
-				#await message.channel.send(file=file,embed=embed_rank)
-
 			# Locate command
 			if message.content == "!locate":
 				logger.info("`!locate` called by " + message.author.name)  # Event log
 				hostname = socket.gethostname()
 				await message.channel.send(
 					"This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(
-						hostname) + "**.\n"+str(round((time.time()-startTime)*100)/100)+" seconds uptime")
+						hostname) + "**.\n"+self.getUptime()+" uptime")
 
 			# Kill command
 			if message.content.startswith("!kill"):
@@ -399,8 +400,18 @@ class MyClient(discord.Client):
 				logger.info("`!kill` called by " + message.author.name +params)  # Event log
 				if self.data["config"]["jokes"] is True:
 					await message.channel.send("Doggie down")
-				await message.channel.send(self.user.name+" shutting down after "+str(round((time.time()-startTime)*100)/100)+" seconds uptime\n"+params)
+				await message.channel.send(self.user.name+" shutting down after "+self.getUptime()+" uptime\n"+params)
 				await client.close()
+
+		# Sends user rank card image
+		if message.content.startswith("!get rank"):
+			ranks = self.getGuildRanks(guild)
+			updateRankImage(author, ranks[str(author.id)])
+			embed_rank = discord.Embed()
+			file = discord.File("card.png")
+			embed_rank.set_image(url="attachment://card.png")
+			await message.channel.send(file=file)
+			# await message.channel.send(file=file,embed=embed_rank)
 
 		if self.data["config"]["jokes"] is True:
 			# Joke functionality: Shut up Arun
