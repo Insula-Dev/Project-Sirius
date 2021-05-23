@@ -102,7 +102,6 @@ class MyClient(discord.Client):
 		await self.update_data()
 
 	async def on_ready(self):
-		global startTime
 		logger.info(self.user.name + " is starting (commencing on_ready)")  # Event log
 		if self.guilds != []:
 			logger.info(self.user.name + " is connected to the following guilds:")  # Event log
@@ -390,7 +389,7 @@ class MyClient(discord.Client):
 				hostname = socket.gethostname()
 				await message.channel.send(
 					"This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(
-						hostname) + "**.")
+						hostname) + "**.\n"+str(round((time.time()-startTime)*100)/100)+" seconds uptime")
 
 			# Kill command
 			if message.content.startswith("!kill"):
