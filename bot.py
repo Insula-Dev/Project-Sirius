@@ -386,6 +386,20 @@ class MyClient(discord.Client):
 				await message.channel.send(file=file)
 				#await message.channel.send(file=file,embed=embed_rank)
 
+			# Locate command
+			if message.content == "!locate":
+				logger.info("`!locate` called by " + message.author.name)  # Event log
+				hostname = socket.gethostname()
+				await message.channel.send(
+					"This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(
+						hostname) + "**.")
+
+			# Kill command
+			if message.content == "!kill":
+				logger.info("`!kill` called by " + message.author.name)  # Event log
+				await message.channel.send("Doggie down")
+				await client.close()
+
 		if self.data["config"]["jokes"] is True:
 			# Joke functionality: Shut up Arun
 			if message.author.id == 258284765776576512:
@@ -457,17 +471,7 @@ class MyClient(discord.Client):
 				while True:
 					await message.channel.send(".overlay israel")
 
-			# Locate command
-			if message.content == "!locate":
-				logger.info("`!locate` called by " + message.author.name)  # Event log
-				hostname = socket.gethostname()
-				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.")
 
-			# Kill command
-			if message.content == "!kill":
-				logger.info("`!kill` called by " + message.author.name)  # Event log
-				await message.channel.send("Doggie down")
-				await client.close()
 
 	async def on_member_join(self, member):
 		"""Sends a welcome message directly to the user."""
