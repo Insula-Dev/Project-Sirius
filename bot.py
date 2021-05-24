@@ -50,7 +50,9 @@ class MyClient(discord.Client):
 				"roles": {
 					"admin role id": None,
 					"message id": None,
-					"list": {}
+					"list": {
+						"Roles": {}
+					}
 				}
 			}
 
