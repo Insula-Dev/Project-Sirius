@@ -14,6 +14,8 @@ from log_handling import *
 with open("token.txt") as file:
 	DISCORD_TOKEN = file.read()
 
+prefix = "-"
+
 
 # Definitions
 class MyClient(discord.Client):
@@ -118,13 +120,13 @@ class MyClient(discord.Client):
 		# Set guild of origin
 		guild = self.get_guild(message.guild.id)
 
-		# If the message was sant by the admins
+		# If the message was sent by the admins
 		if guild.get_role(self.data["servers"][str(message.guild.id)]["roles"]["admin role id"]) in message.author.roles:
 
 			# Rules command
-			if message.content == "!rules":
+			if message.content == prefix+"rules":
 
-				logger.info("`!rules` called by " + message.author.name)  # Event log
+				logger.info("`rules` called by " + message.author.name)  # Event log
 
 				# Delete the command message
 				await message.channel.purge(limit=1)
@@ -149,9 +151,9 @@ class MyClient(discord.Client):
 				await message.channel.send(embed=embed_image)
 
 			# Roles command
-			if message.content == "!roles":
+			if message.content == prefix+"roles":
 
-				logger.info("`!roles` called by " + message.author.name)  # Event log
+				logger.info("`roles` called by " + message.author.name)  # Event log
 
 				# Delete the command message
 				await message.channel.purge(limit=1)
@@ -178,19 +180,19 @@ class MyClient(discord.Client):
 		if message.author.id in self.data["config"]["developers"]:
 
 			# Locate command
-			if message.content == "!locate":
-				logger.info("`!locate` called by " + message.author.name)  # Event log
+			if message.content == prefix+"locate":
+				logger.info("`locate` called by " + message.author.name)  # Event log
 				hostname = socket.gethostname()
 				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.")
 
 			# Kill command
-			if message.content == "!kill":
-				logger.info("`!kill` called by " + message.author.name)  # Event log
+			if message.content == prefix+"kill":
+				logger.info("`kill` called by " + message.author.name)  # Event log
 				await message.channel.send("Doggie down")
 				await client.close()
 
 		# Joke functionality
-		if message.guild.id == 489893521176920076:
+		if message.guild.id in [489893521176920076,808266016614121512]:
 
 			# Shut up Arun
 			if message.author.id == 258284765776576512:
@@ -220,30 +222,30 @@ class MyClient(discord.Client):
 				await message.channel.send("85 commits in and haha bot print funny is still your sense of humour.")
 
 			# Token command
-			if message.content == "!token":
+			if message.content == prefix+"token":
 				logger.debug("`!token` called by " + message.author.name)  # Event log
 				await message.channel.send("IdrOppED ThE TokEN gUYS!!!!")
 
 			# Summon lizzie command
-			if message.content == "!summon_lizzie":
+			if message.content == prefix+"summon_lizzie":
 				logger.debug("`!summon_lizzie` called by " + message.author.name)  # Event log
 				for x in range(100):
 					await message.channel.send(guild.get_member(692684372247314445).mention)
 
 			# Summon leo command
-			if message.content == "!summon_leo":
+			if message.content == prefix+"summon_leo":
 				logger.debug("`!summon_leo` called by " + message.author.name)  # Event log
 				for x in range(100):
 					await message.channel.send(guild.get_member(242790351524462603).mention)
 
 			# Teaching bitches how to swim
-			if message.content == "!swim":
+			if message.content == prefix+"swim":
 				logger.debug("`!swim` called by " + message.author.name)  # Event log
 				await message.channel.send("/play https://youtu.be/uoZgZT4DGSY")
 				await message.channel.send("No swimming lessons today ):")
 
 			# Overlay Israel (Warning: DEFCON 1)
-			if message.content == "!israeli_defcon_1":
+			if message.content == prefix+"israeli_defcon_1":
 				logger.debug("`!israeli_defcon_1` called by " + message.author.name)  # Event log
 				await message.channel.send("preemptive apologies...")
 				while True:
