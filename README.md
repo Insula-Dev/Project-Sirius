@@ -84,4 +84,5 @@ It is wrought in the eternal will of the creator that someday the Two Branches o
 
 ## The Great Schism
 
+The combined forces of the opposing branches unified into one ungodly, unmergeable branch.
 
