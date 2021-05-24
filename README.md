@@ -9,21 +9,22 @@
 # Instructions
 
 1. If you pull from a branch, it can only be to create another branch.
-2. If you merge into a branch, the merge must be reviewed.
+2. If you merge into a branch, the merge must be reviewed by over 50% of developers.
 3. Branches must be well, explicitly named.
 4. Branches must only include changes which are relevant to their name.
 5. No forks: spoons only.
+6. No working past 2am unless all developers are involved and have agreed to this.
 
 ## FAQs:
 
 **Q**: What constitutes a review?
-**A**: When Pablo reviews your code.
+**A**: When over 50% of developers reviews your code.
 
 **Q**: What is good?
-**A**: What Pablo deems to be good.
+**A**: What over 50% of developers deem to be good.
 
 **Q**: Who can disobey these instructions?
-**A**: Not Arun.
+**A**: Not Arun or Pablo.
 
 # Instructions (old) [How to develop this code (**important**)]
 
