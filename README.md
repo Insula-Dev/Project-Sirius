@@ -41,11 +41,7 @@ Thanks.
 {
     "config": {
         "developers": [
-            DEVELOPER_ID_1,
-
-            ...
-
-            DEVELOPER_ID_N
+            DEVELOPER_ID
         ]
     },
     "servers": {
@@ -53,45 +49,22 @@ Thanks.
             "rules": {
                 "title": "RULES_TITLE",
                 "list": [
-                    "RULE_1",
-
-                    ...
-
-                    "RULE_N"
+                    "RULE"
                 ],
                 "image link": "IMAGE_LINK"
             },
             "roles": {
                 "admin role id": ADMIN_ROLE_ID,
                 "message id": ROLES_MESSAGE_ID,
-                "list": {
-                    "CATEGORY_NAME_1": {
-                        "ROLE_ID_1": {
-                            "name": "ROLE_NAME_1",
-                            "emoji": "ROLE_EMOJI_1"
-                        },
-
-                        ...
-
-                        "ROLE_ID_N": {
-                            "name": ROLE_NAME_N",
-                            "emoji": "ROLE_EMOJI_N"
+                "category list": {
+                    "CATEGORY_NAME": {
+                        "message id": MESSAGE_ID,
+                        "role list": {
+                            "ROLE_ID": {
+                                "name": "ROLE_NAME",
+                                "emoji": "ROLE_EMOJI"
+                            }
                         }
-                    },
-
-                    ...
-
-                    "CATEGORY_NAME_N": {
-                        "ROLE_ID_1": {
-                            "name": "ROLE_NAME_1",
-                            "emoji": "ROLE_EMOJI_1"
-                        },
-
-                        ...
-
-                        "ROLE_ID_N": {
-                            "name": ROLE_NAME_N",
-                            "emoji": "ROLE_EMOJI_N"
                     }
                 }
             }
@@ -99,10 +72,6 @@ Thanks.
     }
 }
 ```
-
-Add rules to code.
-
-Protocol for adding bot to new server needed...
 
 # History
 
@@ -115,4 +84,4 @@ It is wrought in the eternal will of the creator that someday the Two Branches o
 
 ## The Great Schism
 
-The combined forces of the opposing branches unified into one ungodly, unmergeable branch.
+
