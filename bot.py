@@ -22,8 +22,9 @@ class MyClient(discord.Client):
 
 		super().__init__(*args, **kwargs)
 		self.data = {}
+
+		# Print logs to the console too (for debugging)
 		if debug is True:
-			# Print logs to the console too (for debugging)
 			logger.addHandler(logging.StreamHandler())
 
 	def update_data(self):
