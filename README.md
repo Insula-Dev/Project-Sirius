@@ -18,7 +18,7 @@
 ## FAQs:
 
 **Q**: What constitutes a review?
-**A**: When over 50% of developers reviews your code.
+**A**: When over 50% of developers review your code.
 
 **Q**: What is good?
 **A**: What over 50% of developers deem to be good.
