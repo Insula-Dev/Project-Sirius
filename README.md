@@ -86,3 +86,6 @@ It is wrought in the eternal will of the creator that someday the Two Branches o
 
 The combined forces of the opposing branches unified into one ungodly, unmergeable branch.
 
+## The Great Disappointment
+
+One of the developers stayed up and considered doing the Great Mergening by himself because he can't spend his time doing the right things. Instead he reinvented part of the bot. What an idiot.
