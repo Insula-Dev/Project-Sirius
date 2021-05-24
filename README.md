@@ -42,7 +42,9 @@ Thanks.
     "config": {
         "developers": [
             DEVELOPER_ID_1,
+
             ...
+
             DEVELOPER_ID_N
         ]
     },
@@ -52,7 +54,9 @@ Thanks.
                 "title": "RULES_TITLE",
                 "list": [
                     "RULE_1",
+
                     ...
+
                     "RULE_N"
                 ],
                 "image link": "IMAGE_LINK"
@@ -60,11 +64,36 @@ Thanks.
             "roles": {
                 "admin role id": ADMIN_ROLE_ID,
                 "message id": ROLES_MESSAGE_ID,
-                "list":
-                    "ROLE_ID": {
-                        "name": "ROLE_NAME",
-                        "emoji": "ROLE_EMOJI"
+                "list": {
+                    "CATEGORY_NAME_1": {
+                        "ROLE_ID_1": {
+                            "name": "ROLE_NAME_1",
+                            "emoji": "ROLE_EMOJI_1"
+                        },
+
+                        ...
+
+                        "ROLE_ID_N": {
+                            "name": ROLE_NAME_N",
+                            "emoji": "ROLE_EMOJI_N"
+                        }
+                    },
+
+                    ...
+
+                    "CATEGORY_NAME_N": {
+                        "ROLE_ID_1": {
+                            "name": "ROLE_NAME_1",
+                            "emoji": "ROLE_EMOJI_1"
+                        },
+
+                        ...
+
+                        "ROLE_ID_N": {
+                            "name": ROLE_NAME_N",
+                            "emoji": "ROLE_EMOJI_N"
                     }
+                }
             }
         }
     }

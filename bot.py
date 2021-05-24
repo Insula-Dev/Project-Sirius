@@ -144,15 +144,21 @@ class MyClient(discord.Client):
 				# Create and send roled embed
 				embed_roles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
 				embed_roles.set_footer(text="Roles updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=self.user.avatar_url)
-				roles = []
-				for role in self.data["servers"][str(guild.id)]["roles"]["list"]:
-					roles.append(self.data["servers"][str(guild.id)]["roles"]["list"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["list"][role]["name"] + "\n")
-				embed_roles.add_field(name="Roles", value="\n".join(roles))
+				# For category in roles list
+				for category in self.data["servers"][str(guild.id)]["roles"]["list"]:
+					roles = []
+					print("Category:", category)
+					# For role in category
+					for role in self.data["servers"][str(guild.id)]["roles"]["list"][category]:
+						print("Role:", role)
+						roles.append(self.data["servers"][str(guild.id)]["roles"]["list"][category][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["list"][category][role]["name"] + "\n")
+					embed_roles.add_field(name=category, value="".join(roles))
 				roles_message = await message.channel.send(embed=embed_roles)
 
 				# Add emojis to the roles message
-				for role in self.data["servers"][str(guild.id)]["roles"]["list"]:
-					await roles_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["list"][role]["emoji"])
+				for category in self.data["servers"][str(guild.id)]["roles"]["list"]:
+					for role in self.data["servers"][str(guild.id)]["roles"]["list"][category]:
+						await roles_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["list"][category][role]["emoji"])
 
 				# Update the roles message id variable
 				self.data["servers"][str(guild.id)]["roles"]["roles message id"] = roles_message.id

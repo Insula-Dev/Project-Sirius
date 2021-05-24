@@ -31,36 +31,38 @@
                 "image link": "https://media.discordapp.net/attachments/504791913241772052/504817198028816395/RULES.jpg"
             },
             "roles": {
-                "admin role id": null,
-                "roles message id": 845301220751310891,
+                "admin role id": 831927499034329109,
+                "roles message id": 846188842116972554,
                 "list": {
-                    "831945402265239562": {
-                        "name": "Ping",
-                        "emoji": "\ud83d\udd14"
-                    },
-                    "834023105718517781": {
-                        "name": "Destiny 2",
-                        "emoji": "<:destiny2:834175548921741342>"
-                    },
-                    "832997725883596820": {
-                        "name": "Stardew",
-                        "emoji": "<:stardew:832999319665246308>"
-                    },
-                    "832658067158073406": {
-                        "name": "Risk of Rain",
-                        "emoji": "<:ror:832655432127610880>"
-                    },
-                    "832998331756183632": {
-                        "name": "Minecraft",
-                        "emoji": "<:minecraft:832659767951622185>"
-                    },
-                    "832997546157932585": {
-                        "name": "Party Games",
-                        "emoji": "<:jackbox:832660115739770961>"
-                    },
-                    "832997616245407815": {
-                        "name": "Zombies",
-                        "emoji": "<:zombies:833001048867864607>"
+                    "Roles": {
+                        "831945402265239562": {
+                            "name": "Ping",
+                            "emoji": "\ud83d\udd14"
+                        },
+                        "834023105718517781": {
+                            "name": "Destiny 2",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "832997725883596820": {
+                            "name": "Stardew",
+                            "emoji": "<:stardew:832999319665246308>"
+                        },
+                        "832658067158073406": {
+                            "name": "Risk of Rain",
+                            "emoji": "<:ror:832655432127610880>"
+                        },
+                        "832998331756183632": {
+                            "name": "Minecraft",
+                            "emoji": "<:minecraft:832659767951622185>"
+                        },
+                        "832997546157932585": {
+                            "name": "Party Games",
+                            "emoji": "<:jackbox:832660115739770961>"
+                        },
+                        "832997616245407815": {
+                            "name": "Zombies",
+                            "emoji": "<:zombies:833001048867864607>"
+                        }
                     }
                 }
             }
@@ -108,9 +110,11 @@
             },
             "roles message id": null,
             "roles": {
-                "admin role id": null,
-                "roles message id": null,
-                "list": {}
+                "Roles": {
+                    "admin role id": null,
+                    "roles message id": null,
+                    "list": {}
+                }
             }
         },
         "844942677594472481": {
@@ -138,33 +142,35 @@
                 "admin role id": 844943189063630879,
                 "roles message id": 846158251375722507,
                 "list": {
-                    "845309847640473641": {
-                        "name": "Foundation",
-                        "emoji": "0\ufe0f\u20e3"
-                    },
-                    "844943772043444234": {
-                        "name": "Year 1",
-                        "emoji": "1\ufe0f\u20e3"
-                    },
-                    "844943944319893564": {
-                        "name": "Year 2",
-                        "emoji": "2\ufe0f\u20e3"
-                    },
-                    "844943919786622988": {
-                        "name": "Year 3",
-                        "emoji": "3\ufe0f\u20e3"
-                    },
-                    "844943891928580107": {
-                        "name": "Year 4",
-                        "emoji": "4\ufe0f\u20e3"
-                    },
-                    "845309888028344381": {
-                        "name": "Postgrad",
-                        "emoji": "\ud83c\udd7f\ufe0f"
-                    },
-                    "844948245570387969": {
-                        "name": "Outsider",
-                        "emoji": "\ud83d\udc12"
+                    "Roles": {
+                        "845309847640473641": {
+                            "name": "Foundation",
+                            "emoji": "0\ufe0f\u20e3"
+                        },
+                        "844943772043444234": {
+                            "name": "Year 1",
+                            "emoji": "1\ufe0f\u20e3"
+                        },
+                        "844943944319893564": {
+                            "name": "Year 2",
+                            "emoji": "2\ufe0f\u20e3"
+                        },
+                        "844943919786622988": {
+                            "name": "Year 3",
+                            "emoji": "3\ufe0f\u20e3"
+                        },
+                        "844943891928580107": {
+                            "name": "Year 4",
+                            "emoji": "4\ufe0f\u20e3"
+                        },
+                        "845309888028344381": {
+                            "name": "Postgrad",
+                            "emoji": "\ud83c\udd7f\ufe0f"
+                        },
+                        "844948245570387969": {
+                            "name": "Outsider",
+                            "emoji": "\ud83d\udc12"
+                        }
                     }
                 }
             }
@@ -177,9 +183,11 @@
                 "image link": null
             },
             "roles": {
-                "admin role id": null,
-                "message id": null,
-                "list": {}
+                "Roles": {
+                    "admin role id": null,
+                    "message id": null,
+                    "list": {}
+                }
             }
         }
     }
