@@ -129,16 +129,25 @@ class MyClient(discord.Client):
 				# Delete the command message
 				await message.channel.purge(limit=1)
 
+				# Temp
+				embed_welcome = discord.Embed(title="👋 Welcome to the (un)official York Physics Discord server.", description="If you're looking to meet fellow Physics coursemates, need help with some work, or just want to hang out and chill, you're more than welcome in our Discord.\n\nTake a moment to familiarise yourself with our rules below.\nThe <#844945936479682581> channel will allow you to select your roles and start chatting, and <#846233800722612254> will be your guide to the server and what's what.", color=0xffc000)
+				await message.channel.send(embed=embed_welcome)
+
 				# Create and send rules embed
 				embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0xffc000, inline=False)
 				embed_rules.set_footer(text="Rules updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
 				embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
-				image = self.data["servers"][str(guild.id)]["rules"]["image link"]
+				"""image = self.data["servers"][str(guild.id)]["rules"]["image link"]
 				if image.startswith("https:"):
 					embed_rules.set_image(url=image)
 				else:
-					logger.debug("Image link non-existant for " + str(message.guild.id))  # Event log
+					logger.debug("Image link non-existant for " + str(message.guild.id))  # Event log"""
 				await message.channel.send(embed=embed_rules)
+
+				# Temp
+				embed_image = discord.Embed(type="image", description="**Important**: select roles from <#844945936479682581> for access to the server. The list of roles is limited and will grow in time with the server.", color=0xffc000)
+				embed_image.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
+				await message.channel.send(embed=embed_image)
 
 			# Roles command
 			if message.content == "!roles":

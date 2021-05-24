@@ -82,16 +82,16 @@
                     "\u2022 Respect fellow members of the Discord server.",
                     "\u2022 No slurs of any kind allowed.",
                     "\u2022 Do not flood/spam the channels.",
-                    "\u2022 Images/videos/gifs etc. containing inappropriate content will incur punishment",
+                    "\u2022 Media containing inappropriate content will incur punishment",
                     "\u2022 Please use each channel for its intended purpose. If there is a dedicated channel, post there.",
                     "\u2022 Please only ping <@&844944164130783262> if you have an issue.",
                     "\u2022 Do not try to loophole/bypass punishments or rules. Or do. It's more entertaining.",
                     "\u2022 Please respect [York's policies on plagiarism and collusion](https://www.york.ac.uk/philosophy/current/academic-misconduct/). This includes asking for or supplying help with assessments which are intended to be independent. Any such breach will reflect badly on the whole discord.",
                     "\u2022 Please keep in line with the [Discord Terms of Service](https://discord.com/terms).",
                     "",
-                    "Punishments are decided by moderators at their discretion. Repeated offenders will receive worse punishments.",
+                    "Punishments are decided by staff at their own discretion. Repeated offenders will receive more severe punishments.",
                     "",
-                    "To summarise, use your brain and you'll be okay. Report any issues."
+                    "To summarise: use your brain and you'll be okay. Report any issues."
                 ],
                 "image link": "https://db3pap006files.storage.live.com/y4mr-Wa5qCDxmSvDCXA2h2E0Qu6kkJTcs1kKQjn14yUQfboZWyy_9sX8naYjeiEk-fuM6ltxX-9Jndyx9EvnUYJJlVdLao9OgREvEaNcFpMtmE0aqTUOLJZ11U1-HexXR6uk7M8rI9iEJ-8jDjHUFUF1YHNbYYKhO5JN4ghZzlJKU9Dx8B0mpRnQinFP10F4n_s?width=1772&height=938&cropmode=none"
             },
@@ -99,7 +99,7 @@
                 "admin role id": 844943189063630879,
                 "category list": {
                     "Year": {
-                        "message id": 846226116255809546,
+                        "message id": 846251190392061973,
                         "role list": {
                             "845309847640473641": {
                                 "name": "Foundation",
@@ -132,7 +132,7 @@
                         }
                     },
                     "Degree/Courses": {
-                        "message id": 846226127932489729,
+                        "message id": 846251202604826624,
                         "role list": {
                             "846173456915496981": {
                                 "name": "Physics",
@@ -157,7 +157,7 @@
                         }
                     },
                     "Misc": {
-                        "message id": 846226136819826710,
+                        "message id": 846251211312857099,
                         "role list": {
                             "846208891842854953": {
                                 "name": "PhysSoc",
