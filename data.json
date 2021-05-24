@@ -32,88 +32,45 @@
             },
             "roles": {
                 "admin role id": 831927499034329109,
-                "roles message id": 846191971022536764,
-                "list": {
-                    "Roles": {
-                        "831945402265239562": {
-                            "name": "Ping",
-                            "emoji": "\ud83d\udd14"
-                        },
-                        "834023105718517781": {
-                            "name": "Destiny 2",
-                            "emoji": "<:destiny2:834175548921741342>"
-                        },
-                        "832997725883596820": {
-                            "name": "Stardew",
-                            "emoji": "<:stardew:832999319665246308>"
-                        },
-                        "832658067158073406": {
-                            "name": "Risk of Rain",
-                            "emoji": "<:ror:832655432127610880>"
-                        },
-                        "832998331756183632": {
-                            "name": "Minecraft",
-                            "emoji": "<:minecraft:832659767951622185>"
-                        },
-                        "832997546157932585": {
-                            "name": "Party Games",
-                            "emoji": "<:jackbox:832660115739770961>"
-                        },
-                        "832997616245407815": {
-                            "name": "Zombies",
-                            "emoji": "<:zombies:833001048867864607>"
+                "category list": {
+                    "Server": {
+                        "message id": null,
+                        "role list": {
+                            "831945402265239562": {
+                                "name": "Ping",
+                                "emoji": "\ud83d\udd14"
+                            }
+                        }
+                    },
+                    "Games": {
+                        "message id": null,
+                        "role list": {
+                            "834023105718517781": {
+                                "name": "Destiny 2",
+                                "emoji": "<:destiny2:834175548921741342>"
+                            },
+                            "832997725883596820": {
+                                "name": "Stardew",
+                                "emoji": "<:stardew:832999319665246308>"
+                            },
+                            "832658067158073406": {
+                                "name": "Risk of Rain",
+                                "emoji": "<:ror:832655432127610880>"
+                            },
+                            "832998331756183632": {
+                                "name": "Minecraft",
+                                "emoji": "<:minecraft:832659767951622185>"
+                            },
+                            "832997546157932585": {
+                                "name": "Party Games",
+                                "emoji": "<:jackbox:832660115739770961>"
+                            },
+                            "832997616245407815": {
+                                "name": "Zombies",
+                                "emoji": "<:zombies:833001048867864607>"
+                            }
                         }
                     }
-                }
-            }
-        },
-        "834213187468394517": {
-            "rules": {
-                "title": "\ud83d\udcc3 My Rules",
-                "description": "",
-                "list": [
-                    "Don't blink",
-                    "Don't even blink",
-                    "Blink and you're dead",
-                    "Don't turn your back and don't turn away",
-                    "And don't blink",
-                    ""
-                ],
-                "image link": "https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fstatic3.wikia.nocookie.net%2F__cb20120607032338%2Ftardis%2Fimages%2F9%2F98%2FDon%27t_blink.jpg&f=1&nofb=1"
-            },
-            "roles": {
-                "admin role id": null,
-                "roles message id": null,
-                "list": {}
-            }
-        },
-        "808266016614121512": {
-            "rules": {
-                "title": "\ud83d\udcc3 Server rules",
-                "description": "",
-                "list": [],
-                "image link": null
-            },
-            "roles message id": null,
-            "roles": {
-                "admin role id": null,
-                "roles message id": null,
-                "list": {}
-            }
-        },
-        "831596325140824074": {
-            "rules": {
-                "title": "\ud83d\udcc3 Server rules",
-                "description": "",
-                "list": [],
-                "image link": null
-            },
-            "roles message id": null,
-            "roles": {
-                "Roles": {
-                    "admin role id": null,
-                    "roles message id": null,
-                    "list": {}
                 }
             }
         },
@@ -124,13 +81,13 @@
                 "list": [
                     "\u2022 Respect fellow members of the Discord server.",
                     "\u2022 No slurs of any kind allowed.",
-                    "\u2022 Please use each channel for its intended purpose. If there is a channel to post something, post it there.",
-                    "\u2022 Please respect York's policies on plagiarism and collusion. This includes asking for or supplying help with assessments which are intended to be independent. Any such breach will reflect badly on the whole discord.",
-                    "\u2022 Please keep in line with the Discord Terms of Service.",
-                    "\u2022 Please only ping @Moderator if you have an issue.",
                     "\u2022 Do not flood/spam the channels.",
-                    "\u2022 Do not try to loophole/bypass punishments or rules. Or do. It's more entertaining.",
                     "\u2022 Images/videos/gifs etc. containing inappropriate content will incur punishment",
+                    "\u2022 Please use each channel for its intended purpose. If there is a dedicated channel, post there.",
+                    "\u2022 Please only ping <@&844944164130783262> if you have an issue.",
+                    "\u2022 Do not try to loophole/bypass punishments or rules. Or do. It's more entertaining.",
+                    "\u2022 Please respect [York's policies on plagiarism and collusion](https://www.york.ac.uk/philosophy/current/academic-misconduct/). This includes asking for or supplying help with assessments which are intended to be independent. Any such breach will reflect badly on the whole discord.",
+                    "\u2022 Please keep in line with the [Discord Terms of Service](https://discord.com/terms).",
                     "",
                     "Punishments are decided by moderators at their discretion. Repeated offenders will receive worse punishments.",
                     "",
@@ -140,36 +97,76 @@
             },
             "roles": {
                 "admin role id": 844943189063630879,
-                "roles message id": 846158251375722507,
-                "list": {
-                    "Roles": {
-                        "845309847640473641": {
-                            "name": "Foundation",
-                            "emoji": "0\ufe0f\u20e3"
-                        },
-                        "844943772043444234": {
-                            "name": "Year 1",
-                            "emoji": "1\ufe0f\u20e3"
-                        },
-                        "844943944319893564": {
-                            "name": "Year 2",
-                            "emoji": "2\ufe0f\u20e3"
-                        },
-                        "844943919786622988": {
-                            "name": "Year 3",
-                            "emoji": "3\ufe0f\u20e3"
-                        },
-                        "844943891928580107": {
-                            "name": "Year 4",
-                            "emoji": "4\ufe0f\u20e3"
-                        },
-                        "845309888028344381": {
-                            "name": "Postgrad",
-                            "emoji": "\ud83c\udd7f\ufe0f"
-                        },
-                        "844948245570387969": {
-                            "name": "Outsider",
-                            "emoji": "\ud83d\udc12"
+                "category list": {
+                    "Year": {
+                        "message id": 846226116255809546,
+                        "role list": {
+                            "845309847640473641": {
+                                "name": "Foundation",
+                                "emoji": "0\ufe0f\u20e3"
+                            },
+                            "844943772043444234": {
+                                "name": "Year 1",
+                                "emoji": "1\ufe0f\u20e3"
+                            },
+                            "844943944319893564": {
+                                "name": "Year 2",
+                                "emoji": "2\ufe0f\u20e3"
+                            },
+                            "844943919786622988": {
+                                "name": "Year 3",
+                                "emoji": "3\ufe0f\u20e3"
+                            },
+                            "844943891928580107": {
+                                "name": "Year 4",
+                                "emoji": "4\ufe0f\u20e3"
+                            },
+                            "845309888028344381": {
+                                "name": "Postgrad",
+                                "emoji": "\ud83c\udd7f\ufe0f"
+                            },
+                            "844948245570387969": {
+                                "name": "Outsider",
+                                "emoji": "\ud83d\udc12"
+                            }
+                        }
+                    },
+                    "Degree/Courses": {
+                        "message id": 846226127932489729,
+                        "role list": {
+                            "846173456915496981": {
+                                "name": "Physics",
+                                "emoji": "\ud83d\udcda"
+                            },
+                            "846173362106400788": {
+                                "name": "Astrophysics",
+                                "emoji": "\ud83d\udef0\ufe0f"
+                            },
+                            "846173276693987389": {
+                                "name": "Theoretical Physics",
+                                "emoji": "\ud83e\uddf2"
+                            },
+                            "846173705432334336": {
+                                "name": "Physics and Mathematics",
+                                "emoji": "\ud83e\uddee"
+                            },
+                            "846173649404690474": {
+                                "name": "Physics and Philosophy",
+                                "emoji": "\ud83d\udcdc"
+                            }
+                        }
+                    },
+                    "Misc": {
+                        "message id": 846226136819826710,
+                        "role list": {
+                            "846208891842854953": {
+                                "name": "PhysSoc",
+                                "emoji": "\ud83d\ude80"
+                            },
+                            "846209216062554133": {
+                                "name": "MathSoc",
+                                "emoji": "\ud83d\udcd0"
+                            }
                         }
                     }
                 }
@@ -183,10 +180,63 @@
                 "image link": null
             },
             "roles": {
-                "Roles": {
-                    "admin role id": null,
-                    "message id": null,
-                    "list": {}
+                "admin role id": null,
+                "category list": {
+                    "Server": {
+                        "message id": null,
+                        "roles list": {}
+                    }
+                }
+            }
+        },
+        "808266016614121512": {
+            "rules": {
+                "title": "Server rules",
+                "description": "",
+                "list": [],
+                "image link": null
+            },
+            "roles": {
+                "admin role id": null,
+                "category list": {
+                    "Server": {
+                        "message id": null,
+                        "roles list": {}
+                    }
+                }
+            }
+        },
+        "831596325140824074": {
+            "rules": {
+                "title": "Server rules",
+                "description": "",
+                "list": [],
+                "image link": null
+            },
+            "roles": {
+                "admin role id": null,
+                "category list": {
+                    "Server": {
+                        "message id": null,
+                        "roles list": {}
+                    }
+                }
+            }
+        },
+        "834213187468394517": {
+            "rules": {
+                "title": "Server rules",
+                "description": "",
+                "list": [],
+                "image link": null
+            },
+            "roles": {
+                "admin role id": null,
+                "category list": {
+                    "Server": {
+                        "message id": null,
+                        "roles list": {}
+                    }
                 }
             }
         }

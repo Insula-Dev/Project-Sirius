@@ -22,6 +22,7 @@ class MyClient(discord.Client):
 
 		super().__init__(*args, **kwargs)
 		self.data = {}
+		self.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain")
 
 		# Print logs to the console too (for debugging)
 		if debug is True:
@@ -50,9 +51,11 @@ class MyClient(discord.Client):
 				},
 				"roles": {
 					"admin role id": None,
-					"message id": None,
-					"list": {
-						"Roles": {}
+					"category list": {
+						"Server": {
+							"message id": None,
+							"roles list": {}
+						}
 					}
 				}
 			}
@@ -64,6 +67,7 @@ class MyClient(discord.Client):
 			logger.critical("Failed to initialise guild: " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
 
 	async def on_ready(self):
+		"""Runs when the client is ready."""
 
 		logger.info(self.user.name + " is ready (commencing on_ready)")  # Event log
 		if self.guilds != []:
@@ -90,7 +94,7 @@ class MyClient(discord.Client):
 		logger.info(self.user.name + " is ready (finished on_ready)")  # Event log
 
 	async def on_guild_join(self, guild):
-		""""Runs on joining a guild."""
+		"""Runs on joining a guild."""
 
 		logger.info(self.user.name + " has joined the guild: " + guild.name + " with id: " + str(guild.id))  # Event log
 
@@ -126,7 +130,7 @@ class MyClient(discord.Client):
 				await message.channel.purge(limit=1)
 
 				# Create and send rules embed
-				embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0x4f7bc5, inline=False)
+				embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0xffc000, inline=False)
 				embed_rules.set_footer(text="Rules updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
 				embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
 				image = self.data["servers"][str(guild.id)]["rules"]["image link"]
@@ -144,25 +148,20 @@ class MyClient(discord.Client):
 				# Delete the command message
 				await message.channel.purge(limit=1)
 
-				# Create and send roled embed
-				embed_roles = discord.Embed(title="🗒️ Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
-				embed_roles.set_footer(text="Roles updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=self.user.avatar_url)
-				for category in self.data["servers"][str(guild.id)]["roles"]["list"]:  # For category in roles list
+				# Send one roles message per category
+				await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
+				for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in roles list
 					roles = []
-					print("Category:", category)
-					for role in self.data["servers"][str(guild.id)]["roles"]["list"][category]:  # For role in category
-						print("Role:", role)
-						roles.append(self.data["servers"][str(guild.id)]["roles"]["list"][category][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["list"][category][role]["name"] + "\n")
-					embed_roles.add_field(name=category, value="".join(roles))
-				roles_message = await message.channel.send(embed=embed_roles)
+					for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
+						roles.append(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["name"] + "\n")
+					category_message = await message.channel.send("**" + category + "**\n\n" + "".join(roles))
 
-				# Add emojis to the roles message
-				for category in self.data["servers"][str(guild.id)]["roles"]["list"]:
-					for role in self.data["servers"][str(guild.id)]["roles"]["list"][category]:
-						await roles_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["list"][category][role]["emoji"])
+					# Add reactions to the roles message
+					for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:
+						await category_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"])
 
-				# Update the roles message id variable
-				self.data["servers"][str(guild.id)]["roles"]["roles message id"] = roles_message.id
+					# Update the category's message id variable
+					self.data["servers"][str(guild.id)]["roles"]["category list"][category]["message id"] = category_message.id
 
 				# Write the updated data
 				self.update_data()
@@ -243,7 +242,7 @@ class MyClient(discord.Client):
 					await message.channel.send(".overlay israel")
 
 	async def on_member_join(self, member):
-		"""Sends a welcome message directly to the user."""
+		"""Runs when a member joins."""
 
 		logger.debug("Member " + member.name + " joined guild [GUILD_NAME]")
 		try:
@@ -255,7 +254,7 @@ class MyClient(discord.Client):
 			logger.debug("Failed to send welcome message to " + member.name)  # Event log
 
 	async def on_member_remove(self, member):
-		"""Sends a goodbye message directly to the user."""
+		"""Runs when a member leaves."""
 
 		logger.debug("Member " + member.name + " left guild [GUILD_NAME]")
 		try:
@@ -269,8 +268,15 @@ class MyClient(discord.Client):
 	async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
 		"""Gives a role based on a reaction emoji."""
 
+		guild = self.get_guild(payload.guild_id)
+
 		# Make sure that the message the user is reacting to is the one we care about.
-		if payload.message_id != self.data["servers"][str(payload.guild_id)]["roles"]["roles message id"]:
+		message_relevant = False
+		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
+			if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]["message id"]:
+				message_relevant = True
+				break
+		if message_relevant is False:
 			return
 
 		# Make sure the user isn't the bot.
@@ -278,16 +284,15 @@ class MyClient(discord.Client):
 			return
 
 		# Check if we're still in the guild and it's cached.
-		guild = self.get_guild(payload.guild_id)
 		if guild is None:
 			return
 
 		# If the emoji isn't the one we care about then delete it and exit as well.
 		role_id = -1
-		for category in self.data["servers"][str(guild.id)]["roles"]["list"]:  # For category in list
-			for id_counter in self.data["servers"][str(guild.id)]["roles"]["list"][category]:  # For role in category
-				if self.data["servers"][str(guild.id)]["roles"]["list"][category][id_counter]["emoji"] == str(payload.emoji):
-					role_id = int(id_counter)
+		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in list
+			for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
+				if self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] == str(payload.emoji):
+					role_id = int(role)
 					break
 		if role_id == -1:
 			# Not very efficient... comes from (https://stackoverflow.com/questions/63418818/python-discord-bot-python-clear-reaction-clears-all-reactions-instead-of-a-s)
@@ -315,15 +320,21 @@ class MyClient(discord.Client):
 	async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
 		"""Removes a role based on a reaction emoji."""
 
+		guild = self.get_guild(payload.guild_id)
+
 		# Make sure that the message the user is reacting to is the one we care about.
-		if payload.message_id != self.data["servers"][str(payload.guild_id)]["roles"]["roles message id"]:
+		message_relevant = False
+		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
+			if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]["message id"]:
+				message_relevant = True
+				break
+		if message_relevant is False:
 			return
 
 		# The payload for `on_raw_reaction_remove` does not provide `.member`
 		# so we must get the member ourselves from the payload's `.user_id`.
 
 		# Make sure the member still exists and is valid.
-		guild = self.get_guild(payload.guild_id)
 		member = guild.get_member(payload.user_id)
 		if member is None:
 			return
@@ -338,10 +349,10 @@ class MyClient(discord.Client):
 
 		# If the emoji isn't the one we care about then exit as well.
 		role_id = -1
-		for category in self.data["servers"][str(guild.id)]["roles"]["list"]:  # For category in list
-			for id_counter in self.data["servers"][str(guild.id)]["roles"]["list"][category]:  # For role in category
-				if self.data["servers"][str(guild.id)]["roles"]["list"][category][id_counter]["emoji"] == str(payload.emoji):
-					role_id = int(id_counter)
+		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in list
+			for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
+				if self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] == str(payload.emoji):
+					role_id = int(role)
 					break
 		if role_id == -1:
 			return
