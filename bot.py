@@ -142,14 +142,12 @@ class MyClient(discord.Client):
 				await message.channel.purge(limit=1)
 
 				# Create and send roled embed
-				embed_roles = discord.Embed(title="Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
+				embed_roles = discord.Embed(title="🗒️ Role selection", description="React to get a role, unreact to remove it.", color=0x4f7bc5)
 				embed_roles.set_footer(text="Roles updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=self.user.avatar_url)
-				# For category in roles list
-				for category in self.data["servers"][str(guild.id)]["roles"]["list"]:
+				for category in self.data["servers"][str(guild.id)]["roles"]["list"]:  # For category in roles list
 					roles = []
 					print("Category:", category)
-					# For role in category
-					for role in self.data["servers"][str(guild.id)]["roles"]["list"][category]:
+					for role in self.data["servers"][str(guild.id)]["roles"]["list"][category]:  # For role in category
 						print("Role:", role)
 						roles.append(self.data["servers"][str(guild.id)]["roles"]["list"][category][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["list"][category][role]["name"] + "\n")
 					embed_roles.add_field(name=category, value="".join(roles))
@@ -283,10 +281,11 @@ class MyClient(discord.Client):
 
 		# If the emoji isn't the one we care about then delete it and exit as well.
 		role_id = -1
-		for id_counter in self.data["servers"][str(guild.id)]["roles"]["list"]:
-			if self.data["servers"][str(guild.id)]["roles"]["list"][id_counter]["emoji"] == str(payload.emoji):
-				role_id = int(id_counter)
-				break
+		for category in self.data["servers"][str(guild.id)]["roles"]["list"]:  # For category in list
+			for id_counter in self.data["servers"][str(guild.id)]["roles"]["list"][category]:  # For role in category
+				if self.data["servers"][str(guild.id)]["roles"]["list"][category][id_counter]["emoji"] == str(payload.emoji):
+					role_id = int(id_counter)
+					break
 		if role_id == -1:
 			# Not very efficient... comes from (https://stackoverflow.com/questions/63418818/python-discord-bot-python-clear-reaction-clears-all-reactions-instead-of-a-s)
 			channel = await self.fetch_channel(payload.channel_id)
@@ -336,10 +335,11 @@ class MyClient(discord.Client):
 
 		# If the emoji isn't the one we care about then exit as well.
 		role_id = -1
-		for id_counter in self.data["servers"][str(guild.id)]["roles"]["list"]:
-			if self.data["servers"][str(guild.id)]["roles"]["list"][id_counter]["emoji"] == str(payload.emoji):
-				role_id = int(id_counter)
-				break
+		for category in self.data["servers"][str(guild.id)]["roles"]["list"]:  # For category in list
+			for id_counter in self.data["servers"][str(guild.id)]["roles"]["list"][category]:  # For role in category
+				if self.data["servers"][str(guild.id)]["roles"]["list"][category][id_counter]["emoji"] == str(payload.emoji):
+					role_id = int(id_counter)
+					break
 		if role_id == -1:
 			return
 
