@@ -68,6 +68,9 @@ Thanks.
                         }
                     }
                 }
+            },
+            "ranks": {
+                "USER_ID": XP_AMOUNT
             }
         }
     }

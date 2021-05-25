@@ -24,6 +24,7 @@ class MyClient(discord.Client):
 
 		super().__init__(*args, **kwargs)
 		self.data = {}
+		self.cache = {}
 		self.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain")
 
 		# Print logs to the console too (for debugging)
@@ -59,7 +60,8 @@ class MyClient(discord.Client):
 							"roles list": {}
 						}
 					}
-				}
+				},
+				"ranks": {}
 			}
 
 			# Write the updated data
@@ -117,8 +119,33 @@ class MyClient(discord.Client):
 		if message.author.id == self.user.id:
 			return
 
+		# Don't respond to other bots
+		if message.author.bot is True:  # Needs to be tested
+			return
+
 		# Set guild of origin
 		guild = self.get_guild(message.guild.id)
+
+		# []
+		if author.name in self.cache[str(guild.id)]:
+			if (datetime.datetime.now() - self.cache[str(guild.id)][author.name]).seconds // 3600 > 0:
+				self.cache[str(guild.id)][author.name] = datetime.datetime.now()
+				await self.add_experience(guild, message.author)
+		else:  # !!! Condense code here
+			self.cache[str(guild.id)][author.name] = datetime.datetime.now()
+			await self.add_experience(guild, message.author)
+
+		# Get rank command
+		if message.content.startswith("!get rank"):
+			self.data["servers"][str(guild.id)]["roles"]
+
+			# !!! WE LEFT IT HERE :)
+
+			embed_rank = discord.Embed()
+			file = discord.File("card.png")
+			embed_rank.set_image(url="attachment://card.png")
+
+			await message.channel.send(file=file)
 
 		# If the message was sent by the admins
 		if guild.get_role(self.data["servers"][str(message.guild.id)]["roles"]["admin role id"]) in guild.get_member(message.author.id).roles:
