@@ -1,10 +1,14 @@
 # Project-Sirius
 
 >   Sirius rises late in the dark, liquid sky
-    On summer nights, star of stars,
-    Orion's Dog they call it, brightest
-    Of all, but an evil portent, bringing heat
-    And fevers to suffering humanity.
+>   
+>   On summer nights, star of stars,
+>   
+>   Orion's Dog they call it, brightest
+>   
+>   Of all, but an evil portent, bringing heat
+>   
+>   And fevers to suffering humanity.
 
 # Instructions
 
@@ -14,6 +18,7 @@
 4. Branches must only include changes which are relevant to their name.
 5. No forks: spoons only.
 6. No working past 2am unless all developers are involved and have agreed to this.
+7. No working past 2:15am.
 
 ## FAQs:
 
@@ -93,6 +98,8 @@ The combined forces of the opposing branches unified into one ungodly, unmergeab
 ## The Great Disappointment
 
 One of the developers stayed up and considered doing the Great Mergening by himself because he can't spend his time doing the right things. Instead he reinvented part of the bot. What an idiot.
+
+## I want to go back to a normal sleep schedule.
 
 # Appease Arun: Priority 1
 
