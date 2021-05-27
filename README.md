@@ -93,3 +93,8 @@ The combined forces of the opposing branches unified into one ungodly, unmergeab
 ## The Great Disappointment
 
 One of the developers stayed up and considered doing the Great Mergening by himself because he can't spend his time doing the right things. Instead he reinvented part of the bot. What an idiot.
+
+# Appease Arun: Priority 1
+
+- Consider changing convention to message.author to author = message.author. For example:
+    `guild_data = self.data["servers"][str(guild.id)]`

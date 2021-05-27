@@ -1,6 +1,6 @@
 # Imports
 from random import randint
-from datetime import date
+from datetime import date, datetime
 import json
 import socket
 import discord
@@ -8,6 +8,7 @@ import discord
 
 # Home imports
 from log_handling import *
+from imaging import generate_rank_card
 
 
 # Variables
@@ -23,6 +24,7 @@ class MyClient(discord.Client):
 	def __init__(self, debug=False, *args, **kwargs):
 
 		super().__init__(*args, **kwargs)
+		self.start_time = datetime.now()
 		self.data = {}
 		self.cache = {}
 		self.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain")
@@ -70,6 +72,22 @@ class MyClient(discord.Client):
 		except:
 			logger.critical("Failed to initialise guild: " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
 
+	def get_uptime(self):
+		"""Returns client uptime."""
+
+		logger.debug("Calculating uptime")
+
+		uptime = datetime.now() - self.start_time
+		print("uptime:", uptime.seconds)
+		if uptime.seconds > 60:
+			if (uptime.seconds // 60) > 1:
+				word = " minutes "
+			else:
+				word = " minute "
+			return str(uptime.seconds // 60) + word + "and " + str(uptime.seconds % 60) + " seconds"
+		else:
+			return str(uptime.seconds) + " seconds"
+
 	async def on_ready(self):
 		"""Runs when the client is ready."""
 
@@ -94,6 +112,10 @@ class MyClient(discord.Client):
 
 				# Initialise guild
 				self.initialise_guild(guild)
+
+		# Initialise cache for servers
+		for guild in self.guilds:
+			self.cache[str(guild.id)] = {}
 
 		logger.info(self.user.name + " is ready (finished on_ready)")  # Event log
 
@@ -120,31 +142,48 @@ class MyClient(discord.Client):
 			return
 
 		# Don't respond to other bots
-		if message.author.bot is True:  # Needs to be tested
+		if message.author.bot is True:  # !!! Needs to be tested
 			return
 
 		# Set guild of origin
 		guild = self.get_guild(message.guild.id)
 
-		# []
-		if author.name in self.cache[str(guild.id)]:
-			if (datetime.datetime.now() - self.cache[str(guild.id)][author.name]).seconds // 3600 > 0:
-				self.cache[str(guild.id)][author.name] = datetime.datetime.now()
-				await self.add_experience(guild, message.author)
-		else:  # !!! Condense code here
-			self.cache[str(guild.id)][author.name] = datetime.datetime.now()
-			await self.add_experience(guild, message.author)
+		# Update the user's experience
+		if (message.author.id not in self.cache[str(guild.id)]) or ((datetime.now() - self.cache[str(guild.id)][message.author.id]).seconds // 3600 > 0):  # This is the longest like of code I've ever seen survive a scrutinised and picky merge from me. Well played.
+
+			logger.debug("Adding experience to " + message.author.name)  # Event log
+
+			# Update the cache and increment the user's experience
+			self.cache[str(guild.id)][message.author.id] = datetime.now()
+			try:
+				self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] += 1
+			except KeyError:
+				self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] = 1
+
+			# Write the updated data
+			self.update_data()
+		else:
+
+			logger.debug("Not adding experience to " + message.author.name)  # Event log
 
 		# Get rank command
-		if message.content.startswith("!get rank"):
-			self.data["servers"][str(guild.id)]["roles"]
+		if message.content.startswith(prefix + "get rank"):
 
-			# !!! WE LEFT IT HERE :)
+			# Generate the rank card
+			if str(message.author.id) in self.data["servers"][str(guild.id)]["ranks"]:
+				rank = int((self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] ** 0.5) // 1)
+				percentage = int(round((self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] ** 0.5) % 1, 2) * 100)
+			else:
+				rank = 0
+				percentage = 0
+			generate_rank_card(message.author.avatar_url, message.author.name, rank, percentage)
 
+			# Create the rank embed
 			embed_rank = discord.Embed()
 			file = discord.File("card.png")
 			embed_rank.set_image(url="attachment://card.png")
 
+			# Send the embed
 			await message.channel.send(file=file)
 
 		# If the message was sent by the admins
@@ -158,11 +197,11 @@ class MyClient(discord.Client):
 				# Delete the command message
 				await message.channel.purge(limit=1)
 
-				# Temp
+				# !!! This is messy
 				embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#831953098800889896> is for this, and <#610595467444879421> is for that.", color=0xffc000)
 				await message.channel.send(embed=embed_welcome)
 
-				# Create and send rules embed
+				# Create the rules embed
 				embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0xffc000, inline=False)
 				embed_rules.set_footer(text="Rules updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
 				embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
@@ -174,6 +213,7 @@ class MyClient(discord.Client):
 				else:
 					logger.debug("Image link non-existant for " + str(message.guild.id))  # Event log
 
+				# Send the embeds
 				await message.channel.send(embed=embed_rules)
 				await message.channel.send(embed=embed_image)
 
@@ -210,16 +250,25 @@ class MyClient(discord.Client):
 			if message.content == prefix + "locate":
 				logger.info("`locate` called by " + message.author.name)  # Event log
 				hostname = socket.gethostname()
-				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.")
+				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.\n" + self.get_uptime() + " uptime.")
 
 			# Kill command
-			if message.content == prefix + "kill":
+			if message.content.startswith(prefix + "kill"):
+
 				logger.info("`kill` called by " + message.author.name)  # Event log
-				await message.channel.send("Doggie down")
+
+				# Delete the command message
+				await message.channel.purge(limit=1)
+
+				# !!! Clunky and breakable?
+				argument = message.content[len(prefix + "kill "):]
+				if self.data["config"]["jokes"] is True:
+					await message.channel.send("Doggie down")
+				await message.channel.send(self.user.name + " shutting down after " + self.get_uptime() + " of uptime.\n" + argument)
 				await client.close()
 
 		# Joke functionality
-		if message.guild.id in [489893521176920076, 808266016614121512]:
+		if self.data["config"]["jokes"] is True:
 
 			# Shut up Arun
 			if message.author.id == 258284765776576512:
@@ -250,30 +299,30 @@ class MyClient(discord.Client):
 
 			# Token command
 			if message.content == prefix + "token":
-				logger.debug("`!token` called by " + message.author.name)  # Event log
+				logger.debug("`token` called by " + message.author.name)  # Event log
 				await message.channel.send("IdrOppED ThE TokEN gUYS!!!!")
 
 			# Summon lizzie command
 			if message.content == prefix + "summon_lizzie":
-				logger.debug("`!summon_lizzie` called by " + message.author.name)  # Event log
+				logger.debug("`summon_lizzie` called by " + message.author.name)  # Event log
 				for x in range(100):
 					await message.channel.send(guild.get_member(692684372247314445).mention)
 
 			# Summon leo command
 			if message.content == prefix + "summon_leo":
-				logger.debug("`!summon_leo` called by " + message.author.name)  # Event log
+				logger.debug("`summon_leo` called by " + message.author.name)  # Event log
 				for x in range(100):
 					await message.channel.send(guild.get_member(242790351524462603).mention)
 
 			# Teaching bitches how to swim
 			if message.content == prefix + "swim":
-				logger.debug("`!swim` called by " + message.author.name)  # Event log
+				logger.debug("`swim` called by " + message.author.name)  # Event log
 				await message.channel.send("/play https://youtu.be/uoZgZT4DGSY")
 				await message.channel.send("No swimming lessons today ):")
 
 			# Overlay Israel (Warning: DEFCON 1)
 			if message.content == prefix + "israeli_defcon_1":
-				logger.debug("`!israeli_defcon_1` called by " + message.author.name)  # Event log
+				logger.debug("`israeli_defcon_1` called by " + message.author.name)  # Event log
 				await message.channel.send("preemptive apologies...")
 				while True:
 					await message.channel.send(".overlay israel")
