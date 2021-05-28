@@ -75,28 +75,34 @@ class MyClient(discord.Client):
 	def get_uptime(self):
 		"""Returns client uptime."""
 
-		logger.debug("Calculating uptime")
+		logger.debug("Calculating uptime")  # Event log
 
-		uptime = datetime.now() - self.start_time
-		print("uptime:", uptime.seconds)
-		time_string = ""
-		if uptime.seconds > 3600:
-			hour_value = (uptime.seconds // 3600)
-			time_string += str(hour_value)
-			if (hour_value // 60) > 1:
-				time_string += " hours "
+		seconds = (datetime.now() - self.start_time).seconds
+		uptime = ""
+		if seconds >= 3600:
+			uptime += str(seconds // 3600) + " "
+			if seconds // 3600 == 1:
+				uptime += "hour"
 			else:
-				time_string += " hour "
-			time_string += " and "
-		if uptime.seconds > 60:
-			minute_value = (uptime.seconds%3600) // 60
-			time_string += str(minute_value)
-			if (minute_value) > 1:
-				time_string += " minutes "
+				uptime += "hours"
+		if seconds % 3600 >= 60:
+			if uptime != "":
+				uptime += " "
+			uptime += str(seconds % 3600 // 60) + " "
+			if seconds % 3600 // 60 == 1:
+				uptime += "minute"
 			else:
-				time_string += " minute "
-			time_string += " and "
-		return time_string + str(((uptime.seconds%3600)) % 60) + " seconds"
+				uptime += "minutes"
+		if seconds % 60 > 0:
+			if uptime != "":
+				uptime += " "
+			uptime += str(seconds % 60) + " "
+			if seconds % 60 == 1:
+				uptime += "second"
+			else:
+				uptime += "seconds"
+
+		return uptime
 
 	async def on_ready(self):
 		"""Runs when the client is ready."""
@@ -260,7 +266,7 @@ class MyClient(discord.Client):
 			if message.content == prefix + "locate":
 				logger.info("`locate` called by " + message.author.name)  # Event log
 				hostname = socket.gethostname()
-				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.\n" + self.get_uptime() + " uptime.")
+				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.\nUptime: " + self.get_uptime() + ".")
 
 			# Kill command
 			if message.content.startswith(prefix + "kill"):
@@ -274,7 +280,7 @@ class MyClient(discord.Client):
 				argument = message.content[len(prefix + "kill "):]
 				if self.data["config"]["jokes"] is True:
 					await message.channel.send("Doggie down")
-				await message.channel.send(self.user.name + " shutting down after " + self.get_uptime() + " of uptime.\n" + argument)
+				await message.channel.send(self.user.name + " shutting down.\nUptime:" + self.get_uptime() + ".\n" + argument)
 				await client.close()
 
 		# Joke functionality
