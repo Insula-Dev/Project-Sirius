@@ -101,6 +101,8 @@ One of the developers stayed up and considered doing the Great Mergening by hims
 
 ## I want to go back to a normal sleep schedule.
 
+## Repo private until further notice
+
 # Appease Arun: Priority 1
 
 - Consider changing convention to message.author to author = message.author. For example:
