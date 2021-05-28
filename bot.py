@@ -79,14 +79,24 @@ class MyClient(discord.Client):
 
 		uptime = datetime.now() - self.start_time
 		print("uptime:", uptime.seconds)
-		if uptime.seconds > 60:
-			if (uptime.seconds // 60) > 1:
-				word = " minutes "
+		time_string = ""
+		if uptime.seconds > 3600:
+			hour_value = (uptime.seconds // 3600)
+			time_string += str(hour_value)
+			if (hour_value // 60) > 1:
+				time_string += " hours "
 			else:
-				word = " minute "
-			return str(uptime.seconds // 60) + word + "and " + str(uptime.seconds % 60) + " seconds"
-		else:
-			return str(uptime.seconds) + " seconds"
+				time_string += " hour "
+			time_string += " and "
+		if uptime.seconds > 60:
+			minute_value = (uptime.seconds%3600) // 60
+			time_string += str(minute_value)
+			if (minute_value) > 1:
+				time_string += " minutes "
+			else:
+				time_string += " minute "
+			time_string += " and "
+		return time_string + str(((uptime.seconds%3600)) % 60) + " seconds"
 
 	async def on_ready(self):
 		"""Runs when the client is ready."""
