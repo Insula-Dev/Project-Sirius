@@ -188,7 +188,7 @@ class MyClient(discord.Client):
 			# Generate the rank card
 			if str(message.author.id) in self.data["servers"][str(guild.id)]["ranks"]:
 				rank = int((self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] ** 0.5) // 1)
-				percentage = int(round((self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] ** 0.5) % 1, 2) * 100)
+				percentage = int(round((self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] - rank ** 2) / ((rank + 1) ** 2 - rank ** 2)))
 			else:
 				rank = 0
 				percentage = 0
