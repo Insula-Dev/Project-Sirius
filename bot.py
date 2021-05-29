@@ -37,8 +37,8 @@ class MyClient(discord.Client):
 		"""Writes the data variable into the file."""
 
 		try:
-			with open("data.json", "w", encoding='utf-8') as data_file:
-				json.dump(self.data, data_file, indent=4)
+			with open("data.json", "w", encoding='utf-8') as file:
+				json.dump(self.data, file, indent=4)
 			logger.debug("Updated data.json")  # Event log
 		except:
 			logger.critical("Could not update data.json")  # Event log
@@ -113,7 +113,7 @@ class MyClient(discord.Client):
 			for guild in self.guilds:
 				logger.info("    " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
 
-		# Load the file data into the data variable.
+		# Load the data file into the data variable
 		try:
 			with open("data.json", encoding='utf-8') as file:
 				self.data = json.load(file)

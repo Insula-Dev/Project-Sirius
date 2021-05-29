@@ -8,6 +8,9 @@
     },
     "servers": {
         "489893521176920076": {
+            "config": {
+                "rank system": true
+            },
             "rules": {
                 "title": "\ud83d\udcc3 Server rules",
                 "description": "We're pretty chill here, but we've set down some ground rules so that everyone has a good experience on the server.",
