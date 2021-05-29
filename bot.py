@@ -39,7 +39,7 @@ class MyClient(discord.Client):
 		try:
 			with open("data.json", "w", encoding='utf-8') as data_file:
 				json.dump(self.data, data_file, indent=4)
-			logger.info("Updated data.json")  # Event log
+			logger.debug("Updated data.json")  # Event log
 		except:
 			logger.critical("Could not update data.json")  # Event log
 
