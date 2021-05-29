@@ -185,6 +185,8 @@ class MyClient(discord.Client):
 		# Get rank command
 		if message.content.startswith(prefix + "get rank"):
 
+			logger.info("`get rank` called by " + message.author.name)  # Event log
+
 			# Generate the rank card
 			if str(message.author.id) in self.data["servers"][str(guild.id)]["ranks"]:
 				rank = int((self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] ** 0.5) // 1)
