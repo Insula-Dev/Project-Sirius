@@ -107,3 +107,7 @@ One of the developers stayed up and considered doing the Great Mergening by hims
 
 - Consider changing convention to message.author to author = message.author. For example:
     `guild_data = self.data["servers"][str(guild.id)]`
+
+# Credits
+
+Thanks to Jack for fixing Arun's Raspberry Pi. That was cool.
