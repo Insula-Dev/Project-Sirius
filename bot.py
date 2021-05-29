@@ -282,7 +282,7 @@ class MyClient(discord.Client):
 				argument = message.content[len(prefix + "kill "):]
 				if self.data["config"]["jokes"] is True:
 					await message.channel.send("Doggie down")
-				await message.channel.send(self.user.name + " shutting down.\nUptime:" + self.get_uptime() + ".\n" + argument)
+				await message.channel.send(self.user.name + " shutting down.\nUptime: " + self.get_uptime() + ".\n" + argument)
 				await client.close()
 
 		# Joke functionality
