@@ -4,6 +4,7 @@ from datetime import date, datetime
 import json
 import socket
 import discord
+import re  # PLEASE STOP REMOVING THIS OR I WILL CONSTANTLY MERGE INTO MAIN
 
 
 # Home imports
@@ -260,6 +261,39 @@ class MyClient(discord.Client):
 
 				# Write the updated data
 				self.update_data()
+
+		if message.content.startswith(prefix + "poll"):  # NEEDS TO BE MOVED TO ADMIN SECTION WHEN TESTS FINISHED
+			# Poll information taken
+			print("poll identified")
+			arg_string = message.content[len(prefix + "poll "):]
+			args =  re.split("\,\s|\,", arg_string)
+			options = {} # Dictionary of polling options
+			options_list = []
+			title="Poll"
+			for arg in args:
+				option = arg.split("=")
+				if option[0] == "title=":
+					title = option[1]
+				else:
+					options.update({option[0]:option[1]})  # Name of option: emoji id
+					options_list.append(option[1] + " " + option[0])
+				print(option)
+			print(options)
+
+			# Create the poll embed
+			embed_poll= discord.Embed(title=title,color=0xffc000)
+			embed_poll.add_field(name="Options",value="\n".join(options_list))
+
+			# Send the embed
+			poll_message = await message.channel.send(embed=embed_poll)
+
+			for option in options:
+				emoji = str(options[option])+""
+				if emoji == options[option]:
+					print("oh no")
+				print("emoji is : "+emoji)
+				await poll_message.add_reaction(str(emoji))
+
 
 		# If the message was sent by the developers
 		if message.author.id in self.data["config"]["developers"]:
