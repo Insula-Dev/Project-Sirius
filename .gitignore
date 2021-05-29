@@ -2,5 +2,4 @@ __pycache__
 .idea
 token.txt
 log_file.log
-data.json
 card.png
