@@ -270,6 +270,7 @@ class MyClient(discord.Client):
 			options = {} # Dictionary of polling options
 			options_list = []
 			title="Poll"
+			poll_time = datetime.now()  # Default set to now. CHANGE THIS
 			for arg in args:
 				option = arg.split("=")
 				if option[0] == "title":  # Sets title
@@ -286,8 +287,8 @@ class MyClient(discord.Client):
 						time_list[2] = last_time_arg[0]
 						hr = last_time_arg[1].split(":")[0]
 						min = last_time_arg[1].split(":")[1]
-					time = datetime(day=int(time_list[0]),month=int(time_list[1]),year=int(time_list[2]),hour=int(hr),minute=int(min))  # Assumes people use the correct English format (MAKE OPTION FOR AMERICANS IN CONFIG)
-					logger.debug("Time for poll: "+title+" set to: "+str(time))
+					poll_time = datetime(day=int(time_list[0]),month=int(time_list[1]),year=int(time_list[2]),hour=int(hr),minute=int(min))  # Assumes people use the correct English format (MAKE OPTION FOR AMERICANS IN CONFIG)
+					logger.debug("Time for poll: "+title+" set to: "+str(poll_time))
 
 				else:  # Creates new poll option
 					options.update({option[0]:option[1]})  # Name of option: emoji id
@@ -302,11 +303,22 @@ class MyClient(discord.Client):
 			# Send the embed
 			poll_message = await message.channel.send(embed=embed_poll)
 
-
+			# React to embed
 			for option in options:
 				emoji = options[option]
 				print("emoji is : "+emoji)
 				await poll_message.add_reaction(emoji.rstrip())
+
+			# Saves poll data
+			if "polls" not in self.data["servers"][str(guild.id)]:  # Definitely not an upgrade because this is 500% more convenient and saves space
+				self.data["servers"][str(guild.id)].update({"polls":{}})
+			self.data["servers"][str(guild.id)]["polls"].update({poll_message.id : {
+				"title": title,
+				"time": str(poll_time),
+				"options": options
+			}
+			})
+			self.update_data()
 
 
 		# If the message was sent by the developers

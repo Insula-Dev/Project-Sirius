@@ -23,6 +23,15 @@ import json
 		}
 	},
 	"ranks": {}
+	"polls": {
+		"message id": {
+			"title" : "poll title",
+			"time" : "poll timestamp",
+			"options" : {
+
+			}
+		}
+	}
 }
 
 
