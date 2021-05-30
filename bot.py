@@ -272,10 +272,24 @@ class MyClient(discord.Client):
 			title="Poll"
 			for arg in args:
 				option = arg.split("=")
-				if option[0] == "title":
+				if option[0] == "title":  # Sets title
 					print("Title set for poll")
 					title = option[1]
-				else:
+				elif option[0] == "time":  # Sets time
+					time_list = option[1].split("/")
+					# Default time as 12:00
+					hr=12
+					min=00
+					if ":" in time_list[2]:
+						print(time_list[2])
+						last_time_arg = time_list[2].split(" ")
+						time_list[2] = last_time_arg[0]
+						hr = last_time_arg[1].split(":")[0]
+						min = last_time_arg[1].split(":")[1]
+					time = datetime(day=int(time_list[0]),month=int(time_list[1]),year=int(time_list[2]),hour=int(hr),minute=int(min))  # Assumes people use the correct English format (MAKE OPTION FOR AMERICANS IN CONFIG)
+					logger.debug("Time for poll: "+title+" set to: "+str(time))
+
+				else:  # Creates new poll option
 					options.update({option[0]:option[1]})  # Name of option: emoji id
 					options_list.append(option[1] + " " + option[0])
 				print(option)
@@ -291,9 +305,7 @@ class MyClient(discord.Client):
 
 			for option in options:
 				emoji = options[option]
-				if emoji[0] == options[option]:
-					print("oh no")
-				print("emoji is : "+str(emoji[0]))
+				print("emoji is : "+emoji)
 				await poll_message.add_reaction(emoji.rstrip())
 
 
