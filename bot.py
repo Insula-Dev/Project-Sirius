@@ -272,7 +272,8 @@ class MyClient(discord.Client):
 			title="Poll"
 			for arg in args:
 				option = arg.split("=")
-				if option[0] == "title=":
+				if option[0] == "title":
+					print("Title set for poll")
 					title = option[1]
 				else:
 					options.update({option[0]:option[1]})  # Name of option: emoji id
@@ -287,12 +288,13 @@ class MyClient(discord.Client):
 			# Send the embed
 			poll_message = await message.channel.send(embed=embed_poll)
 
+
 			for option in options:
-				emoji = str(options[option])+""
-				if emoji == options[option]:
+				emoji = options[option]
+				if emoji[0] == options[option]:
 					print("oh no")
-				print("emoji is : "+emoji)
-				await poll_message.add_reaction(str(emoji))
+				print("emoji is : "+str(emoji[0]))
+				await poll_message.add_reaction(emoji.rstrip())
 
 
 		# If the message was sent by the developers
