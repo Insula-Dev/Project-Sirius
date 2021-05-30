@@ -162,40 +162,42 @@ class MyClient(discord.Client):
 		if message.author.bot is True:  # !!! Needs to be tested
 			return
 
+		# Set author of origin
+		author = message.author
 		# Set guild of origin
-		guild = self.get_guild(message.guild.id)
+		guild = message.guild
 
 		# Update the user's experience
-		if (message.author.id not in self.cache[str(guild.id)]) or ((datetime.now() - self.cache[str(guild.id)][message.author.id]).seconds // 3600 > 0):  # This is the longest like of code I've ever seen survive a scrutinised and picky merge from me. Well played.
+		if (author.id not in self.cache[str(guild.id)]) or ((datetime.now() - self.cache[str(guild.id)][author.id]).seconds // 3600 > 0):  # This is the longest like of code I've ever seen survive a scrutinised and picky merge from me. Well played.
 
-			logger.debug("Adding experience to " + message.author.name)  # Event log
+			logger.debug("Adding experience to " + author.name)  # Event log
 
 			# Update the cache and increment the user's experience
-			self.cache[str(guild.id)][message.author.id] = datetime.now()
+			self.cache[str(guild.id)][author.id] = datetime.now()
 			try:
-				self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] += 1
+				self.data["servers"][str(guild.id)]["ranks"][str(author.id)] += 1
 			except KeyError:
-				self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] = 1
+				self.data["servers"][str(guild.id)]["ranks"][str(author.id)] = 1
 
 			# Write the updated data
 			self.update_data()
 		else:
 
-			logger.debug("Not adding experience to " + message.author.name)  # Event log
+			logger.debug("Not adding experience to " + author.name)  # Event log
 
 		# Get rank command
 		if message.content.startswith(prefix + "get rank"):
 
-			logger.info("`get rank` called by " + message.author.name)  # Event log
+			logger.info("`get rank` called by " + author.name)  # Event log
 
 			# Generate the rank card
-			if str(message.author.id) in self.data["servers"][str(guild.id)]["ranks"]:
-				rank = int((self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] ** 0.5) // 1)
-				percentage = int(round((self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] - (rank ** 2)) / (((rank + 1) ** 2) - (rank ** 2)) * 100))
+			if str(author.id) in self.data["servers"][str(guild.id)]["ranks"]:
+				rank = int((self.data["servers"][str(guild.id)]["ranks"][str(author.id)] ** 0.5) // 1)
+				percentage = int(round((self.data["servers"][str(guild.id)]["ranks"][str(author.id)] - (rank ** 2)) / (((rank + 1) ** 2) - (rank ** 2)) * 100))
 			else:
 				rank = 0
 				percentage = 0
-			generate_rank_card(message.author.avatar_url, message.author.name, rank, percentage)
+			generate_rank_card(author.avatar_url, author.name, rank, percentage)
 
 			# Create the rank embed
 			embed_rank = discord.Embed()
@@ -206,12 +208,12 @@ class MyClient(discord.Client):
 			await message.channel.send(file=file)
 
 		# If the message was sent by the admins
-		if guild.get_role(self.data["servers"][str(message.guild.id)]["roles"]["admin role id"]) in guild.get_member(message.author.id).roles:
+		if guild.get_role(self.data["servers"][str(message.guild.id)]["roles"]["admin role id"]) in guild.get_member(author.id).roles:
 
 			# Rules command
 			if message.content == prefix + "rules":
 
-				logger.info("`rules` called by " + message.author.name)  # Event log
+				logger.info("`rules` called by " + author.name)  # Event log
 
 				# Delete the command message
 				await message.channel.purge(limit=1)
@@ -239,7 +241,7 @@ class MyClient(discord.Client):
 			# Roles command
 			if message.content == prefix + "roles":
 
-				logger.info("`roles` called by " + message.author.name)  # Event log
+				logger.info("`roles` called by " + author.name)  # Event log
 
 				# Delete the command message
 				await message.channel.purge(limit=1)
@@ -264,7 +266,11 @@ class MyClient(discord.Client):
 
 		if message.content.startswith(prefix + "poll"):  # NEEDS TO BE MOVED TO ADMIN SECTION WHEN TESTS FINISHED
 			# Poll information taken
-			print("poll identified")
+			logger.info("Poll command sent by "+author.name)
+
+			# Delete the command message
+			await message.channel.purge(limit=1)
+
 			arg_string = message.content[len(prefix + "poll "):]
 			args =  re.split("\,\s|\,", arg_string)
 			options = {} # Dictionary of polling options
@@ -297,7 +303,7 @@ class MyClient(discord.Client):
 			print(options)
 
 			# Create the poll embed
-			embed_poll= discord.Embed(title=title,color=0xffc000)
+			embed_poll= discord.Embed(title=title,description=str(poll_time),color=0xffc000)
 			embed_poll.add_field(name="Options",value="\n".join(options_list))
 
 			# Send the embed
@@ -321,19 +327,20 @@ class MyClient(discord.Client):
 			self.update_data()
 
 
+
 		# If the message was sent by the developers
-		if message.author.id in self.data["config"]["developers"]:
+		if author.id in self.data["config"]["developers"]:
 
 			# Locate command
 			if message.content == prefix + "locate":
-				logger.info("`locate` called by " + message.author.name)  # Event log
+				logger.info("`locate` called by " + author.name)  # Event log
 				hostname = socket.gethostname()
 				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.\nUptime: " + self.get_uptime() + ".")
 
 			# Kill command
 			if message.content.startswith(prefix + "kill"):
 
-				logger.info("`kill` called by " + message.author.name)  # Event log
+				logger.info("`kill` called by " + author.name)  # Event log
 
 				# Delete the command message
 				await message.channel.purge(limit=1)
@@ -349,7 +356,7 @@ class MyClient(discord.Client):
 		if self.data["config"]["jokes"] is True:
 
 			# Shut up Arun
-			if message.author.id == 258284765776576512:
+			if author.id == 258284765776576512:
 
 				logger.debug("Arun sighted. Locking on")  # Event log
 
@@ -361,46 +368,46 @@ class MyClient(discord.Client):
 
 			# Gameboy mention
 			if "gameboy" in message.content.lower():
-				logger.debug("`gameboy` mentioned by " + message.author.name)  # Event log
+				logger.debug("`gameboy` mentioned by " + author.name)  # Event log
 				await message.channel.send("Gameboys are worthless (apart from micro. micro is cool)")
 
 			# Raspberry mention
 			if "raspberries" in message.content.lower() or "raspberry" in message.content.lower():
-				logger.debug("`raspberry racers` mentioned by " + message.author.name)  # Event log
+				logger.debug("`raspberry racers` mentioned by " + author.name)  # Event log
 				await message.channel.send("The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019.")
 
 			# Pycharm mention
 			if "pycharm" in message.content.lower():
-				logger.debug("`pycharm` mentioned by " + message.author.name)  # Event log
+				logger.debug("`pycharm` mentioned by " + author.name)  # Event log
 				await message.channel.send("Pycharm enthusiasts vs Sublime Text enjoyers: https://youtu.be/HrkNwjruz5k")
 				await message.channel.send("85 commits in and haha bot print funny is still your sense of humour.")
 
 			# Token command
 			if message.content == prefix + "token":
-				logger.debug("`token` called by " + message.author.name)  # Event log
+				logger.debug("`token` called by " + author.name)  # Event log
 				await message.channel.send("IdrOppED ThE TokEN gUYS!!!!")
 
 			# Summon lizzie command
 			if message.content == prefix + "summon_lizzie":
-				logger.debug("`summon_lizzie` called by " + message.author.name)  # Event log
+				logger.debug("`summon_lizzie` called by " + author.name)  # Event log
 				for x in range(100):
 					await message.channel.send(guild.get_member(692684372247314445).mention)
 
 			# Summon leo command
 			if message.content == prefix + "summon_leo":
-				logger.debug("`summon_leo` called by " + message.author.name)  # Event log
+				logger.debug("`summon_leo` called by " + author.name)  # Event log
 				for x in range(100):
 					await message.channel.send(guild.get_member(242790351524462603).mention)
 
 			# Teaching bitches how to swim
 			if message.content == prefix + "swim":
-				logger.debug("`swim` called by " + message.author.name)  # Event log
+				logger.debug("`swim` called by " + author.name)  # Event log
 				await message.channel.send("/play https://youtu.be/uoZgZT4DGSY")
 				await message.channel.send("No swimming lessons today ):")
 
 			# Overlay Israel (Warning: DEFCON 1)
 			if message.content == prefix + "israeli_defcon_1":
-				logger.debug("`israeli_defcon_1` called by " + message.author.name)  # Event log
+				logger.debug("`israeli_defcon_1` called by " + author.name)  # Event log
 				await message.channel.send("preemptive apologies...")
 				while True:
 					await message.channel.send(".overlay israel")
