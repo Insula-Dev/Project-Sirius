@@ -202,7 +202,7 @@ class MyClient(discord.Client):
 			embed_rank.set_image(url="attachment://card.png")
 
 			# Send the embed
-			await message.channel.send(file=file)
+			await message.reply(file=file)
 
 		# If the message was sent by the admins
 		if guild.get_role(self.data["servers"][str(message.guild.id)]["roles"]["admin role id"]) in guild.get_member(message.author.id).roles:
@@ -268,7 +268,7 @@ class MyClient(discord.Client):
 			if message.content == prefix + "locate":
 				logger.info("`locate` called by " + message.author.name)  # Event log
 				hostname = socket.gethostname()
-				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.\nUptime: " + self.get_uptime() + ".")
+				await message.reply("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.\nUptime: " + self.get_uptime() + ".")
 
 			# Kill command
 			if message.content.startswith(prefix + "kill"):
