@@ -18,7 +18,7 @@ import json
 		"category list": {
 			"Server": {
 				"message id": 0,
-				"roles list": {}
+				"role list": {}
 			}
 		}
 	},
