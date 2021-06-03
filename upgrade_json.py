@@ -3,9 +3,11 @@ import json
 
 
 # Variables
-{
+server_structure = {
 	"config": {
-		"rank system": False
+		"rank system": False,
+		"admin role id": 0,
+		"announcements channel id": 0
 	},
 	"rules": {
 		"title": "",
@@ -14,7 +16,6 @@ import json
 		"image link": ""
 	},
 	"roles": {
-		"admin role id": 0,
 		"category list": {
 			"Server": {
 				"message id": 0,
@@ -46,4 +47,4 @@ if __name__ == "__main__":
 
 		for variable in data["servers"][server]:
 			if isinstance(data[server][variable], dict) or isinstance(data[server][variable], list):
-			#if type(data[server][variable]) is type({}) or type(data[server][variable]) is type([]):
+				#if type(data[server][variable]) is type({}) or type(data[server][variable]) is type([]):

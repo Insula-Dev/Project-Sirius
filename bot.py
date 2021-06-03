@@ -47,17 +47,21 @@ class MyClient(discord.Client):
 
 		try:
 			self.data["servers"][str(guild.id)] = {
+				"config": {
+					"rank system": False,
+					"admin role id": 0,
+					"announcements channel id": None
+				},
 				"rules": {
-					"title": "Server rules",
+					"title": "",
 					"description": "",
 					"list": [],
-					"image link": None
+					"image link": ""
 				},
 				"roles": {
-					"admin role id": None,
 					"category list": {
 						"Server": {
-							"message id": None,
+							"message id": 0,
 							"roles list": {}
 						}
 					}

@@ -9,7 +9,9 @@
     "servers": {
         "489893521176920076": {
             "config": {
-                "rank system": true
+                "rank system": true,
+                "admin role id": 831927499034329109,
+                "announcements channel id": null
             },
             "rules": {
                 "title": "\ud83d\udcc3 Server rules",
@@ -35,7 +37,6 @@
                 "image link": "https://media.discordapp.net/attachments/504791913241772052/504817198028816395/RULES.jpg"
             },
             "roles": {
-                "admin role id": 831927499034329109,
                 "category list": {
                     "Server": {
                         "message id": 846254614265069588,
@@ -92,6 +93,11 @@
             }
         },
         "844942677594472481": {
+            "config": {
+                "rank system": false,
+                "admin role id": 844943189063630879,
+                "announcements channel id": 0
+            },
             "rules": {
                 "title": "\ud83d\udcc3 Server rules",
                 "description": "We're pretty chill here, but we've set down some ground rules so that everyone has a good experience on the server.",
@@ -113,7 +119,6 @@
                 "image link": "https://db3pap006files.storage.live.com/y4mr-Wa5qCDxmSvDCXA2h2E0Qu6kkJTcs1kKQjn14yUQfboZWyy_9sX8naYjeiEk-fuM6ltxX-9Jndyx9EvnUYJJlVdLao9OgREvEaNcFpMtmE0aqTUOLJZ11U1-HexXR6uk7M8rI9iEJ-8jDjHUFUF1YHNbYYKhO5JN4ghZzlJKU9Dx8B0mpRnQinFP10F4n_s?width=1772&height=938&cropmode=none"
             },
             "roles": {
-                "admin role id": 844943189063630879,
                 "category list": {
                     "Year": {
                         "message id": 846251190392061973,
@@ -203,6 +208,11 @@
             }
         },
         "509437716123877397": {
+            "config": {
+                "rank system": false,
+                "admin role id": 0,
+                "announcements channel id": 0
+            },
             "rules": {
                 "title": "Server rules",
                 "description": "",
@@ -210,7 +220,6 @@
                 "image link": null
             },
             "roles": {
-                "admin role id": null,
                 "category list": {
                     "Server": {
                         "message id": null,
@@ -221,6 +230,11 @@
             "ranks": {}
         },
         "808266016614121512": {
+            "config": {
+                "rank system": false,
+                "admin role id": 0,
+                "announcements channel id": 0
+            },
             "rules": {
                 "title": "Server rules",
                 "description": "",
@@ -228,7 +242,6 @@
                 "image link": null
             },
             "roles": {
-                "admin role id": null,
                 "category list": {
                     "Server": {
                         "message id": null,
@@ -247,6 +260,11 @@
             }
         },
         "831596325140824074": {
+            "config": {
+                "rank system": false,
+                "admin role id": 0,
+                "announcements channel id": 0
+            },
             "rules": {
                 "title": "Server rules",
                 "description": "",
@@ -254,7 +272,6 @@
                 "image link": null
             },
             "roles": {
-                "admin role id": null,
                 "category list": {
                     "Server": {
                         "message id": null,
@@ -265,6 +282,11 @@
             "ranks": {}
         },
         "834213187468394517": {
+            "config": {
+                "rank system": false,
+                "admin role id": 834460709332844575,
+                "announcements channel id": 0
+            },
             "rules": {
                 "title": "Server rules",
                 "description": "",
@@ -272,7 +294,6 @@
                 "image link": null
             },
             "roles": {
-                "admin role id": 834460709332844575,
                 "category list": {
                     "Server": {
                         "message id": null,
