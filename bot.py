@@ -4,11 +4,13 @@ from datetime import date, datetime
 import json
 import socket
 import discord
+import re  # Remove this later lol
 
 
 # Home imports
 from log_handling import *
 from imaging import generate_rank_card
+from upgrade_json import server_structure
 
 
 # Variables
@@ -46,28 +48,7 @@ class MyClient(discord.Client):
 		"""Creates data for a new guild."""
 
 		try:
-			self.data["servers"][str(guild.id)] = {
-				"config": {
-					"rank system": False,
-					"admin role id": 0,
-					"announcements channel id": None
-				},
-				"rules": {
-					"title": "",
-					"description": "",
-					"list": [],
-					"image link": ""
-				},
-				"roles": {
-					"category list": {
-						"Server": {
-							"message id": 0,
-							"roles list": {}
-						}
-					}
-				},
-				"ranks": {}
-			}
+			self.data["servers"][str(guild.id)] = server_structure
 
 			# Write the updated data
 			self.update_data()
@@ -208,7 +189,7 @@ class MyClient(discord.Client):
 			await message.channel.send(file=file)
 
 		# If the message was sent by the admins
-		if guild.get_role(self.data["servers"][str(message.guild.id)]["roles"]["admin role id"]) in guild.get_member(message.author.id).roles:
+		if guild.get_role(self.data["servers"][str(message.guild.id)]["config"]["admin role id"]) in guild.get_member(message.author.id).roles:
 
 			# Rules command
 			if message.content == PREFIX + "rules":
@@ -266,6 +247,9 @@ class MyClient(discord.Client):
 
 			# Stats command
 			if message.content == PREFIX + "stats":
+				"""THINGS TO FIX:
+
+				- Trailing newlines at the end of embed"""
 
 				logger.info("`stats` called by " + message.author.name)  # Event log
 
@@ -293,9 +277,6 @@ class MyClient(discord.Client):
 				except Exception as exception:
 					logger.error("Failed to generate statistics. Exception: " + str(exception))
 
-				print(channel_statistics)
-				print(member_statistics)
-
 				# Create and send statistics embed
 				embed_stats = discord.Embed(title="📈 Statistics for " + guild.name, color=0xba5245)
 				embed_stats.add_field(name="Channels", value=channel_statistics)
@@ -304,7 +285,19 @@ class MyClient(discord.Client):
 				await message.channel.send(embed=embed_stats)
 
 			# Poll command
-			if message.startswith(PREFIX + "poll"):
+			if message.content.startswith(PREFIX + "poll"):
+				"""ERRORS TO TEST FOR:
+
+				- Duplicate emojis
+				- Custom emojis
+				- Duplicate custom emojis
+
+				THINGS TO FIX:
+
+				- Standardise datetime format
+				- Remove regex secretly
+				- Trailing newlines at the end of embed
+				"""
 
 				logger.info("`poll` called by " + message.author.name)  # Event log
 
@@ -312,8 +305,42 @@ class MyClient(discord.Client):
 				await message.channel.purge(limit=1)
 
 				# !!! Clunky and breakable
-				argument = message.content[len(PREFIX + "poll "):]
-				# WE GOT TO HERE
+				argument_string = message.content[len(PREFIX + "poll "):]
+				arguments = re.split("\,\s|\,", argument_string)  # Replace with arguments = argument.split(", ")
+				candidates = {}  # Dictionary of candidates that can be voted for
+				candidates_string = ""
+
+				# Analyse argument
+				for argument in arguments:
+					argument = argument.split("=")
+					print("Argument 0, 1:", argument[0], argument[1])
+					if argument[0] == "title":
+						title = argument[1]
+					elif argument[0] == "time":
+
+						# Arun's time machine
+						time_list = argument[1].split("/")
+						hour = 12
+						minute = 00
+						if ":" in time_list[2]:
+							last_time_arg = time_list[2].split(" ")
+							time_list[2] = last_time_arg[0]
+							hour = last_time_arg[1].split(":")[0]
+							minute = last_time_arg[1].split(":")[1]
+						poll_time = str(datetime(day=int(time_list[0]), month=int(time_list[1]), year=int(time_list[2]), hour=int(hour), minute=int(minute)))  # Accommodate for American convention. Or don't.
+
+					else:
+						candidates[argument[1]] = argument[0].rstrip()
+						candidates_string += argument[1] + " - " + argument[0] + "\n"
+
+				# Create and send poll embed
+				embed_poll = discord.Embed(title=title, description=candidates_string, color=0xffc000)
+				embed_poll.set_footer(text="Poll ending • " + poll_time)
+				poll_message = await message.channel.send(embed=embed_poll)
+
+				# Add reactions to the poll embed
+				for candidate in candidates:
+					await poll_message.add_reaction(candidate)
 
 		# If the message was sent by the developers
 		if message.author.id in self.data["config"]["developers"]:
