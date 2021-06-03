@@ -303,6 +303,18 @@ class MyClient(discord.Client):
 				embed_stats.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
 				await message.channel.send(embed=embed_stats)
 
+			# Poll command
+			if message.startswith(PREFIX + "poll"):
+
+				logger.info("`poll` called by " + message.author.name)  # Event log
+
+				# Delete the command message
+				await message.channel.purge(limit=1)
+
+				# !!! Clunky and breakable
+				argument = message.content[len(PREFIX + "poll "):]
+				# WE GOT TO HERE
+
 		# If the message was sent by the developers
 		if message.author.id in self.data["config"]["developers"]:
 
