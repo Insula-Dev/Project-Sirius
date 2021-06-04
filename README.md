@@ -19,6 +19,7 @@
 5. No forks: spoons only.
 6. No working past 2am unless all developers are involved and have agreed to this.
 7. No working past 2:15am (for too many code book the broth (unless its a Friday (or unless it's halloween and the dead were already going to be raised that night anyway))
+8. The Nuclear Key system: all developers agree to the content being run on Sirius III (content released).
 
 ## FAQs:
 
