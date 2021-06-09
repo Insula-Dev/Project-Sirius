@@ -188,6 +188,7 @@ class MyClient(discord.Client):
 			# Send the embed
 			await message.channel.send(file=file)
 
+
 		# If the message was sent by the admins
 		if guild.get_role(self.data["servers"][str(message.guild.id)]["config"]["admin role id"]) in guild.get_member(message.author.id).roles:
 
@@ -306,7 +307,7 @@ class MyClient(discord.Client):
 
 				# !!! Clunky and breakable
 				argument_string = message.content[len(PREFIX + "poll "):]
-				arguments = re.split("\,\s|\,", argument_string)  # Replace with arguments = argument.split(", ")
+				arguments = re.split("\,\s|\,", argument_string)
 				candidates = {}  # Dictionary of candidates that can be voted for
 				candidates_string = ""
 
@@ -341,6 +342,39 @@ class MyClient(discord.Client):
 				# Add reactions to the poll embed
 				for candidate in candidates:
 					await poll_message.add_reaction(candidate)
+
+			# Embed command
+			if message.content.startswith(PREFIX + "embed"):
+				"""Embeds whatever the user says"""
+				print("Embed command called")
+				title = "Untitled Embed"
+				content = "No content"
+				colour = 0x1f85de
+				argument_string = message.content[len(PREFIX+"embed "):]
+				if "=" in argument_string:  # Embed for multiple arguments
+					arguments = re.split("\,\s|\,", argument_string)
+
+					# Analyse argument
+					for argument in arguments:
+						argument = argument.split("=")
+						print("Argument reference, argument:", argument[0], argument[1])
+						if argument[0] == "title":
+							title = argument[1]
+						if argument[0] == "message" or argument[0] == "content":
+							content = argument[1]
+						if argument[0] == "colour" or argument[0] == "color":
+							try:
+								colour = int(argument[1], 16)
+							except ValueError:
+								colour = int("0x"+argument[1][1:],16)
+				else:  # Basic embed
+					content = argument_string
+					title = "Message:"
+
+				embed_custom = discord.Embed(title=title, description=content, color=colour)
+				embed_custom.set_footer(text="Embedded with " + self.user.name)
+				await message.channel.send(embed=embed_custom)
+
 
 		# If the message was sent by the developers
 		if message.author.id in self.data["config"]["developers"]:
