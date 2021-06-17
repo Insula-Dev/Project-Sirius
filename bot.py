@@ -469,7 +469,7 @@ class MyClient(discord.Client):
 	async def on_member_join(self, member):
 		"""Runs when a member joins."""
 
-		logger.debug("Member " + member.name + " joined guild [GUILD_NAME]")
+		logger.debug("Member " + member.name + " joined guild [GUILD_NAME]")  # Event log
 		try:
 			await member.create_dm()
 			await member.dm_channel.send("Welcome to the server, " + member.name + ".")
@@ -481,7 +481,7 @@ class MyClient(discord.Client):
 	async def on_member_remove(self, member):
 		"""Runs when a member leaves."""
 
-		logger.debug("Member " + member.name + " left guild [GUILD_NAME]")
+		logger.debug("Member " + member.name + " left guild [GUILD_NAME]")  # Event log
 		try:
 			await member.create_dm()
 			await member.dm_channel.send("Goodbye ;)")
@@ -491,15 +491,17 @@ class MyClient(discord.Client):
 			logger.debug("Failed to send goodbye message to " + member.name)  # Event log
 
 	async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-		"""Gives a role based on a reaction emoji."""
+		"""Runs when a reaction is added.
+
+		Gives a role based on a reaction emoji."""
 
 		guild = self.get_guild(payload.guild_id)
 
-		# Check if the roles have been set up.
+		# Check if the roles have been set up
 		if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) == 0:
 			return
 
-		# Make sure that the message the user is reacting to is the one we care about.
+		# Make sure that the message the user is reacting to is the one we care about
 		message_relevant = False
 		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
 			if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]["message id"]:
@@ -508,15 +510,15 @@ class MyClient(discord.Client):
 		if message_relevant is False:
 			return
 
-		# Make sure the user isn't the bot.
-		if payload.member.id == self.user.id:  # was payload.author
+		# Make sure the user isn't the bot
+		if payload.member.id == self.user.id:
 			return
 
-		# Check if we're still in the guild and it's cached.
+		# Check if we're still in the guild and it's cached
 		if guild is None:
 			return
 
-		# If the emoji isn't the one we care about then delete it and exit as well.
+		# If the emoji isn't the one we care about then delete it and exit as well
 		role_id = -1
 		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in list
 			for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
@@ -532,30 +534,32 @@ class MyClient(discord.Client):
 
 			return
 
-		# Make sure the role still exists and is valid.
+		# Make sure the role still exists and is valid
 		role = guild.get_role(role_id)
 		if role is None:
 			return
 
-		# Finally, add the role.
+		# Finally, add the role
 		try:
 			await payload.member.add_roles(role)
 			logger.info("Role `" + role.name + "` added to " + payload.member.name)  # Event log
 
-		# If we want to do something in case of errors we'd do it here.
+		# If we want to do something in case of errors we'd do it here
 		except discord.HTTPException:
 			logger.error("Exception: discord.HTTPException. Could not add role " + role.name + " to " + payload.member.name)  # Event log
 
 	async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
-		"""Removes a role based on a reaction emoji."""
+		"""Runs when a reaction is removed.
+
+		Removes a role based on a reaction emoji."""
 
 		guild = self.get_guild(payload.guild_id)
 
-		# Check if the roles have been set up.
+		# Check if the roles have been set up
 		if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) == 0:
 			return
 
-		# Make sure that the message the user is reacting to is the one we care about.
+		# Make sure that the message the user is reacting to is the one we care about
 		message_relevant = False
 		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
 			if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]["message id"]:
@@ -565,22 +569,22 @@ class MyClient(discord.Client):
 			return
 
 		# The payload for `on_raw_reaction_remove` does not provide `.member`
-		# so we must get the member ourselves from the payload's `.user_id`.
+		# so we must get the member ourselves from the payload's `.user_id`
 
-		# Make sure the member still exists and is valid.
+		# Make sure the member still exists and is valid
 		member = guild.get_member(payload.user_id)
 		if member is None:
 			return
 
-		# Make sure the user isn't the bot.
+		# Make sure the user isn't the bot
 		if member.id == self.user.id:
 			return
 
-		# Check if we're still in the guild and it's cached.
+		# Check if we're still in the guild and it's cached
 		if guild is None:
 			return
 
-		# If the emoji isn't the one we care about then exit as well.
+		# If the emoji isn't the one we care about then exit as well
 		role_id = -1
 		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in list
 			for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
@@ -590,17 +594,17 @@ class MyClient(discord.Client):
 		if role_id == -1:
 			return
 
-		# Make sure the role still exists and is valid.
+		# Make sure the role still exists and is valid
 		role = guild.get_role(role_id)
 		if role is None:
 			return
 
-		# Finally, remove the role.
+		# Finally, remove the role
 		try:
 			await member.remove_roles(role)
 			logger.info("Role `" + role.name + "` removed from " + member.name)  # Event log
 
-		# If we want to do something in case of errors we'd do it here.
+		# If we want to do something in case of errors we'd do it here
 		except discord.HTTPException:
 			logger.error("Exception: discord.HTTPException. Could not remove role " + role.name + " from ", member.name)  # Event log
 
