@@ -221,7 +221,7 @@ class MyClient(discord.Client):
 					await message.channel.purge(limit=1)
 
 					# Create the welcome embed !!! This is messy. Decide embed format and what should be customisable
-					embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#831953098800889896> is for this, and <#610595467444879421> is for that.", color=0xffc000)
+					embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="Take a moment to familiarise yourself with the rules below.", color=0xffc000)
 
 					# Create the rules embed
 					embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0xffc000, inline=False)
@@ -611,7 +611,7 @@ class MyClient(discord.Client):
 
 # Main body
 try:
-	logger.info("project_sirius.py started")  # Event log
+	logger.debug("project_sirius.py started")  # Event log
 
 	intents = discord.Intents.default()
 	intents.members = True
@@ -619,7 +619,7 @@ try:
 	client = MyClient(intents=intents, debug=True, level="INFO")
 	client.run(DISCORD_TOKEN)
 
-	logger.info("project_sirius.py finished\n")  # Event log
+	logger.debug("project_sirius.py finished\n")  # Event log
 except Exception as exception:
 
 	# This is intended to catch all unexpected shutdowns and put a newline in the log file, since otherwise it becomes concatenated and horrible... Does on_kill exist?
