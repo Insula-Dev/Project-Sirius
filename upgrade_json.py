@@ -6,8 +6,8 @@ import json
 server_structure = {
 	"config": {
 		"rank system": False,
-		"admin role id": 0,
-		"announcements channel id": 0
+		"admin role id": None,
+		"announcements channel id": None
 	},
 	"rules": {
 		"title": "Server rules",
@@ -16,15 +16,23 @@ server_structure = {
 		"image link": ""
 	},
 	"roles": {
-		"category list": {
-			"Server": {
-				"message id": 0,
-				"roles list": {}
-			}
-		}
+		"category list": {}
 	},
 	"ranks": {}
 }
+
+"""
+The above is instantiated when no roles are present. When roles are set up, they are formatted as follows:
+
+"roles": {
+	"category list": {
+		"Server": {  // Category name
+			"message id": X,  // Category message ID
+			"roles list": {}  // Category roles
+		}
+	}
+}
+"""
 
 
 # Functions

@@ -495,6 +495,10 @@ class MyClient(discord.Client):
 
 		guild = self.get_guild(payload.guild_id)
 
+		# Check if the roles have been set up.
+		if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) == 0:
+			return
+
 		# Make sure that the message the user is reacting to is the one we care about.
 		message_relevant = False
 		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
@@ -546,6 +550,10 @@ class MyClient(discord.Client):
 		"""Removes a role based on a reaction emoji."""
 
 		guild = self.get_guild(payload.guild_id)
+
+		# Check if the roles have been set up.
+		if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) == 0:
+			return
 
 		# Make sure that the message the user is reacting to is the one we care about.
 		message_relevant = False
