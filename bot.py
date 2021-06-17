@@ -43,8 +43,8 @@ class MyClient(discord.Client):
 			with open("data.json", "w", encoding='utf-8') as file:
 				json.dump(self.data, file, indent=4)
 			logger.debug("Updated data.json")  # Event log
-		except:
-			logger.critical("Failed to update data.json")  # Event log
+		except Exception as exception:
+			logger.critical("Failed to update data.json. Exception: " + exception)  # Event log
 
 	def initialise_guild(self, guild):
 		"""Creates data for a new guild."""
@@ -55,8 +55,8 @@ class MyClient(discord.Client):
 			# Write the updated data
 			self.update_data()
 			logger.info("Initialised guild: " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
-		except:
-			logger.critical("Failed to initialise guild: " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
+		except Exception as exception:
+			logger.critical("Failed to initialise guild: " + guild.name + " (ID: " + str(guild.id) + "). Exception: " + exception)  # Event log
 
 	def get_uptime(self):
 		"""Returns client uptime."""
@@ -89,8 +89,8 @@ class MyClient(discord.Client):
 
 			logger.debug("Calculated uptime")  # Event log
 			return uptime
-		except:
-			logger.error("Failed to calculate uptime")  # Event log
+		except Exception as exception:
+			logger.error("Failed to calculate uptime. Exception: " + exception)  # Event log
 			return None
 
 	async def on_ready(self):
@@ -107,8 +107,8 @@ class MyClient(discord.Client):
 			with open("data.json", encoding='utf-8') as file:
 				self.data = json.load(file)
 			logger.debug("Loaded data.json")  # Event log
-		except:
-			logger.critical("Could not load data.json")  # Event log
+		except Exception as exception:
+			logger.critical("Could not load data.json. Exception: " + exception)  # Event log
 
 		# Check if Sirius has been added to a guild while offline
 		for guild in self.guilds:
@@ -474,9 +474,9 @@ class MyClient(discord.Client):
 			await member.create_dm()
 			await member.dm_channel.send("Welcome to the server, " + member.name + ".")
 			logger.debug("Sent welcome message to " + member.name)  # Event log
-		except:
+		except Exception as exception:
 			# If user has impeded direct messages
-			logger.debug("Failed to send welcome message to " + member.name)  # Event log
+			logger.debug("Failed to send welcome message to " + member.name + ". Exception: " + exception)  # Event log
 
 	async def on_member_remove(self, member):
 		"""Runs when a member leaves."""
@@ -486,9 +486,9 @@ class MyClient(discord.Client):
 			await member.create_dm()
 			await member.dm_channel.send("Goodbye ;)")
 			logger.debug("Sent goodbye message to " + member.name)  # Event log
-		except:
+		except Exception as exception:
 			# If the user has impeded direct messages
-			logger.debug("Failed to send goodbye message to " + member.name)  # Event log
+			logger.debug("Failed to send goodbye message to " + member.name + ". Exception: " + exception)  # Event log
 
 	async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
 		"""Runs when a reaction is added.
@@ -611,14 +611,16 @@ class MyClient(discord.Client):
 
 # Main body
 try:
+	logger.info("project_sirius.py started")  # Event log
+
 	intents = discord.Intents.default()
 	intents.members = True
 
 	client = MyClient(intents=intents, debug=True, level="INFO")
 	client.run(DISCORD_TOKEN)
 
-	logger.info("That's all\n")  # Event log
-except:
+	logger.info("project_sirius.py finished\n")  # Event log
+except Exception as exception:
 
 	# This is intended to catch all unexpected shutdowns and put a newline in the log file, since otherwise it becomes concatenated and horrible... Does on_kill exist?
-	logger.error("Unexpected exception... Say that ten times fast\n")  # Event log
+	logger.error("Exception: " + exception + "\n")  # Event log
