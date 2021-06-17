@@ -214,57 +214,79 @@ class MyClient(discord.Client):
 
 				logger.info("`rules` called by " + message.author.name)  # Event log
 
-				# Delete the command message
-				await message.channel.purge(limit=1)
+				# If the rules have been set up
+				if len(self.data["servers"][str(guild.id)]["rules"]["list"]) != 0:
 
-				# Create the welcome embed !!! This is messy. Decide embed format and what should be customisable
-				embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#831953098800889896> is for this, and <#610595467444879421> is for that.", color=0xffc000)
+					# Delete the command message
+					await message.channel.purge(limit=1)
 
-				# Create the rules embed
-				embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0xffc000, inline=False)
-				embed_rules.set_footer(text="Rules updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
-				embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
+					# Create the welcome embed !!! This is messy. Decide embed format and what should be customisable
+					embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#831953098800889896> is for this, and <#610595467444879421> is for that.", color=0xffc000)
 
-				embed_image = discord.Embed(description="That's all.", color=0xffc000)
-				image = self.data["servers"][str(guild.id)]["rules"]["image link"]
-				if image is not None:
-					if image.startswith("https:"):
-						embed_image.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
+					# Create the rules embed
+					embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0xffc000, inline=False)
+					embed_rules.set_footer(text="Rules updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
+					embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
+
+					embed_image = discord.Embed(description="That's all.", color=0xffc000)
+					image = self.data["servers"][str(guild.id)]["rules"]["image link"]
+					if image is not None:
+						if image.startswith("https:"):
+							embed_image.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
+						else:
+							logger.debug("Image link unsecure for " + str(message.guild.id))  # Event log
 					else:
-						logger.debug("Image link unsecure for " + str(message.guild.id))  # Event log
-				else:
-					logger.debug("Image link non-existant for " + str(message.guild.id))  # Event log
+						logger.debug("Image link non-existant for " + str(message.guild.id))  # Event log
 
-				# Send the embeds
-				await message.channel.send(embed=embed_welcome)
-				await message.channel.send(embed=embed_rules)
-				await message.channel.send(embed=embed_image)
+					# Send the embeds
+					await message.channel.send(embed=embed_welcome)
+					await message.channel.send(embed=embed_rules)
+					await message.channel.send(embed=embed_image)
+
+				# If the rules haven't been set up
+				else:
+
+					logger.debug("Rules are not set up for " + str(message.guild.id))  # Event log
+
+					# Send an error message
+					await message.channel.send("Uh oh, you haven't set up any rules! Get an admin to set them up at https://www.lingscars.com/")
 
 			# Roles command
 			if message.content == PREFIX + "roles":
 
 				logger.info("`roles` called by " + message.author.name)  # Event log
 
-				# Delete the command message
-				await message.channel.purge(limit=1)
+				# If the roles have been set up
+				if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) != 0:
 
-				# Send one roles message per category
-				await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
-				for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in roles list
-					roles = []
-					for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
-						roles.append(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["name"] + "\n")
-					category_message = await message.channel.send("**" + category + "**\n\n" + "".join(roles))
+					# Delete the command message
+					await message.channel.purge(limit=1)
 
-					# Add reactions to the roles message
-					for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:
-						await category_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"])
+					# Send one roles message per category
+					await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
+					for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in roles list
+						roles = []
+						for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
+							roles.append(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["name"] + "\n")
+						category_message = await message.channel.send("**" + category + "**\n\n" + "".join(roles))
 
-					# Update the category's message id variable
-					self.data["servers"][str(guild.id)]["roles"]["category list"][category]["message id"] = category_message.id
+						# Add reactions to the roles message
+						for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:
+							await category_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"])
 
-				# Write the updated data
-				self.update_data()
+						# Update the category's message id variable
+						self.data["servers"][str(guild.id)]["roles"]["category list"][category]["message id"] = category_message.id
+
+					# Write the updated data
+					self.update_data()
+
+				# If the roles aren't set up
+				else:
+
+					logger.debug("Roles are not set up for " + str(message.guild.id))  # Event log
+
+					# Send an error message
+					await message.channel.send("Uh oh, you haven't set up any roles! Get an admin to set them up at https://www.lingscars.com/")
 
 			# Stats command
 			if message.content == PREFIX + "stats":
