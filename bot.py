@@ -22,7 +22,7 @@ with open("token.txt") as file:
 # Definitions
 class MyClient(discord.Client):
 
-	def __init__(self, debug=False, *args, **kwargs):
+	def __init__(self, debug=False, level="DEBUG", *args, **kwargs):
 
 		super().__init__(*args, **kwargs)
 		self.start_time = datetime.now()
@@ -32,7 +32,9 @@ class MyClient(discord.Client):
 
 		# Print logs to the console too (for debugging)
 		if debug is True:
-			logger.addHandler(logging.StreamHandler())
+			x = logging.StreamHandler()  # Create new handler
+			x.setLevel(level)  # Set handler level
+			logger.addHandler(x)  # Add hangler to logger
 
 	def update_data(self):
 		"""Writes the data attribute to the file."""
@@ -225,8 +227,11 @@ class MyClient(discord.Client):
 
 				embed_image = discord.Embed(description="That's all.", color=0xffc000)
 				image = self.data["servers"][str(guild.id)]["rules"]["image link"]
-				if image.startswith("https:"):
-					embed_image.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
+				if image is not None:
+					if image.startswith("https:"):
+						embed_image.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
+					else:
+						logger.debug("Image link unsecure for " + str(message.guild.id))  # Event log
 				else:
 					logger.debug("Image link non-existant for " + str(message.guild.id))  # Event log
 
@@ -575,7 +580,7 @@ try:
 	intents = discord.Intents.default()
 	intents.members = True
 
-	client = MyClient(intents=intents, debug=True)
+	client = MyClient(intents=intents, debug=True, level="INFO")
 	client.run(DISCORD_TOKEN)
 
 	logger.info("That's all\n")  # Event log
