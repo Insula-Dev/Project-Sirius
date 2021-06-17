@@ -246,10 +246,10 @@ class MyClient(discord.Client):
 				# If the rules haven't been set up
 				else:
 
-					logger.debug("Rules are not set up for " + str(message.guild.id))  # Event log
+					logger.debug("Rules have not been set up for " + str(message.guild.id))  # Event log
 
 					# Send an error message
-					await message.channel.send("Uh oh, you haven't set up any rules! Get an admin to set them up at https://www.lingscars.com/")
+					await message.channel.send("Uh oh, you haven't set up any rules! Get a server admin to set them up at https://www.lingscars.com/")
 
 			# Roles command
 			if message.content == PREFIX + "roles":
@@ -280,13 +280,13 @@ class MyClient(discord.Client):
 					# Write the updated data
 					self.update_data()
 
-				# If the roles aren't set up
+				# If the roles haven't been set up
 				else:
 
-					logger.debug("Roles are not set up for " + str(message.guild.id))  # Event log
+					logger.debug("Roles have not been set up for " + str(message.guild.id))  # Event log
 
 					# Send an error message
-					await message.channel.send("Uh oh, you haven't set up any roles! Get an admin to set them up at https://www.lingscars.com/")
+					await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
 			# Stats command
 			if message.content == PREFIX + "stats":
