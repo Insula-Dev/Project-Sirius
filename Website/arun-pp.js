@@ -1,2 +1,2 @@
 var pp = document.querySelector(".arun-pp");
-pp.src = "https://cdn.discordapp.com/avatars/831944522748526684/e5c879e98cb9ace492ddee262ebdd1ab.webp?size=128";
+pp.src = "https://cdn.discordapp.com/avatars/258284765776576512/a_55f021015656b709cd98a45950938830.gif?size=128";

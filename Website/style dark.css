@@ -24,6 +24,7 @@ footer
 {
 	position: relative;
 	padding-top: 5px;
+	margin-top: 5px;
 	left: 0;
 	bottom: 0;
 	width: 100%;
@@ -57,7 +58,9 @@ header
 	color: white;
 	width: 100%;
 	background-image: url("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.inlingua-edinburgh.co.uk%2Fwp-content%2Fuploads%2F2017%2F08%2FShooting-stars.jpg&f=1&nofb=1");
-
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
 }
 
 
@@ -141,7 +144,7 @@ header label
 	margin-bottom: 5px;
 }
 
-#add-bot
+#login
 {
 	color:#3E73DE;
 	padding: 5px;
@@ -213,8 +216,8 @@ a
 
 main ul, ol
 {
-    background: #de2868a6;
-    border: #91133fbb 3px solid;
+    background: #691130a6;
+    border: #3a1723bb 3px solid;
     color: white;
     width: 80%;
     margin: auto;
@@ -397,68 +400,7 @@ mark
 /** Mobile Devices **/
 @media only all and (max-width:768px)
 {
-	/*
-	header
-	{
-		padding-top: 0px;
-		min-height: 50px;
-		text-align: center;
-	}
-	header a
-	{
-		align-content: center;
-		font-size: 16px;
-	}
-	header #text
-	{
-		float: none;
-		width: 75%
-	}
-	#container
-	{
-		width: 100%;
-	}
-    main
-    {
-        padding: 0;
-		margin-top: 2px;
-		background-color: #35424a;
-		border: #00abe1 0px solid;
-    }
-    h1
-    {
-        font-size: 2em;
-        padding-top: 0px;
-        padding-left: 1.5em;
-        width: 85%;
-        text-align: center;
-    }
-    nav a
-    {
-		display:flex;
-        padding: 0.5em;
-        width: 10%;
-        float: left;
-        min-width: 63m;
-        margin-left: 0.5em;
-    }
-	body
-    {
-        margin: 0px;
-        padding: 0%;
-    }
-    #hero
-    {
-        display: none;
-    }
-    footer
-    {
-        padding: 0.5em;
-        margin: 0;
-    }
-    #mobile {display: inline;}
-    #desktop {display: none;}
-	*/
+
 	body
 	{
 		padding: 0;
@@ -491,7 +433,7 @@ mark
 		margin-left: 2%;
 		margin-right: 2%;
 	}
-	#add-bot
+	#login
 	{
 		display: inline flow-root;
 		padding: 2px;
