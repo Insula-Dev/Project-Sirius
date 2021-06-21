@@ -621,7 +621,7 @@ if __name__ == "__main__":
 		client.run(DISCORD_TOKEN)
 
 		logger.debug("project_sirius.py finished\n")  # Event log
-	except Exception as exception:
 
+	except Exception as exception:
 		# This is intended to catch all unexpected shutdowns and put a newline in the log file, since otherwise it becomes concatenated and horrible... Does on_kill exist?
 		logger.error("Exception: " + exception + "\n")  # Event log
