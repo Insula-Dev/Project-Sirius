@@ -7,7 +7,7 @@ import discord
 import re  # Remove this later lol
 
 
-# Home imports
+# Local imports
 from log_handling import *
 from imaging import generate_rank_card
 from upgrade_json import server_structure
