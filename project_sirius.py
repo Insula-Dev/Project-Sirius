@@ -610,17 +610,18 @@ class MyClient(discord.Client):
 
 
 # Main body
-try:
-	logger.debug("project_sirius.py started")  # Event log
+if __name__ == "__main__":
+	try:
+		logger.debug("project_sirius.py started")  # Event log
 
-	intents = discord.Intents.default()
-	intents.members = True
+		intents = discord.Intents.default()
+		intents.members = True
 
-	client = MyClient(intents=intents, debug=True, level="INFO")
-	client.run(DISCORD_TOKEN)
+		client = MyClient(intents=intents, debug=True, level="INFO")
+		client.run(DISCORD_TOKEN)
 
-	logger.debug("project_sirius.py finished\n")  # Event log
-except Exception as exception:
+		logger.debug("project_sirius.py finished\n")  # Event log
+	except Exception as exception:
 
-	# This is intended to catch all unexpected shutdowns and put a newline in the log file, since otherwise it becomes concatenated and horrible... Does on_kill exist?
-	logger.error("Exception: " + exception + "\n")  # Event log
+		# This is intended to catch all unexpected shutdowns and put a newline in the log file, since otherwise it becomes concatenated and horrible... Does on_kill exist?
+		logger.error("Exception: " + exception + "\n")  # Event log
