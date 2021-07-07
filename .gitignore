@@ -1,3 +1,5 @@
 token.txt
 log_file.log
 *.pyc
+Website/Interface/node_modules
+Website/Interface/.env
