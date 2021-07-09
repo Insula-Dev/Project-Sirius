@@ -23,7 +23,7 @@ server_structure = {
 			}
 		}
 	},
-	"ranks": {}
+	"ranks": {},
 	"polls": {
 		"message id": {
 			"title" : "poll title",
