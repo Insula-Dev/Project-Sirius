@@ -135,7 +135,7 @@ class MyClient(discord.Client):
 			self.initialise_guild(guild)
 
 	async def on_message(self, message):
-		await on_message.on_message(PREFIX,self,message)
+		self = await on_message.on_message(PREFIX,self,message)
 
 	async def on_member_join(self, member):
 		"""Runs when a member joins."""

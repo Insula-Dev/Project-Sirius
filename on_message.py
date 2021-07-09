@@ -5,12 +5,12 @@ import discord
 import socket
 import re  # Remove this later lol
 
-
 # Home imports
 from log_handling import *
 from imaging import generate_rank_card
 
-async def on_message(PREFIX,self, message):
+
+async def on_message(PREFIX, self, message):
 	"""Runs on message."""
 
 	logger.debug("Message sent by " + message.author.name)  # Event log
@@ -53,7 +53,7 @@ async def on_message(PREFIX,self, message):
 		if str(message.author.id) in self.data["servers"][str(guild.id)]["ranks"]:
 			rank = int((self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] ** 0.5) // 1)
 			percentage = int(round((self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] - (
-						rank ** 2)) / (((rank + 1) ** 2) - (rank ** 2)) * 100))
+					rank ** 2)) / (((rank + 1) ** 2) - (rank ** 2)) * 100))
 		else:
 			rank = 0
 			percentage = 0
@@ -91,9 +91,9 @@ async def on_message(PREFIX,self, message):
 
 			embed_image = discord.Embed(description="That's all.", color=0xffc000)
 			image = self.data["servers"][str(guild.id)]["rules"]["image link"]
-			if image.startswith("https:"):
+			try:
 				embed_image.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
-			else:
+			except:
 				logger.debug("Image link non-existant for " + str(message.guild.id))  # Event log
 
 			# Send the embeds
@@ -218,10 +218,11 @@ async def on_message(PREFIX,self, message):
 						time_list[2] = last_time_arg[0]
 						hour = last_time_arg[1].split(":")[0]
 						minute = last_time_arg[1].split(":")[1]
-					poll_time = str(datetime(day=int(time_list[0]), month=int(time_list[1]), year=int(time_list[2]), hour=int(hour), minute=int(minute)))  # Accommodate for American convention. Or don't.
+					poll_time = str(datetime(day=int(time_list[0]), month=int(time_list[1]), year=int(time_list[
+						                                                                                  2]), hour=int(hour), minute=int(minute)))  # Accommodate for American convention. Or don't.
 
 				else:
-					candidates[argument[1]] = argument[0].rstrip()
+					candidates[argument[1].rstrip()] = argument[0]
 					candidates_string += argument[1] + " - " + argument[0] + "\n"
 
 			# Create and send poll embed
@@ -231,7 +232,7 @@ async def on_message(PREFIX,self, message):
 
 			# Add reactions to the poll embed
 			for candidate in candidates:
-				print("Candidate: "+str(candidate))
+				print("Candidate: " + str(candidate))
 				await poll_message.add_reaction(candidate)
 
 	# If the message was sent by the developers
@@ -314,3 +315,4 @@ async def on_message(PREFIX,self, message):
 			await message.channel.send("preemptive apologies...")
 			while True:
 				await message.channel.send(".overlay israel")
+	return self
