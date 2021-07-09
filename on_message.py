@@ -2,6 +2,7 @@
 from random import randint
 from datetime import date, datetime
 import discord
+import socket
 import re  # Remove this later lol
 
 
