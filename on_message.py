@@ -204,6 +204,7 @@ async def on_message(PREFIX,self, message):
 			for argument in arguments:
 				argument = argument.split("=")
 				print("Argument 0, 1:", argument[0], argument[1])
+				poll_time = str(datetime.now())
 				if argument[0] == "title":
 					title = argument[1]
 				elif argument[0] == "time":
@@ -217,8 +218,7 @@ async def on_message(PREFIX,self, message):
 						time_list[2] = last_time_arg[0]
 						hour = last_time_arg[1].split(":")[0]
 						minute = last_time_arg[1].split(":")[1]
-					poll_time = str(datetime(day=int(time_list[0]), month=int(time_list[1]), year=int(time_list[
-						                                                                                  2]), hour=int(hour), minute=int(minute)))  # Accommodate for American convention. Or don't.
+					poll_time = str(datetime(day=int(time_list[0]), month=int(time_list[1]), year=int(time_list[2]), hour=int(hour), minute=int(minute)))  # Accommodate for American convention. Or don't.
 
 				else:
 					candidates[argument[1]] = argument[0].rstrip()
@@ -231,6 +231,7 @@ async def on_message(PREFIX,self, message):
 
 			# Add reactions to the poll embed
 			for candidate in candidates:
+				print("Candidate: "+str(candidate))
 				await poll_message.add_reaction(candidate)
 
 	# If the message was sent by the developers
