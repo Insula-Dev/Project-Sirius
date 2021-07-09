@@ -12,13 +12,17 @@
 
 # Instructions
 
-1. If you pull from a branch, it can only be to create another branch.
-2. If you merge into a branch, the merge must be reviewed by over 50% of developers.
+1. If you pull from another branch, it can only be in the process of creating another branch.
+2. If you merge into another branch, the merge must be reviewed by all the developers.
 3. Branches must be well, explicitly named.
-4. Branches must only include changes which are relevant to their name.
+4. Branches must only include commits which are relevant to their name.
 5. No forks: spoons only.
-6. No working past 2am unless all developers are involved and have agreed to this.
-7. No working past 2:15am (for too many code book the broth (unless its a Friday))
+6. No working past 11pm.
+
+7. Too many code book the broth.
+8. The Nuclear Key system: all developers agree to the content of each release.
+9. Each release can only come from main.
+10. Only release content is run on Sirius III.
 
 ## FAQs:
 
@@ -42,6 +46,8 @@ Thanks.
 # File structure
 
 ## data.json
+
+**Warning**: this is outdated. Use the structure in upgrade_json.json
 
 ```
 {
@@ -107,3 +113,7 @@ One of the developers stayed up and considered doing the Great Mergening by hims
 
 - Consider changing convention to message.author to author = message.author. For example:
     `guild_data = self.data["servers"][str(guild.id)]`
+
+# Credits
+
+Thanks to Jack for fixing Arun's Raspberry Pi. That was cool.

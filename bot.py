@@ -9,12 +9,13 @@ import re  # PLEASE STOP REMOVING THIS OR I WILL CONSTANTLY MERGE INTO MAIN
 # Home imports
 from log_handling import *
 from imaging import generate_rank_card
+from upgrade_json import server_structure
+import on_message
 
 # Variables
+PREFIX = "-"
 with open("token.txt") as file:
 	DISCORD_TOKEN = file.read()
-
-prefix = "-"
 
 
 # Definitions
@@ -33,37 +34,20 @@ class MyClient(discord.Client):
 			logger.addHandler(logging.StreamHandler())
 
 	def update_data(self):
-		"""Writes the data variable into the file."""
+		"""Writes the data attribute to the file."""
 
 		try:
 			with open("data.json", "w", encoding='utf-8') as file:
 				json.dump(self.data, file, indent=4)
 			logger.debug("Updated data.json")  # Event log
 		except:
-			logger.critical("Could not update data.json")  # Event log
+			logger.critical("Failed to update data.json")  # Event log
 
 	def initialise_guild(self, guild):
 		"""Creates data for a new guild."""
 
 		try:
-			self.data["servers"][str(guild.id)] = {
-				"rules": {
-					"title": "Server rules",
-					"description": "",
-					"list": [],
-					"image link": None
-				},
-				"roles": {
-					"admin role id": None,
-					"category list": {
-						"Server": {
-							"message id": None,
-							"role list": {}
-						}
-					}
-				},
-				"ranks": {}
-			}
+			self.data["servers"][str(guild.id)] = server_structure
 
 			# Write the updated data
 			self.update_data()
@@ -72,36 +56,39 @@ class MyClient(discord.Client):
 			logger.critical("Failed to initialise guild: " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
 
 	def get_uptime(self):
-		"""Returns client uptime."""
+		"""Returns client uptime as a string."""
 
-		logger.debug("Calculating uptime")  # Event log
+		try:
+			seconds = (datetime.now() - self.start_time).seconds
+			uptime = ""
+			if seconds >= 3600:
+				uptime += str(seconds // 3600) + " "
+				if seconds // 3600 == 1:
+					uptime += "hour"
+				else:
+					uptime += "hours"
+			if seconds % 3600 >= 60:
+				if uptime != "":
+					uptime += " "
+				uptime += str(seconds % 3600 // 60) + " "
+				if seconds % 3600 // 60 == 1:
+					uptime += "minute"
+				else:
+					uptime += "minutes"
+			if seconds % 60 > 0:
+				if uptime != "":
+					uptime += " "
+				uptime += str(seconds % 60) + " "
+				if seconds % 60 == 1:
+					uptime += "second"
+				else:
+					uptime += "seconds"
 
-		seconds = (datetime.now() - self.start_time).seconds
-		uptime = ""
-		if seconds >= 3600:
-			uptime += str(seconds // 3600) + " "
-			if seconds // 3600 == 1:
-				uptime += "hour"
-			else:
-				uptime += "hours"
-		if seconds % 3600 >= 60:
-			if uptime != "":
-				uptime += " "
-			uptime += str(seconds % 3600 // 60) + " "
-			if seconds % 3600 // 60 == 1:
-				uptime += "minute"
-			else:
-				uptime += "minutes"
-		if seconds % 60 > 0:
-			if uptime != "":
-				uptime += " "
-			uptime += str(seconds % 60) + " "
-			if seconds % 60 == 1:
-				uptime += "second"
-			else:
-				uptime += "seconds"
-
-		return uptime
+			logger.debug("Calculated uptime")  # Event log
+			return uptime
+		except:
+			logger.error("Failed to calculate uptime")  # Event log
+			return None
 
 	async def terminatePoll(self, message):
 		"""Closes poll"""
@@ -180,272 +167,8 @@ class MyClient(discord.Client):
 			# Initialise guild
 			self.initialise_guild(guild)
 
-	# await guild.channels[0].send("Please set up your server at https://")  # !!! New server setup message + channel[0]?
-
 	async def on_message(self, message):
-		"""Runs on message."""
-
-		logger.debug("Message sent by " + message.author.name)  # Event log
-
-		# Don't respond to yourself
-		if message.author.id == self.user.id:
-			return
-
-		# Don't respond to other bots
-		if message.author.bot is True:  # !!! Needs to be tested
-			return
-
-		# Set author of origin
-		author = message.author
-		# Set guild of origin
-		guild = message.guild
-
-		# Update the user's experience
-		if (author.id not in self.cache[str(guild.id)]) or ((datetime.now() - self.cache[str(guild.id)][
-			author.id]).seconds // 3600 > 0):  # This is the longest like of code I've ever seen survive a scrutinised and picky merge from me. Well played.
-
-			logger.debug("Adding experience to " + author.name)  # Event log
-
-			# Update the cache and increment the user's experience
-			self.cache[str(guild.id)][author.id] = datetime.now()
-			try:
-				self.data["servers"][str(guild.id)]["ranks"][str(author.id)] += 1
-			except KeyError:
-				self.data["servers"][str(guild.id)]["ranks"][str(author.id)] = 1
-
-			# Write the updated data
-			self.update_data()
-		else:
-
-			logger.debug("Not adding experience to " + author.name)  # Event log
-
-		# Get rank command
-		if message.content.startswith(prefix + "get rank"):
-
-			logger.info("`get rank` called by " + author.name)  # Event log
-
-			# Generate the rank card
-			if str(author.id) in self.data["servers"][str(guild.id)]["ranks"]:
-				rank = int((self.data["servers"][str(guild.id)]["ranks"][str(author.id)] ** 0.5) // 1)
-				percentage = int(round((self.data["servers"][str(guild.id)]["ranks"][str(author.id)] - (rank ** 2)) / (
-                                    ((rank + 1) ** 2) - (rank ** 2)) * 100))
-			else:
-				rank = 0
-				percentage = 0
-			generate_rank_card(author.avatar_url, author.name, rank, percentage)
-
-			# Create the rank embed
-			embed_rank = discord.Embed()
-			file = discord.File("card.png")
-			embed_rank.set_image(url="attachment://card.png")
-
-			# Send the embed
-			await message.channel.send(file=file)
-
-		# If the message was sent by the admins
-		if guild.get_role(self.data["servers"][str(message.guild.id)]["roles"]["admin role id"]) in guild.get_member(author.id).roles:
-
-			# Rules command
-			if message.content == prefix + "rules":
-
-				logger.info("`rules` called by " + author.name)  # Event log
-
-				# Delete the command message
-				await message.channel.purge(limit=1)
-
-				# !!! This is messy
-				embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#831953098800889896> is for this, and <#610595467444879421> is for that.", color=0xffc000)
-				await message.channel.send(embed=embed_welcome)
-
-				# Create the rules embed
-				embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0xffc000, inline=False)
-				embed_rules.set_footer(text="Rules updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
-				embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
-
-				embed_image = discord.Embed(description="That's all.", color=0xffc000)
-				image = self.data["servers"][str(guild.id)]["rules"]["image link"]
-				if image.startswith("https:"):
-					embed_image.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
-				else:
-					logger.debug("Image link non-existant for " + str(message.guild.id))  # Event log
-
-				# Send the embeds
-				await message.channel.send(embed=embed_rules)
-				await message.channel.send(embed=embed_image)
-
-			# Roles command
-			if message.content == prefix + "roles":
-
-				logger.info("`roles` called by " + author.name)  # Event log
-
-				# Delete the command message
-				await message.channel.purge(limit=1)
-
-				# Send one roles message per category
-				await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
-				for category in self.data["servers"][str(guild.id)]["roles"][
-					"category list"]:  # For category in role list
-					roles = []
-					for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category][
-						"role list"]:  # For role in category
-						roles.append(
-							self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] + " - " +
-							self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["name"] + "\n")
-					category_message = await message.channel.send("**" + category + "**\n\n" + "".join(roles))
-
-					# Add reactions to the roles message
-					for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:
-						await category_message.add_reaction(
-							self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"])
-
-					# Update the category's message id variable
-					self.data["servers"][str(guild.id)]["roles"]["category list"][category]["message id"] = category_message.id
-
-				# Write the updated data
-				self.update_data()
-
-		if message.content.startswith(prefix + "poll"):  # NEEDS TO BE MOVED TO ADMIN SECTION WHEN TESTS FINISHED
-			# Poll information taken
-			logger.info("Poll command sent by " + author.name)
-
-			# Delete the command message
-			await message.channel.purge(limit=1)
-
-			arg_string = message.content[len(prefix + "poll "):]
-			args = re.split("\,\s|\,", arg_string)
-			options = {}  # Dictionary of polling options
-			options_list = []
-			title = "Poll"
-			poll_time = datetime.now()  # Default set to now. CHANGE THIS
-			for arg in args:
-				option = arg.split("=")
-				if option[0] == "title":  # Sets title
-					title = option[1]
-				elif option[0] == "time":  # Sets time
-					time_list = option[1].split("/")
-					# Default time as 12:00
-					hr = 12
-					min = 00
-					if ":" in time_list[2]:
-						last_time_arg = time_list[2].split(" ")
-						time_list[2] = last_time_arg[0]
-						hr = last_time_arg[1].split(":")[0]
-						min = last_time_arg[1].split(":")[1]
-					poll_time = datetime(day=int(time_list[0]), month=int(time_list[1]), year=int(time_list[2]), hour=int(hr), minute=int(min))  # Assumes people use the correct English format (MAKE OPTION FOR AMERICANS IN CONFIG)
-					logger.debug("Time for poll: " + title + " set to: " + str(poll_time))
-
-				else:  # Creates new poll option
-					option[1] = option[1].rstrip()
-					options.update({option[1]: option[0]})  # Name of option: emoji id
-					options_list.append(option[0] + " " + option[1])
-
-			# Create the poll embed
-			embed_poll = discord.Embed(title=title, description=str(poll_time), color=0xffc000)
-			embed_poll.add_field(name="Options", value="\n".join(options_list))
-
-			# Send the embed
-			poll_message = await message.channel.send(embed=embed_poll)
-
-			# React to embed
-			for option in options:
-				emoji = option
-				await poll_message.add_reaction(emoji)
-
-			# Saves poll data
-			if "polls" not in self.data["servers"][
-				str(guild.id)]:  # Definitely not an upgrade because this is 500% more convenient and saves space
-				self.data["servers"][str(guild.id)].update({"polls": {}})
-			self.data["servers"][str(guild.id)]["polls"].update({poll_message.id: {
-				"title": title,
-				"time": str(poll_time),
-				"options": options
-			}
-			})
-			self.update_data()
-
-		# If the message was sent by the developers
-		if author.id in self.data["config"]["developers"]:
-
-			# Locate command
-			if message.content == prefix + "locate":
-				logger.info("`locate` called by " + author.name)  # Event log
-				hostname = socket.gethostname()
-				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.\nUptime: " + self.get_uptime() + ".")
-
-			# Kill command
-			if message.content.startswith(prefix + "kill"):
-
-				logger.info("`kill` called by " + author.name)  # Event log
-
-				# Delete the command message
-				await message.channel.purge(limit=1)
-
-				# !!! Clunky and breakable?
-				argument = message.content[len(prefix + "kill "):]
-				if self.data["config"]["jokes"] is True:
-					await message.channel.send("Doggie down")
-				await message.channel.send(self.user.name + " shutting down.\nUptime: " + self.get_uptime() + ".\n" + argument)
-				await client.close()
-
-		# Joke functionality
-		if self.data["config"]["jokes"] is True:
-
-			# Shut up Arun
-			if author.id == 258284765776576512:
-
-				logger.debug("Arun sighted. Locking on")  # Event log
-
-				if randint(1, 10) == 1:
-					await message.channel.send("shut up arun")
-					logger.debug("Arun down.")  # Event log
-				else:
-					logger.debug("Mission failed, RTB")  # Event log
-
-			# Gameboy mention
-			if "gameboy" in message.content.lower():
-				logger.debug("`gameboy` mentioned by " + author.name)  # Event log
-				await message.channel.send("Gameboys are worthless (apart from micro. micro is cool)")
-
-			# Raspberry mention
-			if "raspberries" in message.content.lower() or "raspberry" in message.content.lower():
-				logger.debug("`raspberry racers` mentioned by " + author.name)  # Event log
-				await message.channel.send("The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019.")
-
-			# Pycharm mention
-			if "pycharm" in message.content.lower():
-				logger.debug("`pycharm` mentioned by " + author.name)  # Event log
-				await message.channel.send("Pycharm enthusiasts vs Sublime Text enjoyers: https://youtu.be/HrkNwjruz5k")
-				await message.channel.send("85 commits in and haha bot print funny is still your sense of humour.")
-
-			# Token command
-			if message.content == prefix + "token":
-				logger.debug("`token` called by " + author.name)  # Event log
-				await message.channel.send("IdrOppED ThE TokEN gUYS!!!!")
-
-			# Summon lizzie command
-			if message.content == prefix + "summon_lizzie":
-				logger.debug("`summon_lizzie` called by " + author.name)  # Event log
-				for x in range(100):
-					await message.channel.send(guild.get_member(692684372247314445).mention)
-
-			# Summon leo command
-			if message.content == prefix + "summon_leo":
-				logger.debug("`summon_leo` called by " + author.name)  # Event log
-				for x in range(100):
-					await message.channel.send(guild.get_member(242790351524462603).mention)
-
-			# Teaching bitches how to swim
-			if message.content == prefix + "swim":
-				logger.debug("`swim` called by " + author.name)  # Event log
-				await message.channel.send("/play https://youtu.be/uoZgZT4DGSY")
-				await message.channel.send("No swimming lessons today ):")
-
-			# Overlay Israel (Warning: DEFCON 1)
-			if message.content == prefix + "israeli_defcon_1":
-				logger.debug("`israeli_defcon_1` called by " + author.name)  # Event log
-				await message.channel.send("preemptive apologies...")
-				while True:
-					await message.channel.send(".overlay israel")
+		await on_message.on_message(PREFIX,self,message)
 
 	async def on_member_join(self, member):
 		"""Runs when a member joins."""
