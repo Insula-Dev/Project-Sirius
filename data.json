@@ -288,7 +288,7 @@
                 "announcements channel id": 0
             },
             "rules": {
-                "title": "Server rules",
+                "title": "AOs Testing Server Rules",
                 "description": "",
                 "list": [],
                 "image link": null
@@ -303,7 +303,7 @@
             },
             "ranks": {
                 "241772848564142080": 14,
-                "258284765776576512": 5
+                "258284765776576512": 9
             }
         }
     }
