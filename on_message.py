@@ -208,7 +208,6 @@ async def on_message(PREFIX, self, message):
 				if argument[0] == "title":
 					title = argument[1]
 				elif argument[0] == "time":
-
 					# Arun's time machine
 					time_list = argument[1].split("/")
 					hour = 12
@@ -218,9 +217,7 @@ async def on_message(PREFIX, self, message):
 						time_list[2] = last_time_arg[0]
 						hour = last_time_arg[1].split(":")[0]
 						minute = last_time_arg[1].split(":")[1]
-					poll_time = str(datetime(day=int(time_list[0]), month=int(time_list[1]), year=int(time_list[
-						                                                                                  2]), hour=int(hour), minute=int(minute)))  # Accommodate for American convention. Or don't.
-
+					poll_time = str(datetime(day=int(time_list[0]), month=int(time_list[1]), year=int(time_list[2]), hour=int(hour), minute=int(minute)))  # Accommodate for American convention. Or don't.
 				else:
 					candidates[argument[1].rstrip()] = argument[0]
 					candidates_string += argument[1] + " - " + argument[0] + "\n"
