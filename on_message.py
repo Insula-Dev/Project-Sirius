@@ -259,16 +259,35 @@ async def on_message(PREFIX, self, message):
 	# Joke functionality
 	if self.data["config"]["jokes"] is True:
 
-		# Shut up Arun
+		# Joke functionality: Shut up Arun
 		if message.author.id == 258284765776576512:
 
-			logger.debug("Arun sighted. Locking on")  # Event log
+			# logger.info("Arun sighted. Locking on")  # Event log
 
-			if randint(1, 10) == 1:
-				await message.channel.send("shut up arun")
-				logger.debug("Arun down.")  # Event log
+			if randint(1, 25) == 1:
+				if randint(1, 2) == 1:
+					await message.channel.send("shut up arun")
+				else:
+					await message.channel.send("arun, why are you still talking")
+			# logger.info("Arun down.")  # Event log
 			else:
-				logger.debug("Mission failed, RTB")  # Event log
+				pass
+		# logger.info("Mission failed, RTB")  # Event log
+
+		# Joke functionality: Shut up Pablo
+		if message.author.id == 241772848564142080 or message.author.id == 842479806217060363:
+
+			logger.info("Pablo sighted. Locking on")  # Event log
+
+			if randint(1, 25) == 1:
+				logger.info("Revenge protocol ready: affirmative")
+				if randint(1, 2) == 1:
+					await message.channel.send("shut up pablo")
+				else:
+					await message.channel.send("pablo, put that big brain back on sleep mode")
+				logger.info("Pablo down.")  # Event log
+			else:
+				logger.info("Mission failed, RTB")  # Event log
 
 		# Gameboy mention
 		if "gameboy" in message.content.lower():
