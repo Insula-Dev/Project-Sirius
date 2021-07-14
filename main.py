@@ -441,55 +441,60 @@ class MyClient(discord.Client):
 		guild = self.get_guild(payload.guild_id)
 
 		# Check if the roles have been set up
-		if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) == 0:
-			return
+		if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) != 0:
 
-		# Make sure that the message the user is reacting to is the one we care about
-		message_relevant = False
-		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
-			if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]["message id"]:
-				message_relevant = True
-				break
-		if message_relevant is False:
-			return
-
-		# Make sure the user isn't the bot.
-		if payload.member.id == self.user.id:  # was payload.author
-			return
-
-		# Check if we're still in the guild and it's cached.
-		if guild is None:
-			return
-
-		# If the emoji isn't the one we care about then delete it and exit as well.
-		role_id = -1
-		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in list
-			for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
-				if self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] == str(payload.emoji):
-					role_id = int(role)
+			# Make sure that the message the user is reacting to is the one we care about
+			message_relevant = False
+			for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
+				if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]["message id"]:
+					message_relevant = True
 					break
-		if role_id == -1:
-			# Not very efficient... comes from (https://stackoverflow.com/questions/63418818/python-discord-bot-python-clear-reaction-clears-all-reactions-instead-of-a-s)
-			channel = await self.fetch_channel(payload.channel_id)
-			message = await channel.fetch_message(payload.message_id)
-			reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
-			await reaction.remove(payload.member)
+			if message_relevant is False:
+				return
 
-			return
+			# Make sure the user isn't the bot
+			if payload.member.id == self.user.id:
+				return
 
-		# Make sure the role still exists and is valid.
-		role = guild.get_role(role_id)
-		if role is None:
-			return
+			# Check if we're still in the guild and it's cached
+			if guild is None:
+				return
 
-		# Finally, add the role.
-		try:
-			await payload.member.add_roles(role)
-			logger.info("Role `" + role.name + "` added to " + payload.member.name)  # Event log
+			# If the emoji isn't the one we care about then delete it and exit as well
+			role_id = -1
+			for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in list
+				for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
+					if self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] == str(payload.emoji):
+						role_id = int(role)
+						break
+			if role_id == -1:
+				# Not very efficient... comes from (https://stackoverflow.com/questions/63418818/python-discord-bot-python-clear-reaction-clears-all-reactions-instead-of-a-s)
+				channel = await self.fetch_channel(payload.channel_id)
+				message = await channel.fetch_message(payload.message_id)
+				reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
+				await reaction.remove(payload.member)
 
-		# If we want to do something in case of errors we'd do it here.
-		except discord.HTTPException:
-			logger.error("Exception: discord.HTTPException. Could not add role " + role.name + " to " + payload.member.name)  # Event log
+				return
+
+			# Make sure the role still exists and is valid
+			role = guild.get_role(role_id)
+			if role is None:
+				return
+
+			# Finally, add the role
+			try:
+				await payload.member.add_roles(role)
+				logger.info("Role `" + role.name + "` added to " + payload.member.name)  # Event log
+
+			# If we want to do something in case of errors we'd do it here
+			except discord.HTTPException:
+				logger.error("Exception: discord.HTTPException. Could not add role " + role.name + " to " + payload.member.name)  # Event log
+
+		# If the roles haven't been set up
+		else:
+			logger.debug("Roles have not been set up for " + str(message.guild.id))  # Event log
+			# Send an error message
+			await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
 	async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
 		"""Removes a role based on a reaction emoji."""
