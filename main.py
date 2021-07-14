@@ -7,7 +7,7 @@ import discord
 import re  # Remove this later lol
 
 
-# Home imports
+# Local imports
 from log_handling import *
 from imaging import generate_rank_card
 
@@ -44,6 +44,7 @@ server_structure = {
 class MyClient(discord.Client):
 
 	def __init__(self, debug=False, level="DEBUG", *args, **kwargs):
+		"""Constructor."""
 
 		super().__init__(*args, **kwargs)
 		self.start_time = datetime.now()
@@ -51,7 +52,7 @@ class MyClient(discord.Client):
 		self.cache = {}
 		self.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain")
 
-		# Print logs to the console too (for debugging)
+		# Print logs to the console too, for debugging
 		if debug is True:
 			x = logging.StreamHandler()  # Create new handler
 			x.setLevel(level)  # Set handler level
@@ -64,8 +65,8 @@ class MyClient(discord.Client):
 			with open("data.json", "w", encoding='utf-8') as file:
 				json.dump(self.data, file, indent=4)
 			logger.debug("Updated data.json")  # Event log
-		except:
-			logger.critical("Failed to update data.json")  # Event log
+		except Exception as exception:
+			logger.critical("Failed to update data.json. Exception: " + exception)  # Event log
 
 	def initialise_guild(self, guild):
 		"""Creates data for a new guild."""
@@ -76,11 +77,11 @@ class MyClient(discord.Client):
 			# Write the updated data
 			self.update_data()
 			logger.info("Initialised guild: " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
-		except:
-			logger.critical("Failed to initialise guild: " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
+		except Exception as exception:
+			logger.critical("Failed to initialise guild: " + guild.name + " (ID: " + str(guild.id) + "). Exception: " + exception)  # Event log
 
 	def get_uptime(self):
-		"""Returns client uptime."""
+		"""Returns instance uptime."""
 
 		try:
 			seconds = (datetime.now() - self.start_time).seconds
@@ -110,8 +111,8 @@ class MyClient(discord.Client):
 
 			logger.debug("Calculated uptime")  # Event log
 			return uptime
-		except:
-			logger.error("Failed to calculate uptime")  # Event log
+		except Exception as exception:
+			logger.error("Failed to calculate uptime. Exception: " + exception)  # Event log
 			return None
 
 	async def on_ready(self):
@@ -128,8 +129,8 @@ class MyClient(discord.Client):
 			with open("data.json", encoding='utf-8') as file:
 				self.data = json.load(file)
 			logger.debug("Loaded data.json")  # Event log
-		except:
-			logger.critical("Could not load data.json")  # Event log
+		except Exception as exception:
+			logger.critical("Failed to load data.json. Exception: " + exception)  # Event log
 
 		# Check if Sirius has been added to a guild while offline
 		for guild in self.guilds:
@@ -146,7 +147,8 @@ class MyClient(discord.Client):
 		logger.info(self.user.name + " is ready (finished on_ready)")  # Event log
 
 	async def on_guild_join(self, guild):
-		"""Runs on joining a guild."""
+		"""Runs on joining a guild.
+		The bot initialises the guild if it has no data on it."""
 
 		logger.info(self.user.name + " has joined the guild: " + guild.name + " with id: " + str(guild.id))  # Event log
 
@@ -166,7 +168,7 @@ class MyClient(discord.Client):
 			return
 
 		# Don't respond to other bots
-		if message.author.bot is True:  # !!! Needs to be tested
+		if message.author.bot is True:  # !!! Needs to be tested. Can replace "message.author.id == self.user.id" if so. Same goes for reactions.
 			return
 
 		# Set guild of origin
@@ -239,7 +241,7 @@ class MyClient(discord.Client):
 				await message.channel.purge(limit=1)
 
 				# Create the welcome embed !!! This is messy. Decide embed format and what should be customisable
-				embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#831953098800889896> is for this, and <#610595467444879421> is for that.", color=0xffc000)
+				embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#000000000000000000> is for this, and <#000000000000000001> is for that.", color=0xffc000)
 
 				# Create the rules embed
 				embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0xffc000, inline=False)
@@ -297,7 +299,6 @@ class MyClient(discord.Client):
 			# Stats command
 			if message.content == PREFIX + "stats":
 				"""THINGS TO FIX:
-
 				- Trailing newlines at the end of embed"""
 
 				logger.info("`stats` called by " + message.author.name)  # Event log
@@ -409,36 +410,39 @@ class MyClient(discord.Client):
 			# Overlay Israel (Warning: DEFCON 1)
 			if message.content == PREFIX + "israeli_defcon_1":
 				logger.debug("`israeli_defcon_1` called by " + message.author.name)  # Event log
-				await message.channel.send("preemptive apologies...")
+				await message.channel.send("apologies in advance...")
 				while True:
 					await message.channel.send(".overlay israel")
 
 	async def on_member_join(self, member):
-		"""Runs when a member joins."""
+		"""Runs when a member joins.
+		Sends the member a message welcome message."""
 
-		logger.debug("Member " + member.name + " joined guild [GUILD_NAME]")
+		logger.debug("Member " + member.name + " joined guild [GUILD_NAME]")  # Event log
 		try:
 			await member.create_dm()
 			await member.dm_channel.send("Welcome to the server, " + member.name + ".")
 			logger.debug("Sent welcome message to " + member.name)  # Event log
-		except:
+		except Exception as exception:
 			# If user has impeded direct messages
-			logger.debug("Failed to send welcome message to " + member.name)  # Event log
+			logger.debug("Failed to send welcome message to " + member.name + ". Exception: " + exception)  # Event log
 
 	async def on_member_remove(self, member):
-		"""Runs when a member leaves."""
+		"""Runs when a member leaves.
+		Sends the member a goodbye message."""
 
-		logger.debug("Member " + member.name + " left guild [GUILD_NAME]")
+		logger.debug("Member " + member.name + " left guild [GUILD_NAME]")  # Event log
 		try:
 			await member.create_dm()
 			await member.dm_channel.send("Goodbye ;)")
 			logger.debug("Sent goodbye message to " + member.name)  # Event log
-		except:
+		except Exception as exception:
 			# If the user has impeded direct messages
-			logger.debug("Failed to send goodbye message to " + member.name)  # Event log
+			logger.debug("Failed to send goodbye message to " + member.name + ". Exception: " + exception)  # Event log
 
 	async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-		"""Gives a role based on a reaction emoji."""
+		"""Runs when a reaction is added.
+		If the message and reaction are relevant, adds a role based on the reaction emoji."""
 
 		guild = self.get_guild(payload.guild_id)
 
@@ -499,7 +503,8 @@ class MyClient(discord.Client):
 			await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
 	async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
-		"""Removes a role based on a reaction emoji."""
+		"""Runs when a reaction is removed.
+		If the message and emoji are relevant, removes a role based on the reaction emoji."""
 
 		guild = self.get_guild(payload.guild_id)
 
