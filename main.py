@@ -344,15 +344,11 @@ class MyClient(discord.Client):
 				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.\nUptime: " + self.get_uptime() + ".")
 
 			# Kill command
-			if message.content.startswith(PREFIX + "kill"):
-
+			if message.content == PREFIX + "kill":
 				logger.info("`kill` called by " + message.author.name)  # Event log
-
-				# !!! Clunky and breakable?
-				argument = message.content[len(PREFIX + "kill "):]
 				if self.data["config"]["jokes"] is True:
 					await message.channel.send("Doggie down")
-				await message.channel.send(self.user.name + " shutting down.\nUptime: " + self.get_uptime() + ".\n" + argument)
+				await message.channel.send(self.user.name + " shutting down.\nUptime: " + self.get_uptime() + ".")
 				await client.close()
 
 		# Joke functionality
