@@ -43,7 +43,7 @@ server_structure = {
 # Definitions
 class MyClient(discord.Client):
 
-	def __init__(self, debug=False, *args, **kwargs):
+	def __init__(self, debug=False, level="DEBUG", *args, **kwargs):
 
 		super().__init__(*args, **kwargs)
 		self.start_time = datetime.now()
@@ -53,7 +53,9 @@ class MyClient(discord.Client):
 
 		# Print logs to the console too (for debugging)
 		if debug is True:
-			logger.addHandler(logging.StreamHandler())
+			x = logging.StreamHandler()  # Create new handler
+			x.setLevel(level)  # Set handler level
+			logger.addHandler(x)  # Add hangler to logger
 
 	def update_data(self):
 		"""Writes the data attribute to the file."""
