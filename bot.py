@@ -10,13 +10,34 @@ import re  # Remove this later lol
 # Home imports
 from log_handling import *
 from imaging import generate_rank_card
-from upgrade_json import server_structure
 
 
 # Variables
 PREFIX = "-"
 with open("token.txt") as file:
 	DISCORD_TOKEN = file.read()
+server_structure = {
+	"config": {
+		"rank system": False,
+		"admin role id": 0,
+		"announcements channel id": 0
+	},
+	"rules": {
+		"title": "Server rules",
+		"description": "",
+		"list": [],
+		"image link": ""
+	},
+	"roles": {
+		"category list": {
+			"Server": {
+				"message id": 0,
+				"roles list": {}
+			}
+		}
+	},
+	"ranks": {}
+}
 
 
 # Definitions
