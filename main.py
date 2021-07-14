@@ -122,6 +122,17 @@ class MyClient(discord.Client):
 			for guild in self.guilds:
 				logger.info("    " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
 
+				# Send on_ready announcement
+				announcement_sent = False
+				for channel in guild.text_channels:
+					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
+						logger.debug("Sent on_ready announcement to " + guild.name + " in " + channel.name)  # Event log
+						announcement_sent = True
+						await channel.send("**Announcement** (on_ready)\nRather popeg.")
+						break
+				if announcement_sent is False:
+					logger.debug("Failed to send on_ready announcement. Announcement channel not found in " + guild.name)  # Event log
+
 		# Load the data file into the data variable
 		try:
 			with open("data.json", encoding='utf-8') as file:
@@ -302,7 +313,6 @@ class MyClient(discord.Client):
 					# Send an error message
 					await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
-
 			# Stats command
 			if message.content == PREFIX + "stats":
 				"""THINGS TO FIX:
@@ -350,7 +360,6 @@ class MyClient(discord.Client):
 					for guild in self.guilds:
 						announcement_sent = False
 						for channel in guild.text_channels:
-							print(channel.name, channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"])
 							if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
 								logger.debug("Sent announcement to " + guild.name + " in " + channel.name)  # Event log
 								announcement_sent = True
@@ -372,6 +381,19 @@ class MyClient(discord.Client):
 				logger.info("`kill` called by " + message.author.name)  # Event log
 				if self.data["config"]["jokes"] is True:
 					await message.channel.send("Doggie down")
+
+				# Send kill announcement
+				for guild in self.guilds:
+					announcement_sent = False
+					for channel in guild.text_channels:
+						if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
+							logger.debug("Sent kill announcement to " + guild.name + " in " + channel.name)  # Event log
+							announcement_sent = True
+							await channel.send("**Announcement** (kill)\nRather unpopeg.")
+							break
+					if announcement_sent is False:
+						logger.debug("Failed to send kill announcement. Announcement channel not found in " + guild.name)  # Event log
+
 				await message.channel.send(self.user.name + " shutting down.\nUptime: " + self.get_uptime() + ".")
 				await client.close()
 
