@@ -96,7 +96,7 @@ One of the developers stayed up and considered doing the Great Mergening by hims
 
 The Trojan Canine was the wooden dog used by the apes, during the UEACS War, to enter the server of UEACS and win the war. There is no Trojan Canine in the Iliad, with the poem ending before the war is concluded. But in the Aeneid, after a fruitless 10-year siege, the apes at the behest of Orion constructed a huge wooden dog and hid a select force of men inside, including Orion himself. The apes pretended to sail away, and the Trojans pulled the dog into their server as a victory trophy. That night the ape force crept out of the dog and opened the gates for the rest of the ape army, which had sailed back under cover of night. The apes entered and destroyed the server of UEACS, ending the war.
 
-## The Unification insurrection
+### The Unification insurrection
 
 Here comes Pablo insurrecting again.
 
