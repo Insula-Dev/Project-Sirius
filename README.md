@@ -10,7 +10,7 @@
 >   
 >   And fevers to suffering humanity.
 
-# Instructions
+## Instructions
 
 1. If you pull from another branch, it can only be in the process of creating another branch.
 2. If you merge into another branch, the merge must be reviewed by all the developers.
@@ -35,7 +35,7 @@
 **Q**: Who can disobey these instructions?
 **A**: Not Arun or Pablo.
 
-# Instructions (old) [How to develop this code (**important**)]
+## Instructions (old) [How to develop this code (**important**)]
 
 If you're just touching up some of the main code, pull from and push to master branch. However, if you're adding wholly new functionality to the project, *even if this affects code from the master branch*, create a pull request and develop this on a **well named** branch. When you want to merge back into the master branch, or once you've had enough of testing it, then you'll need to sort through each change everyone else has made to the existing code and be careful not to keep old code. Wherever functionality or conventions conflict, invoke everybody involved and prepare to get your ass handed to you.
 
@@ -43,9 +43,9 @@ That is all.
 
 Thanks.
 
-# File structure
+## File structure
 
-## data.json
+### data.json
 
 **Warning**: this is outdated. Use the structure in upgrade_json.json
 
@@ -106,13 +106,6 @@ The combined forces of the opposing branches unified into one ungodly, unmergeab
 One of the developers stayed up and considered doing the Great Mergening by himself because he can't spend his time doing the right things. Instead he reinvented part of the bot. What an idiot.
 
 ## I want to go back to a normal sleep schedule.
-
-## Repo private until further notice
-
-# Appease Arun: Priority 1
-
-- Consider changing convention to message.author to author = message.author. For example:
-    `guild_data = self.data["servers"][str(guild.id)]`
 
 # Credits
 
