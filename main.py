@@ -261,26 +261,36 @@ class MyClient(discord.Client):
 
 				logger.info("`roles` called by " + message.author.name)  # Event log
 
-				# Delete the command message
-				await message.channel.purge(limit=1)
+				# If the roles have been set up
+				if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) != 0:
 
-				# Send one roles message per category
-				await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
-				for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in roles list
-					roles = []
-					for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
-						roles.append(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["name"] + "\n")
-					category_message = await message.channel.send("**" + category + "**\n\n" + "".join(roles))
+					# Delete the command message
+					await message.channel.purge(limit=1)
 
-					# Add reactions to the roles message
-					for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:
-						await category_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"])
+					# Send one roles message per category
+					await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
+					for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in roles list
+						roles = []
+						for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
+							roles.append(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["name"] + "\n")
+						category_message = await message.channel.send("**" + category + "**\n\n" + "".join(roles))
 
-					# Update the category's message id variable
-					self.data["servers"][str(guild.id)]["roles"]["category list"][category]["message id"] = category_message.id
+						# Add reactions to the roles message
+						for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:
+							await category_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"])
 
-				# Write the updated data
-				self.update_data()
+						# Update the category's message id variable
+						self.data["servers"][str(guild.id)]["roles"]["category list"][category]["message id"] = category_message.id
+
+					# Write the updated data
+					self.update_data()
+
+				# If the roles haven't been set up
+				else:
+					logger.debug("Roles have not been set up for " + str(message.guild.id))  # Event log
+					# Send an error message
+					await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
+
 
 			# Stats command
 			if message.content == PREFIX + "stats":
