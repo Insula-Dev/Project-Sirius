@@ -501,58 +501,62 @@ class MyClient(discord.Client):
 
 		guild = self.get_guild(payload.guild_id)
 
-		# Check if the roles have been set up
-		if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) == 0:
-			return
+		# If the roles have been set up
+		if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) != 0:
 
-		# Make sure that the message the user is reacting to is the one we care about
-		message_relevant = False
-		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
-			if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]["message id"]:
-				message_relevant = True
-				break
-		if message_relevant is False:
-			return
-
-		# The payload for `on_raw_reaction_remove` does not provide `.member`
-		# so we must get the member ourselves from the payload's `.user_id`.
-
-		# Make sure the member still exists and is valid.
-		member = guild.get_member(payload.user_id)
-		if member is None:
-			return
-
-		# Make sure the user isn't the bot.
-		if member.id == self.user.id:
-			return
-
-		# Check if we're still in the guild and it's cached.
-		if guild is None:
-			return
-
-		# If the emoji isn't the one we care about then exit as well.
-		role_id = -1
-		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in list
-			for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
-				if self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] == str(payload.emoji):
-					role_id = int(role)
+			# Make sure that the message the user is reacting to is the one we care about
+			message_relevant = False
+			for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
+				if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]["message id"]:
+					message_relevant = True
 					break
-		if role_id == -1:
-			return
+			if message_relevant is False:
+				return
 
-		# Make sure the role still exists and is valid.
-		role = guild.get_role(role_id)
-		if role is None:
-			return
+			# The payload for `on_raw_reaction_remove` does not provide `.member`
+			# so we must get the member ourselves from the payload's `.user_id`
 
-		# Finally, remove the role.
-		try:
-			await member.remove_roles(role)
-			logger.info("Role `" + role.name + "` removed from " + member.name)  # Event log
+			# Make sure the member still exists and is valid
+			member = guild.get_member(payload.user_id)
+			if member is None:
+				return
 
-		# If we want to do something in case of errors we'd do it here.
-		except discord.HTTPException:
-			logger.error("Exception: discord.HTTPException. Could not remove role " + role.name + " from ", member.name)  # Event log
+			# Make sure the user isn't the bot
+			if member.id == self.user.id:
+				return
+
+			# Check if we're still in the guild and it's cached
+			if guild is None:
+				return
+
+			# If the emoji isn't the one we care about then exit as well
+			role_id = -1
+			for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in list
+				for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
+					if self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] == str(payload.emoji):
+						role_id = int(role)
+						break
+			if role_id == -1:
+				return
+
+			# Make sure the role still exists and is valid
+			role = guild.get_role(role_id)
+			if role is None:
+				return
+
+			# Finally, remove the role
+			try:
+				await member.remove_roles(role)
+				logger.info("Role `" + role.name + "` removed from " + member.name)  # Event log
+			# If we want to do something in case of errors we'd do it here
+			except discord.HTTPException:
+				logger.error("Exception: discord.HTTPException. Could not remove role " + role.name + " from ", member.name)  # Event log
+
+		# If the roles haven't been set up
+		else:
+			logger.debug("Roles have not been set up for " + str(message.guild.id))  # Event log
+			# Send an error message
+			await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
 
 # Main body
