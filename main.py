@@ -4,7 +4,6 @@ from datetime import date, datetime
 import json
 import socket
 import discord
-import re  # Remove this later lol
 
 
 # Local imports
@@ -320,8 +319,7 @@ class MyClient(discord.Client):
 						message_count = 0
 						async for message_sent in channel.history(limit=None):
 							message_count += 1
-							# Don't count bot messages
-							if message_sent.author.bot is False:
+							if message_sent.author.bot is False:  # Don't count messages from bots
 								if message_sent.author not in members:
 									members[message_sent.author] = 1
 								else:
@@ -571,10 +569,12 @@ class MyClient(discord.Client):
 if __name__ == "__main__":
 	try:
 		logger.debug("project_sirius.py started")  # Event log
+
 		intents = discord.Intents.default()
 		intents.members = True
 		client = MyClient(intents=intents, debug=True, level="DEBUG")
 		client.run(DISCORD_TOKEN)
+
 		logger.debug("project_sirius.py finished\n")  # Event log
 	except Exception as exception:
 		logger.error("Exception: " + exception + "\n")  # Event log
