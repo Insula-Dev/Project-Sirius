@@ -543,15 +543,17 @@ class MyClient(discord.Client):
 
 
 # Main body
-try:
-	intents = discord.Intents.default()
-	intents.members = True
+if __name__ == "__main__":
+	try:
+		logger.debug("project_sirius.py started")  # Event log
 
-	client = MyClient(intents=intents, debug=True)
-	client.run(DISCORD_TOKEN)
+		intents = discord.Intents.default()
+		intents.members = True
 
-	logger.info("That's all\n")  # Event log
-except:
+		client = MyClient(intents=intents, debug=True, level="INFO")
+		client.run(DISCORD_TOKEN)
 
-	# This is intended to catch all unexpected shutdowns and put a newline in the log file, since otherwise it becomes concatenated and horrible... Does on_kill exist?
-	logger.error("Unexpected exception... Say that ten times fast\n")  # Event log
+		logger.debug("project_sirius.py finished\n")  # Event log
+
+	except Exception as exception:
+		logger.error("Exception: " + exception + "\n")  # Event log
