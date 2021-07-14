@@ -342,6 +342,25 @@ class MyClient(discord.Client):
 		# If the message was sent by the developers
 		if message.author.id in self.data["config"]["developers"]:
 
+			# Announcement command
+			if message.content.startswith(PREFIX + "announcement"):
+				logger.info("`announcement` called by " + message.author.name)  # Event log
+				if len(message.content) > len(PREFIX + "announcement "):
+					argument = message.content[len(PREFIX + "announcement "):]
+					for guild in self.guilds:
+						announcement_sent = False
+						for channel in guild.text_channels:
+							print(channel.name, channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"])
+							if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
+								logger.debug("Sent announcement to " + guild.name + " in " + channel.name)  # Event log
+								announcement_sent = True
+								await channel.send("**Announcement** (testing)\n" + argument)
+								break
+						if announcement_sent is False:
+							logger.debug("Announcement channel not found in " + guild.name)  # Event log
+				else:
+					logger.error("No announcement argument supplied")  # Event log
+
 			# Locate command
 			if message.content == PREFIX + "locate":
 				logger.info("`locate` called by " + message.author.name)  # Event log
@@ -364,7 +383,7 @@ class MyClient(discord.Client):
 				logger.debug("Arun sighted. Locking on")  # Event log
 				if randint(1, 10) == 1:
 					await message.channel.send("shut up arun")
-					logger.debug("Arun down.")  # Event log
+					logger.debug("Arun down")  # Event log
 				else:
 					logger.debug("Mission failed, RTB")  # Event log
 

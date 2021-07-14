@@ -220,12 +220,7 @@
                 "image link": null
             },
             "roles": {
-                "category list": {
-                    "Server": {
-                        "message id": null,
-                        "roles list": {}
-                    }
-                }
+                "category list": {}
             },
             "ranks": {}
         },
@@ -285,7 +280,7 @@
             "config": {
                 "rank system": false,
                 "admin role id": 834460709332844575,
-                "announcements channel id": 0
+                "announcements channel id": 849968671879069716
             },
             "rules": {
                 "title": "Server rules",
@@ -311,8 +306,8 @@
                 }
             },
             "ranks": {
-                "241772848564142080": 30,
-                "258284765776576512": 2
+                "241772848564142080": 50,
+                "258284765776576512": 4
             }
         }
     }
