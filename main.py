@@ -207,9 +207,9 @@ class MyClient(discord.Client):
 			await message.channel.send(embed=embed_help)
 
 		# Get rank command
-		if message.content.startswith(PREFIX + "get rank"):
+		if message.content.startswith(PREFIX + "get_rank"):
 
-			logger.info("`get rank` called by " + message.author.name)  # Event log
+			logger.info("`get_rank` called by " + message.author.name)  # Event log
 
 			# Generate the rank card
 			if str(message.author.id) in self.data["servers"][str(guild.id)]["ranks"]:
