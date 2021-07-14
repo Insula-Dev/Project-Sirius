@@ -236,27 +236,37 @@ class MyClient(discord.Client):
 
 				logger.info("`rules` called by " + message.author.name)  # Event log
 
-				# Delete the command message
-				await message.channel.purge(limit=1)
+				# If the rules have been set up
+				if len(self.data["servers"][str(guild.id)]["rules"]["list"]) != 0:
 
-				# Create the welcome embed !!! This is messy. Decide embed format and what should be customisable
-				embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#000000000000000000> is for this, and <#000000000000000001> is for that.", color=0xffc000)
+					# Delete the command message
+					await message.channel.purge(limit=1)
 
-				# Create the rules embed
-				embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0xffc000, inline=False)
-				embed_rules.set_footer(text="Rules updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
-				embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
-				embed_image = discord.Embed(description="That's all.", color=0xffc000)
-				image = self.data["servers"][str(guild.id)]["rules"]["image link"]
-				if image.startswith("https:"):
-					embed_image.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
+					# Create the welcome embed !!! This is messy. Decide embed format and what should be customisable
+					embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#000000000000000000> is for this, and <#000000000000000001> is for that.", color=0xffc000)
+
+					# Create the rules embed
+					embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0xffc000, inline=False)
+					embed_rules.set_footer(text="Rules updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
+					embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
+					embed_image = discord.Embed(description="That's all.", color=0xffc000)
+					image = self.data["servers"][str(guild.id)]["rules"]["image link"]
+					if image != None:
+						if image[:6] == "https:":
+							embed_image.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
+					else:
+						logger.debug("Image link not found for " + str(message.guild.id))  # Event log
+
+					# Send the embeds
+					await message.channel.send(embed=embed_welcome)
+					await message.channel.send(embed=embed_rules)
+					await message.channel.send(embed=embed_image)
+
+				# If the rules haven't been set up
 				else:
-					logger.debug("Image link non-existant for " + str(message.guild.id))  # Event log
-
-				# Send the embeds
-				await message.channel.send(embed=embed_welcome)
-				await message.channel.send(embed=embed_rules)
-				await message.channel.send(embed=embed_image)
+					logger.debug("Rules have not been set up for " + str(message.guild.id))  # Event log
+					# Send an error message
+					await message.channel.send("Uh oh, you haven't set up any rules! Get a server admin to set them up at https://www.lingscars.com/")
 
 			# Roles command
 			if message.content == PREFIX + "roles":
@@ -322,7 +332,7 @@ class MyClient(discord.Client):
 					logger.debug("Successfully generated statistics")  # Event log
 
 					# Create and send statistics embed
-					embed_stats = discord.Embed(title="📈 Statistics for " + guild.name, color=0xba5245)
+					embed_stats = discord.Embed(title="📈 Statistics for " + guild.name, color=0xffc000)
 					embed_stats.add_field(name="Channels", value=channel_statistics)
 					embed_stats.add_field(name="Members", value=member_statistics)
 					embed_stats.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
@@ -487,8 +497,8 @@ class MyClient(discord.Client):
 				await payload.member.add_roles(role)
 				logger.info("Role `" + role.name + "` added to " + payload.member.name)  # Event log
 			# If we want to do something in case of errors we'd do it here
-			except discord.HTTPException:
-				logger.error("Exception: discord.HTTPException. Could not add role " + role.name + " to " + payload.member.name)  # Event log
+			except Exception as exception:
+				logger.error("Failed to add role " + role.name + " to " + payload.member.name + ". Exception: " + exception)  # Event log
 
 		# If the roles haven't been set up
 		else:
@@ -550,8 +560,8 @@ class MyClient(discord.Client):
 				await member.remove_roles(role)
 				logger.info("Role `" + role.name + "` removed from " + member.name)  # Event log
 			# If we want to do something in case of errors we'd do it here
-			except discord.HTTPException:
-				logger.error("Exception: discord.HTTPException. Could not remove role " + role.name + " from ", member.name)  # Event log
+			except Exception as exception:
+				logger.error("Failed to remove role " + role.name + " from " + payload.member.name + ". Exception: " + exception)  # Event log
 
 		# If the roles haven't been set up
 		else:
@@ -566,7 +576,7 @@ if __name__ == "__main__":
 		logger.debug("project_sirius.py started")  # Event log
 		intents = discord.Intents.default()
 		intents.members = True
-		client = MyClient(intents=intents, debug=True, level="INFO")
+		client = MyClient(intents=intents, debug=True, level="DEBUG")
 		client.run(DISCORD_TOKEN)
 		logger.debug("project_sirius.py finished\n")  # Event log
 	except Exception as exception:
