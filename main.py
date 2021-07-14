@@ -440,7 +440,11 @@ class MyClient(discord.Client):
 
 		guild = self.get_guild(payload.guild_id)
 
-		# Make sure that the message the user is reacting to is the one we care about.
+		# Check if the roles have been set up
+		if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) == 0:
+			return
+
+		# Make sure that the message the user is reacting to is the one we care about
 		message_relevant = False
 		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
 			if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]["message id"]:
