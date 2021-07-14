@@ -189,22 +189,6 @@ class MyClient(discord.Client):
 			self.update_data()
 		else:
 			logger.debug("Not adding experience to " + message.author.name)  # Event log
- 
-		# Help command
-		if message.content == PREFIX + "help":
-
-			logger.info("`help` called by " + message.author.name)  # Event log
-
-			# Create and send the help embed
-			embed_help = discord.Embed(title="🤔 Need help?", description="Here's a list of Sirius III's commands!", color=0xffc000)
-			embed_help.add_field(name=str(PREFIX + "get rank"), value="Creates your rank card, showing your current rank and progress to the next rank.")
-			embed_help.add_field(name=str(PREFIX + "help"), value="Creates the bot's help embed, listing the bot's commands.")
-			embed_help.add_field(name=str(PREFIX + "rules"), value="Creates the server's rules embed.\nAdmin only feature.")
-			embed_help.add_field(name=str(PREFIX + "roles"), value="Creates the server's roles embed.\nAdmin only feature.")
-			embed_help.add_field(name=str(PREFIX + "stats"), value="Creates the server's stats embed.\nAdmin only feature.")
-			embed_help.add_field(name=str(PREFIX + "locate"), value="Locates the instance of Sirius III.\nDev only feature.")
-			embed_help.add_field(name=str(PREFIX + "kill"), value="Ends the instance of Sirius III.\nDev only feature.")
-			await message.channel.send(embed=embed_help)
 
 		# Get rank command
 		if message.content.startswith(PREFIX + "get_rank"):
@@ -227,6 +211,22 @@ class MyClient(discord.Client):
 
 			# Send the embed
 			await message.channel.send(file=file)
+ 
+		# Help command
+		if message.content == PREFIX + "help":
+
+			logger.info("`help` called by " + message.author.name)  # Event log
+
+			# Create and send the help embed
+			embed_help = discord.Embed(title="🤔 Need help?", description="Here's a list of Sirius III's commands!", color=0xffc000)
+			embed_help.add_field(name=str(PREFIX + "get_rank"), value="Creates your rank card, showing your current rank and progress to the next rank.")
+			embed_help.add_field(name=str(PREFIX + "help"), value="Creates the bot's help embed, listing the bot's commands.")
+			embed_help.add_field(name=str(PREFIX + "rules"), value="Creates the server's rules embed.\nAdmin only feature.")
+			embed_help.add_field(name=str(PREFIX + "roles"), value="Creates the server's roles embed.\nAdmin only feature.")
+			embed_help.add_field(name=str(PREFIX + "stats"), value="Creates the server's stats embed.\nAdmin only feature.")
+			embed_help.add_field(name=str(PREFIX + "locate"), value="Locates the instance of Sirius III.\nDev only feature.")
+			embed_help.add_field(name=str(PREFIX + "kill"), value="Ends the instance of Sirius III.\nDev only feature.")
+			await message.channel.send(embed=embed_help)
 
 		# If the message was sent by the admins
 		if guild.get_role(self.data["servers"][str(message.guild.id)]["config"]["admin role id"]) in guild.get_member(message.author.id).roles:

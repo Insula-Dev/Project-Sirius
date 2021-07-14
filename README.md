@@ -10,7 +10,44 @@
 >   
 >   And fevers to suffering humanity.
 
-# Instructions
+# Functionality
+
+## /get_rank
+
+Creates your rank card, showing your current rank and progress to the next rank.
+
+## /help
+
+Creates the bot's help embed, listing the bot's commands.
+
+## /rules
+
+Creates the server's rules embed.
+Admin only feature.
+
+## /roles
+
+Creates the server's roles embed.
+Admin only feature.
+
+## /stats]
+
+Creates the server's stats embed.
+Admin only feature.
+
+## /locate
+
+Locates the instance of Sirius III.
+Dev only feature.
+
+## /kill
+
+Ends the instance of Sirius III.
+Dev only feature.
+
+# Development
+
+## Rules
 
 1. If you pull from another branch, it can only be in the process of creating another branch.
 2. If you merge into another branch, the merge must be reviewed by all the developers.
