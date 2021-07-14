@@ -305,63 +305,8 @@ class MyClient(discord.Client):
 				embed_stats.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
 				await message.channel.send(embed=embed_stats)
 
-			# Poll command
-			if message.content.startswith(PREFIX + "poll"):
-				"""ERRORS TO TEST FOR:
 
-				- Duplicate emojis
-				- Custom emojis
-				- Duplicate custom emojis
 
-				THINGS TO FIX:
-
-				- Standardise datetime format
-				- Remove regex secretly
-				- Trailing newlines at the end of embed
-				"""
-
-				logger.info("`poll` called by " + message.author.name)  # Event log
-
-				# Delete the command message
-				await message.channel.purge(limit=1)
-
-				# !!! Clunky and breakable
-				argument_string = message.content[len(PREFIX + "poll "):]
-				arguments = re.split("\,\s|\,", argument_string)  # Replace with arguments = argument.split(", ")
-				candidates = {}  # Dictionary of candidates that can be voted for
-				candidates_string = ""
-
-				# Analyse argument
-				for argument in arguments:
-					argument = argument.split("=")
-					print("Argument 0, 1:", argument[0], argument[1])
-					if argument[0] == "title":
-						title = argument[1]
-					elif argument[0] == "time":
-
-						# Arun's time machine
-						time_list = argument[1].split("/")
-						hour = 12
-						minute = 00
-						if ":" in time_list[2]:
-							last_time_arg = time_list[2].split(" ")
-							time_list[2] = last_time_arg[0]
-							hour = last_time_arg[1].split(":")[0]
-							minute = last_time_arg[1].split(":")[1]
-						poll_time = str(datetime(day=int(time_list[0]), month=int(time_list[1]), year=int(time_list[2]), hour=int(hour), minute=int(minute)))  # Accommodate for American convention. Or don't.
-
-					else:
-						candidates[argument[1]] = argument[0].rstrip()
-						candidates_string += argument[1] + " - " + argument[0] + "\n"
-
-				# Create and send poll embed
-				embed_poll = discord.Embed(title=title, description=candidates_string, color=0xffc000)
-				embed_poll.set_footer(text="Poll ending • " + poll_time)
-				poll_message = await message.channel.send(embed=embed_poll)
-
-				# Add reactions to the poll embed
-				for candidate in candidates:
-					await poll_message.add_reaction(candidate)
 
 		# If the message was sent by the developers
 		if message.author.id in self.data["config"]["developers"]:
