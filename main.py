@@ -318,21 +318,21 @@ class MyClient(discord.Client):
 						channel_statistics += channel.name + ": " + str(message_count) + "\n"
 					for member in members:
 						member_statistics += member.name + ": " + str(members[member]) + "\n"
-					logger.debug("Successfully generated statistics")
+					logger.debug("Successfully generated statistics")  # Event log
+
+					# Create and send statistics embed
+					embed_stats = discord.Embed(title="📈 Statistics for " + guild.name, color=0xba5245)
+					embed_stats.add_field(name="Channels", value=channel_statistics)
+					embed_stats.add_field(name="Members", value=member_statistics)
+					embed_stats.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
+					await message.channel.send(embed=embed_stats)
+
 				except UnicodeEncodeError:
-					logger.error("Username " + message_sent.author.name + " was too advanced to handle")
+					logger.error("Username " + message_sent.author.name + " was too advanced to handle")  # Event log
 				except Exception as exception:
-					logger.error("Failed to generate statistics. Exception: " + str(exception))
-
-				# Create and send statistics embed
-				embed_stats = discord.Embed(title="📈 Statistics for " + guild.name, color=0xba5245)
-				embed_stats.add_field(name="Channels", value=channel_statistics)
-				embed_stats.add_field(name="Members", value=member_statistics)
-				embed_stats.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
-				await message.channel.send(embed=embed_stats)
-
-
-
+					logger.error("Failed to generate statistics. Exception: " + str(exception))  # Event log
+				finally:
+					await message.channel.send("Error: Something went wrong on our side...")
 
 		# If the message was sent by the developers
 		if message.author.id in self.data["config"]["developers"]:
