@@ -7,7 +7,7 @@ import discord
 import re  # Remove this later lol
 
 
-# Local imports
+# Home imports
 from log_handling import *
 from imaging import generate_rank_card
 
@@ -43,7 +43,7 @@ server_structure = {
 # Definitions
 class MyClient(discord.Client):
 
-	def __init__(self, debug=False, level="DEBUG", *args, **kwargs):
+	def __init__(self, debug=False, *args, **kwargs):
 
 		super().__init__(*args, **kwargs)
 		self.start_time = datetime.now()
@@ -53,9 +53,7 @@ class MyClient(discord.Client):
 
 		# Print logs to the console too (for debugging)
 		if debug is True:
-			x = logging.StreamHandler()  # Create new handler
-			x.setLevel(level)  # Set handler level
-			logger.addHandler(x)  # Add hangler to logger
+			logger.addHandler(logging.StreamHandler())
 
 	def update_data(self):
 		"""Writes the data attribute to the file."""
@@ -64,8 +62,8 @@ class MyClient(discord.Client):
 			with open("data.json", "w", encoding='utf-8') as file:
 				json.dump(self.data, file, indent=4)
 			logger.debug("Updated data.json")  # Event log
-		except Exception as exception:
-			logger.critical("Failed to update data.json. Exception: " + exception)  # Event log
+		except:
+			logger.critical("Failed to update data.json")  # Event log
 
 	def initialise_guild(self, guild):
 		"""Creates data for a new guild."""
@@ -76,8 +74,8 @@ class MyClient(discord.Client):
 			# Write the updated data
 			self.update_data()
 			logger.info("Initialised guild: " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
-		except Exception as exception:
-			logger.critical("Failed to initialise guild: " + guild.name + " (ID: " + str(guild.id) + "). Exception: " + exception)  # Event log
+		except:
+			logger.critical("Failed to initialise guild: " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
 
 	def get_uptime(self):
 		"""Returns client uptime."""
@@ -110,8 +108,8 @@ class MyClient(discord.Client):
 
 			logger.debug("Calculated uptime")  # Event log
 			return uptime
-		except Exception as exception:
-			logger.error("Failed to calculate uptime. Exception: " + exception)  # Event log
+		except:
+			logger.error("Failed to calculate uptime")  # Event log
 			return None
 
 	async def on_ready(self):
@@ -128,8 +126,8 @@ class MyClient(discord.Client):
 			with open("data.json", encoding='utf-8') as file:
 				self.data = json.load(file)
 			logger.debug("Loaded data.json")  # Event log
-		except Exception as exception:
-			logger.critical("Could not load data.json. Exception: " + exception)  # Event log
+		except:
+			logger.critical("Could not load data.json")  # Event log
 
 		# Check if Sirius has been added to a guild while offline
 		for guild in self.guilds:
@@ -211,22 +209,6 @@ class MyClient(discord.Client):
 			# Send the embed
 			await message.channel.send(file=file)
 
-		# Help command
-		if message.content == PREFIX + "help":
-
-			logger.info("`help` called by " + message.author.name)  # Event log
-
-			# Create and send the help embed
-			embed_help = discord.Embed(title="🤔 Need help?", description="Here's a list of Sirius III's commands!", color=0xffc000)
-			embed_help.add_field(name=str(PREFIX + "get rank"), value="Creates your rank card, showing your current rank and progress to the next rank.")
-			embed_help.add_field(name=str(PREFIX + "help"), value="Creates the bot's help embed, listing the bot's commands.")
-			embed_help.add_field(name=str(PREFIX + "rules"), value="Creates the server's rules embed.\nAdmin only feature.")
-			embed_help.add_field(name=str(PREFIX + "roles"), value="Creates the server's roles embed.\nAdmin only feature.")
-			embed_help.add_field(name=str(PREFIX + "stats"), value="Creates the server's stats embed.\nAdmin only feature.")
-			embed_help.add_field(name=str(PREFIX + "locate"), value="Locates the instance of Sirius III.\nDev only feature.")
-			embed_help.add_field(name=str(PREFIX + "kill"), value="Ends the instance of Sirius III.\nDev only feature.")
-			await message.channel.send(embed=embed_help)
-
 		# If the message was sent by the admins
 		if guild.get_role(self.data["servers"][str(message.guild.id)]["config"]["admin role id"]) in guild.get_member(message.author.id).roles:
 
@@ -235,79 +217,54 @@ class MyClient(discord.Client):
 
 				logger.info("`rules` called by " + message.author.name)  # Event log
 
-				# If the rules have been set up
-				if len(self.data["servers"][str(guild.id)]["rules"]["list"]) != 0:
+				# Delete the command message
+				await message.channel.purge(limit=1)
 
-					# Delete the command message
-					await message.channel.purge(limit=1)
+				# Create the welcome embed !!! This is messy. Decide embed format and what should be customisable
+				embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#831953098800889896> is for this, and <#610595467444879421> is for that.", color=0xffc000)
 
-					# Create the welcome embed !!! This is messy. Decide embed format and what should be customisable
-					embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="Take a moment to familiarise yourself with the rules below.", color=0xffc000)
+				# Create the rules embed
+				embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0xffc000, inline=False)
+				embed_rules.set_footer(text="Rules updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
+				embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
 
-					# Create the rules embed
-					embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0xffc000, inline=False)
-					embed_rules.set_footer(text="Rules updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
-					embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
-
-					embed_image = discord.Embed(description="That's all.", color=0xffc000)
-					image = self.data["servers"][str(guild.id)]["rules"]["image link"]
-					if image is not None:
-						if image.startswith("https:"):
-							embed_image.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
-						else:
-							logger.debug("Image link unsecure for " + str(message.guild.id))  # Event log
-					else:
-						logger.debug("Image link non-existant for " + str(message.guild.id))  # Event log
-
-					# Send the embeds
-					await message.channel.send(embed=embed_welcome)
-					await message.channel.send(embed=embed_rules)
-					await message.channel.send(embed=embed_image)
-
-				# If the rules haven't been set up
+				embed_image = discord.Embed(description="That's all.", color=0xffc000)
+				image = self.data["servers"][str(guild.id)]["rules"]["image link"]
+				if image.startswith("https:"):
+					embed_image.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
 				else:
+					logger.debug("Image link non-existant for " + str(message.guild.id))  # Event log
 
-					logger.debug("Rules have not been set up for " + str(message.guild.id))  # Event log
-
-					# Send an error message
-					await message.channel.send("Uh oh, you haven't set up any rules! Get a server admin to set them up at https://www.lingscars.com/")
+				# Send the embeds
+				await message.channel.send(embed=embed_welcome)
+				await message.channel.send(embed=embed_rules)
+				await message.channel.send(embed=embed_image)
 
 			# Roles command
 			if message.content == PREFIX + "roles":
 
 				logger.info("`roles` called by " + message.author.name)  # Event log
 
-				# If the roles have been set up
-				if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) != 0:
+				# Delete the command message
+				await message.channel.purge(limit=1)
 
-					# Delete the command message
-					await message.channel.purge(limit=1)
+				# Send one roles message per category
+				await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
+				for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in roles list
+					roles = []
+					for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
+						roles.append(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["name"] + "\n")
+					category_message = await message.channel.send("**" + category + "**\n\n" + "".join(roles))
 
-					# Send one roles message per category
-					await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
-					for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in roles list
-						roles = []
-						for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
-							roles.append(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["name"] + "\n")
-						category_message = await message.channel.send("**" + category + "**\n\n" + "".join(roles))
+					# Add reactions to the roles message
+					for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:
+						await category_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"])
 
-						# Add reactions to the roles message
-						for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:
-							await category_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"])
+					# Update the category's message id variable
+					self.data["servers"][str(guild.id)]["roles"]["category list"][category]["message id"] = category_message.id
 
-						# Update the category's message id variable
-						self.data["servers"][str(guild.id)]["roles"]["category list"][category]["message id"] = category_message.id
-
-					# Write the updated data
-					self.update_data()
-
-				# If the roles haven't been set up
-				else:
-
-					logger.debug("Roles have not been set up for " + str(message.guild.id))  # Event log
-
-					# Send an error message
-					await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
+				# Write the updated data
+				self.update_data()
 
 			# Stats command
 			if message.content == PREFIX + "stats":
@@ -490,39 +447,33 @@ class MyClient(discord.Client):
 	async def on_member_join(self, member):
 		"""Runs when a member joins."""
 
-		logger.debug("Member " + member.name + " joined guild [GUILD_NAME]")  # Event log
+		logger.debug("Member " + member.name + " joined guild [GUILD_NAME]")
 		try:
 			await member.create_dm()
 			await member.dm_channel.send("Welcome to the server, " + member.name + ".")
 			logger.debug("Sent welcome message to " + member.name)  # Event log
-		except Exception as exception:
+		except:
 			# If user has impeded direct messages
-			logger.debug("Failed to send welcome message to " + member.name + ". Exception: " + exception)  # Event log
+			logger.debug("Failed to send welcome message to " + member.name)  # Event log
 
 	async def on_member_remove(self, member):
 		"""Runs when a member leaves."""
 
-		logger.debug("Member " + member.name + " left guild [GUILD_NAME]")  # Event log
+		logger.debug("Member " + member.name + " left guild [GUILD_NAME]")
 		try:
 			await member.create_dm()
 			await member.dm_channel.send("Goodbye ;)")
 			logger.debug("Sent goodbye message to " + member.name)  # Event log
-		except Exception as exception:
+		except:
 			# If the user has impeded direct messages
-			logger.debug("Failed to send goodbye message to " + member.name + ". Exception: " + exception)  # Event log
+			logger.debug("Failed to send goodbye message to " + member.name)  # Event log
 
 	async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-		"""Runs when a reaction is added.
-
-		Gives a role based on a reaction emoji."""
+		"""Gives a role based on a reaction emoji."""
 
 		guild = self.get_guild(payload.guild_id)
 
-		# Check if the roles have been set up
-		if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) == 0:
-			return
-
-		# Make sure that the message the user is reacting to is the one we care about
+		# Make sure that the message the user is reacting to is the one we care about.
 		message_relevant = False
 		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
 			if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]["message id"]:
@@ -531,15 +482,15 @@ class MyClient(discord.Client):
 		if message_relevant is False:
 			return
 
-		# Make sure the user isn't the bot
-		if payload.member.id == self.user.id:
+		# Make sure the user isn't the bot.
+		if payload.member.id == self.user.id:  # was payload.author
 			return
 
-		# Check if we're still in the guild and it's cached
+		# Check if we're still in the guild and it's cached.
 		if guild is None:
 			return
 
-		# If the emoji isn't the one we care about then delete it and exit as well
+		# If the emoji isn't the one we care about then delete it and exit as well.
 		role_id = -1
 		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in list
 			for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
@@ -555,32 +506,26 @@ class MyClient(discord.Client):
 
 			return
 
-		# Make sure the role still exists and is valid
+		# Make sure the role still exists and is valid.
 		role = guild.get_role(role_id)
 		if role is None:
 			return
 
-		# Finally, add the role
+		# Finally, add the role.
 		try:
 			await payload.member.add_roles(role)
 			logger.info("Role `" + role.name + "` added to " + payload.member.name)  # Event log
 
-		# If we want to do something in case of errors we'd do it here
+		# If we want to do something in case of errors we'd do it here.
 		except discord.HTTPException:
 			logger.error("Exception: discord.HTTPException. Could not add role " + role.name + " to " + payload.member.name)  # Event log
 
 	async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
-		"""Runs when a reaction is removed.
-
-		Removes a role based on a reaction emoji."""
+		"""Removes a role based on a reaction emoji."""
 
 		guild = self.get_guild(payload.guild_id)
 
-		# Check if the roles have been set up
-		if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) == 0:
-			return
-
-		# Make sure that the message the user is reacting to is the one we care about
+		# Make sure that the message the user is reacting to is the one we care about.
 		message_relevant = False
 		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
 			if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]["message id"]:
@@ -590,22 +535,22 @@ class MyClient(discord.Client):
 			return
 
 		# The payload for `on_raw_reaction_remove` does not provide `.member`
-		# so we must get the member ourselves from the payload's `.user_id`
+		# so we must get the member ourselves from the payload's `.user_id`.
 
-		# Make sure the member still exists and is valid
+		# Make sure the member still exists and is valid.
 		member = guild.get_member(payload.user_id)
 		if member is None:
 			return
 
-		# Make sure the user isn't the bot
+		# Make sure the user isn't the bot.
 		if member.id == self.user.id:
 			return
 
-		# Check if we're still in the guild and it's cached
+		# Check if we're still in the guild and it's cached.
 		if guild is None:
 			return
 
-		# If the emoji isn't the one we care about then exit as well
+		# If the emoji isn't the one we care about then exit as well.
 		role_id = -1
 		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in list
 			for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
@@ -615,33 +560,31 @@ class MyClient(discord.Client):
 		if role_id == -1:
 			return
 
-		# Make sure the role still exists and is valid
+		# Make sure the role still exists and is valid.
 		role = guild.get_role(role_id)
 		if role is None:
 			return
 
-		# Finally, remove the role
+		# Finally, remove the role.
 		try:
 			await member.remove_roles(role)
 			logger.info("Role `" + role.name + "` removed from " + member.name)  # Event log
 
-		# If we want to do something in case of errors we'd do it here
+		# If we want to do something in case of errors we'd do it here.
 		except discord.HTTPException:
 			logger.error("Exception: discord.HTTPException. Could not remove role " + role.name + " from ", member.name)  # Event log
 
 
 # Main body
-if __name__ == "__main__":
-	try:
-		logger.debug("project_sirius.py started")  # Event log
+try:
+	intents = discord.Intents.default()
+	intents.members = True
 
-		intents = discord.Intents.default()
-		intents.members = True
+	client = MyClient(intents=intents, debug=True)
+	client.run(DISCORD_TOKEN)
 
-		client = MyClient(intents=intents, debug=True, level="INFO")
-		client.run(DISCORD_TOKEN)
+	logger.info("That's all\n")  # Event log
+except:
 
-		logger.debug("project_sirius.py finished\n")  # Event log
-
-	except Exception as exception:
-		logger.error("Exception: " + exception + "\n")  # Event log
+	# This is intended to catch all unexpected shutdowns and put a newline in the log file, since otherwise it becomes concatenated and horrible... Does on_kill exist?
+	logger.error("Unexpected exception... Say that ten times fast\n")  # Event log

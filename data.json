@@ -79,8 +79,8 @@
                 }
             },
             "ranks": {
-                "241772848564142080": 102,
-                "258284765776576512": 55,
+                "241772848564142080": 92,
+                "258284765776576512": 54,
                 "257499570098012160": 9,
                 "237590376372895744": 5,
                 "846228661689647114": 3,
@@ -220,7 +220,12 @@
                 "image link": null
             },
             "roles": {
-                "category list": {}
+                "category list": {
+                    "Server": {
+                        "message id": null,
+                        "roles list": {}
+                    }
+                }
             },
             "ranks": {}
         },
@@ -237,7 +242,12 @@
                 "image link": null
             },
             "roles": {
-                "category list": {}
+                "category list": {
+                    "Server": {
+                        "message id": null,
+                        "roles list": {}
+                    }
+                }
             },
             "ranks": {
                 "273155862208708608": 6,
@@ -262,7 +272,12 @@
                 "image link": null
             },
             "roles": {
-                "category list": {}
+                "category list": {
+                    "Server": {
+                        "message id": null,
+                        "roles list": {}
+                    }
+                }
             },
             "ranks": {}
         },
@@ -279,10 +294,15 @@
                 "image link": null
             },
             "roles": {
-                "category list": {}
+                "category list": {
+                    "Server": {
+                        "message id": null,
+                        "roles list": {}
+                    }
+                }
             },
             "ranks": {
-                "241772848564142080": 20,
+                "241772848564142080": 14,
                 "258284765776576512": 1
             }
         }
