@@ -108,7 +108,6 @@ class MyClient(discord.Client):
 					uptime += "second"
 				else:
 					uptime += "seconds"
-
 			logger.debug("Calculated uptime")  # Event log
 			return uptime
 		except Exception as exception:
@@ -247,7 +246,6 @@ class MyClient(discord.Client):
 				embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0xffc000, inline=False)
 				embed_rules.set_footer(text="Rules updated: • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
 				embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
-
 				embed_image = discord.Embed(description="That's all.", color=0xffc000)
 				image = self.data["servers"][str(guild.id)]["rules"]["image link"]
 				if image.startswith("https:"):
@@ -329,7 +327,6 @@ class MyClient(discord.Client):
 					embed_stats.add_field(name="Members", value=member_statistics)
 					embed_stats.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
 					await message.channel.send(embed=embed_stats)
-
 				except UnicodeEncodeError:
 					logger.error("Username " + message_sent.author.name + " was too advanced to handle")  # Event log
 				except Exception as exception:
@@ -359,9 +356,7 @@ class MyClient(discord.Client):
 
 			# Shut up Arun
 			if message.author.id == 258284765776576512:
-
 				logger.debug("Arun sighted. Locking on")  # Event log
-
 				if randint(1, 10) == 1:
 					await message.channel.send("shut up arun")
 					logger.debug("Arun down.")  # Event log
@@ -491,7 +486,6 @@ class MyClient(discord.Client):
 			try:
 				await payload.member.add_roles(role)
 				logger.info("Role `" + role.name + "` added to " + payload.member.name)  # Event log
-
 			# If we want to do something in case of errors we'd do it here
 			except discord.HTTPException:
 				logger.error("Exception: discord.HTTPException. Could not add role " + role.name + " to " + payload.member.name)  # Event log
@@ -570,14 +564,10 @@ class MyClient(discord.Client):
 if __name__ == "__main__":
 	try:
 		logger.debug("project_sirius.py started")  # Event log
-
 		intents = discord.Intents.default()
 		intents.members = True
-
 		client = MyClient(intents=intents, debug=True, level="INFO")
 		client.run(DISCORD_TOKEN)
-
 		logger.debug("project_sirius.py finished\n")  # Event log
-
 	except Exception as exception:
 		logger.error("Exception: " + exception + "\n")  # Event log
