@@ -116,6 +116,14 @@ class MyClient(discord.Client):
 	async def on_ready(self):
 		"""Runs when the client is ready."""
 
+		# Load the data file into the data variable
+		try:
+			with open("data.json", encoding='utf-8') as file:
+				self.data = json.load(file)
+			logger.debug("Loaded data.json")  # Event log
+		except Exception as exception:
+			logger.critical("Failed to load data.json. Exception: " + exception)  # Event log
+
 		logger.info(self.user.name + " is ready (commencing on_ready)")  # Event log
 		if self.guilds != []:
 			logger.info(self.user.name + " is connected to the following guilds:")  # Event log
@@ -128,18 +136,10 @@ class MyClient(discord.Client):
 					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
 						logger.debug("Sent on_ready announcement to " + guild.name + " in " + channel.name)  # Event log
 						announcement_sent = True
-						await channel.send("**Announcement** (on_ready)\nRather popeg.")
+						await channel.send("**Sirius III online**\nRather popeg, hmm?")
 						break
 				if announcement_sent is False:
 					logger.debug("Failed to send on_ready announcement. Announcement channel not found in " + guild.name)  # Event log
-
-		# Load the data file into the data variable
-		try:
-			with open("data.json", encoding='utf-8') as file:
-				self.data = json.load(file)
-			logger.debug("Loaded data.json")  # Event log
-		except Exception as exception:
-			logger.critical("Failed to load data.json. Exception: " + exception)  # Event log
 
 		# Check if Sirius has been added to a guild while offline
 		for guild in self.guilds:
@@ -389,7 +389,7 @@ class MyClient(discord.Client):
 						if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
 							logger.debug("Sent kill announcement to " + guild.name + " in " + channel.name)  # Event log
 							announcement_sent = True
-							await channel.send("**Announcement** (kill)\nRather unpopeg.")
+							await channel.send("**Sirius III offline**\nRather unpopeg...")
 							break
 					if announcement_sent is False:
 						logger.debug("Failed to send kill announcement. Announcement channel not found in " + guild.name)  # Event log
@@ -515,12 +515,14 @@ class MyClient(discord.Client):
 						role_id = int(role)
 						break
 			if role_id == -1:
-				# Not very efficient... comes from (https://stackoverflow.com/questions/63418818/python-discord-bot-python-clear-reaction-clears-all-reactions-instead-of-a-s)
 				channel = await self.fetch_channel(payload.channel_id)
 				message = await channel.fetch_message(payload.message_id)
-				reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
+				if payload.emoji.is_custom_emoji() is False:  # If the emoji is a custom emoji
+					reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
+				else:  # If the emoji is not a custom emoji
+					reaction = discord.utils.get(message.reactions, emoji=payload.emoji)
 				await reaction.remove(payload.member)
-
+				logger.debug("Removed irrelevant emoji.")  # Event log
 				return
 
 			# Make sure the role still exists and is valid
