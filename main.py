@@ -136,7 +136,7 @@ class MyClient(discord.Client):
 					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
 						logger.debug("Sent on_ready announcement to " + guild.name + " in " + channel.name)  # Event log
 						announcement_sent = True
-						await channel.send("**Sirius III online**\nRather popeg, hmm?")
+						await channel.send("**Sirius III online**\nVersion: " + self.data["config"]["version"])
 						break
 				if announcement_sent is False:
 					logger.debug("Failed to send on_ready announcement. Announcement channel not found in " + guild.name)  # Event log
@@ -389,7 +389,7 @@ class MyClient(discord.Client):
 						if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
 							logger.debug("Sent kill announcement to " + guild.name + " in " + channel.name)  # Event log
 							announcement_sent = True
-							await channel.send("**Sirius III offline**\nRather unpopeg...")
+							await channel.send("**Sirius III offline**\nReason for shutdown: [TO BE IMPLEMENTED]")
 							break
 					if announcement_sent is False:
 						logger.debug("Failed to send kill announcement. Announcement channel not found in " + guild.name)  # Event log
