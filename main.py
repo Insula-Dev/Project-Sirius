@@ -136,15 +136,15 @@ class MyClient(discord.Client):
 					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
 						logger.debug("Sent on_ready announcement to " + guild.name + " in " + channel.name)  # Event log
 						announcement_sent = True
-						await channel.send("**Sirius III online**\nVersion: " + self.data["config"]["version"])
+						await channel.send("**" + self.name + " online**\nVersion: " + self.data["config"]["version"])
 						break
 				if announcement_sent is False:
 					logger.debug("Failed to send on_ready announcement. Announcement channel not found in " + guild.name)  # Event log
 
-		# Check if Sirius has been added to a guild while offline
+		# Check if the bot has been added to a guild while offline
 		for guild in self.guilds:
 			if str(guild.id) not in self.data["servers"]:
-				logger.warning("Sirius is in " + guild.name + " but has no data for it")  # Event log
+				logger.warning("The bot is in " + guild.name + " but has no data for it")  # Event log
 
 				# Initialise guild
 				self.initialise_guild(guild)
@@ -228,14 +228,14 @@ class MyClient(discord.Client):
 			logger.info("`help` called by " + message.author.name)  # Event log
 
 			# Create and send the help embed
-			embed_help = discord.Embed(title="🤔 Need help?", description="Here's a list of Sirius III's commands!", color=0xffc000)
+			embed_help = discord.Embed(title="🤔 Need help?", description="Here's a list of " + self.name + "'s commands!", color=0xffc000)
 			embed_help.add_field(name=str(PREFIX + "get_rank"), value="Creates your rank card, showing your current rank and progress to the next rank.")
 			embed_help.add_field(name=str(PREFIX + "help"), value="Creates the bot's help embed, listing the bot's commands.")
 			embed_help.add_field(name=str(PREFIX + "rules"), value="Creates the server's rules embed.\nAdmin only feature.")
 			embed_help.add_field(name=str(PREFIX + "roles"), value="Creates the server's roles embed.\nAdmin only feature.")
 			embed_help.add_field(name=str(PREFIX + "stats"), value="Creates the server's stats embed.\nAdmin only feature.")
-			embed_help.add_field(name=str(PREFIX + "locate"), value="Locates the instance of Sirius III.\nDev only feature.")
-			embed_help.add_field(name=str(PREFIX + "kill"), value="Ends the instance of Sirius III.\nDev only feature.")
+			embed_help.add_field(name=str(PREFIX + "locate"), value="Locates the instance of " + self.name + ".\nDev only feature.")
+			embed_help.add_field(name=str(PREFIX + "kill"), value="Ends the instance of " + self.name + ".\nDev only feature.")
 			await message.channel.send(embed=embed_help)
 
 		# If the message was sent by the admins
@@ -389,7 +389,7 @@ class MyClient(discord.Client):
 						if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
 							logger.debug("Sent kill announcement to " + guild.name + " in " + channel.name)  # Event log
 							announcement_sent = True
-							await channel.send("**Sirius III offline**\nReason for shutdown: [TO BE IMPLEMENTED]")
+							await channel.send("**" + self.name + " offline**\nReason for shutdown: [TO BE IMPLEMENTED]")
 							break
 					if announcement_sent is False:
 						logger.debug("Failed to send kill announcement. Announcement channel not found in " + guild.name)  # Event log
@@ -611,13 +611,9 @@ class MyClient(discord.Client):
 # Main body
 if __name__ == "__main__":
 	try:
-		logger.debug("project_sirius.py started")  # Event log
-
 		intents = discord.Intents.default()
 		intents.members = True
 		client = MyClient(intents=intents, debug=True, level="DEBUG")
 		client.run(DISCORD_TOKEN)
-
-		logger.debug("project_sirius.py finished\n")  # Event log
 	except Exception as exception:
 		logger.error("Exception: " + exception + "\n")  # Event log
