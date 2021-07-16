@@ -246,7 +246,7 @@ async def on_message(PREFIX, self, message):
 		if message.content == PREFIX + "locate":
 			logger.info("`locate` called by " + message.author.name)  # Event log
 			hostname = socket.gethostname()
-			await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**.\nUptime: " + self.get_uptime() + ".")
+			await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "** (**" + str(round(self.latency*10000)/10000) + "**ms)" + "\nUptime: " + self.get_uptime() + ".")
 
 		# Kill command
 		if message.content.startswith(PREFIX + "kill"):
