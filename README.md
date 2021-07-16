@@ -22,7 +22,7 @@
 7. Too many code book the broth.
 8. The Nuclear Key system: all developers agree to the content of each release.
 9. Each release can only come from main.
-10. Only release content is run on Sirius III.
+10. Only release content is ran on Sirius III.
 
 ## FAQs:
 
