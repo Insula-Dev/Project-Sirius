@@ -22,7 +22,7 @@ Creates the bot's help embed, listing the bot's commands.
 
 ### /embed
 
-Creates an embed. **Documentation needed**...
+Creates an embed. Arguments: title=,description=,[name of field]= or just write and it'll be put in the description by deafult
 
 ### /rules
 
