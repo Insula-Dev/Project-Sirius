@@ -266,7 +266,8 @@ class MyClient(discord.Client):
 
 			# Create and send the help embed
 			embed_help = discord.Embed(title="🤔 Need help?", description="Here's a list of " + self.user.name + "'s commands!", color=0xffc000)
-			embed_help.add_field(name=str(PREFIX + "get_rank"), value="Creates your rank card, showing your current rank and progress to the next rank.")
+			embed_help.add_field(name=str(PREFIX + "get rank"), value="Creates your rank card, showing your current rank and progress to the next rank.")
+			embed_help.add_field(name=str(PREFIX + "embed"), value="Creates an embed. **Documentation needed**...")
 			embed_help.add_field(name=str(PREFIX + "help"), value="Creates the bot's help embed, listing the bot's commands.")
 			embed_help.add_field(name=str(PREFIX + "rules"), value="Creates the server's rules embed.\nAdmin only feature.")
 			embed_help.add_field(name=str(PREFIX + "roles"), value="Creates the server's roles embed.\nAdmin only feature.")
