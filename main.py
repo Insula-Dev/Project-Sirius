@@ -10,8 +10,6 @@ import re  # Remove this later lol
 # Home imports
 from log_handling import *
 from imaging import generate_rank_card
-from upgrade_json import server_structure
-import on_message
 
 
 # Variables
@@ -195,35 +193,41 @@ class MyClient(discord.Client):
 
 		# Embed command
 		if message.content.startswith(PREFIX + "embed"):
-			embed = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#831953098800889896> is for this, and <#610595467444879421> is for that.", color=0xffc000)
+			"""Allow users to embed what they want"""
 
-			argument_string = message.content[len(PREFIX + "embed "):]
-			arguments = re.split(",(?!\s)", argument_string)  # Splits arguments when there is not a space after the comma, if there is, it is assumed to be part of a sentance.
-			title = message.author.name
-			description = "Says:"
-			fields = []
+			try:
+				argument_string = message.content[len(PREFIX + "embed "):]
+				arguments = re.split(",(?!\s)", argument_string)  # Splits arguments when there is not a space after the comma, if there is, it is assumed to be part of a sentance.
+				title = message.author.name
+				description = "Says:"
+				fields = []
 
-			# Analyse argument
-			for argument in arguments:
-				argument = argument.split("=")
-				print("Argument 0, 1:", argument[0], argument[1])
-				if argument[0] == "title":
-					title = argument[1]
-				elif argument[0] == "description":
-					description = argument[1]
-				else:
-					fields.append({argument[0]:argument[1]})
+				# Analyse argument
+				for argument in arguments:
+					argument = argument.split("=")
+					if len(argument) == 2:
+						print("Argument 0, 1:", argument[0], argument[1])
+						if argument[0] == "title":
+							title = argument[1]
+						elif argument[0] == "description":
+							description = argument[1]
+						else:
+							fields.append({argument[0]:argument[1]})
+					else:
+						description = argument[0]
 
-			# Create and send poll embed
-			embed = discord.Embed(title=title, description=description, color=0xffc000)
-			for field in fields:
-				embed.add_field(name=list(field.keys())[0],value=field[list(field.keys())[0]])
+				# Create and send poll embed
+				embed = discord.Embed(title=title, description=description, color=0xffc000)
+				for field in fields:
+					embed.add_field(name=list(field.keys())[0],value=field[list(field.keys())[0]])
 
-			await message.channel.send(embed=embed)
+				await message.channel.send(embed=embed)
+			except Exception as exception:
+				logger.error("Failed understand embed command. Exception: " + str(exception))
+				await message.channel.send("Embed Failed: Check you put something to embed and that it's under 1024 character")
 
 		# If the message was sent by the admins
-		if guild.get_role(self.data["servers"][str(message.guild.id)]["config"][
-			                  "admin role id"]) in guild.get_member(message.author.id).roles:
+		if guild.get_role(self.data["servers"][str(message.guild.id)]["config"]["admin role id"]) in guild.get_member(message.author.id).roles:
 
 			# Rules command
 			if message.content == PREFIX + "rules":
