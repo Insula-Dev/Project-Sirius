@@ -20,6 +20,10 @@ Creates your rank card, showing your current rank and progress to the next rank.
 
 Creates the bot's help embed, listing the bot's commands.
 
+## /embed
+
+Creates an embed. **Documentation needed**...
+
 ## /rules
 
 Creates the server's rules embed.
