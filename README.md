@@ -10,48 +10,7 @@
 >   
 >   And fevers to suffering humanity.
 
-# Functionality
-
-## /get_rank
-
-Creates your rank card, showing your current rank and progress to the next rank.
-
-## /help
-
-Creates the bot's help embed, listing the bot's commands.
-
-## /embed
-
-Creates an embed. **Documentation needed**...
-
-## /rules
-
-Creates the server's rules embed.
-Admin only feature.
-
-## /roles
-
-Creates the server's roles embed.
-Admin only feature.
-
-## /stats
-
-Creates the server's stats embed.
-Admin only feature.
-
-## /locate
-
-Locates the instance of Sirius III.
-Dev only feature.
-
-## /kill
-
-Ends the instance of Sirius III.
-Dev only feature.
-
-# Development
-
-## Rules
+# Instructions
 
 1. If you pull from another branch, it can only be in the process of creating another branch.
 2. If you merge into another branch, the merge must be reviewed by all the developers.
@@ -65,7 +24,7 @@ Dev only feature.
 9. Each release can only come from main.
 10. Only release content is ran on Sirius III.
 
-## FAQs
+## FAQs:
 
 **Q**: What constitutes a review?
 **A**: When over 50% of developers review your code.
@@ -73,37 +32,88 @@ Dev only feature.
 **Q**: What is good?
 **A**: What over 50% of developers deem to be good.
 
-**Q**: What is bad?
-**A**: Anything not Lotus Biscoff.
-
 **Q**: Who can disobey these instructions?
-**A**: Not you nor the next person. Not even if you own this repository. Not even if you've been given permission, the illusion of permission, or any other form form of compromise. And no, metaphysical arguments won't surpass the latter restriction. In short, nobody, under any circumstance.
+**A**: Not Arun or Pablo.
 
-## History
+# Instructions (old) [How to develop this code (**important**)]
+
+If you're just touching up some of the main code, pull from and push to master branch. However, if you're adding wholly new functionality to the project, *even if this affects code from the master branch*, create a pull request and develop this on a **well named** branch. When you want to merge back into the master branch, or once you've had enough of testing it, then you'll need to sort through each change everyone else has made to the existing code and be careful not to keep old code. Wherever functionality or conventions conflict, invoke everybody involved and prepare to get your ass handed to you.
+
+That is all.
+
+Thanks.
+
+# File structure
+
+## data.json
+
+**Warning**: this is outdated. Use the structure in upgrade_json.json
+
+```
+{
+    "config": {
+        "developers": [
+            DEVELOPER_ID
+        ]
+    },
+    "servers": {
+        "SERVER_ID": {
+            "rules": {
+                "title": "RULES_TITLE",
+                "list": [
+                    "RULE"
+                ],
+                "image link": "IMAGE_LINK"
+            },
+            "roles": {
+                "admin role id": ADMIN_ROLE_ID,
+                "message id": ROLES_MESSAGE_ID,
+                "category list": {
+                    "CATEGORY_NAME": {
+                        "message id": MESSAGE_ID,
+                        "role list": {
+                            "ROLE_ID": {
+                                "name": "ROLE_NAME",
+                                "emoji": "ROLE_EMOJI"
+                            }
+                        }
+                    }
+                }
+            },
+            "ranks": {
+                "USER_ID": XP_AMOUNT
+            }
+        }
+    }
+}
+```
+
+# History
 
 The annals of dog.
 No naming people.
 
-### The Holy Merge
+## The Holy Merge
 
 It is wrought in the eternal will of the creator that someday the Two Branches of Sirius should finally merge properly. The day of reckoning is feared amongst all competent programmers, and otherwise dismissed by those who do not understand its gravity...
 
-### The Great Schism
+## The Great Schism
 
 The combined forces of the opposing branches unified into one ungodly, unmergeable branch.
 
-### The Great Disappointment
+## The Great Disappointment
 
 One of the developers stayed up and considered doing the Great Mergening by himself because he can't spend his time doing the right things. Instead he reinvented part of the bot. What an idiot.
 
-### The Terrible Hackening
+## I want to go back to a normal sleep schedule.
 
-The Trojan Canine was the wooden dog used by the apes, during the UEACS War, to enter the server of UEACS and win the war. There is no Trojan Canine in the Iliad, with the poem ending before the war is concluded. But in the Aeneid, after a fruitless 10-year siege, the apes at the behest of Orion constructed a huge wooden dog and hid a select force of men inside, including Orion himself. The apes pretended to sail away, and the Trojans pulled the dog into their server as a victory trophy. That night the ape force crept out of the dog and opened the gates for the rest of the ape army, which had sailed back under cover of night. The apes entered and destroyed the server of UEACS, ending the war.
+## Repo private until further notice
 
-### The Unification insurrection
+# Appease Arun: Priority 1
 
-Here comes Pablo insurrecting again.
+- Consider changing convention to message.author to author = message.author. For example:
+    `guild_data = self.data["servers"][str(guild.id)]`
 
-## Credits
+# Credits
 
 Thanks to Jack for fixing Arun's Raspberry Pi. That was cool.
