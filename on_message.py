@@ -39,6 +39,7 @@ async def on_message(PREFIX, self, message):
 		except KeyError:
 			self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] = 1
 
+
 		# Write the updated data
 		self.update_data()
 	else:

@@ -50,6 +50,7 @@ class MyClient(discord.Client):
 
 		try:
 			self.data["servers"][str(guild.id)] = server_structure
+			self.cache[str(guild.id)] = {}
 
 			# Write the updated data
 			self.update_data()

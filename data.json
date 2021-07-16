@@ -207,28 +207,6 @@
                 "241772848564142080": 0
             }
         },
-        "509437716123877397": {
-            "config": {
-                "rank system": false,
-                "admin role id": 0,
-                "announcements channel id": 0
-            },
-            "rules": {
-                "title": "Server rules",
-                "description": "",
-                "list": [],
-                "image link": null
-            },
-            "roles": {
-                "category list": {
-                    "Server": {
-                        "message id": null,
-                        "roles list": {}
-                    }
-                }
-            },
-            "ranks": {}
-        },
         "808266016614121512": {
             "config": {
                 "rank system": false,
@@ -305,6 +283,30 @@
                 "241772848564142080": 14,
                 "258284765776576512": 20,
                 "519494195929546782": 2
+            }
+        },
+        "509437716123877397": {
+            "config": {
+                "rank system": false,
+                "admin role id": 0,
+                "announcements channel id": 0
+            },
+            "rules": {
+                "title": "Server rules",
+                "description": "",
+                "list": [],
+                "image link": ""
+            },
+            "roles": {
+                "category list": {
+                    "Server": {
+                        "message id": 0,
+                        "roles list": {}
+                    }
+                }
+            },
+            "ranks": {
+                "258284765776576512": 1
             }
         }
     }
