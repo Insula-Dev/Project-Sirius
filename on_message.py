@@ -144,6 +144,7 @@ async def on_message(PREFIX, self, message):
 			logger.info("`stats` called by " + message.author.name)  # Event log
 
 			# Generate statistics
+			waiting_message = await message.channel.send("This may take some time...")
 			try:
 				members = {}
 				channel_statistics = ""
@@ -164,14 +165,17 @@ async def on_message(PREFIX, self, message):
 				logger.debug("Successfully generated statistics")
 			except UnicodeEncodeError:
 				logger.error("Username " + message_sent.author.name + " was too advanced to handle")
+				await message.channel.send("Stats Failed: A username cannot be read")
 			except Exception as exception:
 				logger.error("Failed to generate statistics. Exception: " + str(exception))
+				await message.channel.send("Stats Failed: Unknown error")
 
 			# Create and send statistics embed
 			embed_stats = discord.Embed(title="📈 Statistics for " + guild.name, color=0xba5245)
 			embed_stats.add_field(name="Channels", value=channel_statistics)
 			embed_stats.add_field(name="Members", value=member_statistics)
 			embed_stats.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
+			await waiting_message.delete()
 			await message.channel.send(embed=embed_stats)
 
 		# Poll command
