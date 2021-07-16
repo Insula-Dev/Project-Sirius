@@ -136,7 +136,6 @@ class MyClient(discord.Client):
 				# Send on_ready announcement
 				announcement_sent = False
 				for channel in guild.text_channels:
-					print(channel.id, self.data["servers"][str(guild.id)]["config"]["announcements channel id"])
 					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
 						logger.debug("Sent on_ready announcement to " + guild.name + " in " + channel.name)  # Event log
 						announcement_sent = True
@@ -241,7 +240,6 @@ class MyClient(discord.Client):
 				for argument in arguments:
 					argument = argument.split("=")
 					if len(argument) == 2:
-						print("Argument 0, 1:", argument[0], argument[1])
 						if argument[0] == "title":
 							title = argument[1]
 						elif argument[0] == "description":
