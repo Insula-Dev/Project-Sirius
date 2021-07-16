@@ -135,15 +135,15 @@ class MyClient(discord.Client):
 			self.initialise_guild(guild)
 
 	async def on_message(self, message):
-		self = await on_message.on_message(PREFIX,self,message)
+		self = await on_message.on_message(PREFIX,self,message) # Go to on_message.py
 
 	async def on_member_join(self, member):
 		"""Runs when a member joins."""
 
-		logger.debug("Member " + member.name + " joined guild [GUILD_NAME]")
+		logger.debug("Member " + member.name + " joined guild " + member.guild.name)
 		try:
 			await member.create_dm()
-			await member.dm_channel.send("Welcome to the server, " + member.name + ".")
+			await member.dm_channel.send("Welcome to "+member.guild.name+", " + member.name + ".")
 			logger.debug("Sent welcome message to " + member.name)  # Event log
 		except:
 			# If user has impeded direct messages
