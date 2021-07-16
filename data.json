@@ -4,6 +4,7 @@
             241772848564142080,
             258284765776576512
         ],
+        "version": "0.0.0",
         "jokes": false
     },
     "servers": {
@@ -220,12 +221,7 @@
                 "image link": null
             },
             "roles": {
-                "category list": {
-                    "Server": {
-                        "message id": null,
-                        "roles list": {}
-                    }
-                }
+                "category list": {}
             },
             "ranks": {
                 "273155862208708608": 6,
@@ -259,14 +255,14 @@
             },
             "ranks": {}
         },
-        "834213187468394517": {
+        "509437716123877397": {
             "config": {
                 "rank system": false,
-                "admin role id": 834460709332844575,
+                "admin role id": null,
                 "announcements channel id": 0
             },
             "rules": {
-                "title": "AOs Testing Server Rules",
+                "title": "Server rules",
                 "description": "",
                 "list": [],
                 "image link": null
@@ -279,17 +275,13 @@
                     }
                 }
             },
-            "ranks": {
-                "241772848564142080": 14,
-                "258284765776576512": 32,
-                "519494195929546782": 2
-            }
+            "ranks": {}
         },
-        "509437716123877397": {
+        "834213187468394517": {
             "config": {
                 "rank system": false,
-                "admin role id": 0,
-                "announcements channel id": 0
+                "admin role id": 834460709332844575,
+                "announcements channel id": 849968671879069716
             },
             "rules": {
                 "title": "Server rules",
@@ -300,13 +292,23 @@
             "roles": {
                 "category list": {
                     "Server": {
-                        "message id": 0,
-                        "roles list": {}
+                        "message id": 865189609075245097,
+                        "role list": {
+                            "864923062838886421": {
+                                "name": "Cinema",
+                                "emoji": "\ud83c\udf9f"
+                            },
+                            "864926302581293086": {
+                                "name": "Train",
+                                "emoji": "\ud83d\ude82"
+                            }
+                        }
                     }
                 }
             },
             "ranks": {
-                "258284765776576512": 1
+                "241772848564142080": 56,
+                "258284765776576512": 4
             }
         }
     }
