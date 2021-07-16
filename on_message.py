@@ -200,6 +200,9 @@ async def on_message(PREFIX, self, message):
 			candidates = {}  # Dictionary of candidates that can be voted for
 			candidates_string = ""
 
+			title = "‎"
+			colour = 0xffc000
+
 			# Analyse argument
 			for argument in arguments:
 				argument = argument.split("=")
@@ -218,12 +221,14 @@ async def on_message(PREFIX, self, message):
 						hour = last_time_arg[1].split(":")[0]
 						minute = last_time_arg[1].split(":")[1]
 					poll_time = str(datetime(day=int(time_list[0]), month=int(time_list[1]), year=int(time_list[2]), hour=int(hour), minute=int(minute)))  # Accommodate for American convention. Or don't.
+				elif argument[0] == "colour":
+					color = int(argument[1],16)
 				else:
 					candidates[argument[1].rstrip()] = argument[0]
 					candidates_string += argument[1] + " - " + argument[0] + "\n"
 
 			# Create and send poll embed
-			embed_poll = discord.Embed(title=title, description=candidates_string, color=0xffc000)
+			embed_poll = discord.Embed(title=title, description=candidates_string, color=colour)
 			embed_poll.set_footer(text="Poll ending • " + poll_time)
 			poll_message = await message.channel.send(embed=embed_poll)
 
