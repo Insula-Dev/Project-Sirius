@@ -232,7 +232,7 @@ class MyClient(discord.Client):
 			try:
 				argument_string = message.content[len(PREFIX + "embed "):]
 				arguments = re.split(",(?!\s)", argument_string)  # Splits arguments when there is not a space after the comma, if there is, it is assumed to be part of a sentance.
-				title = message.author.name
+				title = discord.Embed.Empty
 				description = "Says:"
 				fields = []
 
@@ -249,8 +249,9 @@ class MyClient(discord.Client):
 					else:
 						description = argument[0]
 
-				# Create and send poll embed
+				# Create and send user's embed
 				embed = discord.Embed(title=title, description=description, color=0xffc000)
+				embed.set_author(name=message.author.name,url=discord.Embed.Empty, icon_url=message.author.avatar_url)
 				for field in fields:
 					embed.add_field(name=list(field.keys())[0],value=field[list(field.keys())[0]])
 
