@@ -85,7 +85,7 @@ class MyClient(discord.Client):
 		"""Returns instance uptime."""
 
 		try:
-			seconds = (datetime.now() - self.start_time).seconds
+			seconds = round((datetime.now() - self.start_time).total_seconds())
 			uptime = ""
 			if seconds >= 3600:
 				uptime += str(seconds // 3600) + " "
@@ -258,7 +258,7 @@ class MyClient(discord.Client):
 			except Exception as exception:
 				logger.error("Failed understand embed command. Exception: " + str(exception))
 				await message.channel.send("Embed Failed: Check you put something to embed and that it's under 1024 character")
-				
+
 		# Help command
 		if message.content == PREFIX + "help":
 
