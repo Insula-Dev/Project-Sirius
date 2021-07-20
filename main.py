@@ -6,35 +6,37 @@ import socket
 import discord
 import re  # Delete this later
 
+
 # Local imports
 from log_handling import *
 from imaging import generate_rank_card
+
 
 # Variables
 PREFIX = "-"
 with open("token.txt") as file:
 	DISCORD_TOKEN = file.read()
 server_structure = {
-		"config": {
-				"rank system":              False,
-				"admin role id":            0,
-				"announcements channel id": 0
-		},
-		"rules":  {
-				"title":       "Server rules",
-				"description": "",
-				"list":        [],
-				"image link":  ""
-		},
-		"roles":  {
-				"category list": {
-						"Server": {
-								"message id": 0,
-								"roles list": {}
-						}
-				}
-		},
-		"ranks":  {}
+	"config": {
+		"rank system": False,
+		"admin role id": 0,
+		"announcements channel id": 0
+	},
+	"rules": {
+		"title": "Server rules",
+		"description": "",
+		"list": [],
+		"image link": ""
+	},
+	"roles": {
+		"category list": {
+			"Server": {
+				"message id": 0,
+				"roles list": {}
+			}
+		}
+	},
+	"ranks": {}
 }
 
 
@@ -70,11 +72,8 @@ class MyClient(discord.Client):
 		"""Creates data for a new guild."""
 
 		try:
-			self.data[
-				"servers"][
-				str(guild.id)] = server_structure
-			self.cache[
-				str(guild.id)] = {}
+			self.data["servers"][str(guild.id)] = server_structure
+			self.cache[str(guild.id)] = {}
 
 			# Write the updated data
 			self.update_data()
@@ -86,8 +85,7 @@ class MyClient(discord.Client):
 		"""Returns instance uptime."""
 
 		try:
-			seconds = (
-						datetime.now() - self.start_time).seconds
+			seconds = (datetime.now() - self.start_time).seconds
 			uptime = ""
 			if seconds >= 3600:
 				uptime += str(seconds // 3600) + " "
@@ -138,27 +136,17 @@ class MyClient(discord.Client):
 				# Send on_ready announcement
 				announcement_sent = False
 				for channel in guild.text_channels:
-					if channel.id == \
-							self.data[
-								"servers"][
-								str(guild.id)][
-								"config"][
-								"announcements channel id"]:
+					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
 						logger.debug("Sent on_ready announcement to " + guild.name + " in " + channel.name)  # Event log
 						announcement_sent = True
-						await channel.send("**" + self.user.name + " online**\nVersion: " +
-						                   self.data[
-							                   "config"][
-							                   "version"])
+						await channel.send("**" + self.user.name + " online**\nVersion: " + self.data["config"]["version"])
 						break
 				if announcement_sent is False:
 					logger.debug("Failed to send on_ready announcement. Announcement channel not found in " + guild.name)  # Event log
 
 		# Check if the bot has been added to a guild while offline
 		for guild in self.guilds:
-			if str(guild.id) not in \
-					self.data[
-						"servers"]:
+			if str(guild.id) not in self.data["servers"]:
 				logger.warning("The bot is in " + guild.name + " but has no data for it")  # Event log
 
 				# Initialise guild
@@ -166,8 +154,7 @@ class MyClient(discord.Client):
 
 		# Initialise cache for servers
 		for guild in self.guilds:
-			self.cache[
-				str(guild.id)] = {}
+			self.cache[str(guild.id)] = {}
 
 		logger.info(self.user.name + " is ready (finished on_ready)")  # Event log
 
@@ -178,9 +165,8 @@ class MyClient(discord.Client):
 		logger.info(self.user.name + " has joined the guild: " + guild.name + " with id: " + str(guild.id))  # Event log
 
 		# Check if server data already exists
-		if str(guild.id) not in \
-				self.data[
-					"servers"]:
+		if str(guild.id) not in self.data["servers"]:
+
 			# Initialise guild
 			self.initialise_guild(guild)
 
@@ -201,34 +187,16 @@ class MyClient(discord.Client):
 		guild = self.get_guild(message.guild.id)
 
 		# Update the user's experience
-		if (
-				message.author.id not in
-				self.cache[
-					str(guild.id)]) or (
-				(
-						datetime.now() -
-						self.cache[
-							str(guild.id)][
-							message.author.id]).seconds // 3600 > 0):  # This is the longest like of code I've ever seen survive a scrutinised and picky merge from me. Well played.
+		if (message.author.id not in self.cache[str(guild.id)]) or ((datetime.now() - self.cache[str(guild.id)][message.author.id]).seconds // 3600 > 0):  # This is the longest like of code I've ever seen survive a scrutinised and picky merge from me. Well played.
 
 			logger.debug("Adding experience to " + message.author.name)  # Event log
 
 			# Update the cache and increment the user's experience
-			self.cache[
-				str(guild.id)][
-				message.author.id] = datetime.now()
+			self.cache[str(guild.id)][message.author.id] = datetime.now()
 			try:
-				self.data[
-					"servers"][
-					str(guild.id)][
-					"ranks"][
-					str(message.author.id)] += 1
+				self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] += 1
 			except KeyError:
-				self.data[
-					"servers"][
-					str(guild.id)][
-					"ranks"][
-					str(message.author.id)] = 1
+				self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] = 1
 
 			# Write the updated data
 			self.update_data()
@@ -241,28 +209,9 @@ class MyClient(discord.Client):
 			logger.info("`get rank` called by " + message.author.name)  # Event log
 
 			# Generate the rank card
-			if str(message.author.id) in \
-					self.data[
-						"servers"][
-						str(guild.id)][
-						"ranks"]:
-				rank = int((
-							           self.data[
-								           "servers"][
-								           str(guild.id)][
-								           "ranks"][
-								           str(message.author.id)] ** 0.5) // 1)
-				percentage = int(round((
-							                       self.data[
-								                       "servers"][
-								                       str(guild.id)][
-								                       "ranks"][
-								                       str(message.author.id)] - (
-										                       rank ** 2)) / (
-							                       (
-										                       (
-													                       rank + 1) ** 2) - (
-										                       rank ** 2)) * 100))
+			if str(message.author.id) in self.data["servers"][str(guild.id)]["ranks"]:
+				rank = int((self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] ** 0.5) // 1)
+				percentage = int(round((self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] - (rank ** 2)) / (((rank + 1) ** 2) - (rank ** 2)) * 100))
 			else:
 				rank = 0
 				percentage = 0
@@ -281,8 +230,7 @@ class MyClient(discord.Client):
 			"""Allow users to embed what they want"""
 
 			try:
-				argument_string = message.content[
-				len(PREFIX + "embed "):]
+				argument_string = message.content[len(PREFIX + "embed "):]
 				arguments = re.split(",(?!\s)", argument_string)  # Splits arguments when there is not a space after the comma, if there is, it is assumed to be part of a sentance.
 				title = message.author.name
 				description = "Says:"
@@ -292,46 +240,28 @@ class MyClient(discord.Client):
 				for argument in arguments:
 					argument = argument.split("=")
 					if len(argument) == 2:
-						if \
-						argument[
-							0] == "title":
-							title = \
-							argument[
-								1]
-						elif \
-						argument[
-							0] == "description":
-							description = \
-							argument[
-								1]
+						if argument[0] == "title":
+							title = argument[1]
+						elif argument[0] == "description":
+							description = argument[1]
 						else:
-							fields.append({
-									              argument[
-										              0]:
-										              argument[
-											              1]})
+							fields.append({argument[0]:argument[1]})
 					else:
-						description = \
-						argument[
-							0]
+						description = argument[0]
 
 				# Create and send poll embed
 				embed = discord.Embed(title=title, description=description, color=0xffc000)
 				for field in fields:
-					embed.add_field(name=
-					                list(field.keys())[
-						                0], value=
-					                field[
-						                list(field.keys())[
-							                0]])
+					embed.add_field(name=list(field.keys())[0],value=field[list(field.keys())[0]])
 
 				await message.channel.send(embed=embed)
 			except Exception as exception:
 				logger.error("Failed understand embed command. Exception: " + str(exception))
 				await message.channel.send("Embed Failed: Check you put something to embed and that it's under 1024 character")
-
+				
 		# Help command
 		if message.content == PREFIX + "help":
+
 			logger.info("`help` called by " + message.author.name)  # Event log
 
 			# Create and send the help embed
@@ -347,12 +277,7 @@ class MyClient(discord.Client):
 			await message.channel.send(embed=embed_help)
 
 		# If the message was sent by the admins
-		if guild.get_role(
-				self.data[
-					"servers"][
-					str(message.guild.id)][
-					"config"][
-					"admin role id"]) in guild.get_member(message.author.id).roles:
+		if guild.get_role(self.data["servers"][str(message.guild.id)]["config"]["admin role id"]) in guild.get_member(message.author.id).roles:
 
 			# Rules command
 			if message.content == PREFIX + "rules":
@@ -360,12 +285,7 @@ class MyClient(discord.Client):
 				logger.info("`rules` called by " + message.author.name)  # Event log
 
 				# If the rules have been set up
-				if len(
-						self.data[
-							"servers"][
-							str(guild.id)][
-							"rules"][
-							"list"]) != 0:
+				if len(self.data["servers"][str(guild.id)]["rules"]["list"]) != 0:
 
 					# Delete the command message
 					await message.channel.purge(limit=1)
@@ -374,40 +294,14 @@ class MyClient(discord.Client):
 					embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#000000000000000000> is for this, and <#000000000000000001> is for that.", color=0xffc000)
 
 					# Create the rules embed
-					embed_rules = discord.Embed(title=
-					                            self.data[
-						                            "servers"][
-						                            str(guild.id)][
-						                            "rules"][
-						                            "title"], description=
-					                            self.data[
-						                            "servers"][
-						                            str(guild.id)][
-						                            "rules"][
-						                            "description"], color=0xffc000, inline=False)
+					embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0xffc000, inline=False)
 					embed_rules.set_footer(text="Rules updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
-					embed_rules.add_field(name="Rules", value="\n".join(
-							self.data[
-								"servers"][
-								str(guild.id)][
-								"rules"][
-								"list"]), inline=True)
+					embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
 					embed_image = discord.Embed(description="That's all.", color=0xffc000)
-					image = \
-					self.data[
-						"servers"][
-						str(guild.id)][
-						"rules"][
-						"image link"]
+					image = self.data["servers"][str(guild.id)]["rules"]["image link"]
 					if image != None:
-						if image[
-						:6] == "https:":
-							embed_image.set_image(url=
-							                      self.data[
-								                      "servers"][
-								                      str(guild.id)][
-								                      "rules"][
-								                      "image link"])
+						if image[:6] == "https:":
+							embed_image.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
 						else:
 							logger.debug("Image link doesn't start with https for " + str(message.guild.id))  # Event log
 					else:
@@ -429,82 +323,25 @@ class MyClient(discord.Client):
 				logger.info("`roles` called by " + message.author.name)  # Event log
 
 				# If the roles have been set up
-				if len(
-						self.data[
-							"servers"][
-							str(guild.id)][
-							"roles"][
-							"category list"]) != 0:
+				if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) != 0:
 
 					# Delete the command message
 					await message.channel.purge(limit=1)
 
 					# Send one roles message per category
 					await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
-					for category in \
-					self.data[
-						"servers"][
-						str(guild.id)][
-						"roles"][
-						"category list"]:  # For category in roles list
+					for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in roles list
 						roles = []
-						for role in \
-						self.data[
-							"servers"][
-							str(guild.id)][
-							"roles"][
-							"category list"][
-							category][
-							"role list"]:  # For role in category
-							roles.append(
-								self.data[
-									"servers"][
-									str(guild.id)][
-									"roles"][
-									"category list"][
-									category][
-									"role list"][
-									role][
-									"emoji"] + " - " +
-								self.data[
-									"servers"][
-									str(guild.id)][
-									"roles"][
-									"category list"][
-									category][
-									"role list"][
-									role][
-									"name"] + "\n")
+						for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
+							roles.append(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["name"] + "\n")
 						category_message = await message.channel.send("**" + category + "**\n\n" + "".join(roles))
 
 						# Add reactions to the roles message
-						for role in \
-						self.data[
-							"servers"][
-							str(guild.id)][
-							"roles"][
-							"category list"][
-							category][
-							"role list"]:
-							await category_message.add_reaction(
-									self.data[
-										"servers"][
-										str(guild.id)][
-										"roles"][
-										"category list"][
-										category][
-										"role list"][
-										role][
-										"emoji"])
+						for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:
+							await category_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"])
 
 						# Update the category's message id variable
-						self.data[
-							"servers"][
-							str(guild.id)][
-							"roles"][
-							"category list"][
-							category][
-							"message id"] = category_message.id
+						self.data["servers"][str(guild.id)]["roles"]["category list"][category]["message id"] = category_message.id
 
 					# Write the updated data
 					self.update_data()
@@ -533,16 +370,12 @@ class MyClient(discord.Client):
 							message_count += 1
 							if message_sent.author.bot is False:  # Don't count messages from bots
 								if message_sent.author not in members:
-									members[
-										message_sent.author] = 1
+									members[message_sent.author] = 1
 								else:
-									members[
-										message_sent.author] += 1
+									members[message_sent.author] += 1
 						channel_statistics += channel.name + ": " + str(message_count) + "\n"
 					for member in members:
-						member_statistics += member.name + ": " + str(
-								members[
-									member]) + "\n"
+						member_statistics += member.name + ": " + str(members[member]) + "\n"
 					logger.debug("Successfully generated statistics")  # Event log
 
 					# Create and send statistics embed
@@ -557,26 +390,17 @@ class MyClient(discord.Client):
 					await message.channel.send("Error: Something went wrong on our side...")
 
 		# If the message was sent by the developers
-		if message.author.id in \
-				self.data[
-					"config"][
-					"developers"]:
+		if message.author.id in self.data["config"]["developers"]:
 
 			# Announcement command
 			if message.content.startswith(PREFIX + "announcement"):
 				logger.info("`announcement` called by " + message.author.name)  # Event log
 				if len(message.content) > len(PREFIX + "announcement "):
-					argument = message.content[
-					len(PREFIX + "announcement "):]
+					argument = message.content[len(PREFIX + "announcement "):]
 					for guild in self.guilds:
 						announcement_sent = False
 						for channel in guild.text_channels:
-							if channel.id == \
-									self.data[
-										"servers"][
-										str(guild.id)][
-										"config"][
-										"announcements channel id"]:
+							if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
 								logger.debug("Sent announcement to " + guild.name + " in " + channel.name)  # Event log
 								announcement_sent = True
 								await channel.send("**Announcement** (testing)\n" + argument)
@@ -595,22 +419,14 @@ class MyClient(discord.Client):
 			# Kill command
 			if message.content == PREFIX + "kill":
 				logger.info("`kill` called by " + message.author.name)  # Event log
-				if \
-				self.data[
-					"config"][
-					"jokes"] is True:
+				if self.data["config"]["jokes"] is True:
 					await message.channel.send("Doggie down")
 
 				# Send kill announcement
 				for guild in self.guilds:
 					announcement_sent = False
 					for channel in guild.text_channels:
-						if channel.id == \
-								self.data[
-									"servers"][
-									str(guild.id)][
-									"config"][
-									"announcements channel id"]:
+						if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
 							logger.debug("Sent kill announcement to " + guild.name + " in " + channel.name)  # Event log
 							announcement_sent = True
 							await channel.send("**" + self.user.name + " offline**\nReason for shutdown: [TO BE IMPLEMENTED]")
@@ -622,10 +438,7 @@ class MyClient(discord.Client):
 				await client.close()
 
 		# Joke functionality
-		if \
-		self.data[
-			"config"][
-			"jokes"] is True:
+		if self.data["config"]["jokes"] is True:
 
 			# Shut up Arun
 			if message.author.id == 258284765776576512:
@@ -702,7 +515,7 @@ class MyClient(discord.Client):
 			logger.debug("Sent welcome message for " + member.guild.name + " to " + member.name)  # Event log
 		except Exception as exception:
 			# If user has impeded direct messages
-			logger.debug("Failed to send welcome message for " + member.guild.name + " to " + member.name + ". Exception: " + exception)  # Event log
+			logger.debug("Failed to send welcome message for " + member.guild.name +" to " + member.name + ". Exception: " + exception)  # Event log
 
 	async def on_member_remove(self, member):
 		"""Runs when a member leaves.
@@ -724,29 +537,12 @@ class MyClient(discord.Client):
 		guild = self.get_guild(payload.guild_id)
 
 		# Check if the roles have been set up
-		if len(
-				self.data[
-					"servers"][
-					str(guild.id)][
-					"roles"][
-					"category list"]) != 0:
+		if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) != 0:
 
 			# Make sure that the message the user is reacting to is the one we care about
 			message_relevant = False
-			for category in \
-			self.data[
-				"servers"][
-				str(guild.id)][
-				"roles"][
-				"category list"]:
-				if payload.message_id == \
-						self.data[
-							"servers"][
-							str(payload.guild_id)][
-							"roles"][
-							"category list"][
-							category][
-							"message id"]:
+			for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
+				if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]["message id"]:
 					message_relevant = True
 					break
 			if message_relevant is False:
@@ -762,30 +558,9 @@ class MyClient(discord.Client):
 
 			# If the emoji isn't the one we care about then delete it and exit as well
 			role_id = -1
-			for category in \
-			self.data[
-				"servers"][
-				str(guild.id)][
-				"roles"][
-				"category list"]:  # For category in list
-				for role in \
-				self.data[
-					"servers"][
-					str(guild.id)][
-					"roles"][
-					"category list"][
-					category][
-					"role list"]:  # For role in category
-					if \
-					self.data[
-						"servers"][
-						str(guild.id)][
-						"roles"][
-						"category list"][
-						category][
-						"role list"][
-						role][
-						"emoji"] == str(payload.emoji):
+			for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in list
+				for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
+					if self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] == str(payload.emoji):
 						role_id = int(role)
 						break
 			if role_id == -1:
@@ -825,29 +600,12 @@ class MyClient(discord.Client):
 		guild = self.get_guild(payload.guild_id)
 
 		# If the roles have been set up
-		if len(
-				self.data[
-					"servers"][
-					str(guild.id)][
-					"roles"][
-					"category list"]) != 0:
+		if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) != 0:
 
 			# Make sure that the message the user is reacting to is the one we care about
 			message_relevant = False
-			for category in \
-			self.data[
-				"servers"][
-				str(guild.id)][
-				"roles"][
-				"category list"]:
-				if payload.message_id == \
-						self.data[
-							"servers"][
-							str(payload.guild_id)][
-							"roles"][
-							"category list"][
-							category][
-							"message id"]:
+			for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
+				if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]["message id"]:
 					message_relevant = True
 					break
 			if message_relevant is False:
@@ -871,30 +629,9 @@ class MyClient(discord.Client):
 
 			# If the emoji isn't the one we care about then exit as well
 			role_id = -1
-			for category in \
-			self.data[
-				"servers"][
-				str(guild.id)][
-				"roles"][
-				"category list"]:  # For category in list
-				for role in \
-				self.data[
-					"servers"][
-					str(guild.id)][
-					"roles"][
-					"category list"][
-					category][
-					"role list"]:  # For role in category
-					if \
-					self.data[
-						"servers"][
-						str(guild.id)][
-						"roles"][
-						"category list"][
-						category][
-						"role list"][
-						role][
-						"emoji"] == str(payload.emoji):
+			for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in list
+				for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
+					if self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] == str(payload.emoji):
 						role_id = int(role)
 						break
 			if role_id == -1:
