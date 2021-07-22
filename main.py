@@ -96,12 +96,6 @@ class MyClient(discord.Client):
 	async def terminatePoll(self, message):
 		"""Closes poll"""
 		reactions = message.reactions
-		#await message.add_reaction(":regional_indicator_e:")
-		#await message.add_reaction(":regional_indicator_n:")
-		#await message.add_reaction(":regional_indicator_d:")
-		#await message.add_reaction(":regional_indicator_i:")
-		#await message.add_reaction(":regional_indicator_n:")
-		#await message.add_reaction(":regional_indicator_g:")
 		highest_count = 0
 		emojis = []
 		counts = []
@@ -131,6 +125,7 @@ class MyClient(discord.Client):
 		embed_results = discord.Embed(title=title + " Results")
 		embed_results.add_field(name="Candidates", value="\n".join(options), inline=True)
 		embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
+		embed_results.add_field(name="Winner", value=str(highest_emoji) + " " + poll["options"][str(highest_emoji)], inline=False)
 
 		await message.channel.send(embed=embed_results)
 		self.poll[str(message.guild.id)].pop(str(message.id)) # Removes poll entry from dictionary
