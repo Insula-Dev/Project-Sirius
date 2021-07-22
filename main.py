@@ -661,12 +661,18 @@ class MyClient(discord.Client):
 
 		if not before.channel and after.channel: # Joined vc
 			logger.debug(member.name + " joined vc")
-			role = discord.utils.get(member.guild.roles, name="vc")
-			await member.add_roles(role)
+			try:
+				role = discord.utils.get(member.guild.roles, name="vc")
+				await member.add_roles(role)
+			except AttributeError:
+				logger.debug("VC role not setup on "+member.guild.name)
 		elif before.channel and not after.channel: # Left vc
 			logger.debug(member.name + " left vc")
-			role = discord.utils.get(member.guild.roles, name="vc")
-			await member.remove_roles(role)
+			try:
+				role = discord.utils.get(member.guild.roles, name="vc")
+				await member.remove_roles(role)
+			except AttributeError:
+				logger.debug("VC role not setup on "+member.guild.name)
 
 
 # Main body
