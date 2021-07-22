@@ -125,7 +125,10 @@ class MyClient(discord.Client):
 			if str(emoji) != "🔚":
 				options.append(str(emoji) + " " + poll["options"][str(emoji)])
 
-		embed_results = discord.Embed(title=str(poll["title"]) + " Results")
+		title = str(poll["title"])
+		if title == "Embed.Empty":
+			title = ""
+		embed_results = discord.Embed(title=title + " Results")
 		embed_results.add_field(name="Candidates", value="\n".join(options), inline=True)
 		embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
 
