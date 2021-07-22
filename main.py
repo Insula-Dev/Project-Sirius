@@ -27,6 +27,7 @@ class MyClient(discord.Client):
 		self.start_time = datetime.now()
 		self.data = {}
 		self.cache = {}
+		self.poll = {}
 		self.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain")
 
 		# Print logs to the console too (for debugging)
@@ -48,6 +49,8 @@ class MyClient(discord.Client):
 
 		try:
 			self.data["servers"][str(guild.id)] = server_structure
+			self.cache[str(guild.id)] = []
+			self.poll[str(guild.id)] = {}
 
 			# Write the updated data
 			self.update_data()
@@ -113,18 +116,21 @@ class MyClient(discord.Client):
 				highest_emoji = reaction.emoji
 		highest_count -= 1  # Takes away the bots reaction
 
-		poll = self.data["servers"][str(message.guild.id)]["polls"][str(message.id)]
+		print(self.poll)
+		poll = self.poll[str(message.guild.id)][str(message.id)]
+
 		options = []
 		#for option in poll["options"]:  # Makes list of options
 		for emoji in emojis:
 			if str(emoji) != "🔚":
 				options.append(str(emoji) + " " + poll["options"][str(emoji)])
 
-		embed_results = discord.Embed(title=poll["title"].capitalize() + " Results")
+		embed_results = discord.Embed(title=str(poll["title"]) + " Results")
 		embed_results.add_field(name="Candidates", value="\n".join(options), inline=True)
 		embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
 
 		await message.channel.send(embed=embed_results)
+		self.poll[str(message.guild.id)].pop(str(message.id)) # Removes poll entry from dictionary
 
 	async def on_ready(self):
 		"""Runs when the client is ready."""
@@ -154,7 +160,8 @@ class MyClient(discord.Client):
 		# Initialise cache for servers
 		for guild in self.guilds:
 			self.cache[str(guild.id)] = {}
-
+			self.poll[str(guild.id)] = {}
+		print(self.poll)
 		logger.info(self.user.name + " is ready (finished on_ready)")  # Event log
 
 	async def on_guild_join(self, guild):
@@ -201,11 +208,11 @@ class MyClient(discord.Client):
 		# Make sure that the message the user is reacting to is the one we care about. Would be removed because dumb but you've integrated the whole thing way too much. This is not very modular at all!
 		reaction_usage = "none"
 		for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
-			if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]["message id"]:  # How does this work? Surely you should say "in", not ==
+			if payload.message_id in self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]:  # How does this work? Surely you should say "in", not ==. Yeah, think so but why wasn't this tested
 				reaction_usage = "roles"
 				break
 		try:
-			for message in self.data["servers"][str(guild.id)]["polls"]:
+			for message in self.poll[str(guild.id)]:
 				if str(payload.message_id) == message:
 					reaction_usage = "polls"
 					break
@@ -255,16 +262,16 @@ class MyClient(discord.Client):
 				logger.error("Exception: discord.HTTPException. Could not add role " + role.name + " to " + payload.member.name)  # Event log
 
 		if reaction_usage == "polls":
+			print("Poll reaction!")
 			if str(payload.emoji) == "🔚":
 
 				logger.debug("Poll ending")
-				if str(payload.message_id) in self.data["servers"][str(guild.id)]["polls"]:
-					logger.debug("Poll identified for termination")
-					channel = await self.fetch_channel(payload.channel_id)
-					message = await channel.fetch_message(payload.message_id)
-					reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
-					await reaction.remove(payload.member)  # Removes end emoji
-					await self.terminatePoll(message)
+				logger.debug("Poll identified for termination")
+				channel = await self.fetch_channel(payload.channel_id)
+				message = await channel.fetch_message(payload.message_id)
+				reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
+				await reaction.remove(payload.member)  # Removes end emoji
+				await self.terminatePoll(message)
 
 	async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
 		"""Removes a role based on a reaction emoji."""

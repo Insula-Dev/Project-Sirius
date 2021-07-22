@@ -200,13 +200,13 @@ async def on_message(PREFIX, self, message):
 			candidates = {}  # Dictionary of candidates that can be voted for
 			candidates_string = ""
 
-			title = "‎"
+			title = discord.Embed.Empty
 			colour = 0xffc000
 
 			# Analyse argument
 			for argument in arguments:
 				argument = argument.split("=")
-				print("Argument 0, 1:", argument[0], argument[1])
+				#print("Argument 0, 1:", argument[0], argument[1])
 				poll_time = str(datetime.now())
 				if argument[0] == "title":
 					title = argument[1]
@@ -232,9 +232,18 @@ async def on_message(PREFIX, self, message):
 			embed_poll.set_footer(text="Poll ending • " + poll_time)
 			poll_message = await message.channel.send(embed=embed_poll)
 
+			self.poll[str(message.guild.id)].update({str(poll_message.id): {
+				"title": title,
+				"time": str(poll_time),
+				"options": candidates
+			}
+			})
+
+			print(self.poll[str(message.guild.id)])
+
 			# Add reactions to the poll embed
 			for candidate in candidates:
-				print("Candidate: " + str(candidate))
+				#print("Candidate: " + str(candidate))
 				await poll_message.add_reaction(candidate)
 
 	# If the message was sent by the developers
