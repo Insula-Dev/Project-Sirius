@@ -99,6 +99,7 @@ class MyClient(discord.Client):
 		highest_count = 0
 		emojis = []
 		counts = []
+
 		for reaction in reactions:
 			emoji = reaction.emoji
 			if emoji not in emojis:
@@ -125,7 +126,10 @@ class MyClient(discord.Client):
 		embed_results = discord.Embed(title=title + " Results")
 		embed_results.add_field(name="Candidates", value="\n".join(options), inline=True)
 		embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
-		embed_results.add_field(name="Winner", value=str(highest_emoji) + " " + poll["options"][str(highest_emoji)], inline=False)
+		if poll["config"]["winner"] == "highest": # Winner is shown as the highest scoring candidate
+
+
+			embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)] + " Score: " + str(highest_count)), inline=False)
 
 		await message.channel.send(embed=embed_results)
 		self.poll[str(message.guild.id)].pop(str(message.id)) # Removes poll entry from dictionary

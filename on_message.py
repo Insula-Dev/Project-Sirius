@@ -200,8 +200,12 @@ async def on_message(PREFIX, self, message):
 			candidates = {}  # Dictionary of candidates that can be voted for
 			candidates_string = ""
 
+			# Embed
 			title = discord.Embed.Empty
 			colour = 0xffc000
+
+			# Config
+			winner = "none"
 
 			# Analyse argument
 			for argument in arguments:
@@ -222,7 +226,10 @@ async def on_message(PREFIX, self, message):
 						minute = last_time_arg[1].split(":")[1]
 					poll_time = str(datetime(day=int(time_list[0]), month=int(time_list[1]), year=int(time_list[2]), hour=int(hour), minute=int(minute)))  # Accommodate for American convention. Or don't.
 				elif argument[0] == "colour":
-					color = int(argument[1],16)
+					colour = int(argument[1][1:],16)
+					print(colour)
+				elif argument[0] == "winner":
+					winner = argument[1]
 				else:
 					candidates[argument[1].rstrip()] = argument[0]
 					candidates_string += argument[1] + " - " + argument[0] + "\n"
@@ -235,7 +242,11 @@ async def on_message(PREFIX, self, message):
 			self.poll[str(message.guild.id)].update({str(poll_message.id): {
 				"title": title,
 				"time": str(poll_time),
-				"options": candidates
+				"options": candidates,
+				"config":
+					{
+						"winner": winner
+					}
 			}
 			})
 
