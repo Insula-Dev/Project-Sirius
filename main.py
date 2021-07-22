@@ -657,6 +657,17 @@ class MyClient(discord.Client):
 			# Send an error message
 			await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
+	async def on_voice_state_update(self, member, before, after):
+
+		if not before.channel and after.channel: # Joined vc
+			logger.debug(member.name + " joined vc")
+			role = discord.utils.get(member.guild.roles, name="vc")
+			await member.add_roles(role)
+		elif before.channel and not after.channel: # Left vc
+			logger.debug(member.name + " left vc")
+			role = discord.utils.get(member.guild.roles, name="vc")
+			await member.remove_roles(role)
+
 
 # Main body
 if __name__ == "__main__":
