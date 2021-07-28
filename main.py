@@ -140,7 +140,7 @@ class MyClient(discord.Client):
 				announcement_sent = False
 				for channel in guild.text_channels:
 					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
-						logger.debug("Sent on_ready announcement to " + guild.name + " in " + channel.name)  # Event log
+						logger.debug("Sending on_ready announcement to " + guild.name + " in " + channel.name)  # Event log
 						announcement_sent = True
 						await channel.send("**" + self.user.name + " online**\nVersion: " + self.data["config"]["version"])
 						break
