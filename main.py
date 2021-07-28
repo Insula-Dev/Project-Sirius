@@ -47,6 +47,7 @@ class MyClient(discord.Client):
 		"""Constructor."""
 
 		super().__init__(*args, **kwargs)
+		self.connected = False
 		self.start_time = datetime.now()
 		self.data = {}
 		self.cache = {}
@@ -118,6 +119,8 @@ class MyClient(discord.Client):
 	async def on_ready(self):
 		"""Runs when the client is ready."""
 
+		self.connected = True
+
 		# Load the data file into the data variable
 		try:
 			with open("data.json", encoding='utf-8') as file:
@@ -157,6 +160,11 @@ class MyClient(discord.Client):
 			self.cache[str(guild.id)] = {}
 
 		logger.info(self.user.name + " is ready (finished on_ready)")  # Event log
+
+	async def on_disconnect(self):
+		if self.connected == True: # Stops code being ran every time discord realises its still disconnected since the last minute or so
+			logger.info("Bot disconnected")
+			self.connected = False
 
 	async def on_guild_join(self, guild):
 		"""Runs on joining a guild.
