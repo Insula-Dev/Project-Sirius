@@ -22,7 +22,7 @@ Creates the bot's help embed, listing the bot's commands.
 
 ### /embed
 
-Creates an embed. Arguments: title=,description=,[name of field]= or just write and it'll be put in the description by deafult
+Creates an embed. Arguments: title=[],description=[],[name of field]= or just write and it'll be put in the description by deafult
 
 ### /rules
 
@@ -64,6 +64,7 @@ Dev only feature.
 8. The Nuclear Key system: all developers agree to the content of each release.
 9. Each release can only come from main.
 10. Only release content is ran on Sirius III.
+11. Never remove features because you broke them.
 
 ### FAQs
 
