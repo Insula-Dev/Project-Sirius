@@ -29,10 +29,10 @@ server_structure = {
 		"image link": ""
 	},
 	"roles": {
-		"category list": {
-			"Server": {
+		"categories": {
+			"CATEGORY": {
 				"message id": 0,
-				"roles list": {}
+				"roles": {}
 			}
 		}
 	},
@@ -332,25 +332,25 @@ class MyClient(discord.Client):
 				logger.info("`roles` called by " + message.author.name)  # Event log
 
 				# If the roles have been set up
-				if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) != 0:
+				if len(self.data["servers"][str(guild.id)]["roles"]["categories"]) != 0:
 
 					# Delete the command message
 					await message.channel.purge(limit=1)
 
 					# Send one roles message per category
 					await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
-					for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in roles list
+					for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:  # For category in roles list
 						roles = []
-						for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
-							roles.append(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["name"] + "\n")
+						for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"]:  # For role in category
+							roles.append(self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"][role]["name"] + "\n")
 						category_message = await message.channel.send("**" + category + "**\n\n" + "".join(roles))
 
 						# Add reactions to the roles message
-						for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:
-							await category_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"])
+						for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"]:
+							await category_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"][role]["emoji"])
 
 						# Update the category's message id variable
-						self.data["servers"][str(guild.id)]["roles"]["category list"][category]["message id"] = category_message.id
+						self.data["servers"][str(guild.id)]["roles"]["categories"][category]["message id"] = category_message.id
 
 					# Write the updated data
 					self.update_data()
@@ -546,12 +546,12 @@ class MyClient(discord.Client):
 		guild = self.get_guild(payload.guild_id)
 
 		# Check if the roles have been set up
-		if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) != 0:
+		if len(self.data["servers"][str(guild.id)]["roles"]["categories"]) != 0:
 
 			# Make sure that the message the user is reacting to is the one we care about
 			message_relevant = False
-			for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
-				if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]["message id"]:
+			for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:
+				if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["categories"][category]["message id"]:
 					message_relevant = True
 					break
 			if message_relevant is False:
@@ -567,9 +567,9 @@ class MyClient(discord.Client):
 
 			# If the emoji isn't the one we care about then delete it and exit as well
 			role_id = -1
-			for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in list
-				for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
-					if self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] == str(payload.emoji):
+			for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:  # For category in list
+				for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"]:  # For role in category
+					if self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"][role]["emoji"] == str(payload.emoji):
 						role_id = int(role)
 						break
 			if role_id == -1:
@@ -609,12 +609,12 @@ class MyClient(discord.Client):
 		guild = self.get_guild(payload.guild_id)
 
 		# If the roles have been set up
-		if len(self.data["servers"][str(guild.id)]["roles"]["category list"]) != 0:
+		if len(self.data["servers"][str(guild.id)]["roles"]["categories"]) != 0:
 
 			# Make sure that the message the user is reacting to is the one we care about
 			message_relevant = False
-			for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:
-				if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["category list"][category]["message id"]:
+			for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:
+				if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["categories"][category]["message id"]:
 					message_relevant = True
 					break
 			if message_relevant is False:
@@ -638,9 +638,9 @@ class MyClient(discord.Client):
 
 			# If the emoji isn't the one we care about then exit as well
 			role_id = -1
-			for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in list
-				for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
-					if self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] == str(payload.emoji):
+			for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:  # For category in list
+				for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"]:  # For role in category
+					if self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"][role]["emoji"] == str(payload.emoji):
 						role_id = int(role)
 						break
 			if role_id == -1:
