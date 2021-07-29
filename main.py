@@ -426,24 +426,27 @@ class MyClient(discord.Client):
 				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "** (**" + str(round(self.latency)) + "**ms)" + "\nUptime: " + self.get_uptime() + ".")
 
 			# Kill command
-			if message.content == PREFIX + "kill":
+			if message.content.startswith(PREFIX + "kill"):
 				logger.info("`kill` called by " + message.author.name)  # Event log
 				if self.data["config"]["jokes"] is True:
 					await message.channel.send("Doggie down")
+
+				reason = message.content[len(PREFIX + "kill"):]
+				death_note = "**" + self.user.name + " offline**\nReason for shutdown: "+reason
 
 				# Send kill announcement
 				for guild in self.guilds:
 					announcement_sent = False
 					for channel in guild.text_channels:
 						if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
-							logger.debug("Sent kill announcement to " + guild.name + " in " + channel.name)  # Event log
+							logger.debug("Sending kill announcement to " + guild.name + " in " + channel.name)  # Event log
 							announcement_sent = True
-							await channel.send("**" + self.user.name + " offline**\nReason for shutdown: [TO BE IMPLEMENTED]")
+							await channel.send(death_note)
 							break
 					if announcement_sent is False:
 						logger.debug("Failed to send kill announcement. Announcement channel not found in " + guild.name)  # Event log
 
-				await message.channel.send(self.user.name + " shutting down.\nUptime: " + self.get_uptime() + ".")
+				await message.channel.send(death_note+"\n"+"Uptime: " + self.get_uptime() + ".")
 				await client.close()
 
 		# Joke functionality
