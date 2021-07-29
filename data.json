@@ -38,7 +38,7 @@
                 "image link": "https://media.discordapp.net/attachments/504791913241772052/504817198028816395/RULES.jpg"
             },
             "roles": {
-                "category list": {
+                "categories": {
                     "Server": {
                         "message id": 846254614265069588,
                         "role list": {
@@ -120,7 +120,7 @@
                 "image link": "https://db3pap006files.storage.live.com/y4mr-Wa5qCDxmSvDCXA2h2E0Qu6kkJTcs1kKQjn14yUQfboZWyy_9sX8naYjeiEk-fuM6ltxX-9Jndyx9EvnUYJJlVdLao9OgREvEaNcFpMtmE0aqTUOLJZ11U1-HexXR6uk7M8rI9iEJ-8jDjHUFUF1YHNbYYKhO5JN4ghZzlJKU9Dx8B0mpRnQinFP10F4n_s?width=1772&height=938&cropmode=none"
             },
             "roles": {
-                "category list": {
+                "categories": {
                     "Year": {
                         "message id": 846251190392061973,
                         "role list": {
@@ -221,10 +221,10 @@
                 "image link": null
             },
             "roles": {
-                "category list": {
+                "categories": {
                     "Server": {
                         "message id": null,
-                        "roles list": {}
+                        "roles": {}
                     }
                 }
             },
@@ -251,10 +251,10 @@
                 "image link": null
             },
             "roles": {
-                "category list": {
+                "categories": {
                     "Server": {
                         "message id": null,
-                        "roles list": {}
+                        "roles": {}
                     }
                 }
             },
@@ -273,16 +273,16 @@
                 "image link": null
             },
             "roles": {
-                "category list": {
+                "categories": {
                     "Server": {
-                        "message id": null,
-                        "roles list": {}
+                        "message id": 870383937489354773,
+                        "roles": {}
                     }
                 }
             },
             "ranks": {
                 "241772848564142080": 17,
-                "258284765776576512": 52,
+                "258284765776576512": 55,
                 "519494195929546782": 2
             }
         },
@@ -299,10 +299,10 @@
                 "image link": ""
             },
             "roles": {
-                "category list": {
+                "categories": {
                     "Server": {
                         "message id": 0,
-                        "roles list": {}
+                        "roles": {}
                     }
                 }
             },
