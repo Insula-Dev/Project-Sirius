@@ -4,8 +4,9 @@ from datetime import date, datetime
 import json
 import socket
 import discord
+import discord.ext
+import discord_buttons_plugin
 import re  # Delete this later
-
 
 # Local imports
 from log_handling import *
@@ -179,6 +180,9 @@ class MyClient(discord.Client):
 			# Initialise guild
 			self.initialise_guild(guild)
 
+	async def button_one(message):
+		await message.reply("Understood!")
+
 	async def on_message(self, message):
 		"""Runs on message."""
 
@@ -285,6 +289,23 @@ class MyClient(discord.Client):
 			embed_help.add_field(name=str(PREFIX + "locate"), value="Locates the instance of " + self.user.name + ".\nDev only feature.")
 			embed_help.add_field(name=str(PREFIX + "kill"), value="Ends the instance of " + self.user.name + ".\nDev only feature.")
 			await message.channel.send(embed=embed_help)
+
+		# Button test command
+		if message.content == PREFIX + "button":
+			await buttons.send(
+				content="This is a button!",
+				channel=message.channel.id,
+				components=[
+					ActionRow([
+						Button(
+							label="Hello",
+							style=ButtonType().Primary,
+							custom_id="button_one"
+						)
+					])
+				]
+			)
+
 
 		# If the message was sent by the admins
 		if guild.get_role(self.data["servers"][str(message.guild.id)]["config"]["admin role id"]) in guild.get_member(message.author.id).roles:
