@@ -57,7 +57,7 @@ class MyClient(discord.Client):
 		if debug is True:
 			x = logging.StreamHandler()  # Create new handler
 			x.setLevel(level)  # Set handler level
-			logger.addHandler(x)  # Add hangler to logger
+			logger.addHandler(x)  # Add handler to logger
 
 	def update_data(self):
 		"""Writes the data attribute to the file."""
