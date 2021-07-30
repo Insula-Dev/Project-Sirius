@@ -14,7 +14,7 @@ from imaging import generate_rank_card
 
 # Variables
 PREFIX = "-"
-with open("token3.txt") as file:
+with open("token.txt") as file:
 	DISCORD_TOKEN = file.read()
 server_structure = {
 	"config": {
