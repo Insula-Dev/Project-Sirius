@@ -154,18 +154,10 @@ class MyClient(discord.Client):
 				# Send on_ready announcement
 				announcement_sent = False
 				for channel in guild.text_channels:
-					if channel.id == \
-							self.data[
-								"servers"][
-								str(guild.id)][
-								"config"][
-								"announcements channel id"]:
+					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
 						logger.debug("Sending on_ready announcement to " + guild.name + " in " + channel.name)  # Event log
 						announcement_sent = True
-						await channel.send("**" + self.user.name + " online**\nVersion: " +
-						                   self.data[
-							                   "config"][
-							                   "version"])
+						await channel.send("**" + self.user.name + " online**\nVersion: " + self.data["config"]["version"])
 						break
 				if announcement_sent is False:
 					logger.debug("Failed to send on_ready announcement. Announcement channel not found in " + guild.name)  # Event log
