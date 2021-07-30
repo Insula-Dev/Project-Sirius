@@ -14,7 +14,7 @@ from imaging import generate_rank_card
 
 # Variables
 PREFIX = "-"
-with open("token.txt") as file:
+with open("token3.txt") as file:
 	DISCORD_TOKEN = file.read()
 server_structure = {
 	"config": {
@@ -129,23 +129,6 @@ class MyClient(discord.Client):
 		except Exception as exception:
 			logger.critical("Failed to load data.json. Exception: " + exception)  # Event log
 
-		# Log on_ready messages
-		logger.info(self.user.name + " is ready (commencing on_ready)")  # Event log
-		if self.guilds != []:
-			logger.info(self.user.name + " is connected to the following guilds:")  # Event log
-			for guild in self.guilds:
-				logger.info("    " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
-
-				# Send on_ready announcement
-				announcement_sent = False
-				for channel in guild.text_channels:
-					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
-						logger.debug("Sending on_ready announcement to " + guild.name + " in " + channel.name)  # Event log
-						announcement_sent = True
-						await channel.send("**" + self.user.name + " online**\nVersion: " + self.data["config"]["version"])
-						break
-				if announcement_sent is False:
-					logger.debug("Failed to send on_ready announcement. Announcement channel not found in " + guild.name)  # Event log
 
 		# Check if the bot has been added to a guild while offline
 		for guild in self.guilds:
@@ -160,6 +143,32 @@ class MyClient(discord.Client):
 			self.cache[str(guild.id)] = {}
 
 		logger.info(self.user.name + " is ready (finished on_ready)")  # Event log
+
+		# Log on_ready messages
+		logger.info(self.user.name + " is ready (commencing on_ready)")  # Event log
+		if self.guilds != []:
+			logger.info(self.user.name + " is connected to the following guilds:")  # Event log
+			for guild in self.guilds:
+				logger.info("    " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
+
+				# Send on_ready announcement
+				announcement_sent = False
+				for channel in guild.text_channels:
+					if channel.id == \
+							self.data[
+								"servers"][
+								str(guild.id)][
+								"config"][
+								"announcements channel id"]:
+						logger.debug("Sending on_ready announcement to " + guild.name + " in " + channel.name)  # Event log
+						announcement_sent = True
+						await channel.send("**" + self.user.name + " online**\nVersion: " +
+						                   self.data[
+							                   "config"][
+							                   "version"])
+						break
+				if announcement_sent is False:
+					logger.debug("Failed to send on_ready announcement. Announcement channel not found in " + guild.name)  # Event log
 
 	async def on_disconnect(self):
 		if self.connected == True: # Stops code being ran every time discord realises its still disconnected since the last minute or so

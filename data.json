@@ -309,6 +309,28 @@
             "ranks": {
                 "258284765776576512": 6
             }
+        },
+        "755420029482303488": {
+            "config": {
+                "rank system": false,
+                "admin role id": 0,
+                "announcements channel id": 0
+            },
+            "rules": {
+                "title": "Server rules",
+                "description": "",
+                "list": [],
+                "image link": ""
+            },
+            "roles": {
+                "categories": {
+                    "Server": {
+                        "message id": 0,
+                        "roles": {}
+                    }
+                }
+            },
+            "ranks": {}
         }
     }
 }
