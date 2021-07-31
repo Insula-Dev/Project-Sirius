@@ -97,7 +97,7 @@
             "config": {
                 "rank system": false,
                 "admin role id": 844943189063630879,
-                "announcements channel id": 0
+                "announcements channel id": null
             },
             "rules": {
                 "title": "\ud83d\udcc3 Server rules",
@@ -212,7 +212,7 @@
             "config": {
                 "rank system": false,
                 "admin role id": 0,
-                "announcements channel id": 0
+                "announcements channel id": null
             },
             "rules": {
                 "title": "Server rules",
@@ -243,7 +243,7 @@
             "config": {
                 "rank system": false,
                 "admin role id": 0,
-                "announcements channel id": 0
+                "announcements channel id": null
             },
             "rules": {
                 "title": "Server rules",
@@ -291,7 +291,7 @@
             "config": {
                 "rank system": false,
                 "admin role id": 0,
-                "announcements channel id": 0
+                "announcements channel id": null
             },
             "rules": {
                 "title": "Server rules",
@@ -447,6 +447,11 @@
                 "459369678100234251": 1,
                 "325317898090577941": 1,
                 "293415777665679361": 1
+            }
+        },
+        "870789318501871706": {
+            "config": {
+                "announcements channel id": null
             }
         }
     }
