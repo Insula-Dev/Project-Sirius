@@ -1,22 +1,47 @@
 import discord
-from discord_slash import SlashCommand # Importing the newly installed library.
+from discord_slash import SlashCommand  # Importing the newly installed library.
+from discord.ext.commands import Bot
+from discord_components import DiscordComponents, Button, Select, SelectOption
 
-client = discord.Client(intents=discord.Intents.all())
-slash = SlashCommand(client, sync_commands=True) # Declares slash commands through the client.
+bot = Bot(command_prefix="-")
 
-@client.event
+
+@bot.event
 async def on_ready():
-	print("Ready!")
+    DiscordComponents(bot)
 
-guild_ids = [834213187468394517] # Put your server ID in this array.
+    print(f"Logged in as {bot.user}!")
 
-@slash.slash(name="ping", guild_ids=guild_ids)
-async def _ping(ctx): # Defines a new "context" (ctx) command called "ping."
-	await ctx.send(f"Pong! ({client.latency*1000}ms)")
 
-@slash.slash(name="help", guild_ids=guild_ids)
-async def _help(ctx):
-	await ctx.send()
+@bot.command()
+async def button(ctx):
+    await ctx.send("Click Me",components=[Button(label="Click button!")])
+
+    interaction = await bot.wait_for("button_click", check=lambda i: i.component.label.startswith("Recieved"))
+
+    await interaction.respond(content="Button clicked")
+
+
+@bot.command()
+async def select(ctx):
+    await ctx.send(
+
+        "Hello, World!",
+
+        components=[
+
+            Select(placeholder="select something!",
+                   options=[SelectOption(label="a", value="A"), SelectOption(label="b", value="B")])
+
+        ]
+
+    )
+
+    interaction = await bot.wait_for("select_option", check=lambda i: i.component[0].value == "A")
+
+    await interaction.respond(content=f"{interaction.component[0].label} selected!")
+
+
 
 with open("token.txt") as file:
-	client.run(file.read())
+    bot.run(file.read())

@@ -3,13 +3,14 @@ import time
 import json
 from datetime import date
 import discord
+import discord_components
 from discord_slash import SlashCommand
-
+from discord.ext.commands import Bot
+from discord_components import DiscordComponents, Button, ButtonStyle, InteractionType
 
 # Local imports
 from log_handling import *
 from imaging import generate_rank_card
-
 
 # Variables
 with open("data.json") as file:
@@ -20,9 +21,9 @@ TEMP_SERVER_STRUCTURE = {
 	}
 }
 
-
 # Client stuff
-client = discord.Client(intents=discord.Intents.all())
+client = discord.Client(intents=discord.Intents.all(), command_prefix="-")
+
 
 # But first, functions
 def update_data():
@@ -34,6 +35,7 @@ def update_data():
 		logger.debug("Updated data.")
 	except Exception as exception:
 		logger.error("Failed to update data. Exception: " + exception)
+
 
 def initialise_guild(guild):
 	"""Initialises data for a new guild."""
@@ -56,10 +58,12 @@ async def on_ready():
 	# If the guild has announcements enabled, send an announcement into their announcements channel.
 	for guild in client.guilds:
 		if data["servers"][str(guild.id)]["config"]["announcements channel id"] != None:
-			channel = discord.utils.get(guild.channels, id=data["servers"][str(guild.id)]["config"]["announcements channel id"])
+			channel = discord.utils.get(guild.channels,
+										id=data["servers"][str(guild.id)]["config"]["announcements channel id"])
 			await channel.send("**" + client.user.name + "** online\nVersion [VERSION].")
 
 	print("Ready!")
+
 
 @client.event
 async def on_guild_join(guild):
@@ -71,6 +75,7 @@ async def on_guild_join(guild):
 	if str(guild.id) not in data["servers"]:
 		initialise_guild(guild)
 
+
 @client.event
 async def on_guild_remove(guild):
 	"""Runs when the client is removed from a guild."""
@@ -78,6 +83,28 @@ async def on_guild_remove(guild):
 	logger.info("`on_guild_remove` " + guild.name + " (" + str(guild.id) + ").")
 
 
+@client.event
+async def on_ready():
+	DiscordComponents(client)
+
+	print(f"Logged in as {client.user}!")
+
+
+@client.event
+async def on_message(message):
+	if message.content == "-button":
+		await message.channel.send(" s",
+			components=[
+				Button(style=ButtonStyle.blue, label="Not an emoji yet"),
+			],
+		)
+
+		res = await client.wait_for("button_click")
+		if res.channel == message.channel:
+			await res.respond(
+				type=InteractionType.UpdateMessage,
+				content=f'{res.component.label} clicked'
+			)
 
 
 # Slash command stuff
@@ -85,32 +112,38 @@ slash = SlashCommand(client, sync_commands=True)
 
 guild_ids = [834213187468394517, 870789318501871706]
 
+
 # Ping command
 @slash.slash(name="ping", guild_ids=guild_ids)
 async def _ping(ctx):
 	logger.debug("`/ping` called by " + ctx.author.name + ".")
-	await ctx.send(f"Pong! ({client.latency*1000}ms)")
+	await ctx.send(f"Pong! ({client.latency * 1000}ms)")
+
 
 # Help command
 @slash.slash(name="help", description="This is our first description. Woohoo!", guild_ids=guild_ids)
 async def _help(ctx):
 	logger.debug("`/help` called by " + ctx.author.name + ".")
-	embed_help = discord.Embed(title="🤔 Need help?", description="Here's a list of " + client.user.name + "'s commands!", color=0xffc000)
-	embed_help.add_field(name=str("/get rank"), value="Creates your rank card, showing your current rank and progress to the next rank.")
+	embed_help = discord.Embed(title="🤔 Need help?",
+							   description="Here's a list of " + client.user.name + "'s commands!", color=0xffc000)
+	embed_help.add_field(name=str("/get rank"),
+						 value="Creates your rank card, showing your current rank and progress to the next rank.")
 	embed_help.add_field(name=str("/embed"), value="Creates an embed. **Documentation needed**...")
 	embed_help.add_field(name=str("/help"), value="Creates the bot's help embed, listing the bot's commands.")
 	embed_help.add_field(name=str("/rules"), value="Creates the server's rules embed.\nAdmin only feature.")
 	embed_help.add_field(name=str("/roles"), value="Creates the server's roles embed.\nAdmin only feature.")
 	embed_help.add_field(name=str("/stats"), value="Creates the server's stats embed.\nAdmin only feature.")
-	embed_help.add_field(name=str("/locate"), value="Locates the instance of " + client.user.name + ".\nDev only feature.")
+	embed_help.add_field(name=str("/locate"),
+						 value="Locates the instance of " + client.user.name + ".\nDev only feature.")
 	embed_help.add_field(name=str("/kill"), value="Ends the instance of " + client.user.name + ".\nDev only feature.")
 	await ctx.send(embed=embed_help)
+
 
 # Statistics command
 @slash.slash(name="stats", guild_ids=guild_ids)
 async def _stats(ctx):
 	logger.debug("`/stats` called by " + ctx.author.name + ".")
-	
+
 	# Generate statistics
 	members = {}
 	channel_statistics = ""
@@ -133,10 +166,11 @@ async def _stats(ctx):
 	embed_stats = discord.Embed(title="📈 Statistics for " + ctx.guild.name, color=0xffc000)
 	embed_stats.add_field(name="Channels", value=channel_statistics)
 	embed_stats.add_field(name="Members", value=member_statistics)
-	embed_stats.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=ctx.guild.icon_url)
+	embed_stats.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"),
+						   icon_url=ctx.guild.icon_url)
 	await ctx.send(embed=embed_stats)
 
 
 # Run client
 with open("token.txt") as file:
-    client.run(file.read())
+	client.run(file.read())
