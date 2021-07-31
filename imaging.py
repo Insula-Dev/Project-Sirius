@@ -51,13 +51,13 @@ def mask_circle_solid(pil_img, background_colour, blur_radius, offset=0):
 def generate_rank_card(profile_picture_url, name, rank, percentage):
 	"""Generates the rank card."""
 
-	# Request profile picture and save it as card.png
+	# Request profile picture and save it as rank_card.png
 	with requests.get(profile_picture_url) as request:
-		with open("card.png", "wb") as file:
+		with open("rank_card.png", "wb") as file:
 			file.write(request.content)
 
 	# Prepare the profile picture using PIL
-	with Image.open("card.png") as profile_picture:
+	with Image.open("rank_card.png") as profile_picture:
 		profile_picture = profile_picture.resize((150, 150), Image.NEAREST)  # Simplify? Size?
 		#profile_picture.show()
 
@@ -88,7 +88,7 @@ def generate_rank_card(profile_picture_url, name, rank, percentage):
 	card.paste(bar_background, (200, 100))
 	card.paste(bar_overlay, (205, 105))
 	#card.show()
-	card.save("card.png")
+	card.save("rank_card.png")
 
 
 # Main body
@@ -100,7 +100,7 @@ if __name__ == "__main__":
 Problems:
 
 - Gif profile pictures
-- Make card.png a variable instead of a file
+- Make rank_card.png a variable instead of a file
 - add_corners and mask_circle_solid are a clunky heuristic
 - pfp is not centred laterally or vertically on card
 - Make card_size a variable and base the sizes off it
