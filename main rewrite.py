@@ -132,7 +132,8 @@ async def on_ready():
 
 				# Finally, add the role
 				try:
-					await response.user.add_roles(role)
+					member = guild.get_member(response.user.id) # Converts chad user, to beta member
+					await member.add_roles(role)
 					logger.info("Role `" + role.name + "` added to " + response.user.name)  # Event log
 				# If we want to do something in case of errors we'd do it here
 				except Exception as exception:
