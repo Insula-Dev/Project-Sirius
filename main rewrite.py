@@ -102,8 +102,6 @@ async def on_ready():
 	while True:
 		response = await client.wait_for("button_click")
 		print("Response!")
-		print(response.message.id)
-		print(roleMessageList)
 		if response.message.id in roleMessageList:
 			await response.respond(type=InteractionType.UpdateMessage, content=f'{response.component.label} clicked')
 			guild = response.guild
@@ -118,23 +116,27 @@ async def on_ready():
 				# If the emoji isn't the one we care about then delete it and exit as well
 				role_id = -1
 				for category in data["servers"][str(guild.id)]["roles"]:  # For category in list
-					for role in data["servers"][str(guild.id)]["roles"][category]["roles"]:  # For role in category
-						if data["servers"][str(guild.id)]["roles"][category]["roles"][role]["emoji"] == str(response.emoji):
+					for role in data["servers"][str(guild.id)]["roles"][category]["list"]:  # For role in category
+						print("Name in data:"+role)
+						print("Name from response:"+response.custom_id)
+						if role == response.custom_id:
 							role_id = int(role)
 							break
 
 				# Make sure the role still exists and is valid
+				print(role_id)
 				role = guild.get_role(role_id)
 				if role is None:
+					print("Role ain't there chief")
 					return
 
 				# Finally, add the role
 				try:
-					await response.member.add_roles(role)
-					logger.info("Role `" + role.name + "` added to " + response.member.name)  # Event log
+					await response.user.add_roles(role)
+					logger.info("Role `" + role.name + "` added to " + response.user.name)  # Event log
 				# If we want to do something in case of errors we'd do it here
 				except Exception as exception:
-					logger.error("Failed to add role " + role.name + " to " + response.member.name + ". Exception: " + exception)  # Event log
+					logger.error("Failed to add role " + role.name + " to " + response.user.name + ". Exception: " + str(exception))  # Event log
 
 
 @client.event
@@ -169,7 +171,7 @@ async def on_message(message):
 							if emoji.name in emojiCode:
 								emojiCode = emoji
 
-					buttons.append(Button(style=ButtonStyle.blue, label=data["servers"][str(guild.id)]["roles"][category]["list"][role]["name"], emoji=emojiCode))
+					buttons.append(Button(style=ButtonStyle.blue, custom_id=role,label=data["servers"][str(guild.id)]["roles"][category]["list"][role]["name"], emoji=emojiCode))
 					print(data["servers"][str(guild.id)]["roles"][category]["list"][role]["emoji"])
 
 				# Add button to message per role
