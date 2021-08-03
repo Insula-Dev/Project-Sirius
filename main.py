@@ -5,7 +5,6 @@ import json
 import socket
 import discord
 import discord.ext
-import discord_buttons_plugin
 import re  # Delete this later
 
 # Local imports
