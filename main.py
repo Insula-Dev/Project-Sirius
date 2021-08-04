@@ -255,9 +255,9 @@ class MyClient(discord.Client):
 						elif argument[0] == "description":
 							description = argument[1]
 						elif argument[0] == "colour":
-							if argument[0].startswith("0x"):
+							if argument[1].startswith("0x"):
 								colour = int(argument[1][2:], 16)
-							elif argument[0].startswith("#"):
+							elif argument[1].startswith("#"):
 								colour = int(argument[1][1:], 16)
 							else:
 								colour = int(argument[1], 16)
@@ -276,7 +276,7 @@ class MyClient(discord.Client):
 				await message.channel.send(embed=embed)
 			except Exception as exception:
 				logger.error("Failed understand embed command. Exception: " + str(exception))
-				await message.channel.send("Embed Failed: Check you put something to embed and that it's under 1024 character")
+				await message.channel.send("Embed Failed: Check you put something to embed and that it's under 1024 character.\n"+str(exception))
 
 		# Help command
 		if message.content == PREFIX + "help":
