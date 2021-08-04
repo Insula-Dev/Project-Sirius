@@ -153,7 +153,7 @@ async def on_message(message):
 	if message.content == "-role2":
 		guild = message.guild
 		# If the roles have been set up
-		if len(data["servers"][str(guild.id)]["roles"]) != 0:
+		if "roles" in data["servers"][str(guild.id)] and len(data["servers"][str(guild.id)]["roles"]) != 0:
 
 			# Delete the command message
 			#await message.delete()
@@ -185,11 +185,12 @@ async def on_message(message):
 					actionRows.append(actionRow)
 					i = x+1
 
+
 				# Adds last row (may have less than 5 buttons)
 				lastActionRow = ActionRow
 				lastActionRow.components = buttons[5 * i:]
 				print(5*i,"to end")
-				print("Length of row",x,len(lastActionRow.components))
+				print("Length of row",i,len(lastActionRow.components))
 				if len(lastActionRow.components) > 0:
 					print("Adding row")
 					actionRows.append(lastActionRow)

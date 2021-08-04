@@ -236,7 +236,7 @@
             },
             "roles": {
                 "Year": {
-                    "message id": 872255235500949565,
+                    "message id": 872464602707922944,
                     "list": {
                         "845309847640473641": {
                             "name": "Foundation",
@@ -269,7 +269,7 @@
                     }
                 },
                 "Degree/Courses": {
-                    "message id": 872255236188827668,
+                    "message id": 872464603441922068,
                     "list": {
                         "846173456915496981": {
                             "name": "Physics",
@@ -294,7 +294,7 @@
                     }
                 },
                 "Misc": {
-                    "message id": 872255236767645737,
+                    "message id": 872464603852967977,
                     "list": {
                         "846208891842854953": {
                             "name": "PhysSoc",
@@ -388,7 +388,7 @@
             },
             "roles": {
                 "Server": {
-                    "message id": 872194824718151791,
+                    "message id": 872468694603804673,
                     "list": {
                         "864923062838886421": {
                             "name": "Cinema",
@@ -398,14 +398,42 @@
                             "name": "Train",
                             "emoji": "\ud83d\ude82"
                         },
-                        "69": {
-                            "name": "Nonexistent role",
-                            "emoji": "\ud83d\udeab"
+                        "872465441291898942": {
+                            "name": "Plane",
+                            "emoji": "\ud83d\ude82"
+                        },
+                        "872465383037206590": {
+                            "name": "Car",
+                            "emoji": "\ud83d\ude82"
+                        },
+                        "872465492764418120": {
+                            "name": "Boat",
+                            "emoji": "\ud83d\ude82"
+                        },
+                        "872465598750289980": {
+                            "name": "Lobster",
+                            "emoji": "\ud83d\ude82"
+                        },
+                        "872465661224419368": {
+                            "name": "Crayfish",
+                            "emoji": "\ud83d\ude82"
+                        },
+                        "872465802073374760": {
+                            "name": "Cornetto",
+                            "emoji": "\ud83d\ude82"
+                        },
+                        "872465717348433990": {
+                            "name": "Swan",
+                            "emoji": "\ud83d\ude82"
+                        },
+                        "872465833044099144": {
+                            "name": "Ducati",
+                            "emoji": "\ud83d\ude82"
                         }
                     }
                 },
                 "Additional": {
-                    "message id": 872194825577963591,
+                    "message id": 872468695719485470,
                     "list": {
                         "835971801761710160": {
                             "name": "Hazers",
@@ -433,10 +461,13 @@
                 "image link": ""
             },
             "roles": {
-                "categories": {
-                    "Server": {
-                        "message id": 0,
-                        "roles": {}
+                "Server": {
+                    "message id": 872552244409675796,
+                    "list": {
+                        "589895833323831304": {
+                            "name": "General Kidz",
+                            "emoji": "\ud83d\ude82"
+                        }
                     }
                 }
             },
