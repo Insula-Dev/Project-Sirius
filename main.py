@@ -255,12 +255,7 @@ class MyClient(discord.Client):
 						elif argument[0] == "description":
 							description = argument[1]
 						elif argument[0] == "colour":
-							if argument[1].startswith("0x"):
-								colour = int(argument[1][2:], 16)
-							elif argument[1].startswith("#"):
-								colour = int(argument[1][1:], 16)
-							else:
-								colour = int(argument[1], 16)
+							colour = int(argument[1][-6:], 16)
 							print(colour)
 						else:
 							fields.append({argument[0]:argument[1]})
