@@ -226,9 +226,9 @@ async def on_message(PREFIX, self, message):
 						minute = last_time_arg[1].split(":")[1]
 					poll_time = str(datetime(day=int(time_list[0]), month=int(time_list[1]), year=int(time_list[2]), hour=int(hour), minute=int(minute)))  # Accommodate for American convention. Or don't.
 				elif argument[0] == "colour":
-					if argument[0].startswith("0x"):
+					if argument[1].startswith("0x"):
 						colour = int(argument[1][2:],16)
-					elif argument[0].startswith("#"):
+					elif argument[1].startswith("#"):
 						colour = int(argument[1][1:],16)
 					else:
 						colour = int(argument[1],16)
