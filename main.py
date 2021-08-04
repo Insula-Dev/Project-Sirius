@@ -242,7 +242,7 @@ class MyClient(discord.Client):
 				argument_string = message.content[len(PREFIX + "embed "):]
 				arguments = re.split(",(?!\s)", argument_string)  # Splits arguments when there is not a space after the comma, if there is, it is assumed to be part of a sentance.
 				title = discord.Embed.Empty
-				description = "Says:"
+				description = discord.Embed.Empty
 				colour = 0xffc000
 				fields = []
 
