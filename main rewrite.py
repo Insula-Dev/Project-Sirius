@@ -1,12 +1,13 @@
 # Imports
+import math
 import time
 import json
 from datetime import date
 import discord
 import discord_components
-from discord_slash import SlashCommand
+from discord_slash import SlashCommand, manage_components
 from discord.ext.commands import Bot
-from discord_components import DiscordComponents, Button, ButtonStyle, InteractionType
+from discord_components import DiscordComponents, Button, ButtonStyle, InteractionType, ActionRow
 
 # Local imports
 from log_handling import *
@@ -163,20 +164,42 @@ async def on_message(message):
 				# Message per category
 				buttons = []
 				for role in data["servers"][str(guild.id)]["roles"][category]["list"]:  # For role in category
-					print(category)
 					emojiCode = data["servers"][str(guild.id)]["roles"][category]["list"][role]["emoji"]
-					print(emojiCode)
 					if emojiCode[:1] == "<":
 						for emoji in message.guild.emojis:
-							print("Emoji:"+emoji.name)
 							if emoji.name in emojiCode:
 								emojiCode = emoji
 
 					buttons.append(Button(style=ButtonStyle.blue, custom_id=role,label=data["servers"][str(guild.id)]["roles"][category]["list"][role]["name"], emoji=emojiCode))
-					print(data["servers"][str(guild.id)]["roles"][category]["list"][role]["emoji"])
+
+				# Sorts out rows of buttons
+				actionRows = []
+				i = 0
+				print("Amount of buttons:",len(buttons),"Will make",math.ceil(len(buttons)/5),"sets-------------")
+				for x in range(len(buttons)//5): # Makes actions rows filled with 5 buttons
+					print("X:",x)
+					actionRow = ActionRow
+					actionRow.components = buttons[5*x:5*(x+1)]
+					print(5*x,"to",5*(x+1))
+					print("Length of row",x,len(actionRow.components))
+					actionRows.append(actionRow)
+					i = x+1
+
+				# Adds last row (may have less than 5 buttons)
+				lastActionRow = ActionRow
+				lastActionRow.components = buttons[5 * i:]
+				print(5*i,"to end")
+				print("Length of row",x,len(lastActionRow.components))
+				if len(lastActionRow.components) > 0:
+					print("Adding row")
+					actionRows.append(lastActionRow)
+
+				for row in actionRows:
+					print("Length of a row",len(row.components))
+				print("Amount of rows here is:",len(actionRows))
 
 				# Add button to message per role
-				category_message = await message.channel.send("Click button to get role", components=buttons)
+				category_message = await message.channel.send("Click button to get role", components=actionRows)
 
 				# Update the category's message id variable
 				data["servers"][str(guild.id)]["roles"][category]["message id"] = category_message.id

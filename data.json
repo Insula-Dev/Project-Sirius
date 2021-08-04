@@ -208,6 +208,119 @@
                 "241772848564142080": 0
             }
         },
+        "872172926911283291": {
+            "config": {
+                "rank system": false,
+                "admin role id": 844943189063630879,
+                "announcements channel id": null
+            },
+            "rules": {
+                "title": "\ud83d\udcc3 Fake Server rules",
+                "description": "We're pretty chill here, but we've set down some ground rules so that everyone has a good experience on the server.",
+                "list": [
+                    "\u2022 Respect fellow members of the Discord server.",
+                    "\u2022 No slurs of any kind allowed.",
+                    "\u2022 Do not flood/spam the channels.",
+                    "\u2022 Media containing inappropriate content will incur punishment.",
+                    "\u2022 Please use each channel for its intended purpose. If there is a dedicated channel, post there.",
+                    "\u2022 Please only ping <@&844944164130783262> if you have an issue.",
+                    "\u2022 Do not try to loophole/bypass punishments or rules. Or do. It's more entertaining.",
+                    "\u2022 Please respect [York's policies on plagiarism and collusion](https://www.york.ac.uk/philosophy/current/academic-misconduct/). This includes asking for or supplying help with assessments which are intended to be independent. Any such breach will reflect badly on the whole discord.",
+                    "\u2022 Please keep in line with the [Discord Terms of Service](https://discord.com/terms).",
+                    "",
+                    "Punishments are decided by staff at their own discretion. Repeated offenders will receive more severe punishments.",
+                    "",
+                    "To summarise: use your brain and you'll be okay. Report any issues."
+                ],
+                "image link": "https://db3pap006files.storage.live.com/y4mr-Wa5qCDxmSvDCXA2h2E0Qu6kkJTcs1kKQjn14yUQfboZWyy_9sX8naYjeiEk-fuM6ltxX-9Jndyx9EvnUYJJlVdLao9OgREvEaNcFpMtmE0aqTUOLJZ11U1-HexXR6uk7M8rI9iEJ-8jDjHUFUF1YHNbYYKhO5JN4ghZzlJKU9Dx8B0mpRnQinFP10F4n_s?width=1772&height=938&cropmode=none"
+            },
+            "roles": {
+                "Year": {
+                    "message id": 872255235500949565,
+                    "list": {
+                        "845309847640473641": {
+                            "name": "Foundation",
+                            "emoji": "0\ufe0f\u20e3"
+                        },
+                        "844943772043444234": {
+                            "name": "Year 1",
+                            "emoji": "1\ufe0f\u20e3"
+                        },
+                        "844943944319893564": {
+                            "name": "Year 2",
+                            "emoji": "2\ufe0f\u20e3"
+                        },
+                        "844943919786622988": {
+                            "name": "Year 3",
+                            "emoji": "3\ufe0f\u20e3"
+                        },
+                        "844943891928580107": {
+                            "name": "Year 4",
+                            "emoji": "4\ufe0f\u20e3"
+                        },
+                        "845309888028344381": {
+                            "name": "Postgrad",
+                            "emoji": "\ud83c\udd7f\ufe0f"
+                        },
+                        "844948245570387969": {
+                            "name": "Outsider",
+                            "emoji": "\ud83d\udc12"
+                        }
+                    }
+                },
+                "Degree/Courses": {
+                    "message id": 872255236188827668,
+                    "list": {
+                        "846173456915496981": {
+                            "name": "Physics",
+                            "emoji": "\ud83d\udcda"
+                        },
+                        "846173362106400788": {
+                            "name": "Astrophysics",
+                            "emoji": "\ud83d\udef0\ufe0f"
+                        },
+                        "846173276693987389": {
+                            "name": "Theoretical Physics",
+                            "emoji": "\ud83e\uddf2"
+                        },
+                        "846173705432334336": {
+                            "name": "Physics and Mathematics",
+                            "emoji": "\ud83e\uddee"
+                        },
+                        "846173649404690474": {
+                            "name": "Physics and Philosophy",
+                            "emoji": "\ud83d\udcdc"
+                        }
+                    }
+                },
+                "Misc": {
+                    "message id": 872255236767645737,
+                    "list": {
+                        "846208891842854953": {
+                            "name": "PhysSoc",
+                            "emoji": "\ud83d\ude80"
+                        },
+                        "846209216062554133": {
+                            "name": "MathSoc",
+                            "emoji": "\ud83d\udcd0"
+                        }
+                    }
+                }
+            },
+            "ranks": {
+                "469570672784441344": 0,
+                "754444720297738299": 0,
+                "262273095362936833": 0,
+                "236905962168909824": 0,
+                "704396028128002188": 0,
+                "224609503772016641": 0,
+                "626833362207637532": 0,
+                "847515147941314571": 0,
+                "282550792014135306": 0,
+                "258284765776576512": 0,
+                "241772848564142080": 0
+            }
+        },
         "808266016614121512": {
             "config": {
                 "rank system": false,
@@ -275,7 +388,7 @@
             },
             "roles": {
                 "Server": {
-                    "message id": 872163356998520882,
+                    "message id": 872194824718151791,
                     "list": {
                         "864923062838886421": {
                             "name": "Cinema",
@@ -292,7 +405,7 @@
                     }
                 },
                 "Additional": {
-                    "message id": 872163357795422369,
+                    "message id": 872194825577963591,
                     "list": {
                         "835971801761710160": {
                             "name": "Hazers",
