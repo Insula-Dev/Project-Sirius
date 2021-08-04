@@ -243,6 +243,7 @@ class MyClient(discord.Client):
 				arguments = re.split(",(?!\s)", argument_string)  # Splits arguments when there is not a space after the comma, if there is, it is assumed to be part of a sentance.
 				title = discord.Embed.Empty
 				description = "Says:"
+				colour = 0xffc000
 				fields = []
 
 				# Analyse argument
@@ -253,13 +254,21 @@ class MyClient(discord.Client):
 							title = argument[1]
 						elif argument[0] == "description":
 							description = argument[1]
+						elif argument[0] == "colour":
+							if argument[0].startswith("0x"):
+								colour = int(argument[1][2:], 16)
+							elif argument[0].startswith("#"):
+								colour = int(argument[1][1:], 16)
+							else:
+								colour = int(argument[1], 16)
+							print(colour)
 						else:
 							fields.append({argument[0]:argument[1]})
 					else:
 						description = argument[0]
 
 				# Create and send user's embed
-				embed = discord.Embed(title=title, description=description, color=0xffc000)
+				embed = discord.Embed(title=title, description=description, color=colour)
 				embed.set_author(name=message.author.name,url=discord.Embed.Empty, icon_url=message.author.avatar_url)
 				for field in fields:
 					embed.add_field(name=list(field.keys())[0],value=field[list(field.keys())[0]])

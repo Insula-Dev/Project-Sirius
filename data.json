@@ -282,8 +282,8 @@
                 }
             },
             "ranks": {
-                "241772848564142080": 17,
-                "258284765776576512": 55,
+                "241772848564142080": 18,
+                "258284765776576512": 56,
                 "519494195929546782": 2
             }
         },
@@ -448,6 +448,50 @@
                 "325317898090577941": 1,
                 "293415777665679361": 1
             }
+        },
+        "870789318501871706": {
+            "config": {
+                "rank system": false,
+                "admin role id": 0,
+                "announcements channel id": 0
+            },
+            "rules": {
+                "title": "Server rules",
+                "description": "",
+                "list": [],
+                "image link": ""
+            },
+            "roles": {
+                "categories": {
+                    "Server": {
+                        "message id": 0,
+                        "roles": {}
+                    }
+                }
+            },
+            "ranks": {}
+        },
+        "872172926911283291": {
+            "config": {
+                "rank system": false,
+                "admin role id": 0,
+                "announcements channel id": 0
+            },
+            "rules": {
+                "title": "Server rules",
+                "description": "",
+                "list": [],
+                "image link": ""
+            },
+            "roles": {
+                "categories": {
+                    "Server": {
+                        "message id": 0,
+                        "roles": {}
+                    }
+                }
+            },
+            "ranks": {}
         }
     }
 }
