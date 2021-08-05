@@ -5,7 +5,9 @@ import json
 from datetime import date
 import discord
 import discord_components
-from discord_slash import SlashCommand, manage_components
+import discord_slash.error
+from discord_slash import SlashCommand
+from discord_slash.utils.manage_components import create_button, create_actionrow
 from discord.ext.commands import Bot
 from discord_components import DiscordComponents, Button, ButtonStyle, InteractionType, ActionRow
 
@@ -144,11 +146,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
 	if message.content == "-button":
-		await message.channel.send(" s",components=[Button(style=ButtonStyle.blue, label="Not an emoji yet")])
-
-		response = await client.wait_for("button_click")
-		if response.channel == message.channel:
-			await response.respond(type=InteractionType.UpdateMessage, content=f'{response.component.label} clicked')
+		await message.send("My Message", components=create_button(style=ButtonStyle.green, label="A␣GreenButton"))
 
 	if message.content == "-role2":
 		guild = message.guild
@@ -163,44 +161,54 @@ async def on_message(message):
 			for category in data["servers"][str(guild.id)]["roles"]:  # For category in roles
 				# Message per category
 				buttons = []
+				buttonRow = []
+				fill = 0
 				for role in data["servers"][str(guild.id)]["roles"][category]["list"]:  # For role in category
 					emojiCode = data["servers"][str(guild.id)]["roles"][category]["list"][role]["emoji"]
 					if emojiCode[:1] == "<":
 						for emoji in message.guild.emojis:
 							if emoji.name in emojiCode:
 								emojiCode = emoji
-
-					buttons.append(Button(style=ButtonStyle.blue, custom_id=role,label=data["servers"][str(guild.id)]["roles"][category]["list"][role]["name"], emoji=emojiCode))
-
+					if fill < 5:
+						buttonRow.append(Button(style=ButtonStyle.blue, custom_id=role,label=data["servers"][str(guild.id)]["roles"][category]["list"][role]["name"], emoji=emojiCode))
+						fill += 1
+					else:
+						buttons.append(buttonRow)
+						buttonRow = []
+						buttonRow.append(Button(style=ButtonStyle.blue, custom_id=role,label=data["servers"][str(guild.id)]["roles"][category]["list"][role]["name"], emoji=emojiCode))
+						fill=0
+				"""
 				# Sorts out rows of buttons
 				actionRows = []
 				i = 0
-				print("Amount of buttons:",len(buttons),"Will make",math.ceil(len(buttons)/5),"sets-------------")
+				print("Amount of buttons:",len(buttons),"Will make",len(buttons)//5,"sets-------------")
 				for x in range(len(buttons)//5): # Makes actions rows filled with 5 buttons
 					print("X:",x)
-					actionRow = ActionRow
-					actionRow.components = buttons[5*x:5*(x+1)]
-					print(5*x,"to",5*(x+1))
-					print("Length of row",x,len(actionRow.components))
+					actionRow = create_actionrow(*buttons[5*x:5*(x+1)])
+					print(5*x,"to",5*(x+1),"is "+buttons[5*x]["label"]+" to "+buttons[5*(x+1)-1]["label"])
+					print("Length of row",x,len(actionRow["components"]))
 					actionRows.append(actionRow)
 					i = x+1
 
-
 				# Adds last row (may have less than 5 buttons)
-				lastActionRow = ActionRow
-				lastActionRow.components = buttons[5 * i:]
-				print(5*i,"to end")
-				print("Length of row",i,len(lastActionRow.components))
-				if len(lastActionRow.components) > 0:
-					print("Adding row")
-					actionRows.append(lastActionRow)
-
+				try:
+					lastActionRow = create_actionrow(*buttons[5 * i:])
+					print(5*i,"to end is "+buttons[5*i]["label"]+" to "+buttons[-1]["label"])
+					print("Length of last row",i,len(lastActionRow["components"]))
+					if len(lastActionRow["components"]) >= 1:
+						print("Adding last row")
+						actionRows.append(lastActionRow)
+				except discord_slash.error.IncorrectFormat as exception:
+					print(exception)
+				
 				for row in actionRows:
-					print("Length of a row",len(row.components))
+					print("Length of row:"+row["components"][0]["label"]+" is",len(row["components"]))
+					for button in row["components"]:
+						print(button["label"])
 				print("Amount of rows here is:",len(actionRows))
-
+				"""
 				# Add button to message per role
-				category_message = await message.channel.send("Click button to get role", components=actionRows)
+				category_message = await message.channel.send(content="Click button to get role", components=buttons)
 
 				# Update the category's message id variable
 				data["servers"][str(guild.id)]["roles"][category]["message id"] = category_message.id
