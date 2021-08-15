@@ -26,17 +26,17 @@ TEMP_SERVER_STRUCTURE = {
 }
 
 # Cache
-roleMessageList = [] # List kept so this whole thing below doesn't have to be done everytime someone wants to change a role. PLEASE STOP LOOKING AT THIS PABLO!!!
+roleMessageList = []  # List kept so this whole thing below doesn't have to be done everytime someone wants to change a role. PLEASE STOP LOOKING AT THIS PABLO!!!
 for server in data["servers"]:
 	try:
-		for category in data["servers"][server]["roles"]: # ASSUMES category has one message id but only 5 buttons can be in a message!
+		for category in data["servers"][server]["roles"]:  # ASSUMES category has one message id but only 5 buttons can be in a message!
 			roleMessageList.append(data["servers"][server]["roles"][category]["message id"])
 	except KeyError:
 		print("No categories in " + server)
 print(roleMessageList)
 
 # Client stuff
-#client = discord.Client(intents=discord.Intents.all(), command_prefix="-")
+# client = discord.Client(intents=discord.Intents.all(), command_prefix="-")
 client = commands.Bot(command_prefix="-")
 
 
@@ -103,7 +103,7 @@ async def on_ready():
 	DiscordComponents(client)
 
 	print(f"Logged in as {client.user}!")
-
+	client.add_cog(Buttons(client))
 	while True:
 		response = await client.wait_for("button_click")
 		print("Response!")
@@ -122,8 +122,8 @@ async def on_ready():
 				role_id = -1
 				for category in data["servers"][str(guild.id)]["roles"]:  # For category in list
 					for role in data["servers"][str(guild.id)]["roles"][category]["list"]:  # For role in category
-						print("Name in data:"+role)
-						print("Name from response:"+response.custom_id)
+						print("Name in data:" + role)
+						print("Name from response:" + response.custom_id)
 						if role == response.custom_id:
 							role_id = int(role)
 							break
@@ -137,12 +137,63 @@ async def on_ready():
 
 				# Finally, add the role
 				try:
-					member = guild.get_member(response.user.id) # Converts chad user, to beta member
+					member = guild.get_member(response.user.id)  # Converts chad user, to beta member
 					await member.add_roles(role)
 					logger.info("Role `" + role.name + "` added to " + response.user.name)  # Event log
 				# If we want to do something in case of errors we'd do it here
 				except Exception as exception:
 					logger.error("Failed to add role " + role.name + " to " + response.user.name + ". Exception: " + str(exception))  # Event log
+
+
+class Buttons(commands.Cog):
+	def __init__(self, bot):
+		self.client = client
+
+	@commands.command()
+	async def rol(self, ctx):
+		print("Got")
+		message = ctx
+		guild = message.guild
+		# If the roles have been set up
+		if "roles" in data["servers"][str(guild.id)] and len(data["servers"][str(guild.id)]["roles"]) != 0:
+
+			# Delete the command message
+			# await message.delete()
+
+			# Sends a message with all the days of the week in
+			await message.channel.send("Days of the week.")
+			# Message per category
+			actionRowOfRows = ActionRow()
+			buttonRow = []
+			buttons = []
+			fill = 0
+			for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]:  # For role in category
+				if fill < 5:
+					buttonRow.append(Button(style=ButtonStyle.blue, custom_id=day, label=day))  # New button in existing buttonRow
+					fill += 1
+				else:
+					actionRowOfRows.append(ActionRow(buttonRow))  # Adds row to the row of rows
+					buttonRow = []
+					buttons.append(buttonRow)
+					buttonRow.append(Button(style=ButtonStyle.blue, custom_id=day, label=day))  # New button in the blank buttonRow
+					fill = 0
+
+			# Add button to message per day
+			category_message = await message.channel.send(content="The week", components=buttons)
+
+			# Update the category's message id variable
+			data["servers"][str(guild.id)]["roles"][category]["message id"] = category_message.id
+			print("Cat ID: " + str(category_message.id))
+			roleMessageList.append(category_message.id)
+
+			# Write the updated data
+			update_data()
+
+		# If the roles haven't been set up
+		else:
+			logger.debug("Roles have not been set up for " + str(message.guild.id))  # Event log
+			await message.channel.send(
+				"Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
 
 @client.event
@@ -156,40 +207,33 @@ async def on_message(message):
 		if "roles" in data["servers"][str(guild.id)] and len(data["servers"][str(guild.id)]["roles"]) != 0:
 
 			# Delete the command message
-			#await message.delete()
+			# await message.delete()
 
-			# Send one roles message per category
-			await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
-			for category in data["servers"][str(guild.id)]["roles"]:  # For category in roles
-				# Message per category
-				buttons = []
-				mainActionRow = ActionRow()
-				buttonRow = []
-				fill = 0
-				for role in data["servers"][str(guild.id)]["roles"][category]["list"]:  # For role in category
-					emojiCode = data["servers"][str(guild.id)]["roles"][category]["list"][role]["emoji"]
-					if emojiCode[:1] == "<":
-						for emoji in message.guild.emojis:
-							if emoji.name in emojiCode:
-								emojiCode = emoji
-					if fill < 5:
-						buttonRow.append(Button(style=ButtonStyle.blue, custom_id=role,label=data["servers"][str(guild.id)]["roles"][category]["list"][role]["name"], emoji=emojiCode))
-						fill += 1
-					else:
-						buttons.append(buttonRow)
-						mainActionRow.append(ActionRow(buttonRow))
-						buttonRow = []
-						buttonRow.append(Button(style=ButtonStyle.blue, custom_id=role,label=data["servers"][str(guild.id)]["roles"][category]["list"][role]["name"], emoji=emojiCode))
-						fill=0
+			# Sends a message with all the days of the week in
+			await message.channel.send("Days of the week.")
+			# Message per category
+			actionRowOfRows = ActionRow()
+			buttonRow = []
+			buttons = []
+			fill = 0
+			for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]:  # For role in category
+				if fill < 5:
+					buttonRow.append(Button(style=ButtonStyle.blue, custom_id=day, label=day))  # New button in existing buttonRow
+					fill += 1
+				else:
+					actionRowOfRows.append(ActionRow(buttonRow))  # Adds row to the row of rows
+					buttonRow = []
+					buttons.append(buttonRow)
+					buttonRow.append(Button(style=ButtonStyle.blue, custom_id=day, label=day))  # New button in the blank buttonRow
+					fill = 0
 
+			# Add button to message per day
+			category_message = await message.channel.send(content="The week", components=buttons)
 
-				# Add button to message per role
-				category_message = await message.channel.send(content="Click button to get role", components=mainActionRow)
-
-				# Update the category's message id variable
-				data["servers"][str(guild.id)]["roles"][category]["message id"] = category_message.id
-				print("Cat ID: "+str(category_message.id))
-				roleMessageList.append(category_message.id)
+			# Update the category's message id variable
+			data["servers"][str(guild.id)]["roles"][category]["message id"] = category_message.id
+			print("Cat ID: " + str(category_message.id))
+			roleMessageList.append(category_message.id)
 
 			# Write the updated data
 			update_data()
@@ -199,7 +243,6 @@ async def on_message(message):
 			logger.debug("Roles have not been set up for " + str(message.guild.id))  # Event log
 			await message.channel.send(
 				"Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
-
 
 
 # Slash command stuff
