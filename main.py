@@ -577,9 +577,14 @@ class MyClient(discord.Client):
 				if guild.get_role(self.data["servers"][str(payload.guild_id)]["config"]["admin role id"]) in guild.get_member(payload.user_id).roles:
 					logger.debug("Purge confirmed by admin")
 					if str(payload.emoji) =="👍":
-						await client.get_channel(payload.channel_id).purge(limit=self.purge_messages[payload.message_id])
-						logger.info("Purge complete in "+client.get_channel(payload.channel_id).name)
-						await client.get_channel(payload.channel_id).send("Channel purged "+str(self.purge_messages[payload.message_id]) + " messages")
+						try:
+							await client.get_channel(payload.channel_id).purge(limit=self.purge_messages[payload.message_id])
+							logger.info("Purge complete in "+client.get_channel(payload.channel_id).name + " < " +client.get_guild(payload.guild_id).name)
+							await client.get_channel(payload.channel_id).send("Channel purged "+str(self.purge_messages[payload.message_id]) + " messages")
+							self.purge_messages.pop(payload.message_id)
+						except Exception as e:
+							await client.get_channel(payload.channel_id).send("Channel failed the purge. There were possibly too many messages.")
+
 
 			if message_relevant is False:
 				return
