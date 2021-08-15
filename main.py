@@ -257,7 +257,6 @@ class MyClient(discord.Client):
 							description = argument[1]
 						elif argument[0] == "colour":
 							colour = int(argument[1][-6:], 16)
-							print(colour)
 						else:
 							fields.append({argument[0]:argument[1]})
 					else:
