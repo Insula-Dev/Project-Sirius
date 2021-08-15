@@ -51,7 +51,8 @@ class MyClient(discord.Client):
 		self.start_time = datetime.now()
 		self.data = {}
 		self.cache = {}
-		self.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain")
+		self.purge_messages = {}
+		self.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain of purple Gods")
 
 		# Print logs to the console too, for debugging
 		if debug is True:
@@ -403,6 +404,15 @@ class MyClient(discord.Client):
 					logger.error("Failed to generate or send statistics. Exception: " + str(exception))  # Event log
 					await message.channel.send("Error: Something went wrong on our side...")
 
+			# Purge Command
+			if message.content.startswith(PREFIX + "purge"):
+				logger.info("`purge` called by " + message.author.name)  # Event log
+				argument = message.content[len(PREFIX + "purge "):]
+				number = int(argument)
+
+				purge_message = await message.channel.send("React with 👍 to confirm")
+				self.purge_messages[purge_message.id] = number
+
 		# If the message was sent by the developers
 		if message.author.id in self.data["config"]["developers"]:
 
@@ -562,6 +572,16 @@ class MyClient(discord.Client):
 				if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["categories"][category]["message id"]:
 					message_relevant = True
 					break
+
+			if payload.message_id in self.purge_messages: # Did a slightly different system that's doubly efficient than your weird check system
+				logger.debug("Purge message reacted to")
+				if guild.get_role(self.data["servers"][str(payload.guild_id)]["config"]["admin role id"]) in guild.get_member(payload.user_id).roles:
+					logger.debug("Purge confirmed by admin")
+					if str(payload.emoji) =="👍":
+						await client.get_channel(payload.channel_id).purge(limit=self.purge_messages[payload.message_id])
+						logger.info("Purge complete in "+client.get_channel(payload.channel_id).name)
+						await client.get_channel(payload.channel_id).send("Channel purged "+str(self.purge_messages[payload.message_id]) + " messages")
+
 			if message_relevant is False:
 				return
 
