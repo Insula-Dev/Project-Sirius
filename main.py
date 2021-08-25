@@ -291,7 +291,7 @@ class MyClient(discord.Client):
 			await message.channel.send(embed=embed_help)
 
 		# If the message was sent by the admins
-		if guild.get_role(self.data["servers"][str(message.guild.id)]["config"]["admin role id"]) in guild.get_member(message.author.id).roles:
+		if message.author.guild_permissions.administrator:
 
 			# Rules command
 			if message.content == PREFIX + "rules":
@@ -574,7 +574,7 @@ class MyClient(discord.Client):
 
 			if payload.message_id in self.purge_messages: # Did a slightly different system that's doubly efficient than your weird check system
 				logger.debug("Purge message reacted to")
-				if guild.get_role(self.data["servers"][str(payload.guild_id)]["config"]["admin role id"]) in guild.get_member(payload.user_id).roles:
+				if guild.get_member(payload.user_id).guild_permissions.administrator: # If has admin perms
 					logger.debug("Purge confirmed by admin")
 					if str(payload.emoji) =="👍":
 						try:
@@ -693,9 +693,9 @@ class MyClient(discord.Client):
 
 		# If the roles haven't been set up
 		else:
-			logger.debug("Roles have not been set up for " + str(message.guild.id))  # Event log
+			logger.debug("Roles have not been set up for " + str(payload.guild.id))  # Event log
 			# Send an error message
-			await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
+			await payload.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
 
 # Main body

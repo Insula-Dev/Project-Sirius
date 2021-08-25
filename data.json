@@ -283,7 +283,7 @@
             },
             "ranks": {
                 "241772848564142080": 19,
-                "258284765776576512": 80,
+                "258284765776576512": 82,
                 "519494195929546782": 2
             }
         },
@@ -354,11 +354,11 @@
                             },
                             "870658082575908934": {
                                 "name": "Networks",
-                                "emoji": "\uD83C\uDF10"
+                                "emoji": "\ud83c\udf10"
                             },
                             "870658127786278974": {
                                 "name": "Embedded Systems",
-                                "emoji": "\uD83D\uDCDF"
+                                "emoji": "\ud83d\udcdf"
                             },
                             "870658209315172364": {
                                 "name": "Data Science",
@@ -420,15 +420,15 @@
                         "roles": {
                             "760641720043044894": {
                                 "name": "Party Night",
-                                "emoji": "\uD83C\uDF70"
+                                "emoji": "\ud83c\udf70"
                             },
                             "762269304074665985": {
                                 "name": "Meetups",
-                                "emoji": "\uD83E\uDEC2"
+                                "emoji": "\ud83e\udec2"
                             },
                             "808481625536987155": {
                                 "name": "Bottom Gear",
-                                "emoji": "\uD83D\uDE97"
+                                "emoji": "\ud83d\ude97"
                             },
                             "762621157039276053": {
                                 "name": "Weebs",
@@ -436,7 +436,7 @@
                             },
                             "782069492909473823": {
                                 "name": "Alt Account (VC access)",
-                                "emoji": "\uD83D\uDC65"
+                                "emoji": "\ud83d\udc65"
                             }
                         }
                     }
