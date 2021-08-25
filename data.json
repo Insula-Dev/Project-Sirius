@@ -276,14 +276,14 @@
             "roles": {
                 "categories": {
                     "Server": {
-                        "message id": 870383937489354773,
+                        "message id": 879772983177129985,
                         "roles": {}
                     }
                 }
             },
             "ranks": {
                 "241772848564142080": 19,
-                "258284765776576512": 79,
+                "258284765776576512": 80,
                 "519494195929546782": 2
             }
         },
@@ -313,13 +313,13 @@
         },
         "755420029482303488": {
             "config": {
-                "rank system": false,
+                "rank system": true,
                 "admin role id": 755425726349705316,
                 "announcements channel id": 0
             },
             "rules": {
                 "title": "UEA CS Paper98 Rules",
-                "description": "",
+                "description": "Don't be a prick",
                 "list": [],
                 "image link": ""
             },
@@ -330,43 +330,43 @@
                         "roles": {
                             "755425459482656939": {
                                 "name": "Year In Industry",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "\ud83c\udfd7\ufe0f"
                             },
                             "773890053620367380": {
                                 "name": "Business",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "\ud83e\udd11"
                             },
                             "870657275231084595": {
                                 "name": "System Analysis",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "\ud83d\udcca"
                             },
                             "870657522942476318": {
                                 "name": "Electronics",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "\ud83d\uddf1"
                             },
                             "870657832784121926": {
-                                "name": "Information Retrievel",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "name": "Information Retrieval",
+                                "emoji": "\ud83e\udea3"
                             },
                             "870657987520372747": {
                                 "name": "Graphics",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "\ud83d\udd8b\ufe0f"
                             },
                             "870658082575908934": {
                                 "name": "Networks",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "\uD83C\uDF10"
                             },
                             "870658127786278974": {
                                 "name": "Embedded Systems",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "\uD83D\uDCDF"
                             },
                             "870658209315172364": {
                                 "name": "Data Science",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "\ud83e\uddee"
                             },
                             "768440261633245184": {
                                 "name": "Outsider",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "\ud83d\udc12"
                             }
                         }
                     },
@@ -375,43 +375,43 @@
                         "roles": {
                             "759097339133558834": {
                                 "name": "Rainbow Six Siege",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "<:rainbowsix:759106632185282621>"
                             },
                             "759097389821722624": {
                                 "name": "Minecraft",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "<:minecraft:759106940680273942>"
                             },
                             "759113525946744843": {
                                 "name": "Valorant",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "<:valorant:759107271048560641>"
                             },
                             "759113567475335200": {
                                 "name": "Rocket League",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "<:rocketleague:759107775913001021>"
                             },
                             "759097205524398130": {
                                 "name": "Among Us",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "<:amongus:759113207653859390>"
                             },
                             "759097283185999942": {
                                 "name": "CS:GO",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "<:csgo:879772078864216144>"
                             },
                             "759131632757768224": {
                                 "name": "Overwatch",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "<:overwatch:759130857876881428>"
                             },
                             "759510389368029245": {
                                 "name": "GTA V",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "<:gta5:759510285181517905>"
                             },
                             "759510438043582525": {
                                 "name": "League of Legends",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "<:league:759510210787934248>"
                             },
                             "781209356804161587": {
                                 "name": "Jackbox (Party Games)",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "<:jackbox:780972476954968116>"
                             }
                         }
                     },
@@ -420,23 +420,23 @@
                         "roles": {
                             "760641720043044894": {
                                 "name": "Party Night",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "\uD83C\uDF70"
                             },
                             "762269304074665985": {
                                 "name": "Meetups",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "\uD83E\uDEC2"
                             },
                             "808481625536987155": {
                                 "name": "Bottom Gear",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "\uD83D\uDE97"
                             },
                             "762621157039276053": {
                                 "name": "Weebs",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "<:AYAYA:762621492516880395>"
                             },
                             "782069492909473823": {
                                 "name": "Alt Account (VC access)",
-                                "emoji": "<:destiny2:834175548921741342>"
+                                "emoji": "\uD83D\uDC65"
                             }
                         }
                     }
