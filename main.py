@@ -346,13 +346,13 @@ class MyClient(discord.Client):
 					await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
 					for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:  # For category in roles
 						roles = []
-						for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"]:  # For role in category
-							roles.append(self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"][role]["name"] + "\n")
+						for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:  # For role in category
+							roles.append(self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"][role]["name"] + "\n")
 						category_message = await message.channel.send("**" + category + "**\n\n" + "".join(roles))
 
 						# Add reactions to the roles message
-						for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"]:
-							await category_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"][role]["emoji"])
+						for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:
+							await category_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"][role]["emoji"])
 
 						# Update the category's message id variable
 						self.data["servers"][str(guild.id)]["roles"]["categories"][category]["message id"] = category_message.id
@@ -600,8 +600,8 @@ class MyClient(discord.Client):
 			# If the emoji isn't the one we care about then delete it and exit as well
 			role_id = -1
 			for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:  # For category in list
-				for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"]:  # For role in category
-					if self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"][role]["emoji"] == str(payload.emoji):
+				for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:  # For role in category
+					if self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"][role]["emoji"] == str(payload.emoji):
 						role_id = int(role)
 						break
 			if role_id == -1:
@@ -671,8 +671,8 @@ class MyClient(discord.Client):
 			# If the emoji isn't the one we care about then exit as well
 			role_id = -1
 			for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:  # For category in list
-				for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"]:  # For role in category
-					if self.data["servers"][str(guild.id)]["roles"]["categories"][category]["roles"][role]["emoji"] == str(payload.emoji):
+				for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:  # For role in category
+					if self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"][role]["emoji"] == str(payload.emoji):
 						role_id = int(role)
 						break
 			if role_id == -1:
