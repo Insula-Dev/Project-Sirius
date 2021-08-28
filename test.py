@@ -1,1 +1,0 @@
-print(type(hex(0xffc000)))
