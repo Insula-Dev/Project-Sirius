@@ -639,9 +639,9 @@ class MyClient(discord.Client):
 
 		# If the roles haven't been set up
 		else:
-			logger.debug("Roles have not been set up for " + str(message.guild.id))  # Event log
+			logger.debug("Roles have not been set up for " + str(payload.guild.id))  # Event log
 			# Send an error message
-			await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
+			await payload.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
 	async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
 		"""Runs when a reaction is removed.
