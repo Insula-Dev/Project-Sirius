@@ -76,7 +76,8 @@ class MyClient(discord.Client):
 
 		try:
 			self.data["servers"][str(guild.id)] = server_structure
-			self.cache[str(guild.id)] = {}
+			self.cache[str(guild.id)] = []
+			self.poll[str(guild.id)] = {}
 
 			# Write the updated data
 			self.update_data()
@@ -112,16 +113,62 @@ class MyClient(discord.Client):
 					uptime += "second"
 				else:
 					uptime += "seconds"
+
 			logger.debug("Calculated uptime")  # Event log
 			return uptime
 		except Exception as exception:
 			logger.error("Failed to calculate uptime. Exception: " + exception)  # Event log
 			return None
 
+	async def terminatePoll(self, message):
+		"""Closes poll"""
+		reactions = message.reactions
+		highest_count = 0
+		emojis = []
+		counts = []
+
+		for reaction in reactions:
+			emoji = reaction.emoji
+			if emoji not in emojis:
+				emojis.append(emoji)
+			if str(emoji) != "🔚":
+				counts.append(str(reaction.count - 1))
+			if reaction.count > highest_count:
+				highest_count = reaction.count
+				highest_emoji = reaction.emoji
+		highest_count -= 1  # Takes away the bots reaction
+
+		print(self.poll)
+		poll = self.poll[str(message.guild.id)][str(message.id)]
+
+		options = []
+		#for option in poll["options"]:  # Makes list of options
+		for emoji in emojis:
+			if str(emoji) != "🔚":
+				options.append(str(emoji) + " " + poll["options"][str(emoji)])
+
+		title = str(poll["title"])
+		if title == "Embed.Empty":
+			title = ""
+		embed_results = discord.Embed(title=title + " Results")
+		embed_results.add_field(name="Candidates", value="\n".join(options), inline=True)
+		embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
+		if poll["config"]["winner"] == "highest": # Winner is shown as the highest scoring candidate
+
+
+			embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)] + " Score: " + str(highest_count)), inline=False)
+
+		await message.channel.send(embed=embed_results)
+		self.poll[str(message.guild.id)].pop(str(message.id)) # Removes poll entry from dictionary
+
 	async def on_ready(self):
 		"""Runs when the client is ready."""
 
-		self.connected = True
+		logger.info(self.user.name + " is ready (commencing on_ready)")  # Event log
+		if self.guilds != []:
+			logger.info(self.user.name + " is connected to the following guilds:")  # Event log
+			for guild in self.guilds:
+				logger.info("    " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
 
 		# Load the data file into the data variable
 		try:
@@ -143,6 +190,7 @@ class MyClient(discord.Client):
 		# Initialise cache for servers
 		for guild in self.guilds:
 			self.cache[str(guild.id)] = {}
+			self.poll[str(guild.id)] = {}
 
 		logger.info(self.user.name + " is ready (finished on_ready)")  # Event log
 
@@ -177,7 +225,6 @@ class MyClient(discord.Client):
 
 		# Check if server data already exists
 		if str(guild.id) not in self.data["servers"]:
-
 			# Initialise guild
 			self.initialise_guild(guild)
 
@@ -642,6 +689,18 @@ class MyClient(discord.Client):
 			logger.debug("Roles have not been set up for " + str(payload.guild.id))  # Event log
 			# Send an error message
 			await payload.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
+
+		if reaction_usage == "polls":
+			print("Poll reaction!")
+			if str(payload.emoji) == "🔚":
+
+				logger.debug("Poll ending")
+				logger.debug("Poll identified for termination")
+				channel = await self.fetch_channel(payload.channel_id)
+				message = await channel.fetch_message(payload.message_id)
+				reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
+				await reaction.remove(payload.member)  # Removes end emoji
+				await self.terminatePoll(message)
 
 	async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
 		"""Runs when a reaction is removed.
