@@ -29,6 +29,7 @@ server_structure = {
 		"image link": ""
 	},
 	"roles": {
+		"verify role": 0,
 		"categories": {
 			"Server": {
 				"message id": 0,
@@ -603,6 +604,14 @@ class MyClient(discord.Client):
 				for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:  # For role in category
 					if self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"][role]["emoji"] == str(payload.emoji):
 						role_id = int(role)
+						try:
+							verify_role = self.data["servers"][str(guild.id)]["roles"]["verify role"]
+							if verify_role != 0:
+								role = guild.get_role(verify_role)
+								await payload.member.add_roles(role)
+								logger.debug("Verified " + payload.member.name + " on " + guild.name)
+						except KeyError:
+							logger.debug("No verification role found in "+guild.name)
 						break
 			if role_id == -1:
 				channel = await self.fetch_channel(payload.channel_id)

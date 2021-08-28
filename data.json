@@ -274,9 +274,10 @@
                 "image link": null
             },
             "roles": {
+                "verify role": 881177902538977300,
                 "categories": {
                     "Server": {
-                        "message id": 881179752663244861,
+                        "message id": 881180767194075136,
                         "list": {
                             "864923062838886421": {
                                 "name": "Cinema",
@@ -321,7 +322,7 @@
                         }
                     },
                     "Additional": {
-                        "message id": 881179769939566622,
+                        "message id": 881180786135564348,
                         "list": {
                             "835971801761710160": {
                                 "name": "Hazers",
@@ -333,7 +334,7 @@
             },
             "ranks": {
                 "241772848564142080": 19,
-                "258284765776576512": 84,
+                "258284765776576512": 85,
                 "519494195929546782": 2
             }
         },
@@ -514,12 +515,14 @@
             "roles": {
                 "categories": {
                     "Server": {
-                        "message id": 0,
+                        "message id": 881180866041221225,
                         "list": {}
                     }
                 }
             },
-            "ranks": {}
+            "ranks": {
+                "258284765776576512": 1
+            }
         },
         "872172926911283291": {
             "config": {
@@ -535,13 +538,82 @@
             },
             "roles": {
                 "categories": {
-                    "Server": {
-                        "message id": 0,
-                        "list": {}
+                    "Year": {
+                        "message id": 881182148034457650,
+                        "list": {
+                            "845309847640473641": {
+                                "name": "Foundation",
+                                "emoji": "0\ufe0f\u20e3"
+                            },
+                            "844943772043444234": {
+                                "name": "Year 1",
+                                "emoji": "1\ufe0f\u20e3"
+                            },
+                            "844943944319893564": {
+                                "name": "Year 2",
+                                "emoji": "2\ufe0f\u20e3"
+                            },
+                            "844943919786622988": {
+                                "name": "Year 3",
+                                "emoji": "3\ufe0f\u20e3"
+                            },
+                            "844943891928580107": {
+                                "name": "Year 4",
+                                "emoji": "4\ufe0f\u20e3"
+                            },
+                            "845309888028344381": {
+                                "name": "Postgrad",
+                                "emoji": "\ud83c\udd7f\ufe0f"
+                            },
+                            "844948245570387969": {
+                                "name": "Outsider",
+                                "emoji": "\ud83d\udc12"
+                            }
+                        }
+                    },
+                    "Degree/Courses": {
+                        "message id": 881182159912718407,
+                        "list": {
+                            "846173456915496981": {
+                                "name": "Physics",
+                                "emoji": "\ud83d\udcda"
+                            },
+                            "846173362106400788": {
+                                "name": "Astrophysics",
+                                "emoji": "\ud83d\udef0\ufe0f"
+                            },
+                            "846173276693987389": {
+                                "name": "Theoretical Physics",
+                                "emoji": "\ud83e\uddf2"
+                            },
+                            "846173705432334336": {
+                                "name": "Physics and Mathematics",
+                                "emoji": "\ud83e\uddee"
+                            },
+                            "846173649404690474": {
+                                "name": "Physics and Philosophy",
+                                "emoji": "\ud83d\udcdc"
+                            }
+                        }
+                    },
+                    "Misc": {
+                        "message id": 881182170272632834,
+                        "list": {
+                            "846208891842854953": {
+                                "name": "PhysSoc",
+                                "emoji": "\ud83d\ude80"
+                            },
+                            "846209216062554133": {
+                                "name": "MathSoc",
+                                "emoji": "\ud83d\udcd0"
+                            }
+                        }
                     }
                 }
             },
-            "ranks": {}
+            "ranks": {
+                "258284765776576512": 3
+            }
         }
     }
 }
