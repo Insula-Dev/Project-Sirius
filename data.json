@@ -303,7 +303,65 @@
             },
             "ranks": {
                 "241772848564142080": 14,
-                "258284765776576512": 50
+                "258284765776576512": 52
+            }
+        },
+        "870789318501871706": {
+            "config": {
+                "rank system": false,
+                "admin role id": 0,
+                "announcements channel id": 0
+            },
+            "rules": {
+                "title": "Server rules",
+                "description": "",
+                "list": [],
+                "image link": ""
+            },
+            "roles": {
+                "category list": {
+                    "Server": {
+                        "message id": 0,
+                        "role list": {}
+                    }
+                }
+            },
+            "ranks": {},
+            "polls": {
+                "message id": {
+                    "title": "poll title",
+                    "time": "poll timestamp",
+                    "options": {}
+                }
+            }
+        },
+        "872172926911283291": {
+            "config": {
+                "rank system": false,
+                "admin role id": 0,
+                "announcements channel id": 0
+            },
+            "rules": {
+                "title": "Server rules",
+                "description": "",
+                "list": [],
+                "image link": ""
+            },
+            "roles": {
+                "category list": {
+                    "Server": {
+                        "message id": 0,
+                        "role list": {}
+                    }
+                }
+            },
+            "ranks": {},
+            "polls": {
+                "message id": {
+                    "title": "poll title",
+                    "time": "poll timestamp",
+                    "options": {}
+                }
             }
         }
     }
