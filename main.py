@@ -52,6 +52,7 @@ class MyClient(discord.Client):
 		self.start_time = datetime.now()
 		self.data = {}
 		self.cache = {}
+		self.poll = {}
 		self.purge_messages = {}
 		self.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain of purple Gods")
 
@@ -76,7 +77,7 @@ class MyClient(discord.Client):
 
 		try:
 			self.data["servers"][str(guild.id)] = server_structure
-			self.cache[str(guild.id)] = []
+			self.cache[str(guild.id)] = {}
 			self.poll[str(guild.id)] = {}
 
 			# Write the updated data
@@ -113,7 +114,6 @@ class MyClient(discord.Client):
 					uptime += "second"
 				else:
 					uptime += "seconds"
-
 			logger.debug("Calculated uptime")  # Event log
 			return uptime
 		except Exception as exception:
@@ -131,7 +131,7 @@ class MyClient(discord.Client):
 			emoji = reaction.emoji
 			if emoji not in emojis:
 				emojis.append(emoji)
-			if str(emoji) != "🔚":
+			if str(emoji) != "🔚": # Doesn't count end emote
 				counts.append(str(reaction.count - 1))
 			if reaction.count > highest_count:
 				highest_count = reaction.count
@@ -161,14 +161,11 @@ class MyClient(discord.Client):
 		await message.channel.send(embed=embed_results)
 		self.poll[str(message.guild.id)].pop(str(message.id)) # Removes poll entry from dictionary
 
+
 	async def on_ready(self):
 		"""Runs when the client is ready."""
 
-		logger.info(self.user.name + " is ready (commencing on_ready)")  # Event log
-		if self.guilds != []:
-			logger.info(self.user.name + " is connected to the following guilds:")  # Event log
-			for guild in self.guilds:
-				logger.info("    " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
+		self.connected = True
 
 		# Load the data file into the data variable
 		try:
@@ -225,6 +222,7 @@ class MyClient(discord.Client):
 
 		# Check if server data already exists
 		if str(guild.id) not in self.data["servers"]:
+
 			# Initialise guild
 			self.initialise_guild(guild)
 
@@ -460,6 +458,86 @@ class MyClient(discord.Client):
 				purge_message = await message.channel.send("React with 👍 to confirm")
 				self.purge_messages[purge_message.id] = number
 
+			# Poll command
+			if message.content.startswith(PREFIX + "poll"):
+				"""ERRORS TO TEST FOR:
+				- Duplicate emojis
+				- Custom emojis
+				- Duplicate custom emojis
+				THINGS TO FIX:
+				- Standardise datetime format
+				- Remove regex secretly. IGNORE THIS!
+				- Trailing newlines at the end of embed
+				"""
+
+				logger.info("`poll` called by " + message.author.name)  # Event log
+
+				# Delete the command message
+				await message.channel.purge(limit=1)
+
+				# !!! Clunky and breakable
+				argument_string = message.content[len(PREFIX + "poll "):]
+				arguments = re.split("\,\s|\,", argument_string)  # Replace with arguments = argument.split(", ")
+				candidates = {}  # Dictionary of candidates that can be voted for
+				candidates_string = ""
+
+				# Embed
+				title = discord.Embed.Empty
+				colour = 0xffc000
+
+				# Config
+				winner = "none"
+
+				# Analyse argument
+				for argument in arguments:
+					argument = argument.split("=")
+					# print("Argument 0, 1:", argument[0], argument[1])
+					poll_time = str(datetime.now())
+					if argument[0] == "title":
+						title = argument[1]
+					elif argument[0] == "time":
+						# Arun's time machine
+						time_list = argument[1].split("/")
+						hour = 12
+						minute = 00
+						if ":" in time_list[2]:
+							last_time_arg = time_list[2].split(" ")
+							time_list[2] = last_time_arg[0]
+							hour = last_time_arg[1].split(":")[0]
+							minute = last_time_arg[1].split(":")[1]
+						poll_time = str(datetime(day=int(time_list[0]), month=int(time_list[1]), year=int(time_list[2]), hour=int(hour), minute=int(minute)))  # Accommodate for American convention. Or don't.
+					elif argument[0] == "colour":
+						colour = int(argument[1][-6:],16)
+						print(colour)
+					elif argument[0] == "winner":
+						winner = argument[1]
+					else:
+						candidates[argument[1].rstrip()] = argument[0]
+						candidates_string += argument[1] + " - " + argument[0] + "\n"
+
+				# Create and send poll embed
+				embed_poll = discord.Embed(title=title, description=candidates_string, color=colour)
+				embed_poll.set_footer(text="Poll ending • " + poll_time)
+				poll_message = await message.channel.send(embed=embed_poll)
+
+				self.poll[str(message.guild.id)].update({str(poll_message.id): {
+					"title": title,
+					"time": str(poll_time),
+					"options": candidates,
+					"config":
+						{
+							"winner": winner
+						}
+				}
+				})
+
+				print(self.poll[str(message.guild.id)])
+
+				# Add reactions to the poll embed
+				for candidate in candidates:
+					# print("Candidate: " + str(candidate))
+					await poll_message.add_reaction(candidate)
+
 		# If the message was sent by the developers
 		if message.author.id in self.data["config"]["developers"]:
 
@@ -605,78 +683,78 @@ class MyClient(discord.Client):
 			logger.debug("Failed to send goodbye message for " + member.guild.name + " to " + member.name)  # Event log
 
 	async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-		"""Runs when a reaction is added.
-		If the message and reaction are relevant, adds a role based on the reaction emoji."""
+		"""Gives a role based on a reaction emoji."""
 
 		guild = self.get_guild(payload.guild_id)
+		# Make sure that the message the user is reacting to is the one we care about. Would be removed because dumb but you've integrated the whole thing way too much. This is not very modular at all!
+		reaction_usage = "none"
 
-		# Check if the roles have been set up
-		if len(self.data["servers"][str(guild.id)]["roles"]["categories"]) != 0:
-
-			# Make sure that the message the user is reacting to is the one we care about
-			message_relevant = False
-			for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:
-				if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["categories"][category]["message id"]:
-					message_relevant = True
-					break
-
-			if payload.message_id in self.purge_messages: # Did a slightly different system that's doubly efficient than your weird check system
-				logger.debug("Purge message reacted to")
-				if guild.get_member(payload.user_id).guild_permissions.administrator: # If has admin perms
-					logger.debug("Purge confirmed by admin")
-					if str(payload.emoji) =="👍":
-						try:
-							await client.get_channel(payload.channel_id).purge(limit=self.purge_messages[payload.message_id])
-							logger.info("Purge complete in "+client.get_channel(payload.channel_id).name + " < " +client.get_guild(payload.guild_id).name)
-							await client.get_channel(payload.channel_id).send("Channel purged "+str(self.purge_messages[payload.message_id]) + " messages")
-							self.purge_messages.pop(payload.message_id)
-						except Exception as e:
-							await client.get_channel(payload.channel_id).send("Channel failed the purge. There were possibly too many messages.")
-
-
-			if message_relevant is False:
-				return
-
-			# Make sure the user isn't the bot
-			if payload.member.id == self.user.id:
-				return
-
-			# Check if we're still in the guild and it's cached
-			if guild is None:
-				return
-
-			# If the emoji isn't the one we care about then delete it and exit as well
-			role_id = -1
-			for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:  # For category in list
-				for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:  # For role in category
-					if self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"][role]["emoji"] == str(payload.emoji):
-						role_id = int(role)
-						try:
-							verify_role = self.data["servers"][str(guild.id)]["roles"]["verify role"]
-							if verify_role != 0:
-								role = guild.get_role(verify_role)
-								await payload.member.add_roles(role)
-								logger.debug("Verified " + payload.member.name + " on " + guild.name)
-						except KeyError:
-							logger.debug("No verification role found in "+guild.name)
+		# Role reaction check
+		for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:
+			if payload.message_id in self.data["servers"][str(payload.guild_id)]["roles"]["categories"][category]:  # How does this work? Surely you should say "in", not ==. Yeah, think so but why wasn't this tested
+				reaction_usage = "roles"
+				break
+		if reaction_usage == "none": # No functionality found yet, keep checking
+			# Poll reaction check
+			try:
+				for message in self.poll[str(guild.id)]:
+					if str(payload.message_id) == message:
+						reaction_usage = "polls"
 						break
+			except KeyError:
+				pass
+
+			if reaction_usage == "none": # No functionality found yet, keep checking
+				# Purge reaction check
+				if payload.message_id in self.purge_messages:  # Did a slightly different system that's doubly efficient than your weird check system
+					logger.debug("Purge message reacted to")
+					if guild.get_member(payload.user_id).guild_permissions.administrator:  # If has admin perms
+						logger.debug("Purge confirmed by admin")
+						if str(payload.emoji) == "👍":
+							try:
+								await client.get_channel(payload.channel_id).purge(limit=self.purge_messages[payload.message_id])
+								logger.info("Purge complete in " + client.get_channel(payload.channel_id).name + " < " + client.get_guild(payload.guild_id).name)
+								await client.get_channel(payload.channel_id).send("Channel purged " + str(self.purge_messages[payload.message_id]) + " messages")
+								self.purge_messages.pop(payload.message_id)
+							except Exception as e:
+								await client.get_channel(payload.channel_id).send("Channel failed the purge. There were possibly too many messages.")
+
+		if reaction_usage == "none":
+			return
+		# Make sure the user isn't the bot.
+		if payload.member.id == self.user.id:  # was payload.author
+			return
+
+		# Check if we're still in the guild and it's cached.
+		if guild is None:
+			return
+
+		if reaction_usage == "roles":
+			# If the emoji isn't the one we care about then delete it and exit as well.
+			# Checks payload for role reaction and then end poll reaction
+			role_id = -1
+			for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in list
+				for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
+					if self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] == str(payload.emoji):
+						role_id = int(role)
+						break
+
+			# The deleter
 			if role_id == -1:
+				# Not very efficient... comes from (https://stackoverflow.com/questions/63418818/python-discord-bot-python-clear-reaction-clears-all-reactions-instead-of-a-s)
 				channel = await self.fetch_channel(payload.channel_id)
 				message = await channel.fetch_message(payload.message_id)
-				if payload.emoji.is_custom_emoji() is False:  # If the emoji is a custom emoji
-					reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
-				else:  # If the emoji is not a custom emoji
-					reaction = discord.utils.get(message.reactions, emoji=payload.emoji)
+				reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
 				await reaction.remove(payload.member)
-				logger.debug("Removed irrelevant emoji.")  # Event log
+
 				return
 
-			# Make sure the role still exists and is valid
+			# Make sure the role still exists and is valid.
 			role = guild.get_role(role_id)
 			if role is None:
 				return
 
-			# Finally, add the role
+			# Finally, add the role.
 			try:
 				await payload.member.add_roles(role)
 				logger.info("Role `" + role.name + "` added to " + payload.member.name)  # Event log
@@ -684,11 +762,6 @@ class MyClient(discord.Client):
 			except Exception as exception:
 				logger.error("Failed to add role " + role.name + " to " + payload.member.name + ". Exception: " + exception)  # Event log
 
-		# If the roles haven't been set up
-		else:
-			logger.debug("Roles have not been set up for " + str(payload.guild.id))  # Event log
-			# Send an error message
-			await payload.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
 		if reaction_usage == "polls":
 			print("Poll reaction!")
