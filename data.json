@@ -11,7 +11,6 @@
         "489893521176920076": {
             "config": {
                 "rank system": true,
-                "admin role id": 831927499034329109,
                 "announcements channel id": null
             },
             "rules": {
@@ -96,7 +95,6 @@
         "844942677594472481": {
             "config": {
                 "rank system": false,
-                "admin role id": 844943189063630879,
                 "announcements channel id": 0
             },
             "rules": {
@@ -211,7 +209,6 @@
         "808266016614121512": {
             "config": {
                 "rank system": false,
-                "admin role id": 0,
                 "announcements channel id": 0
             },
             "rules": {
@@ -247,7 +244,6 @@
         "831596325140824074": {
             "config": {
                 "rank system": false,
-                "admin role id": 0,
                 "announcements channel id": 0
             },
             "rules": {
@@ -269,7 +265,6 @@
         "834213187468394517": {
             "config": {
                 "rank system": false,
-                "admin role id": 834460709332844575,
                 "announcements channel id": 849968671879069716
             },
             "rules": {
@@ -339,7 +334,7 @@
             },
             "ranks": {
                 "241772848564142080": 19,
-                "258284765776576512": 102,
+                "258284765776576512": 106,
                 "519494195929546782": 2,
                 "206705235853443072": 2
             }
@@ -347,7 +342,6 @@
         "509437716123877397": {
             "config": {
                 "rank system": false,
-                "admin role id": 0,
                 "announcements channel id": 0
             },
             "rules": {
@@ -371,7 +365,6 @@
         "755420029482303488": {
             "config": {
                 "rank system": true,
-                "admin role id": 755425726349705316,
                 "announcements channel id": 0
             },
             "rules": {
@@ -509,7 +502,6 @@
         "870789318501871706": {
             "config": {
                 "rank system": false,
-                "admin role id": 0,
                 "announcements channel id": 0
             },
             "rules": {
@@ -533,7 +525,6 @@
         "872172926911283291": {
             "config": {
                 "rank system": false,
-                "admin role id": 0,
                 "announcements channel id": 0
             },
             "rules": {
