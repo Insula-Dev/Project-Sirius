@@ -327,7 +327,8 @@ class MyClient(discord.Client):
 			# Create and send the help embed
 			embed_help = discord.Embed(title="🤔 Need help?", description="Here's a list of " + self.user.name + "'s commands!", color=0xffc000)
 			embed_help.add_field(name=str(PREFIX + "get rank"), value="Creates your rank card, showing your current rank and progress to the next rank.")
-			embed_help.add_field(name=str(PREFIX + "embed"), value="Creates an embed. Arguments: title=,description=,[name of field]= or just write and it'll be put in the description by deafult")
+			embed_help.add_field(name=str(PREFIX + "embed"), value="Creates an embed. Arguments: title=,description=,colour=[hex code],[name of field]= or just write and it'll be put in the description by deafult")
+			embed_help.add_field(name=str(PREFIX + "poll"), value="Creates a poll embed. Arguments: title=,colour=[hex code],[name of candidate]=[emoji]. All paramaters are optional")
 			embed_help.add_field(name=str(PREFIX + "help"), value="Creates the bot's help embed, listing the bot's commands.")
 			embed_help.add_field(name=str(PREFIX + "rules"), value="Creates the server's rules embed.\nAdmin only feature.")
 			embed_help.add_field(name=str(PREFIX + "roles"), value="Creates the server's roles embed.\nAdmin only feature.")
@@ -465,9 +466,9 @@ class MyClient(discord.Client):
 				- Custom emojis
 				- Duplicate custom emojis
 				THINGS TO FIX:
-				- Standardise datetime format
+				- Standardise datetime format - REMOVED INSTEAD
 				- Remove regex secretly. IGNORE THIS!
-				- Trailing newlines at the end of embed
+				- Trailing newlines at the end of embed - SEEMS TO BE FIXED
 				"""
 
 				logger.info("`poll` called by " + message.author.name)  # Event log
@@ -477,6 +478,9 @@ class MyClient(discord.Client):
 
 				# !!! Clunky and breakable
 				argument_string = message.content[len(PREFIX + "poll "):]
+				if len(argument_string) <2:
+					debug.logger("Poll command had no viable arguments - cancelled")
+					return
 				arguments = re.split("\,\s|\,", argument_string)  # Replace with arguments = argument.split(", ")
 				candidates = {}  # Dictionary of candidates that can be voted for
 				candidates_string = ""
@@ -486,7 +490,7 @@ class MyClient(discord.Client):
 				colour = 0xffc000
 
 				# Config
-				winner = "none"
+				winner = "highest"
 
 				# Analyse argument
 				for argument in arguments:
