@@ -507,7 +507,7 @@ class MyClient(discord.Client):
 							minute = last_time_arg[1].split(":")[1]
 						poll_time = str(datetime(day=int(time_list[0]), month=int(time_list[1]), year=int(time_list[2]), hour=int(hour), minute=int(minute)))  # Accommodate for American convention. Or don't.
 					elif argument[0] == "colour":
-						colour = int(argument[1][-6:],16)
+						colour = int(argument[1][-6:],16) # Takes last 6 digits and converts to hex for colour
 						print(colour)
 					elif argument[0] == "winner":
 						winner = argument[1]
@@ -774,6 +774,19 @@ class MyClient(discord.Client):
 				reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
 				await reaction.remove(payload.member)  # Removes end emoji
 				await self.terminatePoll(message)
+			else:
+				valid_emoji = False
+				for message in self.poll[str(payload.guild_id)]:
+					print(str(payload.emoji)+"?"+str(self.poll[str(payload.guild_id)][message]["options"]))
+					if str(payload.emoji) in self.poll[str(payload.guild_id)][message]["options"]: # Deletes emojis not related to poll options
+						valid_emoji = True
+				if not valid_emoji:
+					logger.debug("Unwanted emoji on poll found")
+					channel = await self.fetch_channel(payload.channel_id)
+					message = await channel.fetch_message(payload.message_id)
+					await message.remove_reaction(payload.emoji,payload.member)
+				else:
+					logger.debug("Wanted emoji on poll found")
 
 	async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
 		"""Runs when a reaction is removed.
