@@ -460,7 +460,7 @@ class MyClient(discord.Client):
 
 			# Poll command
 			if message.content.startswith(PREFIX + "poll"):
-				"""ERRORS TO TEST FOR:
+				"""ERRORS TO TEST FOR: DONE
 				- Duplicate emojis
 				- Custom emojis
 				- Duplicate custom emojis
@@ -495,25 +495,19 @@ class MyClient(discord.Client):
 					poll_time = str(datetime.now())
 					if argument[0] == "title":
 						title = argument[1]
-					elif argument[0] == "time":
-						# Arun's time machine
-						time_list = argument[1].split("/")
-						hour = 12
-						minute = 00
-						if ":" in time_list[2]:
-							last_time_arg = time_list[2].split(" ")
-							time_list[2] = last_time_arg[0]
-							hour = last_time_arg[1].split(":")[0]
-							minute = last_time_arg[1].split(":")[1]
-						poll_time = str(datetime(day=int(time_list[0]), month=int(time_list[1]), year=int(time_list[2]), hour=int(hour), minute=int(minute)))  # Accommodate for American convention. Or don't.
 					elif argument[0] == "colour":
 						colour = int(argument[1][-6:],16) # Takes last 6 digits and converts to hex for colour
 						print(colour)
 					elif argument[0] == "winner":
 						winner = argument[1]
 					else:
-						candidates[argument[1].rstrip()] = argument[0]
-						candidates_string += argument[1] + " - " + argument[0] + "\n"
+						emoji = argument[1].rstrip()
+						if not(emoji in candidates):
+							candidates[emoji] = argument[0]
+							candidates_string += argument[1] + " - " + argument[0] + "\n"
+						else:
+							logger.debug("Duplicate emoji in poll detected")
+							await message.channel.send("Please only use an emoji once per poll")
 
 				# Create and send poll embed
 				embed_poll = discord.Embed(title=title, description=candidates_string, color=colour)
