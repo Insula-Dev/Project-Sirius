@@ -479,7 +479,7 @@ class MyClient(discord.Client):
 				# !!! Clunky and breakable
 				argument_string = message.content[len(PREFIX + "poll "):]
 				if len(argument_string) <2:
-					debug.logger("Poll command had no viable arguments - cancelled")
+					logger.debug("Poll command had no viable arguments - cancelled")
 					return
 				arguments = re.split("\,\s|\,", argument_string)  # Replace with arguments = argument.split(", ")
 				candidates = {}  # Dictionary of candidates that can be voted for
@@ -689,8 +689,9 @@ class MyClient(discord.Client):
 
 		# Role reaction check
 		for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:
-			if payload.message_id in self.data["servers"][str(payload.guild_id)]["roles"]["categories"][category]:  # How does this work? Surely you should say "in", not ==. Yeah, think so but why wasn't this tested
+			if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["categories"][category]["message id"]:  # How does this work? Surely you should say "in", not ==. Yeah, think so but why wasn't this tested
 				reaction_usage = "roles"
+				logger.debug("Role message reacted to")
 				break
 		if reaction_usage == "none": # No functionality found yet, keep checking
 			# Poll reaction check
@@ -698,6 +699,7 @@ class MyClient(discord.Client):
 				for message in self.poll[str(guild.id)]:
 					if str(payload.message_id) == message:
 						reaction_usage = "polls"
+						logger.debug("Poll message reacted to")
 						break
 			except KeyError:
 				pass
@@ -731,10 +733,18 @@ class MyClient(discord.Client):
 			# If the emoji isn't the one we care about then delete it and exit as well.
 			# Checks payload for role reaction and then end poll reaction
 			role_id = -1
-			for category in self.data["servers"][str(guild.id)]["roles"]["category list"]:  # For category in list
-				for role in self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"]:  # For role in category
-					if self.data["servers"][str(guild.id)]["roles"]["category list"][category]["role list"][role]["emoji"] == str(payload.emoji):
+			for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:  # For category in list
+				for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:  # For role in category
+					if self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"][role]["emoji"] == str(payload.emoji):
 						role_id = int(role)
+						try:
+							verify_role = self.data["servers"][str(guild.id)]["roles"]["verify role"]
+							if verify_role != 0:
+								role = guild.get_role(verify_role)
+								await payload.member.add_roles(role)
+								logger.debug("Verified " + payload.member.name + " on " + guild.name)
+						except KeyError:
+							logger.debug("No verification role found in " + guild.name)
 						break
 
 			# The deleter
@@ -800,6 +810,7 @@ class MyClient(discord.Client):
 			for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:
 				if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["categories"][category]["message id"]:
 					message_relevant = True
+					logger.debug("Relevant message reacted to")
 					break
 			if message_relevant is False:
 				return
