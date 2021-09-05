@@ -445,10 +445,10 @@ class MyClient(discord.Client):
 					embed_stats.add_field(name="Members", value=member_statistics)
 					embed_stats.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
 					await message.channel.send(embed=embed_stats)
-					await waiting_message.delete()
 				except Exception as exception:
 					logger.error("Failed to generate or send statistics. Exception: " + str(exception))  # Event log
 					await message.channel.send("Error: Something went wrong on our side...")
+				await waiting_message.delete()
 
 			# Purge Command
 			if message.content.startswith(PREFIX + "purge"):
