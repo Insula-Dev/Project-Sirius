@@ -1,6 +1,7 @@
 # Imports
 from random import randint
 from datetime import date, datetime
+import time
 import json
 import socket
 import discord
@@ -445,6 +446,28 @@ class MyClient(discord.Client):
 					embed_stats.add_field(name="Members", value=member_statistics)
 					embed_stats.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
 					await message.channel.send(embed=embed_stats)
+				except discord.errors.HTTPException as exception:
+					embed_channel_stats = discord.Embed(title="📈 Channel statistics for " + guild.name, color=0xffc000)
+					if len(channel_statistics) <= 1024:
+						embed_channel_stats.add_field(name="Channels", value=channel_statistics)
+					else:
+						for x in range(len(channel_statistics)//1024):
+							embed_channel_stats.add_field(name="Channel stats prt "+str(x+1),value=channel_statistics[x*1024:(x+1)*1024])
+							i = x
+						embed_channel_stats.add_field(name="Channel stats prt " + str(i+1), value=channel_statistics[(i+1)*1024:])
+					print(channel_statistics)
+					await message.channel.send(embed=embed_channel_stats)
+
+					embed_member_stats = discord.Embed(title="📈 Member statistics for " + guild.name, color=0xffc000)
+					if len(member_statistics) <= 1024:
+						embed_member_stats.add_field(name="Members", value=member_statistics)
+					else:
+						for x in range(len(member_statistics) // 1024):
+							embed_member_stats.add_field(name="Member stats prt " + str(x + 1), value=member_statistics[x:(x + 1) * 1024])
+							i = x
+						embed_member_stats.add_field(name="Member stats prt " + str(i + 1), value=member_statistics[(i + 1) * 1024:])
+					print(member_statistics)
+					await message.channel.send(embed=embed_member_stats)
 				except Exception as exception:
 					logger.error("Failed to generate or send statistics. Exception: " + str(exception))  # Event log
 					await message.channel.send("Error: Something went wrong on our side...")
