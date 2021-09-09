@@ -263,7 +263,7 @@ class MyClient(discord.Client):
 			logger.debug("Not adding experience to " + message.author.name)  # Event log
 
 		# Get rank command
-		if message.content == PREFIX + "get rank":
+		if message.content == PREFIX + "level":
 
 			logger.info("`get rank` called by " + message.author.name)  # Event log
 
@@ -329,7 +329,7 @@ class MyClient(discord.Client):
 
 			# Create and send the help embed
 			embed_help = discord.Embed(title="🤔 Need help?", description="Here's a list of " + self.user.name + "'s commands!", color=0xffc000)
-			embed_help.add_field(name=str(PREFIX + "get rank"), value="Creates your rank card, showing your current rank and progress to the next rank.")
+			embed_help.add_field(name=str(PREFIX + "level"), value="Creates your level card, showing your current level and progress to the next level.")
 			embed_help.add_field(name=str(PREFIX + "embed"), value="Creates an embed. Arguments: title=,description=,colour=[hex code],[name of field]= or just write and it'll be put in the description by deafult")
 			embed_help.add_field(name=str(PREFIX + "poll"), value="Creates a poll embed. Arguments: title=,colour=[hex code],[name of candidate]=[emoji]. All paramaters are optional. Admins react with 🔚 (end) to end poll)")
 			embed_help.add_field(name=str(PREFIX + "help"), value="Creates the bot's help embed, listing the bot's commands.")
@@ -421,7 +421,6 @@ class MyClient(discord.Client):
 				- Trailing newlines at the end of embed"""
 
 				logger.info("`stats` called by " + message.author.name)  # Event log
-
 
 				try:
 					# Generate statistics
