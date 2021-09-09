@@ -1,6 +1,6 @@
 # Imports
 import requests
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageStat
 
 
 # Variables
@@ -59,6 +59,8 @@ def generate_rank_card(profile_picture_url, name, rank, percentage):
 	# Prepare the profile picture using PIL
 	with Image.open("card.png") as profile_picture:
 		profile_picture = profile_picture.resize((150, 150), Image.NEAREST)  # Simplify? Size?
+
+		bg_colour = tuple(ImageStat.Stat(profile_picture).median) # Makes background colour the median of the profile picture
 		#profile_picture.show()
 
 	# Prepare the card
@@ -93,7 +95,9 @@ def generate_rank_card(profile_picture_url, name, rank, percentage):
 
 # Main body
 if __name__ == "__main__":
-	generate_rank_card("https://cdn.discordapp.com/avatars/258284765776576512/a_19ff5a7b9a7c94df59ba90df787d264c.gif?size=128", "IkelosOne", 68, 12)
+	pablo = "https://cdn.discordapp.com/avatars/241772848564142080/07bcdb7fcf7f34b75a1f318bdcafff3c.webp?size=128"
+	sirius = "https://cdn.discordapp.com/avatars/844950029369737238/786ba3643ee3b708bc008c24a2993cc2.webp?size=128"
+	generate_rank_card(sirius, "IkelosOne", 68, 12)
 
 
 """

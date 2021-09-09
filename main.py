@@ -9,6 +9,8 @@ import re  # Delete this later
 
 
 # Local imports
+import requests
+
 from log_handling import *
 from imaging import generate_rank_card
 
@@ -420,9 +422,11 @@ class MyClient(discord.Client):
 
 				logger.info("`stats` called by " + message.author.name)  # Event log
 
-				# Generate statistics
+
 				try:
+					# Generate statistics
 					waiting_message = await message.channel.send("This may take some time...")
+					"""
 					members = {}
 					channel_statistics = ""
 					member_statistics = ""
@@ -439,6 +443,22 @@ class MyClient(discord.Client):
 					for member in members:
 						member_statistics += member.name + ": " + str(members[member]) + "\n"
 					logger.debug("Successfully generated statistics")  # Event log
+					"""
+					#Generates channel statistics using the command user's id
+					channel_statistics = ""
+					for channel in guild.text_channels:
+						channel_q = requests.get("https://discord.com/api/v9/guilds/"+str(guild.id)+"/messages/search?channel_id="+str(channel.id),headers={"Authorization": "User {}".format(auth_id=message.author.id),"accept-encoding":"gzip, deflate"})
+						message_count = channel_q.json()['total_results']
+						print(channel.name + ": " + str(message_count))
+						channel_statistics += channel.name + ": " + str(message_count) + "\n"
+
+					# Generates channel statistics using the command user's id
+					member_statistics = ""
+					for member in guild.member_count:
+						member_q = requests.get("https://discord.com/api/v9/guilds/" + str(guild.id) + "/messages/search?member_id=" + str(member.id))
+						message_count = member_q.json()['total_results']
+						print(member.name + ": " + str(message_count))
+						member_statistics += member.name + ": " + str(message_count) + "\n"
 
 					# Create and send statistics embed
 					embed_stats = discord.Embed(title="📈 Statistics for " + guild.name, color=0xffc000)
@@ -468,9 +488,9 @@ class MyClient(discord.Client):
 						embed_member_stats.add_field(name="Member stats prt " + str(i + 1), value=member_statistics[(i + 1) * 1024:])
 					print(member_statistics)
 					await message.channel.send(embed=embed_member_stats)
-				except Exception as exception:
-					logger.error("Failed to generate or send statistics. Exception: " + str(exception))  # Event log
-					await message.channel.send("Error: Something went wrong on our side...")
+				#except Exception as exception:
+				#	logger.error("Failed to generate or send statistics. Exception: " + str(exception))  # Event log
+				#	await message.channel.send("Error: Something went wrong on our side...")
 				await waiting_message.delete()
 
 			# Purge Command
