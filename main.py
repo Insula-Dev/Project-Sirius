@@ -579,12 +579,10 @@ class MyClient(discord.Client):
 
 				# Create and send poll embed
 				embed_poll = discord.Embed(title=title, description=candidates_string, colour=colour)
-				embed_poll.set_footer(text="Poll ending • " + poll_time)
 				poll_message = await message.channel.send(embed=embed_poll)
 
 				self.poll[str(message.guild.id)].update({str(poll_message.id): {
 					"title": title,
-					"time": str(poll_time),
 					"options": candidates,
 					"config":
 						{
