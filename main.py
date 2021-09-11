@@ -288,20 +288,25 @@ class MyClient(discord.Client):
 		if message.content == PREFIX + "leaderboard":
 			logger.info("`leaderboard` called by " + message.author.name)  # Event log
 
-			leaderboard = list(sorted(self.data["servers"][str(guild.id)]["ranks"].items(), key=lambda item: item[1])) # Sorts rank dictionary into list
+			leaderboard = reversed(sorted(self.data["servers"][str(guild.id)]["ranks"].items(), key=lambda item: item[1])) # Sorts rank dictionary into list
 			logger.debug(leaderboard)
 			lb_message = ""
 			lb_count = ""
+			lb_no = ""
 
+			count = 1
 			for item in leaderboard:
 				try:
 					name = self.get_user(int(item[0])).name
-					lb_message = str(name)+"\n"+lb_message # Reverse adds on higher scored names
-					lb_count = str(item[1])+"\n"+lb_count # Reverse adds on higher scores to separate string for separate embed field
+					lb_message += str(name)+"\n" # Reverse adds on higher scored names
+					lb_count += str(item[1])+"\n" # Reverse adds on higher scores to separate string for separate embed field
+					lb_no += "⠀"+str(count)+"\n"
+					count += 1
 				except AttributeError:
 					logger.debug("Member not found in server")
 
 			embed_leaderboard = discord.Embed(title="Leaderboard",colour=0xffc000)
+			embed_leaderboard.add_field(name="No.", value=lb_no, inline=True)
 			embed_leaderboard.add_field(name="User",value=lb_message,inline=True)
 			embed_leaderboard.add_field(name="Count", value=lb_count, inline=True)
 			await message.channel.send(embed=embed_leaderboard)
