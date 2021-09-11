@@ -262,10 +262,10 @@ class MyClient(discord.Client):
 		else:
 			logger.debug("Not adding experience to " + message.author.name)  # Event log
 
-		# Get rank command
+		# Get level command
 		if message.content == PREFIX + "level":
 
-			logger.info("`get rank` called by " + message.author.name)  # Event log
+			logger.info("`level` called by " + message.author.name)  # Event log
 
 			# Generate the rank card
 			if str(message.author.id) in self.data["servers"][str(guild.id)]["ranks"]:
@@ -277,12 +277,34 @@ class MyClient(discord.Client):
 			generate_rank_card(message.author.avatar_url, message.author.name, rank, percentage)
 
 			# Create the rank embed
-			embed_rank = discord.Embed()
+			embed_level = discord.Embed()
 			file = discord.File("card.png")
-			embed_rank.set_image(url="attachment://card.png")
+			embed_level.set_image(url="attachment://card.png")
 
 			# Send the embed
 			await message.channel.send(file=file)
+
+		# Level leaderboard command
+		if message.content == PREFIX + "leaderboard":
+			logger.info("`leaderboard` called by " + message.author.name)  # Event log
+
+			leaderboard = list(sorted(self.data["servers"][str(guild.id)]["ranks"].items(), key=lambda item: item[1])) # Sorts rank dictionary into list
+			logger.debug(leaderboard)
+			lb_message = ""
+			lb_count = ""
+
+			for item in leaderboard:
+				try:
+					name = self.get_user(int(item[0])).name
+					lb_message = str(name)+"\n"+lb_message # Reverse adds on higher scored names
+					lb_count = str(item[1])+"\n"+lb_count # Reverse adds on higher scores to separate string for separate embed field
+				except AttributeError:
+					logger.debug("Member not found in server")
+
+			embed_leaderboard = discord.Embed(title="Leaderboard",colour=0xffc000)
+			embed_leaderboard.add_field(name="User",value=lb_message,inline=True)
+			embed_leaderboard.add_field(name="Count", value=lb_count, inline=True)
+			await message.channel.send(embed=embed_leaderboard)
 
 		# Embed command
 		if message.content.startswith(PREFIX + "embed"):
@@ -312,7 +334,7 @@ class MyClient(discord.Client):
 						description = argument[0]
 
 				# Create and send user's embed
-				embed = discord.Embed(title=title, description=description, color=colour)
+				embed = discord.Embed(title=title, description=description, colour=colour)
 				embed.set_author(name=message.author.name,url=discord.Embed.Empty, icon_url=message.author.avatar_url)
 				for field in fields:
 					embed.add_field(name=list(field.keys())[0],value=field[list(field.keys())[0]])
@@ -328,7 +350,7 @@ class MyClient(discord.Client):
 			logger.info("`help` called by " + message.author.name)  # Event log
 
 			# Create and send the help embed
-			embed_help = discord.Embed(title="🤔 Need help?", description="Here's a list of " + self.user.name + "'s commands!", color=0xffc000)
+			embed_help = discord.Embed(title="🤔 Need help?", description="Here's a list of " + self.user.name + "'s commands!", colour=0xffc000)
 			embed_help.add_field(name=str(PREFIX + "level"), value="Creates your level card, showing your current level and progress to the next level.")
 			embed_help.add_field(name=str(PREFIX + "embed"), value="Creates an embed. Arguments: title=,description=,colour=[hex code],[name of field]= or just write and it'll be put in the description by deafult")
 			embed_help.add_field(name=str(PREFIX + "poll"), value="Creates a poll embed. Arguments: title=,colour=[hex code],[name of candidate]=[emoji]. All paramaters are optional. Admins react with 🔚 (end) to end poll)")
@@ -355,13 +377,13 @@ class MyClient(discord.Client):
 					await message.delete()
 
 					# Create the welcome embed !!! This is messy. Decide embed format and what should be customisable
-					embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#000000000000000000> is for this, and <#000000000000000001> is for that.", color=0xffc000)
+					embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#000000000000000000> is for this, and <#000000000000000001> is for that.", colour=0xffc000)
 
 					# Create the rules embed
-					embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], color=0xffc000, inline=False)
+					embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], colour=0xffc000, inline=False)
 					embed_rules.set_footer(text="Rules updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
 					embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
-					embed_image = discord.Embed(description="That's all.", color=0xffc000)
+					embed_image = discord.Embed(description="That's all.", colour=0xffc000)
 					image = self.data["servers"][str(guild.id)]["rules"]["image link"]
 					if image != None:
 						if image[:6] == "https:":
@@ -460,13 +482,13 @@ class MyClient(discord.Client):
 						member_statistics += member.name + ": " + str(message_count) + "\n"
 
 					# Create and send statistics embed
-					embed_stats = discord.Embed(title="📈 Statistics for " + guild.name, color=0xffc000)
+					embed_stats = discord.Embed(title="📈 Statistics for " + guild.name, colour=0xffc000)
 					embed_stats.add_field(name="Channels", value=channel_statistics)
 					embed_stats.add_field(name="Members", value=member_statistics)
 					embed_stats.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
 					await message.channel.send(embed=embed_stats)
 				except discord.errors.HTTPException as exception:
-					embed_channel_stats = discord.Embed(title="📈 Channel statistics for " + guild.name, color=0xffc000)
+					embed_channel_stats = discord.Embed(title="📈 Channel statistics for " + guild.name, colour=0xffc000)
 					if len(channel_statistics) <= 1024:
 						embed_channel_stats.add_field(name="Channels", value=channel_statistics)
 					else:
@@ -477,7 +499,7 @@ class MyClient(discord.Client):
 					print(channel_statistics)
 					await message.channel.send(embed=embed_channel_stats)
 
-					embed_member_stats = discord.Embed(title="📈 Member statistics for " + guild.name, color=0xffc000)
+					embed_member_stats = discord.Embed(title="📈 Member statistics for " + guild.name, colour=0xffc000)
 					if len(member_statistics) <= 1024:
 						embed_member_stats.add_field(name="Members", value=member_statistics)
 					else:
@@ -556,7 +578,7 @@ class MyClient(discord.Client):
 							await message.channel.send("Please only use an emoji once per poll")
 
 				# Create and send poll embed
-				embed_poll = discord.Embed(title=title, description=candidates_string, color=colour)
+				embed_poll = discord.Embed(title=title, description=candidates_string, colour=colour)
 				embed_poll.set_footer(text="Poll ending • " + poll_time)
 				poll_message = await message.channel.send(embed=embed_poll)
 
