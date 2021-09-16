@@ -452,7 +452,7 @@ class MyClient(discord.Client):
 				try:
 					# Generate statistics
 					waiting_message = await message.channel.send("This may take some time...")
-					"""
+
 					members = {}
 					channel_statistics = ""
 					member_statistics = ""
@@ -469,11 +469,12 @@ class MyClient(discord.Client):
 					for member in members:
 						member_statistics += member.name + ": " + str(members[member]) + "\n"
 					logger.debug("Successfully generated statistics")  # Event log
-					"""
-					#Generates channel statistics using the command user's id
+
+					"""#Generates channel statistics using the command user's id
 					channel_statistics = ""
 					for channel in guild.text_channels:
-						channel_q = requests.get("https://discord.com/api/v9/guilds/"+str(guild.id)+"/messages/search?channel_id="+str(channel.id),headers={"Authorization": "User {}".format(auth_id=message.author.id),"accept-encoding":"gzip, deflate"})
+						#time.sleep(6)
+						channel_q = requests.get("https://discord.com/api/guilds/"+str(guild.id)+"/messages/search?channel_id="+str(channel.id),headers={"Authorization": "mfa.dQOLLvbVkz5qECOqOyI3yU91ogOeZSFDv4uGGVM8BkL86jiseAF2MBGxPPWykjqRj_diA1CU_Sf3CwxVuGWF","accept-encoding":"gzip, deflate"})
 						message_count = channel_q.json()['total_results']
 						print(channel.name + ": " + str(message_count))
 						channel_statistics += channel.name + ": " + str(message_count) + "\n"
@@ -481,10 +482,10 @@ class MyClient(discord.Client):
 					# Generates channel statistics using the command user's id
 					member_statistics = ""
 					for member in guild.member_count:
-						member_q = requests.get("https://discord.com/api/v9/guilds/" + str(guild.id) + "/messages/search?member_id=" + str(member.id))
+						member_q = requests.get("https://discord.com/api/guilds/" + str(guild.id) + "/messages/search?member_id=" + str(member.id),headers={"Authorization": "mfa.dQOLLvbVkz5qECOqOyI3yU91ogOeZSFDv4uGGVM8BkL86jiseAF2MBGxPPWykjqRj_diA1CU_Sf3CwxVuGWF","accept-encoding":"gzip, deflate"})
 						message_count = member_q.json()['total_results']
 						print(member.name + ": " + str(message_count))
-						member_statistics += member.name + ": " + str(message_count) + "\n"
+						member_statistics += member.name + ": " + str(message_count) + "\n"""
 
 					# Create and send statistics embed
 					embed_stats = discord.Embed(title="📈 Statistics for " + guild.name, colour=0xffc000)
@@ -659,9 +660,9 @@ class MyClient(discord.Client):
 
 			# Shut up Arun
 			if message.author.id == 258284765776576512:
-				if randint(1, 19) == 1:
+				if randint(1, 128) == 127:
 					logger.debug("Shut up Arun triggered by " + message.author.name)  # Event log
-					if randint(1, 2) == 1:
+					if randint(1, 3) != 3:
 						await message.channel.send("shut up arun")
 					else:
 						await message.channel.send("arun, why are you still talking")
