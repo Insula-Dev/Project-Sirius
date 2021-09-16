@@ -4,6 +4,7 @@ import json
 from datetime import date, datetime
 import discord
 from discord_slash import SlashCommand
+from discord_slash.utils.manage_commands import create_option
 
 
 # Local imports
@@ -122,7 +123,7 @@ if __name__ == "__main__":
 					update_data()
 
 			except Exception as exception:
-				logger.error("Failed to add experience to " + message.author.name + " in " + ctx.guild.name + " (" + ctx.guild.id + ")")
+				logger.error("Failed to add experience to " + message.author.name + " in " + ctx.guild.name + " (" + str(ctx.guild.id) + ")")
 
 	@client.event
 	async def on_raw_reaction_add(payload):
@@ -232,7 +233,7 @@ if __name__ == "__main__":
 	guild_ids = [834213187468394517, 870789318501871706]
 
 	# Ping command
-	@slash.slash(name="ping", guild_ids=guild_ids)
+	@slash.slash(name="ping", description="Ping test.", guild_ids=guild_ids)
 	async def _ping(ctx):
 		"""Runs on the ping slash command."""
 
@@ -241,35 +242,64 @@ if __name__ == "__main__":
 		try:
 			await ctx.send("Pong! (" + str(round(client.latency, 3)) + "s)")
 		except Exception as exception:
-			logger.error("Failed to send ping message in " + ctx.guild.name + " (" + ctx.guild.id + ")")
+			logger.error("Failed to send ping message in " + ctx.guild.name + " (" + str(ctx.guild.id) + ")")
 
 	# Help command
-	@slash.slash(name="help", description="Displays help information.", guild_ids=guild_ids)
-	async def _help(ctx):
+	@slash.slash(name="help", description="Displays help information.", options=[create_option(name="command", description="The slash command you want help with. Leave blank if you want to see help for all commands.", option_type=3, required=False)], guild_ids=guild_ids)
+	async def _help(ctx, command=None):
 		"""Runs on the help slash command."""
 
 		logger.debug("`/help` called by " + ctx.author.name + ".")
 
 		try:
-			help_embed = discord.Embed(title="🤔 Need help?", description="Here's a list of " + client.user.name + "'s commands!\nFor more detailed help, go to https://www.lingscars.com/", color=0xffc000)
-			help_embed.add_field(name=str("/ping"), value="Engage in a ruthless game of table tennis.")
-			help_embed.add_field(name=str("/help"), value="Creates the bot's help embed, listing the bot's commands.")
-			help_embed.add_field(name=str("/embed"), value="Creates an embed. **Documentation needed**...")
-			help_embed.add_field(name=str("/rank"), value="Creates your rank card, showing your current rank and progress to the next rank.")
-			help_embed.add_field(name=str("/stats"), value="Creates the server's stats embed.\nAdmin only feature.")
-			help_embed.add_field(name=str("/rules"), value="Creates the server's rules embed.\nAdmin only feature.")
-			help_embed.add_field(name=str("/roles"), value="Creates the server's roles embed.\nAdmin only feature.")
-			await ctx.send(embed=help_embed)
+			if command == None:
+				help_embed = discord.Embed(title="🤔 Need help?", description="Here's a list of " + client.user.name + "'s commands!\nFor more detailed help, go to https://www.lingscars.com/", color=0xffc000)
+				help_embed.add_field(name=str("/ping"), value="Engage in a ruthless game of table tennis.")
+				help_embed.add_field(name=str("/help"), value="Sends the bot's help embed, listing the bot's commands.")
+				help_embed.add_field(name=str("/embed"), value="Sends a custom made embed.")
+				help_embed.add_field(name=str("/rank"), value="Sends the user's rank card, showing their current rank and their progress to the next rank.")
+				help_embed.add_field(name=str("/stats"), value="Sends the server's stats embed.\nAdmin only feature.")
+				help_embed.add_field(name=str("/rules"), value="Sends the server's rules embed.\nAdmin only feature.")
+				help_embed.add_field(name=str("/roles"), value="Sends the server's roles embed.\nAdmin only feature.")
+				await ctx.send(embed=help_embed)
+			else:
+				if command == "ping":
+					help_embed = discord.Embed(title="🗒️ Information for /ping", description="Engage in a ruthless game of table tennis.", color=0xffc000)
+					await ctx.send(embed=help_embed)
+				elif command == "help":
+					help_embed = discord.Embed(title="🗒️ Information for /help", description="Lists the bot's commands.\nOptional parameter `command` specifies the command to display information for.", color=0xffc000)
+					await ctx.send(embed=help_embed)
+				elif command == "embed":
+					help_embed = discord.Embed(title="🗒️ Information for /help", description="Sends a custom made embed.\n Required parameters `title` and `description specify the embed's title and description. Optional parameter `color` specifies the embed's color.", color=0xffc000)
+				elif command == "rank":
+					help_embed = discord.Embed(title="🗒️ Information for /rank", description="Sends the user's rank card, showing their current rank and their progress to the next rank.", color=0xffc000)
+				else:
+					await ctx.send("Command not recognised...\nUse `/help` to see all commands and `/help command:` to get help for a specific command.")
 		except Exception as exception:
-			logger.error("Failed to send help message in " + ctx.guild.name + " (" + ctx.guild.id + ")")
+			logger.error("Failed to send help message in " + ctx.guild.name + " (" + str(ctx.guild.id) + ")")
 
-	@slash.slash(name="embed", guild_ids=guild_ids)
-	async def _embed(ctx):
+	# Embed command
+	@slash.slash(name="embed", description="Sends a custom made embed.", options=[create_option(name="title", description="The embed title.", option_type=3, required=True), create_option(name="description", description="The embed description.", option_type=3, required=True), create_option(name="color", description="The embed color. Takes hexadecimal colour values.", option_type=3, required=False)], guild_ids=guild_ids)
+	async def _embed(ctx, title, description, color="0xffc000"):
 		"""Runs on the embed slash command."""
 
 		logger.debug("`/embed` called by " + ctx.author.name)
 
-	@slash.slash(name="rank", guild_ids=guild_ids)
+		try:
+			try:
+				color = int(color, 16)
+			except ValueError:
+				color = 0xffc000
+
+			embed = discord.Embed(title=title, description=description, color=color)
+			embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar_url)
+			await ctx.send(embed=embed)
+
+		except Exception as exception:
+			logger.error("Failed to send embed message in " + ctx.guild.name + " (" + str(ctx.guild.id) + ")")
+
+	# Rank command
+	@slash.slash(name="rank", description="Sends the user's rank card, showing their current rank and their progress to the next rank.", guild_ids=guild_ids)
 	async def _rank(ctx):
 		"""Runs on the rank slash command."""
 
@@ -295,16 +325,20 @@ if __name__ == "__main__":
 				await ctx.send(embed=rank_embed)
 
 			except Exception as exception:
-				logger.error("Failed to send rank message in " + ctx.guild.name + " (" + ctx.guild.id + ")")
+				logger.error("Failed to send rank message in " + ctx.guild.name + " (" + str(ctx.guild.id) + ")")
 
 		# If the ranks functionality is disabled
 		else:
 			await ctx.send("Uh oh, you haven't set up any ranks! Get a server admin to set them up at https://www.lingscars.com/")
 
+	@slash.slash(name="test", description="This is just a test command, nothing more.", options=[create_option(name="optone", description="This is the first option we have.", option_type=3, required=True)])
+	async def test(ctx, optone: str):
+		await ctx.send(content=f"I got you, you said {optone}!")
+
 	# Admin commands
 
 	# Statistics command
-	@slash.slash(name="stats", guild_ids=guild_ids)
+	@slash.slash(name="stats", description="Sends the server's stats embed. Admin only feature.", guild_ids=guild_ids)
 	async def _stats(ctx):
 		"""Runs on the stats slash command."""
 
@@ -336,10 +370,10 @@ if __name__ == "__main__":
 			await ctx.send(embed=stats_embed)
 
 		except Exception as exception:
-			logger.error("Failed to send statistics message in " + ctx.guild.name + " (" + ctx.guild.id + ")")
+			logger.error("Failed to send statistics message in " + ctx.guild.name + " (" + str(ctx.guild.id) + ")")
 
 	# Rules command
-	@slash.slash(name="rules", guild_ids=guild_ids)
+	@slash.slash(name="rules", description="Sends the server's rules embed. Admin only feature.", guild_ids=guild_ids)
 	async def _rules(ctx):
 		"""Runs on the rules slash command."""
 
@@ -356,14 +390,14 @@ if __name__ == "__main__":
 				await ctx.send(embed=rules_embed)
 
 			except Exception as exception:
-				logger.error("Failed to send rules message in " + ctx.guild.name + " (" + ctx.guild.id + ")")
+				logger.error("Failed to send rules message in " + ctx.guild.name + " (" + str(ctx.guild.id) + ")")
 
 		# If the rules functionality is disabled
 		else:
 			await ctx.send("Uh oh, you haven't set up any rules! Get a server admin to set them up at https://www.lingscars.com/")
 
 	# Roles command
-	@slash.slash(name="roles", guild_ids=guild_ids)
+	@slash.slash(name="roles", description="Sends the server's roles embed. Admin only feature", guild_ids=guild_ids)
 	async def _roles(ctx):
 		"""Runs on the roles slash command."""
 
@@ -392,11 +426,22 @@ if __name__ == "__main__":
 				update_data()
 
 			except Exception as exception:
-				logger.error("Failed to send roles message in " + ctx.guild.name + " (" + ctx.guild.id + ")")
+				logger.error("Failed to send roles message in " + ctx.guild.name + " (" + str(ctx.guild.id) + ")")
 
 		# If the roles functionality is disabled
 		else:
 			await ctx.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
+
+	# CLS command
+	@slash.slash(name="cls", guild_ids=guild_ids)
+	async def _cls(ctx):
+		"""Runs on the cls slash command."""
+
+		logger.debug("`/cls` called by " + ctx.author.name)
+
+		await ctx.channel.purge(limit=5)
+
+		await ctx.send("You've been purged, son.")
 
 
 	# Run client
