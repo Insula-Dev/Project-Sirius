@@ -28,11 +28,12 @@ TEMP_SERVER_STRUCTURE = {
 # Cache
 roleMessageList = [] # List kept so this whole thing below doesn't have to be done everytime someone wants to change a role. PLEASE STOP LOOKING AT THIS PABLO!!!
 for server in data["servers"]:
-	try:
-		for category in data["servers"][server]["roles"]: # ASSUMES category has one message id but only 5 buttons can be in a message!
-			roleMessageList.append(data["servers"][server]["roles"][category]["message id"])
-	except KeyError:
-		print("No categories in " + server)
+	#try:
+	print(server)
+	for category in data["servers"][server]["roles"]["categories"]: # ASSUMES category has one message id but only 5 buttons can be in a message!
+		roleMessageList.append(data["servers"][server]["roles"]["categories"][category]["message id"])
+	#except KeyError as exception:
+	#	print("No categories in " + server+str(exception))
 print(roleMessageList)
 
 # Client stuff
@@ -73,8 +74,7 @@ async def on_ready():
 	# If the guild has announcements enabled, send an announcement into their announcements channel.
 	for guild in client.guilds:
 		if data["servers"][str(guild.id)]["config"]["announcements channel id"] != None:
-			channel = discord.utils.get(guild.channels,
-										id=data["servers"][str(guild.id)]["config"]["announcements channel id"])
+			channel = discord.utils.get(guild.channels,id=data["servers"][str(guild.id)]["config"]["announcements channel id"])
 			await channel.send("**" + client.user.name + "** online\nVersion [VERSION].")
 
 	print("Ready!")
@@ -121,7 +121,7 @@ async def on_ready():
 				# If the emoji isn't the one we care about then delete it and exit as well
 				role_id = -1
 				for category in data["servers"][str(guild.id)]["roles"]:  # For category in list
-					for role in data["servers"][str(guild.id)]["roles"][category]["list"]:  # For role in category
+					for role in data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:  # For role in category
 						print("Name in data:"+role)
 						print("Name from response:"+response.custom_id)
 						if role == response.custom_id:
@@ -150,55 +150,62 @@ async def on_message(message):
 	if message.content == "-button":
 		await message.send("My Message", components=create_button(style=ButtonStyle.green, label="A␣GreenButton"))
 
-	if message.content == "-role2":
-		guild = message.guild
-		# If the roles have been set up
-		if "roles" in data["servers"][str(guild.id)] and len(data["servers"][str(guild.id)]["roles"]) != 0:
+# Buttons command
+@slash.slash(
+	name="buttons",
+	description="Hmm...",
+	guild_ids=guild_ids)
+async def _buttons(ctx):
+	guild = message.guild
+	# If the roles have been set up
+	if "roles" in data["servers"][str(guild.id)] and len(data["servers"][str(guild.id)]["roles"]) != 0:
 
-			# Delete the command message
-			#await message.delete()
+		# Delete the command message
+		#await message.delete()
 
-			# Send one roles message per category
-			await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
-			for category in data["servers"][str(guild.id)]["roles"]:  # For category in roles
-				# Message per category
-				buttons = []
-				mainActionRow = ActionRow()
-				buttonRow = []
-				fill = 0
-				for role in data["servers"][str(guild.id)]["roles"][category]["list"]:  # For role in category
-					emojiCode = data["servers"][str(guild.id)]["roles"][category]["list"][role]["emoji"]
-					if emojiCode[:1] == "<":
-						for emoji in message.guild.emojis:
-							if emoji.name in emojiCode:
-								emojiCode = emoji
-					if fill < 5:
-						buttonRow.append(Button(style=ButtonStyle.blue, custom_id=role,label=data["servers"][str(guild.id)]["roles"][category]["list"][role]["name"], emoji=emojiCode))
-						fill += 1
-					else:
-						buttons.append(buttonRow)
-						mainActionRow.append(ActionRow(buttonRow))
-						buttonRow = []
-						buttonRow.append(Button(style=ButtonStyle.blue, custom_id=role,label=data["servers"][str(guild.id)]["roles"][category]["list"][role]["name"], emoji=emojiCode))
-						fill=0
+		# Send one roles message per category
+		await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
+		for category in data["servers"][str(guild.id)]["roles"]["categories"]:  # For category in roles
+			# Message per category
+			buttons = []
+			rows = []
+			buttonRow = []
+			fill = 0
+			print(guild.id)
+			print(category)
+			for role in data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:  # For role in category
+				emojiCode = data["servers"][str(guild.id)]["roles"]["categories"][category]["list"][role]["emoji"]
+				if emojiCode[:1] == "<":
+					for emoji in message.guild.emojis:
+						if emoji.name in emojiCode:
+							emojiCode = emoji
+				if fill < 5:
+					buttonRow.append(create_button(style=ButtonStyle.blue, custom_id=role,label=data["servers"][str(guild.id)]["roles"]["categories"][category]["list"][role]["name"], emoji=emojiCode))
+					fill += 1
+				else:
+					buttons.append(buttonRow)
+					rows.append(create_actionrow(*buttonRow))
+					buttonRow = []
+					buttonRow.append(create_button(style=ButtonStyle.blue, custom_id=role,label=data["servers"][str(guild.id)]["roles"]["categories"][category]["list"][role]["name"], emoji=emojiCode))
+					fill=0
 
 
-				# Add button to message per role
-				category_message = await message.channel.send(content="Click button to get role", components=mainActionRow)
+			# Add button to message per role
+			category_message = await message.channel.send(content="Click button to get role", components=rows)
 
-				# Update the category's message id variable
-				data["servers"][str(guild.id)]["roles"][category]["message id"] = category_message.id
-				print("Cat ID: "+str(category_message.id))
-				roleMessageList.append(category_message.id)
+			# Update the category's message id variable
+			data["servers"][str(guild.id)]["roles"]["categories"][category]["message id"] = category_message.id
+			print("Cat ID: "+str(category_message.id))
+			roleMessageList.append(category_message.id)
 
-			# Write the updated data
-			update_data()
+		# Write the updated data
+		update_data()
 
-		# If the roles haven't been set up
-		else:
-			logger.debug("Roles have not been set up for " + str(message.guild.id))  # Event log
-			await message.channel.send(
-				"Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
+	# If the roles haven't been set up
+	else:
+		logger.debug("Roles have not been set up for " + str(message.guild.id))  # Event log
+		await message.channel.send(
+			"Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
 
 
