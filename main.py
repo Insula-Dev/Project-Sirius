@@ -276,10 +276,9 @@ class MyClient(discord.Client):
 				percentage = 0
 			generate_rank_card(message.author.avatar_url, message.author.name, rank, percentage)
 
-			# Create the rank embed
-			embed_level = discord.Embed()
-			file = discord.File("card.png")
-			embed_level.set_image(url="attachment://card.png")
+			# Sends the level card image
+			file = discord.File("level_card.png")
+			await message.channel.send(file=file)
 
 			# Send the embed
 			await message.channel.send(file=file)

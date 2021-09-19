@@ -4,9 +4,9 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageStat
 
 
 # Variables
-bg_colour = (66, 141, 255)
+bg_colour = (66, 141, 255, 0)
 grey_colour = (40, 40, 40)
-theme_colour = (74, 60, 232)
+theme_colour = (174, 160, 232)
 alt_colour = (180, 80, 250)
 text_colour = (255, 252, 252)
 main_font = ImageFont.truetype("Resources/NHaasGroteskTXPro-55Rg.ttf", 28)
@@ -53,24 +53,25 @@ def generate_rank_card(profile_picture_url, name, rank, percentage):
 
 	# Request profile picture and save it as card.png
 	with requests.get(profile_picture_url) as request:
-		with open("card.png", "wb") as file:
+		with open("level_card.png", "wb") as file:
 			file.write(request.content)
 
 	# Prepare the profile picture using PIL
-	with Image.open("card.png") as profile_picture:
+	with Image.open("level_card.png") as profile_picture:
 		profile_picture = profile_picture.resize((150, 150), Image.NEAREST)  # Simplify? Size?
 
-		bg_colour = tuple(ImageStat.Stat(profile_picture).median) # Makes background colour the median of the profile picture
+		#bg_colour = tuple(ImageStat.Stat(profile_picture).median) # Makes background colour the median of the profile picture
 		#profile_picture.show()
 
 	# Prepare the card
 	card = Image.new(mode="RGBA", size=(500, 200), color=bg_colour)
-	card = add_corners(card, 15)
+	#card = add_corners(card, 15) # Removed for efficiency
 
 	# Give the profile picture a border
 	pfp_border = Image.new("RGB", (152, 152), grey_colour)  # Make RGBA
 	pfp_border.paste(profile_picture, (1, 1))
-	pfp_border = mask_circle_solid(pfp_border, bg_colour, 2)
+	pfp_border = add_corners(pfp_border,75)
+	#pfp_border = mask_circle_solid(pfp_border, bg_colour, 2)
 	#pfp_border.show()
 
 	# Add the profile picture to the card
@@ -90,7 +91,7 @@ def generate_rank_card(profile_picture_url, name, rank, percentage):
 	card.paste(bar_background, (200, 100))
 	card.paste(bar_overlay, (205, 105))
 	#card.show()
-	card.save("card.png")
+	card.save("level_card.png")
 
 
 # Main body
