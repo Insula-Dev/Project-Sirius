@@ -41,7 +41,7 @@
                 "categories": {
                     "Server": {
                         "message id": 846254614265069588,
-                        "roles": {
+                        "list": {
                             "831945402265239562": {
                                 "name": "Ping",
                                 "emoji": "\ud83d\udd14"
@@ -50,7 +50,7 @@
                     },
                     "Games": {
                         "message id": 846254623366840361,
-                        "roles": {
+                        "list": {
                             "834023105718517781": {
                                 "name": "Destiny 2",
                                 "emoji": "<:destiny2:834175548921741342>"
@@ -123,7 +123,7 @@
                 "categories": {
                     "Year": {
                         "message id": 846251190392061973,
-                        "roles": {
+                        "list": {
                             "845309847640473641": {
                                 "name": "Foundation",
                                 "emoji": "0\ufe0f\u20e3"
@@ -156,7 +156,7 @@
                     },
                     "Degree/Courses": {
                         "message id": 846251202604826624,
-                        "roles": {
+                        "list": {
                             "846173456915496981": {
                                 "name": "Physics",
                                 "emoji": "\ud83d\udcda"
@@ -181,7 +181,7 @@
                     },
                     "Misc": {
                         "message id": 846251211312857099,
-                        "roles": {
+                        "list": {
                             "846208891842854953": {
                                 "name": "PhysSoc",
                                 "emoji": "\ud83d\ude80"
@@ -235,74 +235,76 @@
                 "image link": "https://db3pap006files.storage.live.com/y4mr-Wa5qCDxmSvDCXA2h2E0Qu6kkJTcs1kKQjn14yUQfboZWyy_9sX8naYjeiEk-fuM6ltxX-9Jndyx9EvnUYJJlVdLao9OgREvEaNcFpMtmE0aqTUOLJZ11U1-HexXR6uk7M8rI9iEJ-8jDjHUFUF1YHNbYYKhO5JN4ghZzlJKU9Dx8B0mpRnQinFP10F4n_s?width=1772&height=938&cropmode=none"
             },
             "roles": {
-                "Year": {
-                    "message id": 872464602707922944,
-                    "list": {
-                        "845309847640473641": {
-                            "name": "Foundation",
-                            "emoji": "0\ufe0f\u20e3"
-                        },
-                        "844943772043444234": {
-                            "name": "Year 1",
-                            "emoji": "1\ufe0f\u20e3"
-                        },
-                        "844943944319893564": {
-                            "name": "Year 2",
-                            "emoji": "2\ufe0f\u20e3"
-                        },
-                        "844943919786622988": {
-                            "name": "Year 3",
-                            "emoji": "3\ufe0f\u20e3"
-                        },
-                        "844943891928580107": {
-                            "name": "Year 4",
-                            "emoji": "4\ufe0f\u20e3"
-                        },
-                        "845309888028344381": {
-                            "name": "Postgrad",
-                            "emoji": "\ud83c\udd7f\ufe0f"
-                        },
-                        "844948245570387969": {
-                            "name": "Outsider",
-                            "emoji": "\ud83d\udc12"
+                "categories": {
+                    "Year": {
+                        "message id": 872464602707922944,
+                        "list": {
+                            "845309847640473641": {
+                                "name": "Foundation",
+                                "emoji": "0\ufe0f\u20e3"
+                            },
+                            "844943772043444234": {
+                                "name": "Year 1",
+                                "emoji": "1\ufe0f\u20e3"
+                            },
+                            "844943944319893564": {
+                                "name": "Year 2",
+                                "emoji": "2\ufe0f\u20e3"
+                            },
+                            "844943919786622988": {
+                                "name": "Year 3",
+                                "emoji": "3\ufe0f\u20e3"
+                            },
+                            "844943891928580107": {
+                                "name": "Year 4",
+                                "emoji": "4\ufe0f\u20e3"
+                            },
+                            "845309888028344381": {
+                                "name": "Postgrad",
+                                "emoji": "\ud83c\udd7f\ufe0f"
+                            },
+                            "844948245570387969": {
+                                "name": "Outsider",
+                                "emoji": "\ud83d\udc12"
+                            }
                         }
-                    }
-                },
-                "Degree/Courses": {
-                    "message id": 872464603441922068,
-                    "list": {
-                        "846173456915496981": {
-                            "name": "Physics",
-                            "emoji": "\ud83d\udcda"
-                        },
-                        "846173362106400788": {
-                            "name": "Astrophysics",
-                            "emoji": "\ud83d\udef0\ufe0f"
-                        },
-                        "846173276693987389": {
-                            "name": "Theoretical Physics",
-                            "emoji": "\ud83e\uddf2"
-                        },
-                        "846173705432334336": {
-                            "name": "Physics and Mathematics",
-                            "emoji": "\ud83e\uddee"
-                        },
-                        "846173649404690474": {
-                            "name": "Physics and Philosophy",
-                            "emoji": "\ud83d\udcdc"
+                    },
+                    "Degree/Courses": {
+                        "message id": 872464603441922068,
+                        "list": {
+                            "846173456915496981": {
+                                "name": "Physics",
+                                "emoji": "\ud83d\udcda"
+                            },
+                            "846173362106400788": {
+                                "name": "Astrophysics",
+                                "emoji": "\ud83d\udef0\ufe0f"
+                            },
+                            "846173276693987389": {
+                                "name": "Theoretical Physics",
+                                "emoji": "\ud83e\uddf2"
+                            },
+                            "846173705432334336": {
+                                "name": "Physics and Mathematics",
+                                "emoji": "\ud83e\uddee"
+                            },
+                            "846173649404690474": {
+                                "name": "Physics and Philosophy",
+                                "emoji": "\ud83d\udcdc"
+                            }
                         }
-                    }
-                },
-                "Misc": {
-                    "message id": 872464603852967977,
-                    "list": {
-                        "846208891842854953": {
-                            "name": "PhysSoc",
-                            "emoji": "\ud83d\ude80"
-                        },
-                        "846209216062554133": {
-                            "name": "MathSoc",
-                            "emoji": "\ud83d\udcd0"
+                    },
+                    "Misc": {
+                        "message id": 872464603852967977,
+                        "list": {
+                            "846208891842854953": {
+                                "name": "PhysSoc",
+                                "emoji": "\ud83d\ude80"
+                            },
+                            "846209216062554133": {
+                                "name": "MathSoc",
+                                "emoji": "\ud83d\udcd0"
+                            }
                         }
                     }
                 }
@@ -337,7 +339,7 @@
                 "categories": {
                     "Server": {
                         "message id": null,
-                        "roles": {}
+                        "list": {}
                     }
                 }
             },
@@ -368,7 +370,7 @@
                 "categories": {
                     "Server": {
                         "message id": null,
-                        "roles": {}
+                        "list": {}
                     }
                 }
             },
@@ -387,48 +389,50 @@
                 "image link": null
             },
             "roles": {
-                "Server": {
-                    "message id": 872468694603804673,
-                    "list": {
-                        "864923062838886421": {
-                            "name": "Cinema",
-                            "emoji": "\ud83c\udf9f\ufe0f"
-                        },
-                        "864926302581293086": {
-                            "name": "Train",
-                            "emoji": "\ud83d\ude82"
-                        },
-                        "872465441291898942": {
-                            "name": "Plane",
-                            "emoji": "\ud83d\ude82"
-                        },
-                        "872465383037206590": {
-                            "name": "Car",
-                            "emoji": "\ud83d\ude82"
-                        },
-                        "872465492764418120": {
-                            "name": "Boat",
-                            "emoji": "\ud83d\ude82"
-                        },
-                        "872465598750289980": {
-                            "name": "Lobster",
-                            "emoji": "\ud83d\ude82"
-                        },
-                        "872465661224419368": {
-                            "name": "Crayfish",
-                            "emoji": "\ud83d\ude82"
-                        },
-                        "872465802073374760": {
-                            "name": "Cornetto",
-                            "emoji": "\ud83d\ude82"
-                        },
-                        "872465717348433990": {
-                            "name": "Swan",
-                            "emoji": "\ud83d\ude82"
-                        },
-                        "872465833044099144": {
-                            "name": "Ducati",
-                            "emoji": "\ud83d\ude82"
+                "categories": {
+                    "Server": {
+                        "message id": 889186554638135307,
+                        "list": {
+                            "864923062838886421": {
+                                "name": "Cinema",
+                                "emoji": "\ud83c\udf9f\ufe0f"
+                            },
+                            "864926302581293086": {
+                                "name": "Train",
+                                "emoji": "\ud83d\ude82"
+                            },
+                            "872465441291898942": {
+                                "name": "Plane",
+                                "emoji": "\ud83d\ude82"
+                            },
+                            "872465383037206590": {
+                                "name": "Car",
+                                "emoji": "\ud83d\ude82"
+                            },
+                            "872465492764418120": {
+                                "name": "Boat",
+                                "emoji": "\ud83d\ude82"
+                            },
+                            "872465598750289980": {
+                                "name": "Lobster",
+                                "emoji": "\ud83d\ude82"
+                            },
+                            "872465661224419368": {
+                                "name": "Crayfish",
+                                "emoji": "\ud83d\ude82"
+                            },
+                            "872465802073374760": {
+                                "name": "Cornetto",
+                                "emoji": "\ud83d\ude82"
+                            },
+                            "872465717348433990": {
+                                "name": "Swan",
+                                "emoji": "\ud83d\ude82"
+                            },
+                            "872465833044099144": {
+                                "name": "Ducati",
+                                "emoji": "\ud83d\ude82"
+                            }
                         }
                     }
                 },
@@ -444,7 +448,7 @@
             },
             "ranks": {
                 "241772848564142080": 17,
-                "258284765776576512": 56,
+                "258284765776576512": 60,
                 "519494195929546782": 2
             }
         },
@@ -461,12 +465,14 @@
                 "image link": ""
             },
             "roles": {
-                "Server": {
-                    "message id": 872552244409675796,
-                    "list": {
-                        "589895833323831304": {
-                            "name": "General Kidz",
-                            "emoji": "\ud83d\ude82"
+                "categories": {
+                    "Server": {
+                        "message id": 872552244409675796,
+                        "list": {
+                            "589895833323831304": {
+                                "name": "General Kidz",
+                                "emoji": "\ud83d\ude82"
+                            }
                         }
                     }
                 }
@@ -491,7 +497,7 @@
                 "categories": {
                     "Courses": {
                         "message id": 870663238365360219,
-                        "roles": {
+                        "list": {
                             "755425459482656939": {
                                 "name": "Year In Industry",
                                 "emoji": "<:destiny2:834175548921741342>"
@@ -536,7 +542,7 @@
                     },
                     "Games": {
                         "message id": 870663257130696754,
-                        "roles": {
+                        "list": {
                             "759097339133558834": {
                                 "name": "Rainbow Six Siege",
                                 "emoji": "<:destiny2:834175548921741342>"
@@ -581,7 +587,7 @@
                     },
                     "Other": {
                         "message id": 870663275384291389,
-                        "roles": {
+                        "list": {
                             "760641720043044894": {
                                 "name": "Party Night",
                                 "emoji": "<:destiny2:834175548921741342>"
