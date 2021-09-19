@@ -4,7 +4,6 @@ import time
 import json
 from datetime import date
 import discord
-from discord.ext import commands
 import discord_components
 import discord_slash.error
 from discord_slash import SlashCommand
@@ -36,8 +35,7 @@ for server in data["servers"]:
 print(roleMessageList)
 
 # Client stuff
-#client = discord.Client(intents=discord.Intents.all(), command_prefix="-")
-client = commands.Bot(command_prefix="-")
+client = discord.Client(intents=discord.Intents.all(), command_prefix="-")
 
 
 # But first, functions
@@ -163,7 +161,6 @@ async def on_message(message):
 			for category in data["servers"][str(guild.id)]["roles"]:  # For category in roles
 				# Message per category
 				buttons = []
-				mainActionRow = ActionRow()
 				buttonRow = []
 				fill = 0
 				for role in data["servers"][str(guild.id)]["roles"][category]["list"]:  # For role in category
@@ -177,14 +174,41 @@ async def on_message(message):
 						fill += 1
 					else:
 						buttons.append(buttonRow)
-						mainActionRow.append(ActionRow(buttonRow))
 						buttonRow = []
 						buttonRow.append(Button(style=ButtonStyle.blue, custom_id=role,label=data["servers"][str(guild.id)]["roles"][category]["list"][role]["name"], emoji=emojiCode))
 						fill=0
+				"""
+				# Sorts out rows of buttons
+				actionRows = []
+				i = 0
+				print("Amount of buttons:",len(buttons),"Will make",len(buttons)//5,"sets-------------")
+				for x in range(len(buttons)//5): # Makes actions rows filled with 5 buttons
+					print("X:",x)
+					actionRow = create_actionrow(*buttons[5*x:5*(x+1)])
+					print(5*x,"to",5*(x+1),"is "+buttons[5*x]["label"]+" to "+buttons[5*(x+1)-1]["label"])
+					print("Length of row",x,len(actionRow["components"]))
+					actionRows.append(actionRow)
+					i = x+1
 
-
+				# Adds last row (may have less than 5 buttons)
+				try:
+					lastActionRow = create_actionrow(*buttons[5 * i:])
+					print(5*i,"to end is "+buttons[5*i]["label"]+" to "+buttons[-1]["label"])
+					print("Length of last row",i,len(lastActionRow["components"]))
+					if len(lastActionRow["components"]) >= 1:
+						print("Adding last row")
+						actionRows.append(lastActionRow)
+				except discord_slash.error.IncorrectFormat as exception:
+					print(exception)
+				
+				for row in actionRows:
+					print("Length of row:"+row["components"][0]["label"]+" is",len(row["components"]))
+					for button in row["components"]:
+						print(button["label"])
+				print("Amount of rows here is:",len(actionRows))
+				"""
 				# Add button to message per role
-				category_message = await message.channel.send(content="Click button to get role", components=mainActionRow)
+				category_message = await message.channel.send(content="Click button to get role", components=buttons)
 
 				# Update the category's message id variable
 				data["servers"][str(guild.id)]["roles"][category]["message id"] = category_message.id
