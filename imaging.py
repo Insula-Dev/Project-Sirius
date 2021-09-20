@@ -48,8 +48,8 @@ def mask_circle_solid(pil_img, background_colour, blur_radius, offset=0):
 	mask = mask.filter(ImageFilter.GaussianBlur(blur_radius))
 	return Image.composite(pil_img, background, mask)
 
-def generate_rank_card(profile_picture_url, name, rank, percentage):
-	"""Generates the rank card."""
+def generate_level_card(profile_picture_url, name, level, percentage):
+	"""Generates the level card."""
 
 	# Request profile picture and save it as card.png
 	with requests.get(profile_picture_url) as request:
@@ -79,7 +79,7 @@ def generate_rank_card(profile_picture_url, name, rank, percentage):
 
 	# Add the text to the card
 	drawn = ImageDraw.Draw(card)
-	drawn.text((200, 25), "Level: " + str(rank), text_colour, font=main_font)
+	drawn.text((200, 25), "Level: " + str(level), text_colour, font=main_font)
 	drawn.text((200, 55), name, text_colour, font=sub_font)
 	drawn.text((200, 78), str(percentage) + "%", theme_colour, font=sub_font)
 
@@ -99,7 +99,7 @@ if __name__ == "__main__":
 	pablo = "https://cdn.discordapp.com/avatars/241772848564142080/07bcdb7fcf7f34b75a1f318bdcafff3c.webp?size=128"
 	sirius = "https://cdn.discordapp.com/avatars/844950029369737238/786ba3643ee3b708bc008c24a2993cc2.webp?size=128"
 	arun = "https://cdn.discordapp.com/avatars/258284765776576512/a_4b5829ab10b6d8d79b2fa5a2f6ec245b.gif?size=128"
-	generate_rank_card(arun, "name goes here", 68, 12)
+	generate_level_card(arun, "name goes here", 68, 12)
 
 
 """

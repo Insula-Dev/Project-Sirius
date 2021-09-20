@@ -208,7 +208,7 @@ if __name__ == "__main__":
 						channel = discord.utils.get(guild.channels, id=data["servers"][str(guild.id)]["config"]["announcements channel id"])
 						await channel.send("**" + client.user.name + "** online\nVersion [VERSION].")
 				except Exception as exception:
-					logger.error("Failed to send announcement message in " + guild.name + " (" + guild.id + "). Exception: " + str(exception))
+					logger.error("Failed to send announcement message in " + guild.name + " (" + str(guild.id) + "). Exception: " + str(exception))
 
 		logger.debug("`on_ready` end")
 
@@ -299,7 +299,7 @@ if __name__ == "__main__":
 		if "roles" in data["servers"][str(payload.guild_id)]:
 			try:
 
-				# Checks if the message is one of the server's
+				# Checks if the message is one of the server's roles messages
 				message_relevant = False
 				for category in data["servers"][str(payload.guild_id)]["roles"]:
 					if payload.message_id == data["servers"][str(payload.guild_id)]["roles"][category]["message id"]:
@@ -359,7 +359,7 @@ if __name__ == "__main__":
 				if member.bot is True:
 					return
 
-				# Checks if the message is one we care about
+				# Checks if the message is one of the server's roles messages
 				message_relevant = False
 				for category in data["servers"][str(payload.guild_id)]["roles"]:
 					if payload.message_id == data["servers"][str(payload.guild_id)]["roles"][category]["message id"]:
@@ -391,47 +391,55 @@ if __name__ == "__main__":
 			except Exception as exception:
 				logger.error("Failed to remove role " + role.name + " from " + member.name + ". Exception: " + str(exception))
 
-
+	# Buttons...
+	# The following must be tested:
+	#     - Bots cannot press buttons
+	#     - What happens when the bot isn't in the guild or the guild isn't cached (see
+	#       on_raw_reaction_add for details)
 	@client.event
 	async def on_button_click(interaction):
+		"""Runs on button click."""
+
 		print("Response!")
-		if interaction.message.id in roleMessageList:
-			await interaction.respond(type=InteractionType.UpdateMessage, content=f'{interaction.component.label} clicked')
-			guild = interaction.guild
 
-			# Check if the roles have been set up
-			if len(data["servers"][str(guild.id)]["roles"]) != 0:
+		# If the roles functionality is enabled
+		if "roles" in data["servers"][str(interaction.guild.id)]:
+			try:
 
-				# Check if we're still in the guild and it's cached
-				if guild is None:
+				# Checks if the message is one of the server's roles messages
+				message_relevant = False
+				for category in data["servers"][interaction.guild.id]["roles"]:
+					if interaction.message_id == data["servers"][str(interaction.guild.id)]["roles"][category]["message id"]:
+						message_relevant = True
+						break
+				if message_relevant is False:
 					return
 
-				# If the emoji isn't the one we care about then delete it and exit as well
+				# Finds the relevant role
 				role_id = -1
-				for category in data["servers"][str(guild.id)]["roles"]:  # For category in list
-					for role in data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:  # For role in category
-						print("Name in data:" + role)
-						print("Name from interaction:" + interaction.custom_id)
-						if role == interaction.custom_id:
+				for category in data["servers"][str(interaction.guild.id)]["roles"]:
+					for role in data["servers"][str(interaction.guild.id)]["roles"][category]["list"]:
+						if str(interaction.custom_id) == data["servers"][str(interaction.guild.id)]["roles"][category]:
 							role_id = int(role)
-							break
-
-				# Make sure the role still exists and is valid
-				print(role_id)
-				role = guild.get_role(role_id)
-				if role is None:
-					print("Role ain't there chief")
+				if role_id == -1:
 					return
 
-				# Finally, add the role
-				try:
-					member = guild.get_member(interaction.user.id)  # Converts chad user, to beta member
-					await member.add_roles(role)
-					logger.info("Role `" + role.name + "` added to " + interaction.user.name)  # Event log
-				# If we want to do something in case of errors we'd do it here
-				except Exception as exception:
-					logger.error("Failed to add role " + role.name + " to " + interaction.user.name + ". Exception: " + str(exception))  # Event log
+				# Checks if the role exists and is valid
+				role = client.get_guild(interaction.guild.id).get_role(interaction.custom_id)
 
+				# Adds the role to the user
+				await interaction.member.add_roles(role)
+				logger.debug("Added role " + role.name + " to " + interaction.member.name + ". Exception: " + str(exception))
+				return
+
+			except Exception as exception:
+				logger.error("Failed to add role " + role.name + " to " + payload.member.name + ". Exception: " + str(exception))
+			finally:
+				return
+
+		# Placeholder for other buttons functionality. Do not remove without consulting Pablo's forboding psionic foresight
+		if False is True:
+			print("https://media.tenor.co/videos/6361572ebe664cc462727807a7359f7c/mp4")
 
 	# Slash commands
 	# The following must be tested:
@@ -796,24 +804,30 @@ if __name__ == "__main__":
 
 		# If the roles functionality is enabled
 		if "roles" in data["servers"][str(ctx.guild.id)]:
-			try:
+			#try:
 
-				# Creates and sends the roles messages
-				await ctx.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
-				for category in data["servers"][str(ctx.guild.id)]["roles"]:
-					buttons = []
-					for role in data["servers"][str(ctx.guild.id)]["roles"][category]["list"]:
-						buttons.append(create_button(style=ButtonStyle.red, label=data["servers"][str(ctx.guild.id)]["roles"][category]["list"][role]["emoji"] + " " + data["servers"][str(ctx.guild.id)]["roles"][category]["list"][role]["name"]))
-					components = []
-					for x in range(ceil(len(buttons) / 5)):
-						if len(buttons[(5 * x):]) > 5:
-							components.append(create_actionrow(*buttons[(5 * x):(5 * x) + 5]))
-						else:
-							components.append(create_actionrow(*buttons[(5 * x):]))
-					await ctx.send(content="**" + category + "**\n" + "Select the roles for this category!", components=components)
+			# Creates and sends the roles messages
+			await ctx.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
+			for category in data["servers"][str(ctx.guild.id)]["roles"]:
+				buttons = []
+				for role in data["servers"][str(ctx.guild.id)]["roles"][category]["list"]:
+					buttons.append(create_button(style=ButtonStyle.red, label=data["servers"][str(ctx.guild.id)]["roles"][category]["list"][role]["emoji"] + " " + data["servers"][str(ctx.guild.id)]["roles"][category]["list"][role]["name"], custom_id=role))
+				components = []
+				for x in range(ceil(len(buttons) / 5)):
+					if len(buttons[(5 * x):]) > 5:
+						components.append(create_actionrow(*buttons[(5 * x):(5 * x) + 5]))
+					else:
+						components.append(create_actionrow(*buttons[(5 * x):]))
+				category_message = await ctx.send(content="**" + category + "**\n" + "Select the roles for this category!", components=components)
 
-			except Exception as exception:
-				logger.error("Failed to send roles message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+				# Updates the category's message id
+				data["servers"][str(ctx.guild.id)]["roles"][category]["message id"] = category_message.id
+
+			# Write the updated data
+			update_data()
+
+			#except Exception as exception:
+			#	logger.error("Failed to send roles message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
 		# If the roles functionality is disabled
 		else:
