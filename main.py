@@ -392,6 +392,47 @@ if __name__ == "__main__":
 				logger.error("Failed to remove role " + role.name + " from " + member.name + ". Exception: " + str(exception))
 
 
+	@client.event
+	async def on_button_click(interaction):
+		print("Response!")
+		if interaction.message.id in roleMessageList:
+			await interaction.respond(type=InteractionType.UpdateMessage, content=f'{interaction.component.label} clicked')
+			guild = interaction.guild
+
+			# Check if the roles have been set up
+			if len(data["servers"][str(guild.id)]["roles"]) != 0:
+
+				# Check if we're still in the guild and it's cached
+				if guild is None:
+					return
+
+				# If the emoji isn't the one we care about then delete it and exit as well
+				role_id = -1
+				for category in data["servers"][str(guild.id)]["roles"]:  # For category in list
+					for role in data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:  # For role in category
+						print("Name in data:" + role)
+						print("Name from interaction:" + interaction.custom_id)
+						if role == interaction.custom_id:
+							role_id = int(role)
+							break
+
+				# Make sure the role still exists and is valid
+				print(role_id)
+				role = guild.get_role(role_id)
+				if role is None:
+					print("Role ain't there chief")
+					return
+
+				# Finally, add the role
+				try:
+					member = guild.get_member(interaction.user.id)  # Converts chad user, to beta member
+					await member.add_roles(role)
+					logger.info("Role `" + role.name + "` added to " + interaction.user.name)  # Event log
+				# If we want to do something in case of errors we'd do it here
+				except Exception as exception:
+					logger.error("Failed to add role " + role.name + " to " + interaction.user.name + ". Exception: " + str(exception))  # Event log
+
+
 	# Slash commands
 	# The following must be tested:
 	#     - Bots cannot run commands
