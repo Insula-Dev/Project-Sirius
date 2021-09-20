@@ -1,12 +1,12 @@
 # Imports
 import requests
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageStat
 
 
 # Variables
-bg_colour = (66, 141, 255)
+bg_colour = (66, 141, 255, 0)
 grey_colour = (40, 40, 40)
-theme_colour = (74, 60, 232)
+theme_colour = (174, 160, 232)
 alt_colour = (180, 80, 250)
 text_colour = (255, 252, 252)
 main_font = ImageFont.truetype("Resources/NHaasGroteskTXPro-55Rg.ttf", 28)
@@ -48,27 +48,30 @@ def mask_circle_solid(pil_img, background_colour, blur_radius, offset=0):
 	mask = mask.filter(ImageFilter.GaussianBlur(blur_radius))
 	return Image.composite(pil_img, background, mask)
 
-def generate_rank_card(profile_picture_url, name, rank, percentage):
-	"""Generates the rank card."""
+def generate_level_card(profile_picture_url, name, level, percentage):
+	"""Generates the level card."""
 
-	# Request profile picture and save it as rank_card.png
+	# Request profile picture and save it as card.png
 	with requests.get(profile_picture_url) as request:
-		with open("rank_card.png", "wb") as file:
+		with open("level_card.png", "wb") as file:
 			file.write(request.content)
 
 	# Prepare the profile picture using PIL
-	with Image.open("rank_card.png") as profile_picture:
+	with Image.open("level_card.png") as profile_picture:
 		profile_picture = profile_picture.resize((150, 150), Image.NEAREST)  # Simplify? Size?
+
+		#bg_colour = tuple(ImageStat.Stat(profile_picture).median) # Makes background colour the median of the profile picture
 		#profile_picture.show()
 
 	# Prepare the card
 	card = Image.new(mode="RGBA", size=(500, 200), color=bg_colour)
-	card = add_corners(card, 15)
+	#card = add_corners(card, 15) # Removed for efficiency
 
 	# Give the profile picture a border
 	pfp_border = Image.new("RGB", (152, 152), grey_colour)  # Make RGBA
 	pfp_border.paste(profile_picture, (1, 1))
-	pfp_border = mask_circle_solid(pfp_border, bg_colour, 2)
+	pfp_border = add_corners(pfp_border,75)
+	#pfp_border = mask_circle_solid(pfp_border, bg_colour, 2)
 	#pfp_border.show()
 
 	# Add the profile picture to the card
@@ -76,7 +79,7 @@ def generate_rank_card(profile_picture_url, name, rank, percentage):
 
 	# Add the text to the card
 	drawn = ImageDraw.Draw(card)
-	drawn.text((200, 25), "Level: " + str(rank), text_colour, font=main_font)
+	drawn.text((200, 25), "Level: " + str(level), text_colour, font=main_font)
 	drawn.text((200, 55), name, text_colour, font=sub_font)
 	drawn.text((200, 78), str(percentage) + "%", theme_colour, font=sub_font)
 
@@ -88,19 +91,22 @@ def generate_rank_card(profile_picture_url, name, rank, percentage):
 	card.paste(bar_background, (200, 100))
 	card.paste(bar_overlay, (205, 105))
 	#card.show()
-	card.save("rank_card.png")
+	card.save("level_card.png")
 
 
 # Main body
 if __name__ == "__main__":
-	generate_rank_card("https://cdn.discordapp.com/avatars/258284765776576512/a_19ff5a7b9a7c94df59ba90df787d264c.gif?size=128", "IkelosOne", 68, 12)
+	pablo = "https://cdn.discordapp.com/avatars/241772848564142080/07bcdb7fcf7f34b75a1f318bdcafff3c.webp?size=128"
+	sirius = "https://cdn.discordapp.com/avatars/844950029369737238/786ba3643ee3b708bc008c24a2993cc2.webp?size=128"
+	arun = "https://cdn.discordapp.com/avatars/258284765776576512/a_4b5829ab10b6d8d79b2fa5a2f6ec245b.gif?size=128"
+	generate_level_card(arun, "name goes here", 68, 12)
 
 
 """
 Problems:
 
 - Gif profile pictures
-- Make rank_card.png a variable instead of a file
+- Make card.png a variable instead of a file
 - add_corners and mask_circle_solid are a clunky heuristic
 - pfp is not centred laterally or vertically on card
 - Make card_size a variable and base the sizes off it

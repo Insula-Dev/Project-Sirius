@@ -37,43 +37,41 @@
                 ]
             },
             "roles": {
-                "categories": {
-                    "Server": {
-                        "message id": 846254614265069588,
-                        "roles": {
-                            "831945402265239562": {
-                                "name": "Ping",
-                                "emoji": "\ud83d\udd14"
-                            }
+                "Server": {
+                    "message id": 846254614265069588,
+                    "roles": {
+                        "831945402265239562": {
+                            "name": "Ping",
+                            "emoji": "\ud83d\udd14"
                         }
-                    },
-                    "Games": {
-                        "message id": 846254623366840361,
-                        "roles": {
-                            "834023105718517781": {
-                                "name": "Destiny 2",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "832997725883596820": {
-                                "name": "Stardew",
-                                "emoji": "<:stardew:832999319665246308>"
-                            },
-                            "832658067158073406": {
-                                "name": "Risk of Rain",
-                                "emoji": "<:ror:832655432127610880>"
-                            },
-                            "832998331756183632": {
-                                "name": "Minecraft",
-                                "emoji": "<:minecraft:832659767951622185>"
-                            },
-                            "832997546157932585": {
-                                "name": "Party Games",
-                                "emoji": "<:jackbox:832660115739770961>"
-                            },
-                            "832997616245407815": {
-                                "name": "Zombies",
-                                "emoji": "<:zombies:833001048867864607>"
-                            }
+                    }
+                },
+                "Games": {
+                    "message id": 846254623366840361,
+                    "list": {
+                        "834023105718517781": {
+                            "name": "Destiny 2",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "832997725883596820": {
+                            "name": "Stardew",
+                            "emoji": "<:stardew:832999319665246308>"
+                        },
+                        "832658067158073406": {
+                            "name": "Risk of Rain",
+                            "emoji": "<:ror:832655432127610880>"
+                        },
+                        "832998331756183632": {
+                            "name": "Minecraft",
+                            "emoji": "<:minecraft:832659767951622185>"
+                        },
+                        "832997546157932585": {
+                            "name": "Party Games",
+                            "emoji": "<:jackbox:832660115739770961>"
+                        },
+                        "832997616245407815": {
+                            "name": "Zombies",
+                            "emoji": "<:zombies:833001048867864607>"
                         }
                     }
                 }
@@ -118,76 +116,74 @@
                 ]
             },
             "roles": {
-                "categories": {
-                    "Year": {
-                        "message id": 846251190392061973,
-                        "roles": {
-                            "845309847640473641": {
-                                "name": "Foundation",
-                                "emoji": "0\ufe0f\u20e3"
-                            },
-                            "844943772043444234": {
-                                "name": "Year 1",
-                                "emoji": "1\ufe0f\u20e3"
-                            },
-                            "844943944319893564": {
-                                "name": "Year 2",
-                                "emoji": "2\ufe0f\u20e3"
-                            },
-                            "844943919786622988": {
-                                "name": "Year 3",
-                                "emoji": "3\ufe0f\u20e3"
-                            },
-                            "844943891928580107": {
-                                "name": "Year 4",
-                                "emoji": "4\ufe0f\u20e3"
-                            },
-                            "845309888028344381": {
-                                "name": "Postgrad",
-                                "emoji": "\ud83c\udd7f\ufe0f"
-                            },
-                            "844948245570387969": {
-                                "name": "Outsider",
-                                "emoji": "\ud83d\udc12"
-                            }
+                "Year": {
+                    "message id": 846251190392061973,
+                    "list": {
+                        "845309847640473641": {
+                            "name": "Foundation",
+                            "emoji": "0\ufe0f\u20e3"
+                        },
+                        "844943772043444234": {
+                            "name": "Year 1",
+                            "emoji": "1\ufe0f\u20e3"
+                        },
+                        "844943944319893564": {
+                            "name": "Year 2",
+                            "emoji": "2\ufe0f\u20e3"
+                        },
+                        "844943919786622988": {
+                            "name": "Year 3",
+                            "emoji": "3\ufe0f\u20e3"
+                        },
+                        "844943891928580107": {
+                            "name": "Year 4",
+                            "emoji": "4\ufe0f\u20e3"
+                        },
+                        "845309888028344381": {
+                            "name": "Postgrad",
+                            "emoji": "\ud83c\udd7f\ufe0f"
+                        },
+                        "844948245570387969": {
+                            "name": "Outsider",
+                            "emoji": "\ud83d\udc12"
                         }
-                    },
-                    "Degree/Courses": {
-                        "message id": 846251202604826624,
-                        "roles": {
-                            "846173456915496981": {
-                                "name": "Physics",
-                                "emoji": "\ud83d\udcda"
-                            },
-                            "846173362106400788": {
-                                "name": "Astrophysics",
-                                "emoji": "\ud83d\udef0\ufe0f"
-                            },
-                            "846173276693987389": {
-                                "name": "Theoretical Physics",
-                                "emoji": "\ud83e\uddf2"
-                            },
-                            "846173705432334336": {
-                                "name": "Physics and Mathematics",
-                                "emoji": "\ud83e\uddee"
-                            },
-                            "846173649404690474": {
-                                "name": "Physics and Philosophy",
-                                "emoji": "\ud83d\udcdc"
-                            }
+                    }
+                },
+                "Degree/Courses": {
+                    "message id": 846251202604826624,
+                    "roles": {
+                        "846173456915496981": {
+                            "name": "Physics",
+                            "emoji": "\ud83d\udcda"
+                        },
+                        "846173362106400788": {
+                            "name": "Astrophysics",
+                            "emoji": "\ud83d\udef0\ufe0f"
+                        },
+                        "846173276693987389": {
+                            "name": "Theoretical Physics",
+                            "emoji": "\ud83e\uddf2"
+                        },
+                        "846173705432334336": {
+                            "name": "Physics and Mathematics",
+                            "emoji": "\ud83e\uddee"
+                        },
+                        "846173649404690474": {
+                            "name": "Physics and Philosophy",
+                            "emoji": "\ud83d\udcdc"
                         }
-                    },
-                    "Misc": {
-                        "message id": 846251211312857099,
-                        "roles": {
-                            "846208891842854953": {
-                                "name": "PhysSoc",
-                                "emoji": "\ud83d\ude80"
-                            },
-                            "846209216062554133": {
-                                "name": "MathSoc",
-                                "emoji": "\ud83d\udcd0"
-                            }
+                    }
+                },
+                "Misc": {
+                    "message id": 846251211312857099,
+                    "roles": {
+                        "846208891842854953": {
+                            "name": "PhysSoc",
+                            "emoji": "\ud83d\ude80"
+                        },
+                        "846209216062554133": {
+                            "name": "MathSoc",
+                            "emoji": "\ud83d\udcd0"
                         }
                     }
                 }
@@ -218,11 +214,9 @@
                 "list": []
             },
             "roles": {
-                "categories": {
-                    "Server": {
-                        "message id": null,
-                        "roles": {}
-                    }
+                "Server": {
+                    "message id": null,
+                    "roles": {}
                 }
             },
             "ranks": {
@@ -248,11 +242,9 @@
                 "list": []
             },
             "roles": {
-                "categories": {
-                    "Server": {
-                        "message id": null,
-                        "roles": {}
-                    }
+                "Server": {
+                    "message id": null,
+                    "roles": {}
                 }
             },
             "ranks": {}
@@ -274,7 +266,7 @@
             },
             "roles": {
                 "Server": {
-                    "message id": 871049341563973632,
+                    "message id": 889254697926529045,
                     "list": {
                         "864923062838886421": {
                             "name": "Cinema",
@@ -284,16 +276,53 @@
                             "name": "Train",
                             "emoji": "\ud83d\ude82"
                         },
-                        "69": {
-                            "name": "Nonexistent role",
-                            "emoji": "\ud83d\udeab"
+                        "872465441291898942": {
+                            "name": "Plane",
+                            "emoji": "\ud83d\ude82"
+                        },
+                        "872465383037206590": {
+                            "name": "Car",
+                            "emoji": "\ud83d\ude82"
+                        },
+                        "872465492764418120": {
+                            "name": "Boat",
+                            "emoji": "\ud83d\ude82"
+                        },
+                        "872465598750289980": {
+                            "name": "Lobster",
+                            "emoji": "\ud83d\ude82"
+                        },
+                        "872465661224419368": {
+                            "name": "Crayfish",
+                            "emoji": "\ud83d\ude82"
+                        },
+                        "872465802073374760": {
+                            "name": "Cornetto",
+                            "emoji": "\ud83d\ude82"
+                        },
+                        "872465717348433990": {
+                            "name": "Swan",
+                            "emoji": "\ud83d\ude82"
+                        },
+                        "872465833044099144": {
+                            "name": "Ducati",
+                            "emoji": "\ud83d\ude82"
+                        }
+                    }
+                },
+                "Additional": {
+                    "message id": 872468695719485470,
+                    "list": {
+                        "835971801761710160": {
+                            "name": "Hazers",
+                            "emoji": ":hazers:"
                         }
                     }
                 }
             },
             "ranks": {
-                "241772848564142080": 19,
-                "258284765776576512": 55,
+                "241772848564142080": 17,
+                "258284765776576512": 63,
                 "519494195929546782": 2
             }
         },
@@ -309,11 +338,9 @@
                 "list": []
             },
             "roles": {
-                "categories": {
-                    "Server": {
-                        "message id": 0,
-                        "roles": {}
-                    }
+                "Server": {
+                    "message id": 0,
+                    "roles": {}
                 }
             },
             "ranks": {
@@ -332,120 +359,118 @@
                 "list": []
             },
             "roles": {
-                "categories": {
-                    "Courses": {
-                        "message id": 870663238365360219,
-                        "roles": {
-                            "755425459482656939": {
-                                "name": "Year In Industry",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "773890053620367380": {
-                                "name": "Business",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "870657275231084595": {
-                                "name": "System Analysis",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "870657522942476318": {
-                                "name": "Electronics",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "870657832784121926": {
-                                "name": "Information Retrievel",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "870657987520372747": {
-                                "name": "Graphics",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "870658082575908934": {
-                                "name": "Networks",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "870658127786278974": {
-                                "name": "Embedded Systems",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "870658209315172364": {
-                                "name": "Data Science",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "768440261633245184": {
-                                "name": "Outsider",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            }
+                "Courses": {
+                    "message id": 870663238365360219,
+                    "roles": {
+                        "755425459482656939": {
+                            "name": "Year In Industry",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "773890053620367380": {
+                            "name": "Business",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "870657275231084595": {
+                            "name": "System Analysis",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "870657522942476318": {
+                            "name": "Electronics",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "870657832784121926": {
+                            "name": "Information Retrievel",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "870657987520372747": {
+                            "name": "Graphics",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "870658082575908934": {
+                            "name": "Networks",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "870658127786278974": {
+                            "name": "Embedded Systems",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "870658209315172364": {
+                            "name": "Data Science",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "768440261633245184": {
+                            "name": "Outsider",
+                            "emoji": "<:destiny2:834175548921741342>"
                         }
-                    },
-                    "Games": {
-                        "message id": 870663257130696754,
-                        "roles": {
-                            "759097339133558834": {
-                                "name": "Rainbow Six Siege",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "759097389821722624": {
-                                "name": "Minecraft",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "759113525946744843": {
-                                "name": "Valorant",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "759113567475335200": {
-                                "name": "Rocket League",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "759097205524398130": {
-                                "name": "Among Us",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "759097283185999942": {
-                                "name": "CS:GO",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "759131632757768224": {
-                                "name": "Overwatch",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "759510389368029245": {
-                                "name": "GTA V",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "759510438043582525": {
-                                "name": "League of Legends",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "781209356804161587": {
-                                "name": "Jackbox (Party Games)",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            }
+                    }
+                },
+                "Games": {
+                    "message id": 870663257130696754,
+                    "roles": {
+                        "759097339133558834": {
+                            "name": "Rainbow Six Siege",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "759097389821722624": {
+                            "name": "Minecraft",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "759113525946744843": {
+                            "name": "Valorant",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "759113567475335200": {
+                            "name": "Rocket League",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "759097205524398130": {
+                            "name": "Among Us",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "759097283185999942": {
+                            "name": "CS:GO",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "759131632757768224": {
+                            "name": "Overwatch",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "759510389368029245": {
+                            "name": "GTA V",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "759510438043582525": {
+                            "name": "League of Legends",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "781209356804161587": {
+                            "name": "Jackbox (Party Games)",
+                            "emoji": "<:destiny2:834175548921741342>"
                         }
-                    },
-                    "Other": {
-                        "message id": 870663275384291389,
-                        "roles": {
-                            "760641720043044894": {
-                                "name": "Party Night",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "762269304074665985": {
-                                "name": "Meetups",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "808481625536987155": {
-                                "name": "Bottom Gear",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "762621157039276053": {
-                                "name": "Weebs",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            },
-                            "782069492909473823": {
-                                "name": "Alt Account (VC access)",
-                                "emoji": "<:destiny2:834175548921741342>"
-                            }
+                    }
+                },
+                "Other": {
+                    "message id": 870663275384291389,
+                    "roles": {
+                        "760641720043044894": {
+                            "name": "Party Night",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "762269304074665985": {
+                            "name": "Meetups",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "808481625536987155": {
+                            "name": "Bottom Gear",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "762621157039276053": {
+                            "name": "Weebs",
+                            "emoji": "<:destiny2:834175548921741342>"
+                        },
+                        "782069492909473823": {
+                            "name": "Alt Account (VC access)",
+                            "emoji": "<:destiny2:834175548921741342>"
                         }
                     }
                 }
