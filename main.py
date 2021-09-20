@@ -1,29 +1,42 @@
 # Imports
-from random import randint
-from datetime import date, datetime
 import time
 import json
 import socket
+import re
+from math import ceil
+from random import randint
+from datetime import date, datetime
+# Discord imports
 import discord
-import re  # Delete this later
+from discord_slash import SlashCommand
+from discord_slash.utils.manage_commands import create_option
+# Experimental imports
+from discord_slash.utils.manage_components import create_button, create_actionrow
+from discord_slash.model import ButtonStyle
 
 
 # Local imports
-import requests
-
 from log_handling import *
-from imaging import generate_rank_card
+from imaging import generate_level_card
 
 
 # Variables
-PREFIX = "-"
-with open("token.txt") as file:
-	DISCORD_TOKEN = file.read()
-server_structure = {
+START_TIME = datetime.now()
+try:
+	with open("data.json", encoding="utf-8") as file:
+		data = json.load(file)
+	logger.debug("Loaded data.json")
+except Exception as exception:
+	logger.critical("Failed to load data.json. Exception: " + str(exception))
+cache = {}
+poll = {}
+connected = False
+purge_messages = {}
+SERVER_STRUCTURE = {
 	"config": {
-		"rank system": False,
+		"level system": False,
 		"admin role id": 0,
-		"announcements channel id": 0
+		"announcements channel id": None
 	},
 	"rules": {
 		"title": "Server rules",
@@ -32,908 +45,800 @@ server_structure = {
 		"image link": ""
 	},
 	"roles": {
-		"verify role": 0,
-		"categories": {
-			"CATEGORY NAME": {
-				"message id": 0,
-				"list": {}
-			}
+		"CATEGORY NAME": {
+			"message id": 0,
+			"list": {}
 		}
 	},
-	"ranks": {}
+	"levels": {}
 }
+DEBUG = True
+LEVEL = "DEBUG"
+# For debugging purposes, prints logs at and above a certain level to the console
+if DEBUG is True:
+	x = logging.StreamHandler()  # Create new handler
+	x.setLevel(LEVEL)  # Set handler level
+	logger.addHandler(x)  # Add handler to logger
+command_data = {
+	"ping": {
+		"description": "Pings the bot, checking latency."
+	},
+	"help": {
+		"description": "Displays help information."
+	},
+	"embed": {
+		"description": "Sends a custom-made embed."
+	},
+	"level": {
+		"description": "Sends the user's level card, showing their current level and their progress to the next level."
+	},
+	"leaderboard": {
+		"description": "Sends the level leaderboard, showing everybody's position in the server."
+	},
+	"stats": {
+		"description": "Sends the server's stats embed. Admin only feature."
+	},
+	"rules": {
+		"description": "Sends the server's rules embed. Admin only feature."
+	},
+	"roles": {
+		"description": "Sends the server's roles embed. Admin only feature."
+	},
+	"cls": {
+		"description": "Purges five messages from the channel. Admin only feature."
+	}
+}
+#commands = {
+#	"ping": {
+#		"description": "Engage in a ruthless game of table tennis."
+#		},
+#	"help": {
+#		"command description": "Sends the bot's help embed, listing the bot's commands.",
+#		"options": {
+#			"command": {
+#				"option description": ""
+#				"values": [
+#					"ping",
+#					"help"
+#				]
+#				}
+#			}
+#		},
+#	"embed"
+#}
 
 
-# Definitions
-class MyClient(discord.Client):
+# Functions
+def update_data():
+	"""Writes the updated data variable to the file."""
 
-	def __init__(self, debug=False, level="DEBUG", *args, **kwargs):
-		"""Constructor."""
+	try:
+		with open("data.json", "w", encoding='utf-8') as file:
+			json.dump(data, file, indent=4)
+		logger.debug("Updated data")
+	except Exception as exception:
+		logger.error("Failed to update data. Exception: " + str(exception))
 
-		super().__init__(*args, **kwargs)
-		self.connected = False
-		self.start_time = datetime.now()
-		self.data = {}
-		self.cache = {}
-		self.poll = {}
-		self.purge_messages = {}
-		self.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain of purple Gods")
+def initialise_guild(guild):
+	"""Initialises data for a new guild."""
 
-		# Print logs to the console too, for debugging
-		if debug is True:
-			x = logging.StreamHandler()  # Create new handler
-			x.setLevel(level)  # Set handler level
-			logger.addHandler(x)  # Add handler to logger
+	try:
+		data["servers"][str(guild.id)] = SERVER_STRUCTURE
+		cache[str(guild.id)] = {}
+		poll[str(guild.id)] = {}
 
-	def update_data(self):
-		"""Writes the data attribute to the file."""
+		# Write the updated data
+		logger.debug("Initialised guild " + guild.name + " (" + str(guild.id) + ")")
+		update_data()
+	except Exception as exception:
+		logger.error("Failed to initialise guild " + guild.name + " (" + str(guild.id) + "). Exception: " + str(exception))
 
-		try:
-			with open("data.json", "w", encoding='utf-8') as file:
-				json.dump(self.data, file, indent=4)
-			logger.debug("Updated data.json")  # Event log
-		except Exception as exception:
-			logger.critical("Failed to update data.json. Exception: " + exception)  # Event log
+def get_uptime():
+	"""Returns instance uptime."""
 
-	def initialise_guild(self, guild):
-		"""Creates data for a new guild."""
-
-		try:
-			self.data["servers"][str(guild.id)] = server_structure
-			self.cache[str(guild.id)] = {}
-			self.poll[str(guild.id)] = {}
-
-			# Write the updated data
-			self.update_data()
-			logger.info("Initialised guild: " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
-		except Exception as exception:
-			logger.critical("Failed to initialise guild: " + guild.name + " (ID: " + str(guild.id) + "). Exception: " + exception)  # Event log
-
-	def get_uptime(self):
-		"""Returns instance uptime."""
-
-		try:
-			seconds = round((datetime.now() - self.start_time).total_seconds())
-			uptime = ""
-			if seconds >= 3600:
-				uptime += str(seconds // 3600) + " "
-				if seconds // 3600 == 1:
-					uptime += "hour"
-				else:
-					uptime += "hours"
-			if seconds % 3600 >= 60:
-				if uptime != "":
-					uptime += " "
-				uptime += str(seconds % 3600 // 60) + " "
-				if seconds % 3600 // 60 == 1:
-					uptime += "minute"
-				else:
-					uptime += "minutes"
-			if seconds % 60 > 0:
-				if uptime != "":
-					uptime += " "
-				uptime += str(seconds % 60) + " "
-				if seconds % 60 == 1:
-					uptime += "second"
-				else:
-					uptime += "seconds"
-			logger.debug("Calculated uptime")  # Event log
-			return uptime
-		except Exception as exception:
-			logger.error("Failed to calculate uptime. Exception: " + exception)  # Event log
-			return None
-
-	async def terminatePoll(self, message):
-		"""Closes poll"""
-		reactions = message.reactions
-		highest_count = 0
-		emojis = []
-		counts = []
-
-		for reaction in reactions:
-			emoji = reaction.emoji
-			if emoji not in emojis:
-				emojis.append(emoji)
-			if str(emoji) != "🔚": # Doesn't count end emote
-				counts.append(str(reaction.count - 1))
-			if reaction.count > highest_count:
-				highest_count = reaction.count
-				highest_emoji = reaction.emoji
-		highest_count -= 1  # Takes away the bots reaction
-
-		print(self.poll)
-		poll = self.poll[str(message.guild.id)][str(message.id)]
-
-		options = []
-		#for option in poll["options"]:  # Makes list of options
-		for emoji in emojis:
-			if str(emoji) != "🔚":
-				options.append(str(emoji) + " " + poll["options"][str(emoji)])
-
-		title = str(poll["title"])
-		if title == "Embed.Empty":
-			title = ""
-		embed_results = discord.Embed(title=title + " Results")
-		embed_results.add_field(name="Candidates", value="\n".join(options), inline=True)
-		embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
-		if poll["config"]["winner"] == "highest": # Winner is shown as the highest scoring candidate
+	try:
+		seconds = round((datetime.now() - START_TIME).total_seconds())
+		uptime = ""
+		if seconds >= 3600:
+			uptime += str(seconds // 3600) + " "
+			if seconds // 3600 == 1:
+				uptime += "hour"
+			else:
+				uptime += "hours"
+		if seconds % 3600 >= 60:
+			if uptime != "":
+				uptime += " "
+			uptime += str(seconds % 3600 // 60) + " "
+			if seconds % 3600 // 60 == 1:
+				uptime += "minute"
+			else:
+				uptime += "minutes"
+		if seconds % 60 > 0:
+			if uptime != "":
+				uptime += " "
+			uptime += str(seconds % 60) + " "
+			if seconds % 60 == 1:
+				uptime += "second"
+			else:
+				uptime += "seconds"
+		logger.debug("Calculated uptime")  # Event log
+		return uptime
+	except Exception as exception:
+		logger.error("Failed to calculate uptime. Exception: " + str(exception))  # Event log
+		return None
 
 
-			embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)] + " Score: " + str(highest_count)), inline=False)
+# Main code
+if __name__ == "__main__":
+	# Client stuff
+	client = discord.Client(intents=discord.Intents.all())
 
-		await message.channel.send(embed=embed_results)
-		self.poll[str(message.guild.id)].pop(str(message.id)) # Removes poll entry from dictionary
-
-
-	async def on_ready(self):
+	# Client events
+	@client.event
+	async def on_ready():
 		"""Runs when the client is ready."""
 
-		self.connected = True
+		logger.debug("`on_ready` start")
 
-		# Load the data file into the data variable
-		try:
-			with open("data.json", encoding='utf-8') as file:
-				self.data = json.load(file)
-			logger.debug("Loaded data.json")  # Event log
-		except Exception as exception:
-			logger.critical("Failed to load data.json. Exception: " + exception)  # Event log
+		global connected
+		connected = True
 
+		if client.guilds != []:
+			logger.info(client.user.name + " is ready (commencing on_ready)")
+			for guild in client.guilds:
 
-		# Check if the bot has been added to a guild while offline
-		for guild in self.guilds:
-			if str(guild.id) not in self.data["servers"]:
-				logger.warning("The bot is in " + guild.name + " but has no data for it")  # Event log
+				# Client message
+				logger.info("    " + guild.name + " (ID: " + str(guild.id) + ")")
 
-				# Initialise guild
-				self.initialise_guild(guild)
+				# If the bot has been added to a guild while offline
+				if str(guild.id) not in data["servers"]:
+					logger.warning("The bot is in a guild (" + guild.name + " (" + str(guild.id) + ")) but has no data for it.")
 
-		# Initialise cache for servers
-		for guild in self.guilds:
-			self.cache[str(guild.id)] = {}
-			self.poll[str(guild.id)] = {}
+					# Initialise guild
+					initialise_guild(guild)
 
-		logger.info(self.user.name + " is ready (finished on_ready)")  # Event log
-
-		# Log on_ready messages
-		logger.info(self.user.name + " is ready (commencing on_ready)")  # Event log
-		if self.guilds != []:
-			logger.info(self.user.name + " is connected to the following guilds:")  # Event log
-			for guild in self.guilds:
-				logger.info("    " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
-
-				# Send on_ready announcement
-				announcement_sent = False
-				for channel in guild.text_channels:
-					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
-						logger.debug("Sending on_ready announcement to " + guild.name + " in " + channel.name)  # Event log
-						announcement_sent = True
-						await channel.send("**" + self.user.name + " online**\nVersion: " + self.data["config"]["version"])
-						break
-				if announcement_sent is False:
-					logger.debug("Failed to send on_ready announcement. Announcement channel not found in " + guild.name)  # Event log
-
-	async def on_disconnect(self):
-		if self.connected == True: # Stops code being ran every time discord realises its still disconnected since the last minute or so
-			logger.info("Bot disconnected")
-			self.connected = False
-
-	async def on_guild_join(self, guild):
-		"""Runs on joining a guild.
-		The bot initialises the guild if it has no data on it."""
-
-		logger.info(self.user.name + " has joined the guild: " + guild.name + " with id: " + str(guild.id))  # Event log
-
-		# Check if server data already exists
-		if str(guild.id) not in self.data["servers"]:
-
-			# Initialise guild
-			self.initialise_guild(guild)
-
-	async def on_message(self, message):
-		"""Runs on message."""
-
-		logger.debug("Message sent by " + message.author.name)  # Event log
-
-		# Don't respond to yourself
-		if message.author.id == self.user.id:
-			return
-
-		# Don't respond to other bots
-		if message.author.bot is True:  # !!! Needs to be tested. Can replace "message.author.id == self.user.id" if so. Same goes for reactions.
-			return
-
-		# Set guild of origin
-		guild = self.get_guild(message.guild.id)
-
-		# Update the user's experience
-		if (message.author.id not in self.cache[str(guild.id)]) or ((datetime.now() - self.cache[str(guild.id)][message.author.id]).seconds // 3600 > 0):  # This is the longest like of code I've ever seen survive a scrutinised and picky merge from me. Well played.
-
-			logger.debug("Adding experience to " + message.author.name)  # Event log
-
-			# Update the cache and increment the user's experience
-			self.cache[str(guild.id)][message.author.id] = datetime.now()
-			try:
-				self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] += 1
-			except KeyError:
-				self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] = 1
-
-			# Write the updated data
-			self.update_data()
-		else:
-			logger.debug("Not adding experience to " + message.author.name)  # Event log
-
-		# Get level command
-		if message.content == PREFIX + "level":
-
-			logger.info("`level` called by " + message.author.name)  # Event log
-
-			# Generate the rank card
-			if str(message.author.id) in self.data["servers"][str(guild.id)]["ranks"]:
-				rank = int((self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] ** 0.5) // 1)
-				percentage = int(round((self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] - (rank ** 2)) / (((rank + 1) ** 2) - (rank ** 2)) * 100))
-			else:
-				rank = 0
-				percentage = 0
-			generate_rank_card(message.author.avatar_url, message.author.name, rank, percentage)
-
-			# Sends the level card image
-			file = discord.File("level_card.png")
-			await message.channel.send(file=file)
-
-			# Send the embed
-			await message.channel.send(file=file)
-
-		# Level leaderboard command
-		if message.content == PREFIX + "leaderboard":
-			logger.info("`leaderboard` called by " + message.author.name)  # Event log
-
-			leaderboard = reversed(sorted(self.data["servers"][str(guild.id)]["ranks"].items(), key=lambda item: item[1])) # Sorts rank dictionary into list
-			logger.debug(leaderboard)
-			lb_message = ""
-			lb_count = ""
-			lb_no = ""
-
-			count = 1
-			for item in leaderboard:
-				try:
-					name = self.get_user(int(item[0])).name
-					lb_message += str(name)+"\n" # Reverse adds on higher scored names
-					lb_count += str(item[1])+"\n" # Reverse adds on higher scores to separate string for separate embed field
-					lb_no += str(count)+"\n"
-					count += 1
-				except AttributeError:
-					logger.debug("Member not found in server")
-
-			embed_leaderboard = discord.Embed(title="Leaderboard",colour=0xffc000)
-			embed_leaderboard.add_field(name="No.", value=lb_no, inline=True)
-			embed_leaderboard.add_field(name="User",value=lb_message,inline=True)
-			embed_leaderboard.add_field(name="Count", value=lb_count, inline=True)
-			await message.channel.send(embed=embed_leaderboard)
-
-		# Embed command
-		if message.content.startswith(PREFIX + "embed"):
-			"""Allow users to embed what they want"""
-
-			try:
-				argument_string = message.content[len(PREFIX + "embed "):]
-				arguments = re.split(",(?!\s)", argument_string)  # Splits arguments when there is not a space after the comma, if there is, it is assumed to be part of a sentance.
-				title = discord.Embed.Empty
-				description = discord.Embed.Empty
-				colour = 0xffc000
-				fields = []
-
-				# Analyse argument
-				for argument in arguments:
-					argument = argument.split("=")
-					if len(argument) == 2:
-						if argument[0] == "title":
-							title = argument[1]
-						elif argument[0] == "description":
-							description = argument[1]
-						elif argument[0] == "colour":
-							colour = int(argument[1][-6:], 16)
-						else:
-							fields.append({argument[0]:argument[1]})
-					else:
-						description = argument[0]
-
-				# Create and send user's embed
-				embed = discord.Embed(title=title, description=description, colour=colour)
-				embed.set_author(name=message.author.name,url=discord.Embed.Empty, icon_url=message.author.avatar_url)
-				for field in fields:
-					embed.add_field(name=list(field.keys())[0],value=field[list(field.keys())[0]])
-
-				await message.channel.send(embed=embed)
-			except Exception as exception:
-				logger.error("Failed understand embed command. Exception: " + str(exception))
-				await message.channel.send("Embed Failed: Check you put something to embed and that it's under 1024 character.\n"+str(exception))
-
-		# Help command
-		if message.content == PREFIX + "help":
-
-			logger.info("`help` called by " + message.author.name)  # Event log
-
-			# Create and send the help embed
-			embed_help = discord.Embed(title="🤔 Need help?", description="Here's a list of " + self.user.name + "'s commands!", colour=0xffc000)
-			embed_help.add_field(name=str(PREFIX + "level"), value="Creates your level card, showing your current level and progress to the next level.")
-			embed_help.add_field(name=str(PREFIX + "embed"), value="Creates an embed. Arguments: title=,description=,colour=[hex code],[name of field]= or just write and it'll be put in the description by deafult")
-			embed_help.add_field(name=str(PREFIX + "poll"), value="Creates a poll embed. Arguments: title=,colour=[hex code],[name of candidate]=[emoji]. All paramaters are optional. Admins react with 🔚 (end) to end poll)")
-			embed_help.add_field(name=str(PREFIX + "help"), value="Creates the bot's help embed, listing the bot's commands.")
-			embed_help.add_field(name=str(PREFIX + "rules"), value="Creates the server's rules embed.\nAdmin only feature.")
-			embed_help.add_field(name=str(PREFIX + "roles"), value="Creates the server's roles embed.\nAdmin only feature.")
-			embed_help.add_field(name=str(PREFIX + "stats"), value="Creates the server's stats embed.\nAdmin only feature.")
-			embed_help.add_field(name=str(PREFIX + "locate"), value="Locates the instance of " + self.user.name + ".\nDev only feature.")
-			embed_help.add_field(name=str(PREFIX + "kill"), value="Ends the instance of " + self.user.name + ".\nDev only feature.")
-			await message.channel.send(embed=embed_help)
-
-		# If the message was sent by the admins
-		if message.author.guild_permissions.administrator:
-
-			# Rules command
-			if message.content == PREFIX + "rules":
-
-				logger.info("`rules` called by " + message.author.name)  # Event log
-
-				# If the rules have been set up
-				if len(self.data["servers"][str(guild.id)]["rules"]["list"]) != 0:
-
-					# Delete the command message
-					await message.delete()
-
-					# Create the welcome embed !!! This is messy. Decide embed format and what should be customisable
-					embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#000000000000000000> is for this, and <#000000000000000001> is for that.", colour=0xffc000)
-
-					# Create the rules embed
-					embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], colour=0xffc000, inline=False)
-					embed_rules.set_footer(text="Rules updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
-					embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
-					embed_image = discord.Embed(description="That's all.", colour=0xffc000)
-					image = self.data["servers"][str(guild.id)]["rules"]["image link"]
-					if image != None:
-						if image[:6] == "https:":
-							embed_image.set_image(url=self.data["servers"][str(guild.id)]["rules"]["image link"])
-						else:
-							logger.debug("Image link doesn't start with https for " + str(message.guild.id))  # Event log
-					else:
-						logger.debug("Image link not found for " + str(message.guild.id))  # Event log
-
-					# Send the embeds
-					await message.channel.send(embed=embed_welcome)
-					await message.channel.send(embed=embed_rules)
-					await message.channel.send(embed=embed_image)
-
-				# If the rules haven't been set up
+				# Initialise cache for guilds
 				else:
-					logger.debug("Rules have not been set up for " + str(message.guild.id))  # Event log
-					await message.channel.send("Uh oh, you haven't set up any rules! Get a server admin to set them up at https://www.lingscars.com/")
+					cache[str(guild.id)] = {}
+					poll[str(guild.id)] = {}
 
-			# Roles command
-			if message.content == PREFIX + "roles":
+				# If the guild has announcements enabled, sends an announcement in their announcements channel
+				try:
+					if data["servers"][str(guild.id)]["config"]["announcements channel id"] != None:
+						channel = discord.utils.get(guild.channels, id=data["servers"][str(guild.id)]["config"]["announcements channel id"])
+						await channel.send("**" + client.user.name + "** online\nVersion [VERSION].")
+				except Exception as exception:
+					logger.error("Failed to send announcement message in " + guild.name + " (" + guild.id + "). Exception: " + str(exception))
 
-				logger.info("`roles` called by " + message.author.name)  # Event log
+		logger.debug("`on_ready` end")
 
-				# If the roles have been set up
-				if len(self.data["servers"][str(guild.id)]["roles"]["categories"]) != 0:
+	@client.event
+	async def on_disconnect():
+		"""Runs when the client disconnects."""
 
-					# Delete the command message
-					await message.delete()
+		global connected
 
-					# Send one roles message per category
-					await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
-					for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:  # For category in roles
-						roles = []
-						for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:  # For role in category
-							roles.append(self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"][role]["emoji"] + " - " + self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"][role]["name"] + "\n")
-						category_message = await message.channel.send("**" + category + "**\n\n" + "".join(roles))
+		# Stops code from being run every time discord realises its still disconnected
+		if connected == True:
+			logger.info("Bot disconnected")
+			connected = False
 
-						# Add reactions to the roles message
-						for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:
-							await category_message.add_reaction(self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"][role]["emoji"])
+	@client.event
+	async def on_guild_join(guild):
+		"""Runs when the client joins a guild."""
 
-						# Update the category's message id variable
-						self.data["servers"][str(guild.id)]["roles"]["categories"][category]["message id"] = category_message.id
+		logger.debug("`on_guild_join` " + guild.name + " (" + str(guild.id) + ").")
+
+		# If server data doesn't already exist, initialises server data
+		if str(guild.id) not in data["servers"]:
+			initialise_guild(guild)
+
+	@client.event
+	async def on_guild_remove(guild):
+		"""Runs when the client is removed from a guild."""
+
+		logger.debug("`on_guild_remove` " + guild.name + " (" + str(guild.id) + ").")
+
+	@client.event
+	async def on_message(message):
+		"""Runs when a message is sent."""
+
+		logger.debug("Message sent by " + message.author.name + ".")
+
+		# Ignores bots
+		if message.author.bot is True:
+			return
+
+		# If the levels functionality is enabled
+		if "levels" in data["servers"][str(message.guild.id)]:
+			try:
+
+				# If the user hasn't spoken in an hour or more
+				if (message.author.id not in cache[str(message.guild.id)]) or ((datetime.now() - cache[str(message.guild.id)][message.author.id]).seconds // 3600 > 0):
+
+					# Update the cache and increment the user's experience
+					cache[str(message.guild.id)][message.author.id] = datetime.now()
+					if str(message.author.id) in data["servers"][str(message.guild.id)]["levels"]:
+						data["servers"][str(message.guild.id)]["levels"][str(message.author.id)] += 1
+					else:
+						data["servers"][str(message.guild.id)]["levels"][str(message.author.id)] = 1
 
 					# Write the updated data
-					self.update_data()
+					update_data()
 
-				# If the roles haven't been set up
-				else:
-					logger.debug("Roles have not been set up for " + str(message.guild.id))  # Event log
-					await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
+			except Exception as exception:
+				logger.error("Failed to add experience to " + message.author.name + " in " + message.guild.name + " (" + str(message.guild.id) + "). Exception: " + str(exception))
 
-			# Stats command
-			if message.content == PREFIX + "stats":
-				"""THINGS TO FIX:
-				- Trailing newlines at the end of embed"""
+	@client.event
+	async def on_raw_reaction_add(payload):
+		"""Runs when a reaction is added."""
 
-				logger.info("`stats` called by " + message.author.name)  # Event log
+		# Ignores bots
+		if payload.member.bot is True:
+			return
 
-				try:
-					# Generate statistics
-					waiting_message = await message.channel.send("This may take some time...")
+		# If the message is one of the server's purge messages
+		if payload.message_id in purge_messages:
+			logger.debug("Purge message reacted to")  # Temp log
+			if payload.member.guild_permissions.administrator is True:
+				logger.info("Purge confirmed by admin")  # Temp log
+				if str(payload.emoji) == "👍":
 
-					members = {}
-					channel_statistics = ""
-					member_statistics = ""
-					for channel in guild.text_channels:
-						message_count = 0
-						async for message_sent in channel.history(limit=None):
-							message_count += 1
-							if message_sent.author.bot is False:  # Don't count messages from bots
-								if message_sent.author not in members:
-									members[message_sent.author] = 1
-								else:
-									members[message_sent.author] += 1
-						channel_statistics += channel.name + ": " + str(message_count) + "\n"
-					for member in members:
-						member_statistics += member.name + ": " + str(members[member]) + "\n"
-					logger.debug("Successfully generated statistics")  # Event log
+					# Purge messages
+					try:
+						await client.get_channel(payload.channel_id).purge(limit=purge_messages[payload.message_id])
+						logger.error("Purged messages from " + payload.channel.name + " in " + payload.guild.name + " (" + payload.guild_id + ").")
+						await client.get_channel(payload.channel_id).send("Channel purged " + str(purge_messages[payload.message_id]) + " messages")
+					except Exception as exception:
+						logger.error("Failed to purge messages from " + payload.channel.name + " in " + payload.guild.name + " (" + payload.guild_id + "). Exception: " + str(exception))
+					finally:
+						purge_messages.pop(payload.message_id)
+						return
 
-					"""#Generates channel statistics using the command user's id
-					channel_statistics = ""
-					for channel in guild.text_channels:
-						#time.sleep(6)
-						channel_q = requests.get("https://discord.com/api/guilds/"+str(guild.id)+"/messages/search?channel_id="+str(channel.id),headers={"Authorization": "mfa.dQOLLvbVkz5qECOqOyI3yU91ogOeZSFDv4uGGVM8BkL86jiseAF2MBGxPPWykjqRj_diA1CU_Sf3CwxVuGWF","accept-encoding":"gzip, deflate"})
-						message_count = channel_q.json()['total_results']
-						print(channel.name + ": " + str(message_count))
-						channel_statistics += channel.name + ": " + str(message_count) + "\n"
+		# If the roles functionality is enabled
+		if "roles" in data["servers"][str(payload.guild_id)]:
+			try:
 
-					# Generates channel statistics using the command user's id
-					member_statistics = ""
-					for member in guild.member_count:
-						member_q = requests.get("https://discord.com/api/guilds/" + str(guild.id) + "/messages/search?member_id=" + str(member.id),headers={"Authorization": "mfa.dQOLLvbVkz5qECOqOyI3yU91ogOeZSFDv4uGGVM8BkL86jiseAF2MBGxPPWykjqRj_diA1CU_Sf3CwxVuGWF","accept-encoding":"gzip, deflate"})
-						message_count = member_q.json()['total_results']
-						print(member.name + ": " + str(message_count))
-						member_statistics += member.name + ": " + str(message_count) + "\n"""
-
-					# Create and send statistics embed
-					embed_stats = discord.Embed(title="📈 Statistics for " + guild.name, colour=0xffc000)
-					embed_stats.add_field(name="Channels", value=channel_statistics)
-					embed_stats.add_field(name="Members", value=member_statistics)
-					embed_stats.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
-					await message.channel.send(embed=embed_stats)
-				except discord.errors.HTTPException as exception:
-					embed_channel_stats = discord.Embed(title="📈 Channel statistics for " + guild.name, colour=0xffc000)
-					if len(channel_statistics) <= 1024:
-						embed_channel_stats.add_field(name="Channels", value=channel_statistics)
-					else:
-						for x in range(len(channel_statistics)//1024):
-							embed_channel_stats.add_field(name="Channel stats prt "+str(x+1),value=channel_statistics[x*1024:(x+1)*1024])
-							i = x
-						embed_channel_stats.add_field(name="Channel stats prt " + str(i+1), value=channel_statistics[(i+1)*1024:])
-					print(channel_statistics)
-					await message.channel.send(embed=embed_channel_stats)
-
-					embed_member_stats = discord.Embed(title="📈 Member statistics for " + guild.name, colour=0xffc000)
-					if len(member_statistics) <= 1024:
-						embed_member_stats.add_field(name="Members", value=member_statistics)
-					else:
-						for x in range(len(member_statistics) // 1024):
-							embed_member_stats.add_field(name="Member stats prt " + str(x + 1), value=member_statistics[x:(x + 1) * 1024])
-							i = x
-						embed_member_stats.add_field(name="Member stats prt " + str(i + 1), value=member_statistics[(i + 1) * 1024:])
-					print(member_statistics)
-					await message.channel.send(embed=embed_member_stats)
-				#except Exception as exception:
-				#	logger.error("Failed to generate or send statistics. Exception: " + str(exception))  # Event log
-				#	await message.channel.send("Error: Something went wrong on our side...")
-				await waiting_message.delete()
-
-			# Purge Command
-			if message.content.startswith(PREFIX + "purge"):
-				logger.info("`purge` called by " + message.author.name)  # Event log
-				argument = message.content[len(PREFIX + "purge "):]
-				number = int(argument)
-
-				purge_message = await message.channel.send("React with 👍 to confirm")
-				self.purge_messages[purge_message.id] = number
-
-			# Poll command
-			if message.content.startswith(PREFIX + "poll"):
-				"""ERRORS TO TEST FOR: DONE
-				- Duplicate emojis
-				- Custom emojis
-				- Duplicate custom emojis
-				THINGS TO FIX:
-				- Standardise datetime format - REMOVED INSTEAD
-				- Remove regex secretly. IGNORE THIS!
-				- Trailing newlines at the end of embed - SEEMS TO BE FIXED
-				"""
-
-				logger.info("`poll` called by " + message.author.name)  # Event log
-
-				# Delete the command message
-				await message.channel.purge(limit=1)
-
-				# !!! Clunky and breakable
-				argument_string = message.content[len(PREFIX + "poll "):]
-				if len(argument_string) <2:
-					logger.debug("Poll command had no viable arguments - cancelled")
+				# Checks if the message is one of the server's
+				message_relevant = False
+				for category in data["servers"][str(payload.guild_id)]["roles"]:
+					if payload.message_id == data["servers"][str(payload.guild_id)]["roles"][category]["message id"]:
+						message_relevant = True
+						break
+				if message_relevant is False:
 					return
-				arguments = re.split("\,\s|\,", argument_string)  # Replace with arguments = argument.split(", ")
-				candidates = {}  # Dictionary of candidates that can be voted for
-				candidates_string = ""
 
-				# Embed
-				title = discord.Embed.Empty
-				colour = 0xffc000
+				# Checks if the bot is still in the server and if it's cached
+				if client.get_guild(payload.guild_id) is None:
+					return
 
-				# Config
-				winner = "highest"
-
-				# Analyse argument
-				for argument in arguments:
-					argument = argument.split("=")
-					# print("Argument 0, 1:", argument[0], argument[1])
-					poll_time = str(datetime.now())
-					if argument[0] == "title":
-						title = argument[1]
-					elif argument[0] == "colour":
-						colour = int(argument[1][-6:],16) # Takes last 6 digits and converts to hex for colour
-						print(colour)
-					elif argument[0] == "winner":
-						winner = argument[1]
-					else:
-						emoji = argument[1].rstrip()
-						if not(emoji in candidates):
-							candidates[emoji] = argument[0]
-							candidates_string += argument[1] + " - " + argument[0] + "\n"
-						else:
-							logger.debug("Duplicate emoji in poll detected")
-							await message.channel.send("Please only use an emoji once per poll")
-
-				# Create and send poll embed
-				embed_poll = discord.Embed(title=title, description=candidates_string, colour=colour)
-				poll_message = await message.channel.send(embed=embed_poll)
-
-				self.poll[str(message.guild.id)].update({str(poll_message.id): {
-					"title": title,
-					"options": candidates,
-					"config":
-						{
-							"winner": winner
-						}
-				}
-				})
-
-				print(self.poll[str(message.guild.id)])
-
-				# Add reactions to the poll embed
-				for candidate in candidates:
-					# print("Candidate: " + str(candidate))
-					await poll_message.add_reaction(candidate)
-
-		# If the message was sent by the developers
-		if message.author.id in self.data["config"]["developers"]:
-
-			# Announcement command
-			if message.content.startswith(PREFIX + "announcement"):
-				logger.info("`announcement` called by " + message.author.name)  # Event log
-				if len(message.content) > len(PREFIX + "announcement "):
-					argument = message.content[len(PREFIX + "announcement "):]
-					for guild in self.guilds:
-						announcement_sent = False
-						for channel in guild.text_channels:
-							if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
-								logger.debug("Sent announcement to " + guild.name + " in " + channel.name)  # Event log
-								announcement_sent = True
-								await channel.send("**Announcement** (testing)\n" + argument)
-								break
-						if announcement_sent is False:
-							logger.debug("Announcement channel not found in " + guild.name)  # Event log
-				else:
-					logger.error("No announcement argument supplied")  # Event log
-
-			# Locate command
-			if message.content == PREFIX + "locate":
-				logger.info("`locate` called by " + message.author.name)  # Event log
-				hostname = socket.gethostname()
-				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "** (**" + str(round(self.latency)) + "**ms)" + "\nUptime: " + self.get_uptime() + ".")
-
-			# Kill command
-			if message.content.startswith(PREFIX + "kill"):
-				logger.info("`kill` called by " + message.author.name)  # Event log
-				if self.data["config"]["jokes"] is True:
-					await message.channel.send("Doggie down")
-
-				reason = message.content[len(PREFIX + "kill"):]
-				death_note = "**" + self.user.name + " offline**\nReason for shutdown: "+reason
-
-				# Send kill announcement
-				for guild in self.guilds:
-					announcement_sent = False
-					for channel in guild.text_channels:
-						if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
-							logger.debug("Sending kill announcement to " + guild.name + " in " + channel.name)  # Event log
-							announcement_sent = True
-							await channel.send(death_note)
+				# Checks if the reaction is one of the ones we care about
+				role_id = -1
+				for category in data["servers"][str(payload.guild_id)]["roles"]:
+					for role in data["servers"][str(payload.guild_id)]["roles"][category]["list"]:
+						if str(payload.emoji) == data["servers"][str(payload.guild_id)]["roles"][category]["list"][role]["emoji"]:
+							role_id = int(role)
 							break
-					if announcement_sent is False:
-						logger.debug("Failed to send kill announcement. Announcement channel not found in " + guild.name)  # Event log
-
-				await message.channel.send(death_note+"\n"+"Uptime: " + self.get_uptime() + ".")
-				await client.close()
-
-		# Joke functionality
-		if self.data["config"]["jokes"] is True:
-
-			# Shut up Arun
-			if message.author.id == 258284765776576512:
-				if randint(1, 128) == 127:
-					logger.debug("Shut up Arun triggered by " + message.author.name)  # Event log
-					if randint(1, 3) != 3:
-						await message.channel.send("shut up arun")
-					else:
-						await message.channel.send("arun, why are you still talking")
-
-			# Shut up Pablo
-			if message.author.id == 241772848564142080 or message.author.id == 842479806217060363:
-				if randint(1, 25) == 1:
-					logger.debug("Shut up Pablo triggered by " + message.author.name)  # Event log
-					if randint(1, 2) == 1:
-						await message.channel.send("un-shut up pablo")
-					else:
-						await message.channel.send("pablo, put that big brain back on sleep mode")
-
-			# Gameboy mention
-			if "gameboy" in message.content.lower():
-				logger.debug("`gameboy` mentioned by " + message.author.name)  # Event log
-				await message.channel.send("Gameboys are worthless (apart from micro. micro is cool)")
-
-			# Raspberry mention
-			if "raspberries" in message.content.lower() or "raspberry" in message.content.lower():
-				logger.debug("`raspberry racers` mentioned by " + message.author.name)  # Event log
-				await message.channel.send("The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019.")
-
-			# Pycharm mention
-			if "pycharm" in message.content.lower():
-				logger.debug("`pycharm` mentioned by " + message.author.name)  # Event log
-				await message.channel.send("Pycharm enthusiasts vs Sublime Text enjoyers: https://youtu.be/HrkNwjruz5k")
-				await message.channel.send("85 commits in and haha bot print funny is still our sense of humour.")
-
-			# Token command
-			if message.content == PREFIX + "token":
-				logger.debug("`token` called by " + message.author.name)  # Event log
-				await message.channel.send("IdrOppED ThE TokEN gUYS!!!!")
-
-			# Summon lizzie command
-			if message.content == PREFIX + "summon lizzie":
-				logger.debug("`summon_lizzie` called by " + message.author.name)  # Event log
-				for x in range(100):
-					await message.channel.send(guild.get_member(692684372247314445).mention)
-
-			# Summon leo command
-			if message.content == PREFIX + "summon leo":
-				logger.debug("`summon_leo` called by " + message.author.name)  # Event log
-				for x in range(100):
-					await message.channel.send(guild.get_member(242790351524462603).mention)
-
-			# Teaching bitches how to swim
-			if message.content == PREFIX + "swim":
-				logger.debug("`swim` called by " + message.author.name)  # Event log
-				await message.channel.send("/play https://youtu.be/uoZgZT4DGSY")
-				await message.channel.send("No swimming lessons today ):")
-
-			# Overlay Israel (Warning: DEFCON 1)
-			if message.content == PREFIX + "israeli defcon 1":
-				logger.debug("`israeli_defcon_1` called by " + message.author.name)  # Event log
-				await message.channel.send("apologies in advance...")
-				while True:
-					await message.channel.send(".overlay israel")
-
-	async def on_member_join(self, member):
-		"""Runs when a member joins.
-		Sends the member a message welcome message."""
-
-		logger.debug("Member " + member.name + " joined guild " + member.guild.name)  # Event log
-		try:
-			await member.create_dm()
-			await member.dm_channel.send("Welcome to " + member.guild.name + ", " + member.name + ".")
-			logger.debug("Sent welcome message for " + member.guild.name + " to " + member.name)  # Event log
-		except Exception as exception:
-			# If user has impeded direct messages
-			logger.debug("Failed to send welcome message for " + member.guild.name +" to " + member.name + ". Exception: " + exception)  # Event log
-
-	async def on_member_remove(self, member):
-		"""Runs when a member leaves.
-		Sends the member a goodbye message."""
-
-		logger.debug("Member " + member.name + " left guild " + member.guild.name)  # Event log
-		try:
-			await member.create_dm()
-			await member.dm_channel.send("Goodbye ;)")
-			logger.debug("Sent goodbye message for " + member.guild.name + " to " + member.name)  # Event log
-		except Exception as exception:
-			# If the user has impeded direct messages
-			logger.debug("Failed to send goodbye message for " + member.guild.name + " to " + member.name)  # Event log
-
-	async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-		"""Gives a role based on a reaction emoji."""
-
-		guild = self.get_guild(payload.guild_id)
-		# Make sure that the message the user is reacting to is the one we care about. Would be removed because dumb but you've integrated the whole thing way too much. This is not very modular at all!
-		reaction_usage = "none"
-
-		# Role reaction check
-		for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:
-			if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["categories"][category]["message id"]:  # How does this work? Surely you should say "in", not ==. Yeah, think so but why wasn't this tested
-				reaction_usage = "roles"
-				logger.debug("Role message reacted to")
-				break
-		if reaction_usage == "none": # No functionality found yet, keep checking
-			# Poll reaction check
-			try:
-				for message in self.poll[str(guild.id)]:
-					if str(payload.message_id) == message:
-						reaction_usage = "polls"
-						logger.debug("Poll message reacted to")
-						break
-			except KeyError:
-				pass
-
-			if reaction_usage == "none": # No functionality found yet, keep checking
-				# Purge reaction check
-				if payload.message_id in self.purge_messages:  # Did a slightly different system that's doubly efficient than your weird check system
-					logger.debug("Purge message reacted to")
-					if guild.get_member(payload.user_id).guild_permissions.administrator:  # If has admin perms
-						logger.debug("Purge confirmed by admin")
-						if str(payload.emoji) == "👍":
-							try:
-								await client.get_channel(payload.channel_id).purge(limit=self.purge_messages[payload.message_id])
-								logger.info("Purge complete in " + client.get_channel(payload.channel_id).name + " < " + client.get_guild(payload.guild_id).name)
-								await client.get_channel(payload.channel_id).send("Channel purged " + str(self.purge_messages[payload.message_id]) + " messages")
-								self.purge_messages.pop(payload.message_id)
-							except Exception as e:
-								await client.get_channel(payload.channel_id).send("Channel failed the purge. There were possibly too many messages.")
-
-		if reaction_usage == "none":
-			return
-		# Make sure the user isn't the bot.
-		if payload.member.id == self.user.id:  # was payload.author
-			return
-
-		# Check if we're still in the guild and it's cached.
-		if guild is None:
-			return
-
-		if reaction_usage == "roles":
-			# If the emoji isn't the one we care about then delete it and exit as well.
-			# Checks payload for role reaction and then end poll reaction
-			role_id = -1
-			for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:  # For category in list
-				for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:  # For role in category
-					if self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"][role]["emoji"] == str(payload.emoji):
-						role_id = int(role)
-						try:
-							verify_role = self.data["servers"][str(guild.id)]["roles"]["verify role"]
-							if verify_role != 0:
-								role = guild.get_role(verify_role)
-								await payload.member.add_roles(role)
-								logger.debug("Verified " + payload.member.name + " on " + guild.name)
-						except KeyError:
-							logger.debug("No verification role found in " + guild.name)
-						break
-
-			# The deleter
-			if role_id == -1:
-				# Not very efficient... comes from (https://stackoverflow.com/questions/63418818/python-discord-bot-python-clear-reaction-clears-all-reactions-instead-of-a-s)
-				channel = await self.fetch_channel(payload.channel_id)
-				message = await channel.fetch_message(payload.message_id)
-				reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
-				await reaction.remove(payload.member)
-
-				return
-
-			# Make sure the role still exists and is valid.
-			role = guild.get_role(role_id)
-			if role is None:
-				return
-
-			# Finally, add the role.
-			try:
-				await payload.member.add_roles(role)
-				logger.info("Role `" + role.name + "` added to " + payload.member.name)  # Event log
-			# If we want to do something in case of errors we'd do it here
-			except Exception as exception:
-				logger.error("Failed to add role " + role.name + " to " + payload.member.name + ". Exception: " + exception)  # Event log
-
-
-		if reaction_usage == "polls":
-			print("Poll reaction!")
-			if str(payload.emoji) == "🔚":
-
-				logger.debug("Poll ending")
-				logger.debug("Poll identified for termination")
-				channel = await self.fetch_channel(payload.channel_id)
-				message = await channel.fetch_message(payload.message_id)
-				reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
-				await reaction.remove(payload.member)  # Removes end emoji
-				await self.terminatePoll(message)
-			else:
-				valid_emoji = False
-				for message in self.poll[str(payload.guild_id)]:
-					print(str(payload.emoji)+"?"+str(self.poll[str(payload.guild_id)][message]["options"]))
-					if str(payload.emoji) in self.poll[str(payload.guild_id)][message]["options"]: # Deletes emojis not related to poll options
-						valid_emoji = True
-				if not valid_emoji:
-					logger.debug("Unwanted emoji on poll found")
-					channel = await self.fetch_channel(payload.channel_id)
+				if role_id == -1:  # Removes the reaction if it one of the ones we care about
+					channel = await client.fetch_channel(payload.channel_id)
 					message = await channel.fetch_message(payload.message_id)
-					await message.remove_reaction(payload.emoji,payload.member)
-				else:
-					logger.debug("Wanted emoji on poll found")
+					# If the emoji is a custom emoji
+					if payload.emoji.is_custom_emoji() is False:
+						reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
+					# If the emoji is not a custom emoji
+					else:
+						reaction = discord.utils.get(message.reactions, emoji=payload.emoji)
+					await reaction.remove(payload.member)
+					return
 
-	async def on_raw_reaction_remove(self, payload: discord.RawReactionActionEvent):
-		"""Runs when a reaction is removed.
-		If the message and emoji are relevant, removes a role based on the reaction emoji."""
+				# Checks if the role exists and is valid
+				role = client.get_guild(payload.guild_id).get_role(role_id)
+				if role is None:
+					return
 
-		guild = self.get_guild(payload.guild_id)
+				# Adds the role
+				await payload.member.add_roles(role)
+				logger.debug("Added role " + role.name + " to " + payload.member.name)
 
-		# If the roles have been set up
-		if len(self.data["servers"][str(guild.id)]["roles"]["categories"]) != 0:
-
-			# Make sure that the message the user is reacting to is the one we care about
-			message_relevant = False
-			for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:
-				if payload.message_id == self.data["servers"][str(payload.guild_id)]["roles"]["categories"][category]["message id"]:
-					message_relevant = True
-					logger.debug("Relevant message reacted to")
-					break
-			if message_relevant is False:
-				return
-
-			# The payload for `on_raw_reaction_remove` does not provide `.member`
-			# so we must get the member ourselves from the payload's `.user_id`
-
-			# Make sure the member still exists and is valid
-			member = guild.get_member(payload.user_id)
-			if member is None:
-				return
-
-			# Make sure the user isn't the bot
-			if member.id == self.user.id:
-				return
-
-			# Check if we're still in the guild and it's cached
-			if guild is None:
-				return
-
-			# If the emoji isn't the one we care about then exit as well
-			role_id = -1
-			for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:  # For category in list
-				for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:  # For role in category
-					if self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"][role]["emoji"] == str(payload.emoji):
-						role_id = int(role)
-						break
-			if role_id == -1:
-				return
-
-			# Make sure the role still exists and is valid
-			role = guild.get_role(role_id)
-			if role is None:
-				return
-
-			# Finally, remove the role
-			try:
-				await member.remove_roles(role)
-				logger.info("Role `" + role.name + "` removed from " + member.name)  # Event log
-			# If we want to do something in case of errors we'd do it here
 			except Exception as exception:
-				logger.error("Failed to remove role " + role.name + " from " + payload.member.name + ". Exception: " + exception)  # Event log
+				logger.error("Failed to add role " + role.name + " to " + payload.member.name + ". Exception: " + str(exception))
 
-		# If the roles haven't been set up
+	@client.event
+	async def on_raw_reaction_remove(payload):
+		"""Runs when a reaction is removed."""
+
+		# If the roles functionality is enabled
+		if "roles" in data["servers"][str(payload.guild_id)]:
+
+			try:
+				# The payload for `on_raw_reaction_remove` does not provide `.member`
+				# so we must get the member ourselves from the payload's `.user_id`
+				member = client.get_guild(payload.guild_id).get_member(payload.user_id)
+
+				# Ignores bots
+				if member.bot is True:
+					return
+
+				# Checks if the message is one we care about
+				message_relevant = False
+				for category in data["servers"][str(payload.guild_id)]["roles"]:
+					if payload.message_id == data["servers"][str(payload.guild_id)]["roles"][category]["message id"]:
+						message_relevant = True
+						break
+				if message_relevant is False:
+					return
+
+				# Checks if the bot is still in the server and if it's cached
+				if client.get_guild(payload.guild_id) is None:
+					return
+
+				# Checks if the reaction is one of the ones we care about
+				role_id = -1
+				for category in data["servers"][str(payload.guild_id)]["roles"]:
+					for role in data["servers"][str(payload.guild_id)]["roles"][category]["list"]:
+						if str(payload.emoji) == data["servers"][str(payload.guild_id)]["roles"][category]["list"][role]["emoji"]:
+							role_id = int(role)
+							break
+
+				# Checks if the role exists and is valid
+				role = client.get_guild(payload.guild_id).get_role(role_id)
+				if role is None:
+					return
+
+				# Removes the role
+				await member.remove_roles(role)
+				logger.debug("Removed role " + role.name + " from " + member.name)
+			except Exception as exception:
+				logger.error("Failed to remove role " + role.name + " from " + member.name + ". Exception: " + str(exception))
+
+
+	@client.event
+	async def on_button_click(interaction):
+		print("Response!")
+		if interaction.message.id in roleMessageList:
+			await interaction.respond(type=InteractionType.UpdateMessage, content=f'{interaction.component.label} clicked')
+			guild = interaction.guild
+
+			# Check if the roles have been set up
+			if len(data["servers"][str(guild.id)]["roles"]) != 0:
+
+				# Check if we're still in the guild and it's cached
+				if guild is None:
+					return
+
+				# If the emoji isn't the one we care about then delete it and exit as well
+				role_id = -1
+				for category in data["servers"][str(guild.id)]["roles"]:  # For category in list
+					for role in data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:  # For role in category
+						print("Name in data:" + role)
+						print("Name from interaction:" + interaction.custom_id)
+						if role == interaction.custom_id:
+							role_id = int(role)
+							break
+
+				# Make sure the role still exists and is valid
+				print(role_id)
+				role = guild.get_role(role_id)
+				if role is None:
+					print("Role ain't there chief")
+					return
+
+				# Finally, add the role
+				try:
+					member = guild.get_member(interaction.user.id)  # Converts chad user, to beta member
+					await member.add_roles(role)
+					logger.info("Role `" + role.name + "` added to " + interaction.user.name)  # Event log
+				# If we want to do something in case of errors we'd do it here
+				except Exception as exception:
+					logger.error("Failed to add role " + role.name + " to " + interaction.user.name + ". Exception: " + str(exception))  # Event log
+
+
+	# Slash commands
+	# The following must be tested:
+	#     - Bots cannot run commands
+	#     - What happens when the bot isn't in the guild or the guild isn't cached (see
+	#       on_raw_reaction_add for details)
+	# The following must be made better:
+	#     - Standardise command and option descriptions
+	slash = SlashCommand(client, sync_commands=True)
+	# This is a temporary (partially functional) solution to uploading global slash commands, which
+	# are cached hourly and would cause problems on a debugging timescale. This approach will not
+	# work, however, for guilds that the bot joins while running. This could be solved easily by
+	# adding code to on_guild_join or initialise_guild, but I'd rather keep it partially functional
+	# while we're figuring this out.
+	guild_ids = []
+	for guild in client.guilds:
+		guild_ids += guild.id
+
+	# Ping command
+	@slash.slash(
+		name="ping",
+		description=command_data["ping"]["description"],
+		guild_ids=guild_ids)
+	async def _ping(ctx):
+		"""Runs on the ping slash command."""
+
+		logger.debug("`/ping` called by " + ctx.author.name)
+
+		try:
+			await ctx.send("Pong! (%.3fms)" % (client.latency * 1000))
+		except Exception as exception:
+			logger.error("Failed to send ping message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+	# Help command
+	@slash.slash(
+		name="help",
+		description=command_data["help"]["description"],
+		options=[create_option(
+			name="command",
+			description="The slash command you want help with. Leave blank if you want to see help for all commands.",
+			option_type=3,
+			required=False)],
+		guild_ids=guild_ids)
+	async def _help(ctx, command=None):
+		"""Runs on the help slash command."""
+
+		logger.debug("`/help` called by " + ctx.author.name)
+
+		try:
+			if command == None:
+				help_embed = discord.Embed(title="🤔 Need help?", description="Here's a list of " + client.user.name + "'s commands!\nFor more detailed help, go to https://www.lingscars.com/", color=0xffc000)
+				help_embed.add_field(name=str("/ping"), value="Pings the bot to check latency.")
+				help_embed.add_field(name=str("/help"), value="Displays help information.")
+				help_embed.add_field(name=str("/embed"), value="Sends a custom-made embed.")
+				help_embed.add_field(name=str("/level"), value="Sends the user's level card, showing their current level and their progress to the next level.")
+				help_embed.add_field(name=str("/stats"), value="Sends the server's stats embed.\nAdmin only feature.")
+				help_embed.add_field(name=str("/rules"), value="Sends the server's rules embed.\nAdmin only feature.")
+				help_embed.add_field(name=str("/roles"), value="Sends the server's roles embed.\nAdmin only feature.")
+				await ctx.send(embed=help_embed)
+
+			else:
+				if command == "ping":
+					help_embed = discord.Embed(title="🗒️ Information for /ping", description="Engage in a ruthless game of table tennis. Also pings the bot to check latency.", color=0xffc000)
+					await ctx.send(embed=help_embed)
+				elif command == "help":
+					help_embed = discord.Embed(title="🗒️ Information for /help", description="Lists the bot's commands.\nOptional parameter `command` specifies the command to display information for.", color=0xffc000)
+					await ctx.send(embed=help_embed)
+				elif command == "embed":
+					help_embed = discord.Embed(title="🗒️ Information for /help", description="Sends a custom-made embed.\n Required parameters `title` and `description specify the embed's title and description. Optional parameter `color` specifies the embed's color.", color=0xffc000)
+				elif command == "level":
+					help_embed = discord.Embed(title="🗒️ Information for /level", description="Sends the user's level card, showing their current level and their progress to the next level.", color=0xffc000)
+				else:
+					await ctx.send("Command not recognised...\nUse `/help` to see all commands and `/help command:` to get help for a specific command.")
+
+		except Exception as exception:
+			logger.error("Failed to send help message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+	# Embed command
+	@slash.slash(name="embed",
+		description=command_data["embed"]["description"],
+		options=[create_option(
+			name="title",
+			description="The embed title.",
+			option_type=3,
+			required=False),
+		create_option(
+			name="description",
+			description="The embed description.",
+			option_type=3,
+			required=False),
+		create_option(
+			name="color",
+			description="The embed color. Takes hexadecimal color values (without a #).",
+			option_type=3,
+			required=False)],
+		guild_ids=guild_ids)
+	async def _embed(ctx, title=discord.Embed.Empty, description=discord.Embed.Empty, color="0xffc000"):
+		"""Runs on the embed slash command."""
+
+		logger.debug("`/embed` called by " + ctx.author.name)
+
+		try:
+			# If a color is supplied, check that it is a valid hex code
+			try:
+				color = int(color, 16)
+			# Otherwise, default to the original color
+			except ValueError:
+				color = 0xffc000
+
+			embed = discord.Embed(title=title, description=description, color=color)
+			embed.set_footer(text=ctx.author.name, icon_url=ctx.author.avatar_url)
+			await ctx.send(embed=embed)
+
+		except Exception as exception:
+			logger.error("Failed to send embed message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+	# Level command
+	@slash.slash(
+		name="level",
+		description=command_data["level"]["description"],
+		guild_ids=guild_ids)
+	async def _level(ctx):
+		"""Runs on the level slash command."""
+
+		logger.debug("`/level` called by " + ctx.author.name)
+
+		# If the levels functionality is enabled
+		if "levels" in data["servers"][str(ctx.guild.id)]:
+
+			try:
+				# Generates the level card
+				if str(ctx.author.id) in data["servers"][str(ctx.guild.id)]["levels"]:
+					level = int((data["servers"][str(ctx.guild.id)]["levels"][str(ctx.author.id)] ** 0.5) // 1)
+					percentage = int(round((data["servers"][str(ctx.guild.id)]["levels"][str(ctx.author.id)] - (level ** 2)) / (((level + 1) ** 2) - (level ** 2)) * 100))
+				else:
+					level = 0
+					percentage = 0
+				generate_level_card(ctx.author.avatar_url, ctx.author.name, level, percentage)
+
+				# Creates and sends the level embed
+				file = discord.File("level_card.png")
+				await ctx.send(file=file)
+
+			except Exception as exception:
+				logger.error("Failed to send level message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+		# If the levels functionality is disabled
 		else:
-			logger.debug("Roles have not been set up for " + str(payload.guild.id))  # Event log
-			# Send an error message
-			await payload.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
+			await ctx.send("Uh oh, you haven't set up any levels! Get a server admin to set them up at https://www.lingscars.com/")
+
+	# Leaderboard command
+	@slash.slash(
+		name="leaderboard",
+		description=command_data["leaderboard"]["description"],
+		guild_ids=guild_ids)
+	async def _leaderboard(ctx):
+		"""Runs on the leaderboard slash command."""
+
+		logger.info("`/leaderboard` called by " + ctx.author.name)
+
+		# If the levels functionality is enabled
+		if "levels" in data["servers"][str(ctx.guild_id)]:
+
+			try:
+				# Generates the leaderboard
+				leaderboard = reversed(sorted(data["servers"][str(ctx.guild.id)]["levels"].items(), key=lambda item: item[1]))  # This is scuffed
+				lb_message = ""
+				lb_count = ""
+				lb_no = ""
+				count = 1
+				for item in leaderboard:
+					try:
+						name = client.get_user(int(item[0])).name
+						lb_message += str(name) + "\n"
+						lb_count += str(item[1]) + "\n"
+						lb_no += str(count) + "\n"
+						count += 1
+					except AttributeError:
+						logger.debug("Member not found in server")
+
+				# Creates and sends leaderboard embed
+				leaderboard_embed = discord.Embed(title="Leaderboard", color=0xffc000)
+				leaderboard_embed.add_field(name="No.", value=lb_no, inline=True)
+				leaderboard_embed.add_field(name="User", value=lb_message, inline=True)
+				leaderboard_embed.add_field(name="Count", value=lb_count, inline=True)
+				await ctx.send(embed=leaderboard_embed)
+
+			except Exception as exception:
+				logger.error("Failed to send leaderboard in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+	# Buttons command
+	@slash.slash(
+		name="buttons",
+		description="Hmm...",
+		guild_ids=guild_ids)
+	async def _buttons(ctx):
+		"""Runs on the buttons slash command."""
+
+		logger.info("`/buttons` called by " + ctx.author.name)
+
+		# Experimental buttons code...
+		buttons = [
+			create_button(style=ButtonStyle.green, label="A green button"),
+			create_button(style=ButtonStyle.blue, label="A blue button"),
+			create_button(style=ButtonStyle.red, label="A red button"),
+			create_button(style=ButtonStyle.green, label="A second green button"),
+			create_button(style=ButtonStyle.blue, label="A second blue button")
+		]
+		action_row = create_actionrow(*buttons)
+
+		buttons_two = [
+			create_button(style=ButtonStyle.red, label="A red button"),
+			create_button(style=ButtonStyle.green, label="A green button"),
+			create_button(style=ButtonStyle.blue, label="A blue button"),
+			create_button(style=ButtonStyle.red, label="A second red button"),
+			create_button(style=ButtonStyle.green, label="A second green button")
+		]
+		action_row_two = create_actionrow(*buttons_two)
+
+		buttons_three = [
+			create_button(style=ButtonStyle.blue, label="A blue button"),
+			create_button(style=ButtonStyle.red, label="A red button"),
+			create_button(style=ButtonStyle.green, label="A green button"),
+			create_button(style=ButtonStyle.blue, label="A second blue button"),
+			create_button(style=ButtonStyle.red, label="A second red button")
+		]
+		action_row_three = create_actionrow(*buttons_three)
+
+		print([action_row, action_row_two, action_row_three])
+		await ctx.send(content="Howdy pardner", components=[action_row, action_row_two, action_row_three])
+
+	# Admin commands
+	# Statistics command
+	@slash.slash(
+		name="stats",
+		description=command_data["stats"]["description"],
+		guild_ids=guild_ids)
+	async def _stats(ctx):
+		"""Runs on the stats slash command."""
+
+		# If the user doesn't have administrator permissions
+		if ctx.author.guild_permissions.administrator is False:
+			return
+
+		logger.debug("`/stats` called by " + ctx.author.name + ".")
+
+		try:
+			# Generate statistics
+			members = {}
+			channel_statistics = ""
+			member_statistics = ""
+			for channel in ctx.guild.text_channels:
+				message_count = 0
+				async for message_sent in channel.history(limit=None):
+					message_count += 1
+					if message_sent.author.bot is False:  # Don't count messages from bots
+						if message_sent.author not in members:
+							members[message_sent.author] = 1
+						else:
+							members[message_sent.author] += 1
+				channel_statistics += channel.name + ": " + str(message_count) + "\n"
+			for member in members:
+				member_statistics += member.name + ": " + str(members[member]) + "\n"
+
+			# Create and send statistics embed
+			stats_embed = discord.Embed(title="📈 Statistics for " + ctx.guild.name, color=0xffc000)
+			stats_embed.add_field(name="Channels", value=channel_statistics)
+			stats_embed.add_field(name="Members", value=member_statistics)
+			stats_embed.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=ctx.guild.icon_url)
+			await ctx.send(embed=stats_embed)
+
+		except Exception as exception:
+			logger.error("Failed to send statistics message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+	# Rules command
+	@slash.slash(
+		name="rules",
+		description=command_data["rules"]["description"],
+		guild_ids=guild_ids)
+	async def _rules(ctx):
+		"""Runs on the rules slash command."""
+
+		# If the user doesn't have administrator permissions
+		if ctx.author.guild_permissions.administrator is False:
+			return
+
+		logger.debug("`/rules` called by " + ctx.author.name)
+
+		# If the rules functionality is enabled
+		if "rules" in data["servers"][str(ctx.guild.id)]:
+
+			try:
+				# Creates and sends the rules embed
+				rules_embed = discord.Embed(title=data["servers"][str(ctx.guild.id)]["rules"]["title"], description=data["servers"][str(ctx.guild.id)]["rules"]["description"], color=0xffc000, inline=False)
+				rules_embed.set_footer(text="Rules updated • " + date.today().strftime("%d/%m/%Y"), icon_url=ctx.guild.icon_url)
+				rules_embed.add_field(name="Rules", value="\n".join(data["servers"][str(ctx.guild.id)]["rules"]["list"]))
+				await ctx.send(embed=rules_embed)
+
+			except Exception as exception:
+				logger.error("Failed to send rules message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+		# If the rules functionality is disabled
+		else:
+			await ctx.send("Uh oh, you haven't set up any rules! Get a server admin to set them up at https://www.lingscars.com/")
+
+	# Roles command
+	@slash.slash(
+		name="roles",
+		description=command_data["roles"]["description"],
+		guild_ids=guild_ids)
+	async def _roles(ctx):
+		"""Runs on the roles slash command."""
+
+		# If the user doesn't have administrator permissions
+		if ctx.author.guild_permissions.administrator is False:
+			return
+
+		logger.debug("`/roles` called by " + ctx.author.name)
+
+		# If the roles functionality is enabled
+		if "roles" in data["servers"][str(ctx.guild.id)]:
+
+			try:
+				# Creates and sends the roles embed
+				await ctx.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
+				for category in data["servers"][str(ctx.guild.id)]["roles"]:
+					roles = []
+					for role in data["servers"][str(ctx.guild.id)]["roles"][category]["list"]:
+						roles.append(data["servers"][str(ctx.guild.id)]["roles"][category]["list"][role]["emoji"] + " - " + data["servers"][str(ctx.guild.id)]["roles"][category]["list"][role]["name"] + "\n")
+					category_message = await ctx.channel.send("**" + category + "**\n" + "".join(roles))
+
+					# Adds reactions to the roles message
+					for role in data["servers"][str(ctx.guild.id)]["roles"][category]["list"]:
+						await category_message.add_reaction(data["servers"][str(ctx.guild.id)]["roles"][category]["list"][role]["emoji"])
+
+					# Updates the category's message id
+					data["servers"][str(ctx.guild.id)]["roles"][category]["message id"] = category_message.id
+
+				# Write the updated data
+				update_data()
+
+			except Exception as exception:
+				logger.error("Failed to send roles message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+		# If the roles functionality is disabled
+		else:
+			await ctx.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
+
+	# Roles2 command
+	@slash.slash(
+		name="roles2",
+		description=command_data["roles"]["description"],
+		guild_ids=guild_ids)
+	async def _roles2(ctx):
+		"""Runs on the roles slash command."""
+
+		# If the user doesn't have administrator permissions
+		if ctx.author.guild_permissions.administrator is False:
+			return
+
+		logger.debug("`/roles` called by " + ctx.author.name)
+
+		# If the roles functionality is enabled
+		if "roles" in data["servers"][str(ctx.guild.id)]:
+			try:
+
+				# Creates and sends the roles messages
+				await ctx.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
+				for category in data["servers"][str(ctx.guild.id)]["roles"]:
+					buttons = []
+					for role in data["servers"][str(ctx.guild.id)]["roles"][category]["list"]:
+						buttons.append(create_button(style=ButtonStyle.red, label=data["servers"][str(ctx.guild.id)]["roles"][category]["list"][role]["emoji"] + " " + data["servers"][str(ctx.guild.id)]["roles"][category]["list"][role]["name"]))
+					components = []
+					for x in range(ceil(len(buttons) / 5)):
+						if len(buttons[(5 * x):]) > 5:
+							components.append(create_actionrow(*buttons[(5 * x):(5 * x) + 5]))
+						else:
+							components.append(create_actionrow(*buttons[(5 * x):]))
+					await ctx.send(content="**" + category + "**\n" + "Select the roles for this category!", components=components)
+
+			except Exception as exception:
+				logger.error("Failed to send roles message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+		# If the roles functionality is disabled
+		else:
+			await ctx.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
+
+	# CLS command
+	@slash.slash(
+		name="cls",
+		description=command_data["cls"]["description"],
+		guild_ids=guild_ids)
+	async def _cls(ctx):
+		"""Runs on the cls slash command."""
+
+		# If the user doesn't have administrator permissions
+		if ctx.author.guild_permissions.administrator is False:
+			return
+
+		logger.debug("`/cls` called by " + ctx.author.name)
+
+		await ctx.channel.purge(limit=5)
+
+		await ctx.send("Channel purged, son.")
 
 
-# Main body
-if __name__ == "__main__":
-	try:
-		intents = discord.Intents.default()
-		intents.members = True
-		client = MyClient(intents=intents, debug=True, level="DEBUG")
-		client.run(DISCORD_TOKEN)
-	except Exception as exception:
-		logger.error("Exception: " + exception + "\n")  # Event log
+	# Run client
+	with open("token.txt") as file:
+		client.run(file.read())
+		client.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain")
