@@ -3,6 +3,7 @@ import time
 import json
 import socket
 import re
+import requests
 from math import ceil
 from random import randint
 from datetime import date, datetime
@@ -206,7 +207,7 @@ if __name__ == "__main__":
 				try:
 					if data["servers"][str(guild.id)]["config"]["announcements channel id"] != None:
 						channel = discord.utils.get(guild.channels, id=data["servers"][str(guild.id)]["config"]["announcements channel id"])
-						await channel.send("**" + client.user.name + "** online\nVersion [VERSION].")
+						await channel.send("**" + client.user.name + "** online\nVersion " + data["config"]["version"] + ".")
 				except Exception as exception:
 					logger.error("Failed to send announcement message in " + guild.name + " (" + str(guild.id) + "). Exception: " + str(exception))
 
@@ -397,43 +398,68 @@ if __name__ == "__main__":
 	#     - What happens when the bot isn't in the guild or the guild isn't cached (see
 	#       on_raw_reaction_add for details)
 	@client.event
-	async def on_button_click(interaction):
-		"""Runs on button click."""
+	async def on_component(ctx):
+		"""Runs on button press."""
 
-		print("Response!")
+		print("Button pressed by " + ctx.author.name)
+
+		guild = ctx.origin_message.guild
 
 		# If the roles functionality is enabled
-		if "roles" in data["servers"][str(interaction.guild.id)]:
+		if "roles" in data["servers"][str(guild.id)]:
 			try:
 
 				# Checks if the message is one of the server's roles messages
 				message_relevant = False
-				for category in data["servers"][interaction.guild.id]["roles"]:
-					if interaction.message_id == data["servers"][str(interaction.guild.id)]["roles"][category]["message id"]:
+				for category in data["servers"][str(guild.id)]["roles"]:
+					if ctx.origin_message_id == data["servers"][str(guild.id)]["roles"][category]["message id"]:
 						message_relevant = True
 						break
 				if message_relevant is False:
 					return
 
-				# Finds the relevant role
-				role_id = -1
-				for category in data["servers"][str(interaction.guild.id)]["roles"]:
-					for role in data["servers"][str(interaction.guild.id)]["roles"][category]["list"]:
-						if str(interaction.custom_id) == data["servers"][str(interaction.guild.id)]["roles"][category]:
-							role_id = int(role)
-				if role_id == -1:
+				# Checks if the role ID is one of the server's roles
+				role_id_found = False
+				for category in data["servers"][str(guild.id)]["roles"]:
+					if ctx.custom_id in data["servers"][str(guild.id)]["roles"][category]["list"]:
+						role_id_found = True
+						break
+				if role_id_found is False:
 					return
 
 				# Checks if the role exists and is valid
-				role = client.get_guild(interaction.guild.id).get_role(interaction.custom_id)
+				role = guild.get_role(int(ctx.custom_id))
+				if role is None:
+					return
 
-				# Adds the role to the user
-				await interaction.member.add_roles(role)
-				logger.debug("Added role " + role.name + " to " + interaction.member.name + ". Exception: " + str(exception))
+				# Adds the role if the user doesn't have it
+				if role not in ctx.author.roles:
+					await ctx.author.add_roles(role)
+					await ctx.edit_origin(content="You pressed a button!")
+					logger.debug("Added role " + role.name + " to " + ctx.author.name)
+
+				# Removes the role if the user already has it
+				else:
+					await ctx.author.remove_roles(role)
+					await ctx.edit_origin(content="You pressed a button!")
+					logger.debug("Removed role " + role.name + " from " + ctx.author.name)
+
+				# Send Pong response. Incipit Helminth...
+				with open("token.txt") as file:
+					url = "https://discordapp.com/api/channels/{}/messages".format(ctx.origin_message.channel.id)
+					headers = {
+						"Authorization": "Bot {}".format(file.read()),
+						"Content-Type": "application/json"
+					}
+					JSON = {
+						"type": 1
+					}
+					r = requests.post(url, headers=headers, data=json.dumps(JSON))
+				print(r.status_code, r.reason)
 				return
 
 			except Exception as exception:
-				logger.error("Failed to add role " + role.name + " to " + payload.member.name + ". Exception: " + str(exception))
+				logger.error("Failed to add role " + role.name + " to " + ctx.author.name + ". Exception: " + str(exception))  # Error: this may run even if the intention of the button press isn't to add a role
 			finally:
 				return
 
