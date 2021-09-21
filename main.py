@@ -87,6 +87,12 @@ command_data = {
 	},
 	"cls": {
 		"description": "Purges five messages from the channel. Admin only feature."
+	},
+	"status": {
+		"description": "Reports the status of the current instance. Developer only feature."
+	},
+	"kill": {
+		"description": "Kills the current instance. Developer only feature."
 	}
 }
 #commands = {
@@ -668,33 +674,32 @@ if __name__ == "__main__":
 
 		# Experimental buttons code...
 		buttons = [
-			create_button(style=ButtonStyle.green, label="A green button"),
-			create_button(style=ButtonStyle.blue, label="A blue button"),
-			create_button(style=ButtonStyle.red, label="A red button"),
-			create_button(style=ButtonStyle.green, label="A second green button"),
-			create_button(style=ButtonStyle.blue, label="A second blue button")
+			create_button(style=ButtonStyle.green, label="A green button", custom_id="green1"),
+			create_button(style=ButtonStyle.blue, label="A blue button", custom_id="blue1"),
+			create_button(style=ButtonStyle.red, label="A red button", custom_id="red1"),
+			create_button(style=ButtonStyle.green, label="A second green button", custom_id="green2"),
+			create_button(style=ButtonStyle.blue, label="A second blue button", custom_id="blue2")
 		]
 		action_row = create_actionrow(*buttons)
 
 		buttons_two = [
-			create_button(style=ButtonStyle.red, label="A red button"),
-			create_button(style=ButtonStyle.green, label="A green button"),
-			create_button(style=ButtonStyle.blue, label="A blue button"),
-			create_button(style=ButtonStyle.red, label="A second red button"),
-			create_button(style=ButtonStyle.green, label="A second green button")
+			create_button(style=ButtonStyle.red, label="A second red button", custom_id="red2"),
+			create_button(style=ButtonStyle.green, label="Another green button", custom_id="green3"),
+			create_button(style=ButtonStyle.blue, label="Another blue button", custom_id="blue3"),
+			create_button(style=ButtonStyle.red, label="Another second red button", custom_id="red3"),
+			create_button(style=ButtonStyle.green, label="And another green button", custom_id="green4")
 		]
 		action_row_two = create_actionrow(*buttons_two)
 
 		buttons_three = [
-			create_button(style=ButtonStyle.blue, label="A blue button"),
-			create_button(style=ButtonStyle.red, label="A red button"),
-			create_button(style=ButtonStyle.green, label="A green button"),
-			create_button(style=ButtonStyle.blue, label="A second blue button"),
-			create_button(style=ButtonStyle.red, label="A second red button")
+			create_button(style=ButtonStyle.blue, label="And another blue button", custom_id="blue4"),
+			create_button(style=ButtonStyle.red, label="And another red button", custom_id="red4"),
+			create_button(style=ButtonStyle.green, label="A last green button", custom_id="green5"),
+			create_button(style=ButtonStyle.blue, label="A last blue button", custom_id="blue5"),
+			create_button(style=ButtonStyle.red, label="A last red button", custom_id="red5")
 		]
 		action_row_three = create_actionrow(*buttons_three)
 
-		print([action_row, action_row_two, action_row_three])
 		await ctx.send(content="Howdy pardner", components=[action_row, action_row_two, action_row_three])
 
 	# Admin commands
@@ -787,49 +792,6 @@ if __name__ == "__main__":
 
 		# If the roles functionality is enabled
 		if "roles" in data["servers"][str(ctx.guild.id)]:
-
-			try:
-				# Creates and sends the roles embed
-				await ctx.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
-				for category in data["servers"][str(ctx.guild.id)]["roles"]:
-					roles = []
-					for role in data["servers"][str(ctx.guild.id)]["roles"][category]["list"]:
-						roles.append(data["servers"][str(ctx.guild.id)]["roles"][category]["list"][role]["emoji"] + " - " + data["servers"][str(ctx.guild.id)]["roles"][category]["list"][role]["name"] + "\n")
-					category_message = await ctx.channel.send("**" + category + "**\n" + "".join(roles))
-
-					# Adds reactions to the roles message
-					for role in data["servers"][str(ctx.guild.id)]["roles"][category]["list"]:
-						await category_message.add_reaction(data["servers"][str(ctx.guild.id)]["roles"][category]["list"][role]["emoji"])
-
-					# Updates the category's message id
-					data["servers"][str(ctx.guild.id)]["roles"][category]["message id"] = category_message.id
-
-				# Write the updated data
-				update_data()
-
-			except Exception as exception:
-				logger.error("Failed to send roles message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
-
-		# If the roles functionality is disabled
-		else:
-			await ctx.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
-
-	# Roles2 command
-	@slash.slash(
-		name="roles2",
-		description=command_data["roles"]["description"],
-		guild_ids=guild_ids)
-	async def _roles2(ctx):
-		"""Runs on the roles slash command."""
-
-		# If the user doesn't have administrator permissions
-		if ctx.author.guild_permissions.administrator is False:
-			return
-
-		logger.debug("`/roles` called by " + ctx.author.name)
-
-		# If the roles functionality is enabled
-		if "roles" in data["servers"][str(ctx.guild.id)]:
 			#try:
 
 			# Creates and sends the roles messages
@@ -876,6 +838,59 @@ if __name__ == "__main__":
 		await ctx.channel.purge(limit=5)
 
 		await ctx.send("Channel purged, son.")
+
+	# status command
+	@slash.slash(
+		name="status",
+		description=command_data["status"]["description"],
+		guild_ids=guild_ids)
+	async def _status(ctx):
+		"""Runs on the status slash command."""
+
+		# If the user doesn't have administrator permissions
+		if ctx.author.guild_permissions.administrator is False:
+			return
+
+		logger.debug("`/status` called by " + ctx.author.name)
+
+		hostname = socket.gethostname()
+		await ctx.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + ("** (**%.3fms**)\nUptime: " % (client.latency * 1000)) + get_uptime() + ".")
+
+	# Kill command
+	@slash.slash(
+		name="kill",
+		description=command_data["kill"]["description"],
+		options=[create_option(
+			name="reason",
+			description="The reason for killing my son.",
+			option_type=3,
+			required=False)],
+		guild_ids=guild_ids)
+	async def _kill(ctx, reason=None):
+		"""Runs on the kill slash command."""
+
+		# If the user doesn't have administrator permissions
+		if ctx.author.guild_permissions.administrator is False:
+			return
+
+		logger.debug("`/kill` called by " + ctx.author.name)
+
+		# Send kill announcement
+		for guild in client.guilds:
+
+			# Check if an announcement channel is given
+			if data["servers"][str(ctx.guild.id)]["config"]["announcements channel id"] is not None:
+				announcement_sent = False
+				for channel in guild.text_channels:
+						logger.debug("Sending kill announcement to " + guild.name + " (" + str(guild.id) + ") in " + channel.name)
+						announcement_sent = True
+						await channel.send(reason)
+						break
+				if announcement_sent is False:
+					logger.debug("Failed to send kill announcement to " + guild.name + " (" + str(guild.id) + ")")
+
+		await message.channel.send(reason + "\nUptime: " + get_uptime() + ".")
+		await client.close()
 
 
 	# Run client

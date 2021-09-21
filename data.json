@@ -5,7 +5,7 @@
             258284765776576512
         ],
         "jokes": false,
-        "version": "I'm a stupid fucking dog"
+        "version": "[VERSION]"
     },
     "servers": {
         "489893521176920076": {
@@ -267,7 +267,7 @@
             },
             "roles": {
                 "Server": {
-                    "message id": 889829253615611924,
+                    "message id": 889872172313608303,
                     "list": {
                         "864923062838886421": {
                             "name": "Cinema",
@@ -312,7 +312,7 @@
                     }
                 },
                 "Additional": {
-                    "message id": 889829254949380117,
+                    "message id": 889872173857132615,
                     "list": {
                         "835971801761710160": {
                             "name": "Hazers",
