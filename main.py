@@ -889,7 +889,7 @@ if __name__ == "__main__":
 				if announcement_sent is False:
 					logger.debug("Failed to send kill announcement to " + guild.name + " (" + str(guild.id) + ")")
 
-		await message.channel.send(reason + "\nUptime: " + get_uptime() + ".")
+		await ctx.channel.send(reason + "\nUptime: " + get_uptime() + ".")
 		await client.close()
 
 
