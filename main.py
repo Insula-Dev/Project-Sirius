@@ -1,4 +1,5 @@
 # Imports
+import math
 from random import randint
 from datetime import date, datetime
 import time
@@ -10,6 +11,7 @@ import re  # Delete this later
 
 # Local imports
 import requests
+from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle
 
 from log_handling import *
 from imaging import generate_rank_card
@@ -407,6 +409,40 @@ class MyClient(discord.Client):
 				else:
 					logger.debug("Rules have not been set up for " + str(message.guild.id))  # Event log
 					await message.channel.send("Uh oh, you haven't set up any rules! Get a server admin to set them up at https://www.lingscars.com/")
+
+			# Role buttons command
+			if message.content == PREFIX + "role":
+				# If the roles functionality is enabled
+				if "roles" in self.data["servers"][str(message.guild.id)]:
+					# try:
+
+					# Creates and sends the roles messages
+					await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
+					for category in self.data["servers"][str(message.guild.id)]["roles"]["categories"]:
+						buttons = []
+						for role in self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"]:
+							buttons.append(create_button(style=ButtonStyle.blue, label=self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role]["emoji"] + " " + self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role][
+								"name"], custom_id=role))
+						components = []
+						for x in range(math.ceil(len(buttons) / 5)):
+							if len(buttons[(5 * x):]) > 5:
+								components.append(create_actionrow(*buttons[(5 * x):(5 * x) + 5]))
+							else:
+								components.append(create_actionrow(*buttons[(5 * x):]))
+						category_message = await message.channel.send(content="**" + category + "**\n" + "Select the roles for this category!", components=components)
+
+						# Updates the category's message id
+						self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["message id"] = category_message.id
+
+					# Write the updated data
+					self.update_data()
+
+				# except Exception as exception:
+				#	logger.error("Failed to send roles message in " + message.guild.name + " (" + str(message.guild.id) + "). Exception: " + str(exception))
+
+				# If the roles functionality is disabled
+				else:
+					await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
 			# Roles command
 			if message.content == PREFIX + "roles":
