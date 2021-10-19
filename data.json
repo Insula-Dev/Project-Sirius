@@ -5,7 +5,7 @@
             258284765776576512
         ],
         "jokes": false,
-        "version": "1.2.2 Test Version"
+        "version": "1.2.2 Test Version - Almost ready"
     },
     "servers": {
         "489893521176920076": {
@@ -282,7 +282,7 @@
                 "verify role": 881177902538977300,
                 "categories": {
                     "Server": {
-                        "message id": 898151010516750367,
+                        "message id": 900032182469402685,
                         "list": {
                             "864923062838886421": {
                                 "name": "Cinema",
@@ -306,7 +306,7 @@
                             },
                             "872465598750289980": {
                                 "name": "Lobster",
-                                "emoji": "\ud83d\ude82"
+                                "emoji": "\ud83d\udd8b\ufe0f"
                             },
                             "872465661224419368": {
                                 "name": "Crayfish",
@@ -327,11 +327,56 @@
                         }
                     },
                     "Additional": {
-                        "message id": 898151011414319114,
+                        "message id": 900032183635415080,
                         "list": {
                             "835971801761710160": {
                                 "name": "Hazers",
                                 "emoji": "<:hazers:835971763531546735>"
+                            }
+                        }
+                    },
+                    "Courses": {
+                        "message id": 900032184574943312,
+                        "list": {
+                            "755425459482656939": {
+                                "name": "Year In Industry",
+                                "emoji": "\ud83c\udfd7\ufe0f"
+                            },
+                            "773890053620367380": {
+                                "name": "Business",
+                                "emoji": "\ud83e\udd11"
+                            },
+                            "870657275231084595": {
+                                "name": "System Analysis",
+                                "emoji": "\ud83d\udcca"
+                            },
+                            "870657522942476318": {
+                                "name": "Electronics",
+                                "emoji": "\u26a1"
+                            },
+                            "870657832784121926": {
+                                "name": "Information Retrieval",
+                                "emoji": "\ud83e\udea3"
+                            },
+                            "870657987520372747": {
+                                "name": "Graphics",
+                                "emoji": "\ud83d\udd8b\ufe0f"
+                            },
+                            "870658082575908934": {
+                                "name": "Networks",
+                                "emoji": "\ud83c\udf10"
+                            },
+                            "870658127786278974": {
+                                "name": "Embedded Systems",
+                                "emoji": "\ud83d\udcdf"
+                            },
+                            "870658209315172364": {
+                                "name": "Data Science",
+                                "emoji": "\ud83e\uddee"
+                            },
+                            "768440261633245184": {
+                                "name": "Outsider",
+                                "emoji": "\ud83d\udc12"
                             }
                         }
                     }
@@ -339,7 +384,7 @@
             },
             "ranks": {
                 "241772848564142080": 20,
-                "258284765776576512": 173,
+                "258284765776576512": 191,
                 "519494195929546782": 6,
                 "206705235853443072": 2
             }
@@ -381,7 +426,7 @@
             "roles": {
                 "categories": {
                     "Courses": {
-                        "message id": 870663238365360219,
+                        "message id": 900032419581820988,
                         "list": {
                             "755425459482656939": {
                                 "name": "Year In Industry",
@@ -397,7 +442,7 @@
                             },
                             "870657522942476318": {
                                 "name": "Electronics",
-                                "emoji": "\ud83d\uddf1"
+                                "emoji": "\u26a1"
                             },
                             "870657832784121926": {
                                 "name": "Information Retrieval",
@@ -426,7 +471,7 @@
                         }
                     },
                     "Games": {
-                        "message id": 870663257130696754,
+                        "message id": 900032420345167922,
                         "list": {
                             "759097339133558834": {
                                 "name": "Rainbow Six Siege",
@@ -471,7 +516,7 @@
                         }
                     },
                     "Other": {
-                        "message id": 870663275384291389,
+                        "message id": 900032421368582164,
                         "list": {
                             "760641720043044894": {
                                 "name": "Party Night",
@@ -498,7 +543,7 @@
                 }
             },
             "ranks": {
-                "258284765776576512": 9,
+                "258284765776576512": 15,
                 "459369678100234251": 2,
                 "325317898090577941": 2,
                 "293415777665679361": 1,
@@ -520,7 +565,7 @@
             "roles": {
                 "categories": {
                     "Year": {
-                        "message id": 898151325299273738,
+                        "message id": 900023350691262524,
                         "list": {
                             "845309847640473641": {
                                 "name": "Foundation",
@@ -553,7 +598,7 @@
                         }
                     },
                     "Degree/Courses": {
-                        "message id": 898151326012301362,
+                        "message id": 900023351228129281,
                         "list": {
                             "846173456915496981": {
                                 "name": "Physics",
@@ -578,7 +623,7 @@
                         }
                     },
                     "Misc": {
-                        "message id": 898151326721118228,
+                        "message id": 900023352259932213,
                         "list": {
                             "846208891842854953": {
                                 "name": "PhysSoc",
@@ -593,7 +638,7 @@
                 }
             },
             "ranks": {
-                "258284765776576512": 4
+                "258284765776576512": 8
             }
         },
         "870789318501871706": {
@@ -620,6 +665,29 @@
             "ranks": {
                 "258284765776576512": 8
             }
+        },
+        "887987316671520788": {
+            "config": {
+                "rank system": false,
+                "admin role id": 0,
+                "announcements channel id": 0
+            },
+            "rules": {
+                "title": "Server rules",
+                "description": "",
+                "list": [],
+                "image link": ""
+            },
+            "roles": {
+                "verify role": 0,
+                "categories": {
+                    "CATEGORY NAME": {
+                        "message id": 0,
+                        "list": {}
+                    }
+                }
+            },
+            "ranks": {}
         }
     }
 }

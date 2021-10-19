@@ -11,10 +11,11 @@ import re  # Delete this later
 
 # Local imports
 import requests
+from discord_slash import SlashCommand
 from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle
 
 from log_handling import *
-from imaging import generate_rank_card
+from imaging import generate_level_card
 
 
 # Variables
@@ -166,6 +167,13 @@ class MyClient(discord.Client):
 		await message.channel.send(embed=embed_results)
 		self.poll[str(message.guild.id)].pop(str(message.id)) # Removes poll entry from dictionary
 
+	async def get_formatted_emoji(self,emoji_reference,guild):
+		"""Returns an emoji that discord should always be able to use"""
+		if emoji_reference.startswith("<"):
+			parts = emoji_reference.split(":")
+			return discord.utils.get(guild.emojis, name=parts[1]) # Uses the name part to get the emoji
+		else:
+			return emoji_reference
 
 	async def on_ready(self):
 		"""Runs when the client is ready."""
@@ -276,7 +284,7 @@ class MyClient(discord.Client):
 			else:
 				rank = 0
 				percentage = 0
-			generate_rank_card(message.author.avatar_url, message.author.name, rank, percentage)
+			generate_level_card(message.author.avatar_url, message.author.name, rank, percentage)
 
 			# Create the rank embed
 			embed_level = discord.Embed()
@@ -411,7 +419,7 @@ class MyClient(discord.Client):
 					await message.channel.send("Uh oh, you haven't set up any rules! Get a server admin to set them up at https://www.lingscars.com/")
 
 			# Role buttons command
-			if message.content == PREFIX + "role":
+			if message.content == PREFIX + "roles":
 				# If the roles functionality is enabled
 				if "roles" in self.data["servers"][str(message.guild.id)]:
 					# try:
@@ -421,7 +429,7 @@ class MyClient(discord.Client):
 					for category in self.data["servers"][str(message.guild.id)]["roles"]["categories"]:
 						buttons = []
 						for role in self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"]:
-							buttons.append(create_button(style=ButtonStyle.blue, label=self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role]["emoji"] + " " + self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role][
+							buttons.append(create_button(style=ButtonStyle.blue, emoji=await self.get_formatted_emoji(self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role]["emoji"],guild),label=self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role][
 								"name"], custom_id=role))
 						components = []
 						for x in range(math.ceil(len(buttons) / 5)):
@@ -445,7 +453,7 @@ class MyClient(discord.Client):
 					await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
 			# Roles command
-			if message.content == PREFIX + "roles":
+			if message.content == PREFIX + "react roles":
 
 				logger.info("`roles` called by " + message.author.name)  # Event log
 
@@ -968,9 +976,88 @@ class MyClient(discord.Client):
 # Main body
 if __name__ == "__main__":
 	try:
-		intents = discord.Intents.default()
+		intents = discord.Intents.all()
 		intents.members = True
 		client = MyClient(intents=intents, debug=True, level="DEBUG")
+		slash = SlashCommand(client, sync_commands=True)
+
+
+		# Buttons...
+		# The following must be tested:
+		#     - Bots cannot press buttons
+		#     - What happens when the bot isn't in the guild or the guild isn't cached (see
+		#       on_raw_reaction_add for details)
+		@client.event
+		async def on_component(ctx):
+			"""Runs on button press."""
+
+			logger.debug("Button pressed by " + ctx.author.name)
+
+			guild = ctx.origin_message.guild
+
+			# If the roles functionality is enabled
+			if "roles" in client.data["servers"][str(guild.id)]:
+				try:
+
+					# Checks if the message is one of the server's roles messages
+					message_relevant = False
+					for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
+						if ctx.origin_message_id == client.data["servers"][str(guild.id)]["roles"]["categories"][category]["message id"]:
+							message_relevant = True
+							break
+					if message_relevant is False:
+						return
+
+					# Checks if the role ID is one of the server's roles
+					role_id_found = False
+					for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
+						if ctx.custom_id in client.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:
+							role_id_found = True
+							break
+					if role_id_found is False:
+						return
+					# Checks if the role exists and is valid
+					role = guild.get_role(int(ctx.custom_id))
+					if role is None:
+						return
+
+					# Adds the role if the user doesn't have it
+					if role not in ctx.author.roles:
+						await ctx.author.add_roles(role)
+						await ctx.edit_origin(content="")
+						logger.debug("Added role " + role.name + " to " + ctx.author.name)
+
+					# Removes the role if the user already has it
+					else:
+						await ctx.author.remove_roles(role)
+						await ctx.edit_origin(content="")
+						logger.debug("Removed role " + role.name + " from " + ctx.author.name)
+
+					# Send Pong response. Incipit Helminth...
+					with open("token.txt") as file:
+						url = "https://discordapp.com/api/channels/{}/messages".format(ctx.origin_message.channel.id)
+						headers = {
+							"Authorization": "Bot {}".format(file.read()),
+							"Content-Type": "application/json"
+						}
+						JSON = {
+							"type": 1
+						}
+						r = requests.post(url, headers=headers, data=json.dumps(JSON))
+					logger.debug(r.status_code, r.reason)
+					return
+
+				except Exception as exception:
+					logger.error("Failed to add role " + role.name + " to " + ctx.author.name + ". Exception: " + str(exception))  # Error: this may run even if the intention of the button press isn't to add a role
+				finally:
+					return
+
+			# Placeholder for other buttons functionality. Do not remove without consulting Pablo's forboding psionic foresight
+			if False is True:
+				print("https://media.tenor.co/videos/6361572ebe664cc462727807a7359f7c/mp4")
+
 		client.run(DISCORD_TOKEN)
+
 	except Exception as exception:
 		logger.error("Exception: " + exception + "\n")  # Event log
+

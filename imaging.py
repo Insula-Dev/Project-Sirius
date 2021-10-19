@@ -48,8 +48,8 @@ def mask_circle_solid(pil_img, background_colour, blur_radius, offset=0):
 	mask = mask.filter(ImageFilter.GaussianBlur(blur_radius))
 	return Image.composite(pil_img, background, mask)
 
-def generate_rank_card(profile_picture_url, name, rank, percentage):
-	"""Generates the rank card."""
+def generate_level_card(profile_picture_url, name, rank, percentage):
+	"""Generates the level card."""
 
 	# Request profile picture and save it as card.png
 	with requests.get(profile_picture_url) as request:
