@@ -998,14 +998,12 @@ if __name__ == "__main__":
 			# If the roles functionality is enabled
 			if "roles" in client.data["servers"][str(guild.id)]:
 				try:
-					logger.debug("Roles in server "+guild.name)
 
 					# Checks if the message is one of the server's roles messages
 					message_relevant = False
 					for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
 						if ctx.origin_message_id == client.data["servers"][str(guild.id)]["roles"]["categories"][category]["message id"]:
 							message_relevant = True
-							logger.debug("Message is relevant")
 							break
 					if message_relevant is False:
 						return
@@ -1015,13 +1013,13 @@ if __name__ == "__main__":
 					for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
 						if ctx.custom_id in client.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:
 							role_id_found = True
-							logger.debug("Role ID found")
 							break
 					if role_id_found is False:
 						return
 					# Checks if the role exists and is valid
 					role = guild.get_role(int(ctx.custom_id))
 					if role is None:
+						logger.debug("Could not get role with id: "+ctx.custom_id)
 						return
 
 					# Adds the role if the user doesn't have it
@@ -1053,6 +1051,16 @@ if __name__ == "__main__":
 				except Exception as exception:
 					logger.error("Failed to add role " + role.name + " to " + ctx.author.name + ". Exception: " + str(exception))  # Error: this may run even if the intention of the button press isn't to add a role
 				finally:
+					try:
+						verify_role = client.data["servers"][str(guild.id)]["roles"]["verify role"]
+						if verify_role != 0:
+							role = guild.get_role(verify_role)
+							await ctx.author.add_roles(role)
+							logger.debug("Verified " + ctx.author.name + " on " + guild.name)
+					except KeyError:
+						logger.debug("No verification role found in " + guild.name)
+					except Exception as exception:
+						logger.error("Verification failed: "+exception)
 					return
 
 			# Placeholder for other buttons functionality. Do not remove without consulting Pablo's forboding psionic foresight
