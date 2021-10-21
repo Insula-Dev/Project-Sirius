@@ -998,12 +998,14 @@ if __name__ == "__main__":
 			# If the roles functionality is enabled
 			if "roles" in client.data["servers"][str(guild.id)]:
 				try:
+					logger.debug("Roles in server "+guild.name)
 
 					# Checks if the message is one of the server's roles messages
 					message_relevant = False
 					for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
 						if ctx.origin_message_id == client.data["servers"][str(guild.id)]["roles"]["categories"][category]["message id"]:
 							message_relevant = True
+							logger.debug("Message is relevant")
 							break
 					if message_relevant is False:
 						return
@@ -1013,6 +1015,7 @@ if __name__ == "__main__":
 					for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
 						if ctx.custom_id in client.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:
 							role_id_found = True
+							logger.debug("Role ID found")
 							break
 					if role_id_found is False:
 						return
