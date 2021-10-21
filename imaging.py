@@ -81,7 +81,6 @@ def generate_level_card(profile_picture_url, name, rank, percentage):
 	# Add the text to the card
 	drawn = ImageDraw.Draw(card)
 	if bg_colour[0] > 150 and bg_colour[1] > 150 and bg_colour[2] > 150:
-		print("Text made white for contrast")
 		text_colour = (0,0,0)
 	drawn.text((200, 25), "Level: " + str(rank), text_colour, font=main_font)
 	drawn.text((200, 55), name, text_colour, font=sub_font)
