@@ -1010,18 +1010,18 @@ if __name__ == "__main__":
 
 			logger.debug("`/confess` called anonymously")
 
-			#try:
-			if "confessions" not in client.data["servers"][str(ctx.guild.id)]:
-				client.data["servers"][str(ctx.guild.id)].update({"confessions":{}})
-			confession_data = {str(len(client.data["servers"][str(ctx.guild.id)]["confessions"])):confession}
-			client.data["servers"][str(ctx.guild.id)]["confessions"].update(confession_data)
-			client.update_data()
+			try:
+				if "confessions" not in client.data["servers"][str(ctx.guild.id)]:
+					client.data["servers"][str(ctx.guild.id)].update({"confessions":{}})
+				confession_data = {str(len(client.data["servers"][str(ctx.guild.id)]["confessions"])):confession}
+				client.data["servers"][str(ctx.guild.id)]["confessions"].update(confession_data)
+				client.update_data()
 
-			await ctx.defer(hidden=True)
-			await ctx.send(content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.",hidden=True)
+				await ctx.defer(hidden=True)
+				await ctx.send(content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.",hidden=True)
 
-			#except Exception as exception:
-			#	logger.error("Failed to send embed message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+			except Exception as exception:
+				logger.error("Failed to send embed message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
 		# Buttons...
 		# The following must be tested:
