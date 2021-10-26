@@ -11,7 +11,8 @@ import re  # Delete this later
 
 # Local imports
 import requests
-from discord_slash import SlashCommand
+from discord_slash import SlashCommand, SlashContext
+from discord_slash.utils.manage_commands import create_option
 from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle
 
 from log_handling import *
@@ -669,6 +670,18 @@ class MyClient(discord.Client):
 				else:
 					logger.error("No announcement argument supplied")  # Event log
 
+			# Print confessions command
+			if message.content == PREFIX + "print confessions":
+				logger.info("`print confessions` called by " + message.author.name)  # Event log
+				if "confessions" in self.data["servers"][str(guild.id)]:
+					for confession in client.data["servers"][str(guild.id)]["confessions"]:
+						confession_embed = discord.Embed(title="Confession No."+confession+"   -   "+str(date.today()),description="> "+client.data["servers"][str(guild.id)]["confessions"][confession],colour=0xF0CCA7)
+						confession_embed.set_footer(text="/confess to submit your anonymous confession",icon_url=guild.icon_url)
+						await message.channel.send(embed=confession_embed)
+					self.data["servers"][str(guild.id)]["confessions"] = {}
+					self.update_data()
+
+
 			# Locate command
 			if message.content == PREFIX + "locate":
 				logger.info("`locate` called by " + message.author.name)  # Event log
@@ -981,6 +994,34 @@ if __name__ == "__main__":
 		client = MyClient(intents=intents, debug=True, level="DEBUG")
 		slash = SlashCommand(client, sync_commands=True)
 
+		guild_ids = []
+		for guild in client.guilds:
+			guild_ids += guild.id
+
+		@slash.slash(name="confess",description="Use the command to send an nnonymous message to be posted later",
+			options=[create_option(
+			name="confession",
+			description="Your message",
+			option_type=3,
+			required=True)],
+			guild_ids=guild_ids)
+		async def _confess(ctx, confession):
+			"""Runs on the embed slash command."""
+
+			logger.debug("`/confess` called anonymously")
+
+			#try:
+			if "confessions" not in client.data["servers"][str(ctx.guild.id)]:
+				client.data["servers"][str(ctx.guild.id)].update({"confessions":{}})
+			confession_data = {str(len(client.data["servers"][str(ctx.guild.id)]["confessions"])):confession}
+			client.data["servers"][str(ctx.guild.id)]["confessions"].update(confession_data)
+			client.update_data()
+
+			await ctx.defer(hidden=True)
+			await ctx.send(content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.",hidden=True)
+
+			#except Exception as exception:
+			#	logger.error("Failed to send embed message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
 		# Buttons...
 		# The following must be tested:
