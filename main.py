@@ -187,7 +187,7 @@ class MyClient(discord.Client):
 				self.data = json.load(file)
 			logger.debug("Loaded data.json")  # Event log
 		except Exception as exception:
-			logger.critical("Failed to load data.json. Exception: " + exception)  # Event log
+			logger.critical("Failed to load data.json. Exception: " + str(exception))  # Event log
 
 
 		# Check if the bot has been added to a guild while offline
@@ -653,20 +653,23 @@ class MyClient(discord.Client):
 			if message.content == PREFIX + "review confessions":
 				logger.info("`review confessions` called by " + message.author.name)  # Event log
 				if "confessions" in self.data["servers"][str(guild.id)]:
-					for confession in client.data["servers"][str(guild.id)]["confessions"]:
-						confession_embed = discord.Embed(title="Review Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"][confession], colour=0xFF0A00)
+					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
+						confession_embed = discord.Embed(title="Review Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=0xFF0A00)
 						confession_embed.set_footer(text="This message is here to be reviewed. Please say if the content is inappropriate!", icon_url=guild.icon_url)
-						await message.channel.send(embed=confession_embed)
+						button = (create_button(style=ButtonStyle.red, label="remove", custom_id="confession"+confession))
+						components = [create_actionrow(*[button])]
+						await message.channel.send(embed=confession_embed,components=components)
 
 			# Print confessions command
 			if message.content == PREFIX + "print confessions":
 				logger.info("`print confessions` called by " + message.author.name)  # Event log
 				if "confessions" in self.data["servers"][str(guild.id)]:
-					for confession in client.data["servers"][str(guild.id)]["confessions"]:
-						confession_embed = discord.Embed(title="Confession No." + confession + "   -   " + str(date.today()), description="> " + client.data["servers"][str(guild.id)]["confessions"][confession], colour=0xF0CCA7)
+					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
+						confession_embed = discord.Embed(title="Confession No." + confession + "   -   " + str(date.today()), description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=0xF0CCA7)
 						confession_embed.set_footer(text="/confess to submit your anonymous confession", icon_url=guild.icon_url)
 						await message.channel.send(embed=confession_embed)
-					self.data["servers"][str(guild.id)]["confessions"] = {}
+
+					self.data["servers"][str(guild.id)]["confessions"]["messages"] = {}
 					self.update_data()
 					await message.delete()
 
@@ -1020,10 +1023,15 @@ if __name__ == "__main__":
 			logger.debug("`/confess` called anonymously")
 
 			try:
-				if "confessions" not in client.data["servers"][str(ctx.guild.id)]:
-					client.data["servers"][str(ctx.guild.id)].update({"confessions":{}})
-				confession_data = {str(len(client.data["servers"][str(ctx.guild.id)]["confessions"])):confession}
-				client.data["servers"][str(ctx.guild.id)]["confessions"].update(confession_data)
+				server_data = client.data["servers"][str(ctx.guild.id)] # Used for easy reference
+
+				if "confessions" not in server_data:
+					server_data.update({"confessions":{"metadata":{"count":0},"messages":{}}})
+				server_data["confessions"]["metadata"]["count"] += 1
+				confession_data = {str(server_data["confessions"]["metadata"]["count"]):confession}
+				server_data["confessions"]["messages"].update(confession_data)
+
+				client.data["servers"][str(ctx.guild.id)] = server_data
 				client.update_data()
 
 				await ctx.defer(hidden=True)
@@ -1044,8 +1052,18 @@ if __name__ == "__main__":
 			logger.debug("Button pressed by " + ctx.author.name)
 
 			guild = ctx.origin_message.guild
+			if ctx.custom_id.startswith("confession"):
+				id = ctx.custom_id[len("confession"):]
+				# Placeholder for other buttons functionality. Do not remove without consulting Pablo's forboding psionic foresight
+				if "confessions" in client.data["servers"][str(guild.id)]:
+					logger.debug("Checking confessions about button press")
+					if id in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
+						del client.data["servers"][str(guild.id)]["confessions"]["messages"][id]  # Removes the confession
+						logger.info("Confession No." + id + " removed from guild " + guild.name + " by " + ctx.author.name)
+						client.update_data()
+						await ctx.edit_origin(content="**This message has been removed**")
 
-			# If the roles functionality is enabled
+			# If the roles functionality is enabled. THIS IS FUCKING BROKEN PABLO. WHY ARE YOU RETURNING WHEN IT COULD NOT BE ROLES!!!
 			if "roles" in client.data["servers"][str(guild.id)]:
 				try:
 
@@ -1055,8 +1073,6 @@ if __name__ == "__main__":
 						if ctx.origin_message_id == client.data["servers"][str(guild.id)]["roles"]["categories"][category]["message id"]:
 							message_relevant = True
 							break
-					if message_relevant is False:
-						return
 
 					# Checks if the role ID is one of the server's roles
 					role_id_found = False
@@ -1112,10 +1128,6 @@ if __name__ == "__main__":
 					except Exception as exception:
 						logger.error("Verification failed: "+exception)
 					return
-
-			# Placeholder for other buttons functionality. Do not remove without consulting Pablo's forboding psionic foresight
-			if False is True:
-				print("https://media.tenor.co/videos/6361572ebe664cc462727807a7359f7c/mp4")
 
 		client.run(DISCORD_TOKEN)
 
