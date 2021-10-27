@@ -649,6 +649,27 @@ class MyClient(discord.Client):
 					# print("Candidate: " + str(candidate))
 					await poll_message.add_reaction(candidate)
 
+			# Review confessions command
+			if message.content == PREFIX + "review confessions":
+				logger.info("`review confessions` called by " + message.author.name)  # Event log
+				if "confessions" in self.data["servers"][str(guild.id)]:
+					for confession in client.data["servers"][str(guild.id)]["confessions"]:
+						confession_embed = discord.Embed(title="Review Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"][confession], colour=0xFF0A00)
+						confession_embed.set_footer(text="This message is here to be reviewed. Please say if the content is inappropriate!", icon_url=guild.icon_url)
+						await message.channel.send(embed=confession_embed)
+
+			# Print confessions command
+			if message.content == PREFIX + "print confessions":
+				logger.info("`print confessions` called by " + message.author.name)  # Event log
+				if "confessions" in self.data["servers"][str(guild.id)]:
+					for confession in client.data["servers"][str(guild.id)]["confessions"]:
+						confession_embed = discord.Embed(title="Confession No." + confession + "   -   " + str(date.today()), description="> " + client.data["servers"][str(guild.id)]["confessions"][confession], colour=0xF0CCA7)
+						confession_embed.set_footer(text="/confess to submit your anonymous confession", icon_url=guild.icon_url)
+						await message.channel.send(embed=confession_embed)
+					self.data["servers"][str(guild.id)]["confessions"] = {}
+					self.update_data()
+					await message.delete()
+
 		# If the message was sent by the developers
 		if message.author.id in self.data["config"]["developers"]:
 
@@ -669,18 +690,6 @@ class MyClient(discord.Client):
 							logger.debug("Announcement channel not found in " + guild.name)  # Event log
 				else:
 					logger.error("No announcement argument supplied")  # Event log
-
-			# Print confessions command
-			if message.content == PREFIX + "print confessions":
-				logger.info("`print confessions` called by " + message.author.name)  # Event log
-				if "confessions" in self.data["servers"][str(guild.id)]:
-					for confession in client.data["servers"][str(guild.id)]["confessions"]:
-						confession_embed = discord.Embed(title="Confession No."+confession+"   -   "+str(date.today()),description="> "+client.data["servers"][str(guild.id)]["confessions"][confession],colour=0xF0CCA7)
-						confession_embed.set_footer(text="/confess to submit your anonymous confession",icon_url=guild.icon_url)
-						await message.channel.send(embed=confession_embed)
-					self.data["servers"][str(guild.id)]["confessions"] = {}
-					self.update_data()
-
 
 			# Locate command
 			if message.content == PREFIX + "locate":
