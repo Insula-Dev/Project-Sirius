@@ -356,6 +356,7 @@ class MyClient(discord.Client):
 					embed.add_field(name=list(field.keys())[0],value=field[list(field.keys())[0]])
 
 				await message.channel.send(embed=embed)
+				await message.delete()
 			except Exception as exception:
 				logger.error("Failed understand embed command. Exception: " + str(exception))
 				await message.channel.send("Embed Failed: Check you put something to embed and that it's under 1024 character.\n"+str(exception))
@@ -665,7 +666,7 @@ class MyClient(discord.Client):
 				logger.info("`print confessions` called by " + message.author.name)  # Event log
 				if "confessions" in self.data["servers"][str(guild.id)]:
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
-						confession_embed = discord.Embed(title="Confession No." + confession + "   -   " + str(date.today()), description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=0xF0CCA7)
+						confession_embed = discord.Embed(title="Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=0xF0CCA7)
 						confession_embed.set_footer(text="/confess to submit your anonymous confession", icon_url=guild.icon_url)
 						await message.channel.send(embed=confession_embed)
 
@@ -1133,4 +1134,3 @@ if __name__ == "__main__":
 
 	except Exception as exception:
 		logger.error("Exception: " + exception + "\n")  # Event log
-
