@@ -500,9 +500,12 @@ class MyClient(discord.Client):
 					waiting_message = await message.channel.send("This may take some time...")
 
 					members = {}
-					channel_statistics = ""
-					member_statistics = ""
+					channel_statistics = [''] * (len(guild.text_channels))
+					print(len(channel_statistics),"long channels")
+
+					channel_count = 0
 					for channel in guild.text_channels:
+						channel_count += 1
 						message_count = 0
 						async for message_sent in channel.history(limit=None):
 							message_count += 1
@@ -511,9 +514,15 @@ class MyClient(discord.Client):
 									members[message_sent.author] = 1
 								else:
 									members[message_sent.author] += 1
-						channel_statistics += channel.name + ": " + str(message_count) + "\n"
+						channel_statistics[channel_count//10] += channel.name + ": " + str(message_count) + "\n"
+						print("Channel goes in field "+str(channel_count//10))
+
+					member_statistics = ['None'] * (len(members))
+					print(len(member_statistics), "members")
+					member_count = 0
 					for member in members:
-						member_statistics += member.name + ": " + str(members[member]) + "\n"
+						member_count += 1
+						member_statistics[member_count//10] += member.name + ": " + str(members[member]) + "\n"
 					logger.debug("Successfully generated statistics")  # Event log
 
 					"""#Generates channel statistics using the command user's id
@@ -524,7 +533,7 @@ class MyClient(discord.Client):
 						message_count = channel_q.json()['total_results']
 						print(channel.name + ": " + str(message_count))
 						channel_statistics += channel.name + ": " + str(message_count) + "\n"
-
+	
 					# Generates channel statistics using the command user's id
 					member_statistics = ""
 					for member in guild.member_count:
@@ -534,37 +543,52 @@ class MyClient(discord.Client):
 						member_statistics += member.name + ": " + str(message_count) + "\n"""
 
 					# Create and send statistics embed
-					embed_stats = discord.Embed(title="📈 Statistics for " + guild.name, colour=0xffc000)
-					embed_stats.add_field(name="Channels", value=channel_statistics)
-					embed_stats.add_field(name="Members", value=member_statistics)
-					embed_stats.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
-					await message.channel.send(embed=embed_stats)
+					embed_channel = discord.Embed(title="📈 Channel Statistics for " + guild.name, colour=0xffc000)
+					for x in range(len(channel_statistics)//10+1):
+						print("------\nChannels in set:\n"+str(channel_statistics[x]))
+						embed_channel.add_field(name="Channels", value=str(channel_statistics[x]))
+						embed_channel.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
+					await message.channel.send(embed=embed_channel)
+
+					print("Doing members")
+					embed_member = discord.Embed(title="📈 Member Statistics for " + guild.name, colour=0xffc000)
+					for x in range(len(member_statistics)//10+1):
+						print("Member:" + str(member_statistics[x]))
+						embed_member.add_field(name="Members", value=str(member_statistics[x]))
+						embed_member.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
+					await message.channel.send(embed=embed_member)
+
 				except discord.errors.HTTPException as exception:
+					logger.error("Error to send statistics. Exception: " + str(exception))  # Event log
+					"""await message.channel.send("Error: Something went wrong on our side...")
+					await message.channel.send("Trying alternative")
 					embed_channel_stats = discord.Embed(title="📈 Channel statistics for " + guild.name, colour=0xffc000)
 					if len(channel_statistics) <= 1024:
-						embed_channel_stats.add_field(name="Channels", value=channel_statistics)
+						embed_channel_stats.add_field(name="Channels", value=str(channel_statistics))
 					else:
 						for x in range(len(channel_statistics)//1024):
-							embed_channel_stats.add_field(name="Channel stats prt "+str(x+1),value=channel_statistics[x*1024:(x+1)*1024])
+							embed_channel_stats.add_field(name="Channel stats prt "+str(x+1),value=channel_statistics[0][x*1024:(x+1)*1024])
 							i = x
-						embed_channel_stats.add_field(name="Channel stats prt " + str(i+1), value=channel_statistics[(i+1)*1024:])
+						embed_channel_stats.add_field(name="Channel stats prt " + str(i+1), value=channel_statistics[0][(i+1)*1024:])
 					print(channel_statistics)
 					await message.channel.send(embed=embed_channel_stats)
 
 					embed_member_stats = discord.Embed(title="📈 Member statistics for " + guild.name, colour=0xffc000)
 					if len(member_statistics) <= 1024:
-						embed_member_stats.add_field(name="Members", value=member_statistics)
+						embed_member_stats.add_field(name="Members", value=str(member_statistics))
 					else:
 						for x in range(len(member_statistics) // 1024):
-							embed_member_stats.add_field(name="Member stats prt " + str(x + 1), value=member_statistics[x:(x + 1) * 1024])
+							embed_member_stats.add_field(name="Member stats prt " + str(x + 1), value=member_statistics[0][x:(x + 1) * 1024])
 							i = x
-						embed_member_stats.add_field(name="Member stats prt " + str(i + 1), value=member_statistics[(i + 1) * 1024:])
+						embed_member_stats.add_field(name="Member stats prt " + str(i + 1), value=member_statistics[0][(i + 1) * 1024:])
 					print(member_statistics)
-					await message.channel.send(embed=embed_member_stats)
-				#except Exception as exception:
-				#	logger.error("Failed to generate or send statistics. Exception: " + str(exception))  # Event log
-				#	await message.channel.send("Error: Something went wrong on our side...")
+					await message.channel.send(embed=embed_member_stats)"""
+
+				except Exception as exception:
+					logger.error("Failed to generate or send statistics. Exception: " + str(exception))  # Event log
+					await message.channel.send("Error: Something went wrong on our side...")
 				await waiting_message.delete()
+
 
 			# Purge Command
 			if message.content.startswith(PREFIX + "purge"):

@@ -102,7 +102,7 @@ if __name__ == "__main__":
 	pablo = "https://cdn.discordapp.com/avatars/241772848564142080/07bcdb7fcf7f34b75a1f318bdcafff3c.webp?size=128"
 	sirius = "https://cdn.discordapp.com/avatars/844950029369737238/786ba3643ee3b708bc008c24a2993cc2.webp?size=128"
 	arun = "https://cdn.discordapp.com/avatars/258284765776576512/a_4b5829ab10b6d8d79b2fa5a2f6ec245b.gif?size=128"
-	generate_rank_card(arun, "name goes here", 68, 12)
+	generate_level_card(arun, "name goes here", 68, 12)
 
 
 """
