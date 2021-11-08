@@ -627,7 +627,6 @@ class MyClient(discord.Client):
 						title = argument[1]
 					elif argument[0] == "colour":
 						colour = int(argument[1][-6:],16) # Takes last 6 digits and converts to hex for colour
-						print(colour)
 					elif argument[0] == "winner":
 						winner = argument[1]
 					else:
@@ -653,7 +652,7 @@ class MyClient(discord.Client):
 				}
 				})
 
-				print(self.poll[str(message.guild.id)])
+				logger.debug(self.poll[str(message.guild.id)])
 
 				# Add reactions to the poll embed
 				for candidate in candidates:
