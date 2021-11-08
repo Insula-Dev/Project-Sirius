@@ -1,5 +1,6 @@
 # Imports
 import math
+import random
 from random import randint
 from datetime import date, datetime
 import time
@@ -15,6 +16,7 @@ from discord_slash import SlashCommand, SlashContext
 from discord_slash.utils.manage_commands import create_option
 from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle
 
+import AI # Imports the AI library
 from log_handling import *
 from imaging import generate_level_card
 
@@ -1020,7 +1022,7 @@ if __name__ == "__main__":
 		for guild in client.guilds:
 			guild_ids += guild.id
 
-		@slash.slash(name="confess",description="Use the command to send an nnonymous message to be posted later",
+		@slash.slash(name="confess",description="Use the command to send an anonymous message to be posted later",
 			options=[create_option(
 			name="confession",
 			description="Your message",
@@ -1049,6 +1051,27 @@ if __name__ == "__main__":
 
 			except Exception as exception:
 				logger.error("Failed to send embed message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+
+		@slash.slash(name="question", description="Ask Sirius a question",
+					 options=[create_option(
+						 name="question",
+						 description="Your question",
+						 option_type=3,
+						 required=True)],
+					 guild_ids=guild_ids)
+		async def _question(ctx, question):
+			"""Runs on the embed slash command."""
+
+			logger.debug("`/question` called by " + ctx.author.name)
+
+			try:
+				reply = "**" + ctx.author.name + "**: *" + question + "*\n\n"
+				await ctx.send(content=reply+AI.question(question))
+
+			except Exception as exception:
+				logger.error("Failed to send embed message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
 
 		# Buttons...
 		# The following must be tested:
