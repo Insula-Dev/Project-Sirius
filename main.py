@@ -525,22 +525,6 @@ class MyClient(discord.Client):
 						member_statistics[member_count//10] += member.name + ": " + str(members[member]) + "\n"
 					logger.debug("Successfully generated statistics")  # Event log
 
-					"""#Generates channel statistics using the command user's id
-					channel_statistics = ""
-					for channel in guild.text_channels:
-						#time.sleep(6)
-						channel_q = requests.get("https://discord.com/api/guilds/"+str(guild.id)+"/messages/search?channel_id="+str(channel.id),headers={"Authorization": "mfa.dQOLLvbVkz5qECOqOyI3yU91ogOeZSFDv4uGGVM8BkL86jiseAF2MBGxPPWykjqRj_diA1CU_Sf3CwxVuGWF","accept-encoding":"gzip, deflate"})
-						message_count = channel_q.json()['total_results']
-						print(channel.name + ": " + str(message_count))
-						channel_statistics += channel.name + ": " + str(message_count) + "\n"
-	
-					# Generates channel statistics using the command user's id
-					member_statistics = ""
-					for member in guild.member_count:
-						member_q = requests.get("https://discord.com/api/guilds/" + str(guild.id) + "/messages/search?member_id=" + str(member.id),headers={"Authorization": "mfa.dQOLLvbVkz5qECOqOyI3yU91ogOeZSFDv4uGGVM8BkL86jiseAF2MBGxPPWykjqRj_diA1CU_Sf3CwxVuGWF","accept-encoding":"gzip, deflate"})
-						message_count = member_q.json()['total_results']
-						print(member.name + ": " + str(message_count))
-						member_statistics += member.name + ": " + str(message_count) + "\n"""
 
 					# Create and send statistics embed
 					embed_channel = discord.Embed(title="📈 Channel Statistics for " + guild.name, colour=0xffc000)
@@ -770,21 +754,22 @@ class MyClient(discord.Client):
 					else:
 						await message.channel.send("pablo, put that big brain back on sleep mode")
 
-			# Gameboy mention
-			if "gameboy" in message.content.lower():
-				logger.debug("`gameboy` mentioned by " + message.author.name)  # Event log
-				await message.channel.send("Gameboys are worthless (apart from micro. micro is cool)")
+			if guild.id == 489893521176920076:
+				# Gameboy mention
+				if "gameboy" in message.content.lower():
+					logger.debug("`gameboy` mentioned by " + message.author.name)  # Event log
+					await message.channel.send("Gameboys are worthless (apart from micro. micro is cool)")
 
-			# Raspberry mention
-			if "raspberries" in message.content.lower() or "raspberry" in message.content.lower():
-				logger.debug("`raspberry racers` mentioned by " + message.author.name)  # Event log
-				await message.channel.send("The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019.")
+				# Raspberry mention
+				if "raspberries" in message.content.lower() or "raspberry" in message.content.lower():
+					logger.debug("`raspberry racers` mentioned by " + message.author.name)  # Event log
+					await message.channel.send("The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019.")
 
-			# Pycharm mention
-			if "pycharm" in message.content.lower():
-				logger.debug("`pycharm` mentioned by " + message.author.name)  # Event log
-				await message.channel.send("Pycharm enthusiasts vs Sublime Text enjoyers: https://youtu.be/HrkNwjruz5k")
-				await message.channel.send("85 commits in and haha bot print funny is still our sense of humour.")
+				# Pycharm mention
+				if "pycharm" in message.content.lower():
+					logger.debug("`pycharm` mentioned by " + message.author.name)  # Event log
+					await message.channel.send("Pycharm enthusiasts vs Sublime Text enjoyers: https://youtu.be/HrkNwjruz5k")
+					await message.channel.send("85 commits in and haha bot print funny is still our sense of humour.")
 
 			# Token command
 			if message.content == PREFIX + "token":
