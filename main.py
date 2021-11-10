@@ -1072,6 +1072,27 @@ if __name__ == "__main__":
 				logger.error("Failed to send embed message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
 
+		@slash.slash(name="purge", description="Purge messages from the channel",
+					 options=[create_option(
+						 name="count",
+						 description="How many messages",
+						 option_type=4,
+						 required=True)],
+					 guild_ids=guild_ids)
+		async def _purge(ctx, count):
+			"""Runs on the embed slash command."""
+
+			logger.debug("`/purge` called by " + ctx.author.name)
+
+			#try:
+			purge_button = create_button(style=ButtonStyle.danger,label="Purge "+str(count)+" messages?",custom_id="purge:"+str(count))
+			components = [create_actionrow(*[purge_button])]
+			await ctx.send(content="Purge "+str(count)+" messages?",components=components)
+
+			#except Exception as exception:
+			#	logger.error("Failed to send embed message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+
 		# Buttons...
 		# The following must be tested:
 		#     - Bots cannot press buttons
@@ -1094,6 +1115,15 @@ if __name__ == "__main__":
 						logger.info("Confession No." + id + " removed from guild " + guild.name + " by " + ctx.author.name)
 						client.update_data()
 						await ctx.edit_origin(content="**This message has been removed**")
+
+			if ctx.custom_id.startswith("purge"):
+				if ctx.author.guild_permissions.administrator:
+					count = int(ctx.custom_id[len("purge:"):])
+					await ctx.channel.purge(limit=count)
+					logger.info("Purge complete in " + ctx.channel.name + " < " + ctx.guild.name)
+					await ctx.channel.send("Channel purged " + str(count) + " messages")
+				else:
+					logger.info(ctx.author.name+" tried to purge messages")
 
 			# If the roles functionality is enabled. THIS IS FUCKING BROKEN PABLO. WHY ARE YOU RETURNING WHEN IT COULD NOT BE ROLES!!!
 			if "roles" in client.data["servers"][str(guild.id)]:
