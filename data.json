@@ -391,20 +391,15 @@
             },
             "ranks": {
                 "241772848564142080": 20,
-                "258284765776576512": 273,
+                "258284765776576512": 279,
                 "519494195929546782": 8,
                 "206705235853443072": 2
             },
             "confessions": {
                 "metadata": {
-                    "count": 10
+                    "count": 11
                 },
-                "messages": {
-                    "0": "hello",
-                    "2": "hel",
-                    "3": "test",
-                    "4": "tsetsssssssssssssssssssssssssssssssssssssssssssgggggggggggggaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-                }
+                "messages": {}
             }
         },
         "509437716123877397": {

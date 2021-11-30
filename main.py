@@ -1109,12 +1109,15 @@ if __name__ == "__main__":
 				id = ctx.custom_id[len("confession"):]
 				# Placeholder for other buttons functionality. Do not remove without consulting Pablo's forboding psionic foresight
 				if "confessions" in client.data["servers"][str(guild.id)]:
-					logger.debug("Checking confessions about button press")
-					if id in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
-						del client.data["servers"][str(guild.id)]["confessions"]["messages"][id]  # Removes the confession
-						logger.info("Confession No." + id + " removed from guild " + guild.name + " by " + ctx.author.name)
-						client.update_data()
-						await ctx.edit_origin(content="**This message has been removed**")
+					if ctx.author.guild_permissions.administrator:
+						logger.debug("Checking confessions about button press")
+						if id in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
+							del client.data["servers"][str(guild.id)]["confessions"]["messages"][id]  # Removes the confession
+							logger.info("Confession No." + id + " removed from guild " + guild.name + " by " + ctx.author.name)
+							client.update_data()
+							await ctx.edit_origin(content="**This message has been removed by "+ctx.author.name+"**")
+					else:
+						await ctx.edit_origin(content="**" + ctx.author.name +" **tried to remove this message without permissions!")
 
 			if ctx.custom_id.startswith("purge"):
 				if ctx.author.guild_permissions.administrator:
