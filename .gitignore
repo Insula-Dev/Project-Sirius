@@ -3,3 +3,4 @@ __pycache__
 token.txt
 log_file.log
 card.png
+config.json
