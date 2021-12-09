@@ -23,8 +23,8 @@ from imaging import generate_level_card
 
 # Variables
 PREFIX = "-"
-with open("token.txt") as file:
-	DISCORD_TOKEN = file.read()
+with open("config.json", encoding='utf-8') as file:
+	DISCORD_TOKEN = json.load(file)["token"]
 server_structure = {
 	"config": {
 		"rank system": False,
