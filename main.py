@@ -13,8 +13,9 @@ import re  # Delete this later
 # Local imports
 import requests
 from discord_slash import SlashCommand, SlashContext
-from discord_slash.utils.manage_commands import create_option
+from discord_slash.utils.manage_commands import create_option, create_permission
 from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle
+from discord_slash.model import SlashCommandPermissionType
 
 import AI # Imports the AI library
 from log_handling import *
@@ -57,8 +58,9 @@ class MyClient(discord.Client):
 		"""Constructor."""
 
 		super().__init__(*args, **kwargs)
-		self.connected = False
+		self.connected = True # Starts true so on first boot, it won't think its restarted
 		self.start_time = datetime.now()
+		self.last_disconnect = datetime.now()
 		self.data = {}
 		self.cache = {}
 		self.poll = {}
@@ -181,6 +183,8 @@ class MyClient(discord.Client):
 	async def on_ready(self):
 		"""Runs when the client is ready."""
 
+		if self.connected == False:
+			logger.info("Last disconnect was "+self.last_disconnect)
 		self.connected = True
 
 		# Load the data file into the data variable
@@ -228,6 +232,7 @@ class MyClient(discord.Client):
 	async def on_disconnect(self):
 		if self.connected == True: # Stops code being ran every time discord realises its still disconnected since the last minute or so
 			logger.info("Bot disconnected")
+			self.last_disconnect = datetime.now()
 			self.connected = False
 
 	async def on_guild_join(self, guild):
@@ -491,11 +496,15 @@ class MyClient(discord.Client):
 					await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
 			# Stats command
-			if message.content == PREFIX + "stats":
-				"""THINGS TO FIX:
-				- Trailing newlines at the end of embed"""
+			if message.content.startswith(PREFIX + "stats"):
 
 				logger.info("`stats` called by " + message.author.name)  # Event log
+
+				argument = message.content[len(PREFIX + "stats "):]
+				csv = False
+				if argument == "csv": # Changes to csv mode where the stats are saved to a csv file instead
+					csv = True
+					logger.debug("Using csv mode")
 
 				try:
 					# Generate statistics
@@ -503,7 +512,6 @@ class MyClient(discord.Client):
 
 					members = {}
 					channel_statistics = [''] * (len(guild.text_channels))
-					print(len(channel_statistics),"long channels")
 
 					channel_count = 0
 					for channel in guild.text_channels:
@@ -516,33 +524,53 @@ class MyClient(discord.Client):
 									members[message_sent.author] = 1
 								else:
 									members[message_sent.author] += 1
-						channel_statistics[channel_count//10] += channel.name + ": " + str(message_count) + "\n"
-						print("Channel goes in field "+str(channel_count//10))
+						if csv:
+							channel_statistics[channel_count//10] += channel.name + "," + str(message_count) + "\n"
+						else:
+							channel_statistics[channel_count//10] += channel.mention + ": " + str(message_count) + "\n"
 
-					member_statistics = ['None'] * (len(members))
-					print(len(member_statistics), "members")
+					member_statistics = [''] * (len(members))
 					member_count = 0
 					for member in members:
 						member_count += 1
-						member_statistics[member_count//10] += member.name + ": " + str(members[member]) + "\n"
+						if csv:
+							member_statistics[member_count // 10] += member.name + "," + str(members[member]) + "\n"
+						else:
+							member_statistics[member_count//10] += member.mention + ": " + str(members[member]) + "\n"
 					logger.debug("Successfully generated statistics")  # Event log
 
+					if csv:
+						with open("channel_statistics.csv","w",encoding="UTF-8") as csv:
+							channel_string = ""
+							for channel in channel_statistics:
+								print(channel)
+								channel_string += channel
+							csv.write(str(channel_string))
+						await message.channel.send(file=discord.File("channel_statistics.csv"))
 
-					# Create and send statistics embed
-					embed_channel = discord.Embed(title="📈 Channel Statistics for " + guild.name, colour=0xffc000)
-					for x in range(len(channel_statistics)//10+1):
-						print("------\nChannels in set:\n"+str(channel_statistics[x]))
-						embed_channel.add_field(name="Channels", value=str(channel_statistics[x]))
-						embed_channel.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
-					await message.channel.send(embed=embed_channel)
+						with open("member_statistics.csv","w",encoding="UTF-8") as csv:
+							member_string = ""
+							for member in member_statistics:
+								print(member)
+								member_string += member
+							csv.write(str(member_string))
+						await message.channel.send(file=discord.File("member_statistics.csv"))
+					else:
+						# Create and send statistics embed
+						embed_channel = discord.Embed(title="📈 Channel Statistics for " + guild.name, colour=0xffc000)
+						for x in range(len(channel_statistics)//10+1):
+							#print("------\nChannels in set:\n"+str(channel_statistics[x]))
+							logger.debug("------\nChannels in set:\n"+str(channel_statistics[x]))
+							embed_channel.add_field(name="Channels", value=str(channel_statistics[x]))
+							embed_channel.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
+						await message.channel.send(embed=embed_channel)
 
-					print("Doing members")
-					embed_member = discord.Embed(title="📈 Member Statistics for " + guild.name, colour=0xffc000)
-					for x in range(len(member_statistics)//10+1):
-						print("Member:" + str(member_statistics[x]))
-						embed_member.add_field(name="Members", value=str(member_statistics[x]))
-						embed_member.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
-					await message.channel.send(embed=embed_member)
+						embed_member = discord.Embed(title="📈 Member Statistics for " + guild.name, colour=0xffc000)
+						for x in range(len(member_statistics)//10+1):
+							logger.debug("Member:" + str(member_statistics[x]))
+							embed_member.add_field(name="Members", value=str(member_statistics[x]))
+							embed_member.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
+						await message.channel.send(embed=embed_member)
 
 				except discord.errors.HTTPException as exception:
 					logger.error("Error to send statistics. Exception: " + str(exception))  # Event log
@@ -1072,13 +1100,19 @@ if __name__ == "__main__":
 				logger.error("Failed to send embed message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
 
+		#admin_roles = [role for role in ctx.guild.roles if role.permissions.administrator]
 		@slash.slash(name="purge", description="Purge messages from the channel",
 					 options=[create_option(
 						 name="count",
 						 description="How many messages",
 						 option_type=4,
 						 required=True)],
-					 guild_ids=guild_ids)
+					 guild_ids=guild_ids
+		)
+		@slash.permission(guild_id=12345678,permissions = [
+			create_permission(99999999, SlashCommandPermissionType.ROLE, True),
+			create_permission(88888888, SlashCommandPermissionType.USER, False)
+		])
 		async def _purge(ctx, count):
 			"""Runs on the embed slash command."""
 
