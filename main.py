@@ -546,7 +546,7 @@ class MyClient(discord.Client):
 								print(channel)
 								channel_string += channel
 							csv.write(str(channel_string))
-						await message.channel.send(file=discord.File("channel_statistics.csv"))
+						await message.channel.send(file=discord.File("channel_statistics.csv",filename=guild.name+" channel_statistics.csv"))
 
 						with open("member_statistics.csv","w",encoding="UTF-8") as csv:
 							member_string = ""
@@ -554,7 +554,7 @@ class MyClient(discord.Client):
 								print(member)
 								member_string += member
 							csv.write(str(member_string))
-						await message.channel.send(file=discord.File("member_statistics.csv"))
+						await message.channel.send(file=discord.File("member_statistics.csv",filename=guild.name+" member_statistics.csv"))
 					else:
 						# Create and send statistics embed
 						embed_channel = discord.Embed(title="📈 Channel Statistics for " + guild.name, colour=0xffc000)
