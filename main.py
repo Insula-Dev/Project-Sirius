@@ -13,11 +13,12 @@ import re  # Delete this later
 # Local imports
 import requests
 from discord_slash import SlashCommand, SlashContext
-from discord_slash.utils.manage_commands import create_option, create_permission
+from discord_slash.utils.manage_commands import create_option, create_permission, remove_all_commands
 from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle
 from discord_slash.model import SlashCommandPermissionType
 
 import AI # Imports the AI library
+from clear_slash_commands import clearCommands
 from log_handling import *
 from imaging import generate_level_card
 
@@ -25,7 +26,8 @@ from imaging import generate_level_card
 # Variables
 PREFIX = "-"
 with open("config.json", encoding='utf-8') as file:
-	DISCORD_TOKEN = json.load(file)["token"]
+	config = json.load(file)
+	DISCORD_TOKEN = config["token"]
 server_structure = {
 	"config": {
 		"rank system": False,
@@ -180,11 +182,28 @@ class MyClient(discord.Client):
 		else:
 			return emoji_reference
 
+	async def announce(self,announcement,announcement_type="generic"):
+		for guild in self.guilds:
+			if self.data["servers"][str(guild.id)]["config"]["announcements channel id"] != 0: # Only finds announcement channel if the guild has one set
+				announcement_sent = False
+				for channel in guild.text_channels:
+					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
+						logger.debug("Sending "+announcement_type+" announcement to " + guild.name + " in " + channel.name)  # Event log
+						announcement_sent = True
+						await channel.send(announcement)
+						break
+				if announcement_sent is False:
+					logger.debug("Failed to send "+announcement_type+" announcement. Announcement channel not found in " + guild.name)  # Event log
+
 	async def on_ready(self):
 		"""Runs when the client is ready."""
+		#await clearCommands()
+		logger.debug("Connected!")
 
+		await remove_all_commands(831944522748526684, config["token"], None)
 		if self.connected == False:
-			logger.info("Last disconnect was "+self.last_disconnect)
+			logger.info("Last disconnect was "+str(self.last_disconnect))
+			await self.announce("**Reconnected**\nLast disconnect was "+str(self.last_disconnect),announcement_type="reconnection")
 		self.connected = True
 
 		# Load the data file into the data variable
@@ -218,16 +237,8 @@ class MyClient(discord.Client):
 			for guild in self.guilds:
 				logger.info("    " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
 
-				# Send on_ready announcement
-				announcement_sent = False
-				for channel in guild.text_channels:
-					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
-						logger.debug("Sending on_ready announcement to " + guild.name + " in " + channel.name)  # Event log
-						announcement_sent = True
-						await channel.send("**" + self.user.name + " online**\nVersion: " + self.data["config"]["version"])
-						break
-				if announcement_sent is False:
-					logger.debug("Failed to send on_ready announcement. Announcement channel not found in " + guild.name)  # Event log
+		# Send on_ready announcement
+		await self.announce("**" + self.user.name + " online**\nVersion: " + self.data["config"]["version"],announcement_type="on_ready")
 
 	async def on_disconnect(self):
 		if self.connected == True: # Stops code being ran every time discord realises its still disconnected since the last minute or so
@@ -736,7 +747,7 @@ class MyClient(discord.Client):
 			if message.content == PREFIX + "locate":
 				logger.info("`locate` called by " + message.author.name)  # Event log
 				hostname = socket.gethostname()
-				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "** (**" + str(round(self.latency)) + "**ms)" + "\nUptime: " + self.get_uptime() + ".")
+				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "** (**" + str(round(self.latency)) + "**ms)" + "\nUptime: " + self.get_uptime() + "."+ "\nLast disconnect: " + str(self.last_disconnect) + ".")
 
 			# Kill command
 			if message.content.startswith(PREFIX + "kill"):
@@ -748,16 +759,7 @@ class MyClient(discord.Client):
 				death_note = "**" + self.user.name + " offline**\nReason for shutdown: "+reason
 
 				# Send kill announcement
-				for guild in self.guilds:
-					announcement_sent = False
-					for channel in guild.text_channels:
-						if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
-							logger.debug("Sending kill announcement to " + guild.name + " in " + channel.name)  # Event log
-							announcement_sent = True
-							await channel.send(death_note)
-							break
-					if announcement_sent is False:
-						logger.debug("Failed to send kill announcement. Announcement channel not found in " + guild.name)  # Event log
+				await self.announce(death_note,announcement_type="kill")
 
 				await message.channel.send(death_note+"\n"+"Uptime: " + self.get_uptime() + ".")
 				await client.close()
@@ -1227,6 +1229,7 @@ if __name__ == "__main__":
 					except Exception as exception:
 						logger.error("Verification failed: "+exception)
 					return
+
 
 		client.run(DISCORD_TOKEN)
 
