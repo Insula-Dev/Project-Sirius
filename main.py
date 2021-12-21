@@ -1048,8 +1048,6 @@ if __name__ == "__main__":
 		guild_ids = []
 		for guild in client.guilds:
 			guild_ids += guild.id
-		print(f"Guild IDs\n{guild_ids}")
-
 
 		@slash.slash(name="confess", description="Use the command to send an anonymous message to be posted later",
 					 options=[create_option(
@@ -1162,6 +1160,7 @@ if __name__ == "__main__":
 					logger.info("Purge complete in " + ctx.channel.name + " < " + ctx.guild.name)
 					await ctx.channel.send("Channel purged " + str(count) + " messages")
 				else:
+					await ctx.send("You do not have permissions to press this button", hidden=True)
 					logger.info(ctx.author.name + " tried to purge messages")
 
 			# If the roles functionality is enabled. THIS IS FUCKING BROKEN PABLO. WHY ARE YOU RETURNING WHEN IT COULD NOT BE ROLES!!!
