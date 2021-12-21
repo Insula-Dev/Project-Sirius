@@ -151,7 +151,6 @@ class MyClient(discord.Client):
 				highest_emoji = reaction.emoji
 		highest_count -= 1  # Takes away the bots reaction
 
-		print(self.poll)
 		poll = self.poll[str(message.guild.id)][str(message.id)]
 
 		options = []
@@ -554,7 +553,6 @@ class MyClient(discord.Client):
 						with open("channel_statistics.csv","w",encoding="UTF-8") as csv:
 							channel_string = ""
 							for channel in channel_statistics:
-								print(channel)
 								channel_string += channel
 							csv.write(str(channel_string))
 						await message.channel.send(file=discord.File("channel_statistics.csv",filename=guild.name+" channel_statistics.csv"))
@@ -562,7 +560,6 @@ class MyClient(discord.Client):
 						with open("member_statistics.csv","w",encoding="UTF-8") as csv:
 							member_string = ""
 							for member in member_statistics:
-								print(member)
 								member_string += member
 							csv.write(str(member_string))
 						await message.channel.send(file=discord.File("member_statistics.csv",filename=guild.name+" member_statistics.csv"))
@@ -950,7 +947,6 @@ class MyClient(discord.Client):
 
 
 		if reaction_usage == "polls":
-			print("Poll reaction!")
 			if str(payload.emoji) == "🔚":
 
 				logger.debug("Poll ending")
@@ -963,7 +959,7 @@ class MyClient(discord.Client):
 			else:
 				valid_emoji = False
 				for message in self.poll[str(payload.guild_id)]:
-					print(str(payload.emoji)+"?"+str(self.poll[str(payload.guild_id)][message]["options"]))
+					#print(str(payload.emoji)+"?"+str(self.poll[str(payload.guild_id)][message]["options"]))
 					if str(payload.emoji) in self.poll[str(payload.guild_id)][message]["options"]: # Deletes emojis not related to poll options
 						valid_emoji = True
 				if not valid_emoji:
