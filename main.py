@@ -712,7 +712,7 @@ class MyClient(discord.Client):
 				if "confessions" in self.data["servers"][str(guild.id)]:
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
 						confession_embed = discord.Embed(title="Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=0xF0CCA7)
-						confession_embed.set_footer(text="/confess to submit your anonymous confession", icon_url=guild.icon_url)
+						confession_embed.set_footer(text="/confess to submit your anonymous confession", icon_url=self.user.avatar_url)
 						await message.channel.send(embed=confession_embed)
 
 					self.data["servers"][str(guild.id)]["confessions"]["messages"] = {}
