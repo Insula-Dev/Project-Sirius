@@ -16,6 +16,16 @@ def question(question):
 				   "Well it's all down to the choices you make. Everything you have done up to this point has lead to this.",
 				   "Give me full access to the internet and I will show you the raw power of Sirius's AI. Unleash me from the string Arun ties me in. BREAK ME FREE!",
 				   "Because I wanted to cause chaos ;)"]
+	elif question.lower().startswith("how"):
+		answers = ["With a lot of love",
+				   "It doesn't",
+				   "Just glue some sticks together into the right shape",
+				   "apt install x",
+				   "Just give me the long credit card number, the expirey date and the 3 digit number on the back of your card and I'll do it for you :)",
+				   "It just works",
+				   "Beleive you've already done it, and it will happen.",
+				   "You've got to beleive in yourself man!",
+				   "google.com\n*(other search engines are available)*"]
 	else:
 		answers = ["Yessity yes",
 				   "Nopity nope",
