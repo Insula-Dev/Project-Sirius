@@ -25,6 +25,7 @@ from imaging import generate_level_card
 
 
 # Variables
+VERSION = "1.2.5"
 with open("config.json", encoding='utf-8') as file:
 	config = json.load(file)
 	DISCORD_TOKEN = config["token"]
@@ -236,7 +237,7 @@ class MyClient(discord.Client):
 				logger.info("    " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
 
 		# Send on_ready announcement
-		await self.announce("**" + self.user.name + " online**\nVersion: " + self.data["config"]["version"],announcement_type="on_ready")
+		await self.announce("**" + self.user.name + " online**\nVersion: " + VERSION,announcement_type="on_ready")
 		guild_ids = []
 		for guild in self.guilds:
 			guild_ids.append(guild.id)
