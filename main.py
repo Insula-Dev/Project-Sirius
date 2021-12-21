@@ -31,7 +31,6 @@ with open("config.json", encoding='utf-8') as file:
 	PREFIX = config["prefix"]
 server_structure = {
 	"config": {
-		"rank system": False,
 		"admin role id": 0,
 		"announcements channel id": 0
 	},
@@ -1054,7 +1053,8 @@ if __name__ == "__main__":
 						 name="confession",
 						 description="Your message",
 						 option_type=3,
-						 required=True)])
+						 required=True)],
+					 guild_ids=guild_ids)
 		async def _confess(ctx, confession):
 			"""Runs on the confession slash command."""
 
@@ -1087,7 +1087,8 @@ if __name__ == "__main__":
 						 name="question",
 						 description="Your question",
 						 option_type=3,
-						 required=True)])
+						 required=True)],
+					 guild_ids=guild_ids)
 		async def _question(ctx, question):
 			"""Runs on the question slash command."""
 
@@ -1102,13 +1103,34 @@ if __name__ == "__main__":
 					ctx.guild.id) + "). Exception: " + str(exception))
 
 
+		@slash.slash(name="anonymous", description="Say something in the channel anonymously",
+					 options=[create_option(
+						 name="message",
+						 description="Your message",
+						 option_type=3,
+						 required=True)],
+					 guild_ids=guild_ids)
+		async def _anonymous(ctx, message):
+			"""Runs on the anonymous message slash command."""
+
+			logger.debug("`/anonymous` called by " + ctx.author.name)
+
+			try:
+				await ctx.send(content="**Anonymous**: *"+message+"*")
+
+			except Exception as exception:
+				logger.error("Failed to run /anonymous message in " + ctx.guild.name + " (" + str(
+					ctx.guild.id) + "). Exception: " + str(exception))
+
+
 		# admin_roles = [role for role in ctx.guild.roles if role.permissions.administrator]
 		@slash.slash(name="purge", description="Purge messages from the channel",
 					 options=[create_option(
 						 name="count",
 						 description="How many messages",
 						 option_type=4,
-						 required=True)])
+						 required=True)],
+					 guild_ids=guild_ids)
 		async def _purge(ctx, count):
 			"""Runs on the purge slash command."""
 
