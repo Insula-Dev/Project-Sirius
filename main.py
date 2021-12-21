@@ -1,4 +1,5 @@
 # Imports
+import asyncio
 import math
 import random
 from random import randint
@@ -24,10 +25,10 @@ from imaging import generate_level_card
 
 
 # Variables
-PREFIX = "-"
 with open("config.json", encoding='utf-8') as file:
 	config = json.load(file)
 	DISCORD_TOKEN = config["token"]
+	PREFIX = config["prefix"]
 server_structure = {
 	"config": {
 		"rank system": False,
@@ -196,10 +197,9 @@ class MyClient(discord.Client):
 
 	async def on_ready(self):
 		"""Runs when the client is ready."""
-		#await clearCommands()
+		global guild_ids
 		logger.debug("Connected!")
 
-		await remove_all_commands(831944522748526684, config["token"], None)
 		if self.connected == False:
 			logger.info("Last disconnect was "+str(self.last_disconnect))
 			await self.announce("**Reconnected**\nLast disconnect was "+str(self.last_disconnect),announcement_type="reconnection")
@@ -238,6 +238,9 @@ class MyClient(discord.Client):
 
 		# Send on_ready announcement
 		await self.announce("**" + self.user.name + " online**\nVersion: " + self.data["config"]["version"],announcement_type="on_ready")
+		guild_ids = []
+		for guild in self.guilds:
+			guild_ids.append(guild.id)
 
 	async def on_disconnect(self):
 		if self.connected == True: # Stops code being ran every time discord realises its still disconnected since the last minute or so
@@ -1034,7 +1037,6 @@ class MyClient(discord.Client):
 			# Send an error message
 			await payload.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
-
 # Main body
 if __name__ == "__main__":
 	try:
@@ -1046,36 +1048,40 @@ if __name__ == "__main__":
 		guild_ids = []
 		for guild in client.guilds:
 			guild_ids += guild.id
+		print(f"Guild IDs\n{guild_ids}")
 
-		@slash.slash(name="confess",description="Use the command to send an anonymous message to be posted later",
-			options=[create_option(
-			name="confession",
-			description="Your message",
-			option_type=3,
-			required=True)],
-			guild_ids=guild_ids)
+
+		@slash.slash(name="confess", description="Use the command to send an anonymous message to be posted later",
+					 options=[create_option(
+						 name="confession",
+						 description="Your message",
+						 option_type=3,
+						 required=True)])
 		async def _confess(ctx, confession):
-			"""Runs on the embed slash command."""
+			"""Runs on the confession slash command."""
 
 			logger.debug("`/confess` called anonymously")
 
 			try:
-				server_data = client.data["servers"][str(ctx.guild.id)] # Used for easy reference
+				server_data = client.data["servers"][str(ctx.guild.id)]  # Used for easy reference
 
 				if "confessions" not in server_data:
-					server_data.update({"confessions":{"metadata":{"count":0},"messages":{}}})
+					server_data.update({"confessions": {"metadata": {"count": 0}, "messages": {}}})
 				server_data["confessions"]["metadata"]["count"] += 1
-				confession_data = {str(server_data["confessions"]["metadata"]["count"]):confession}
+				confession_data = {str(server_data["confessions"]["metadata"]["count"]): confession}
 				server_data["confessions"]["messages"].update(confession_data)
 
 				client.data["servers"][str(ctx.guild.id)] = server_data
 				client.update_data()
 
 				await ctx.defer(hidden=True)
-				await ctx.send(content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.",hidden=True)
+				await ctx.send(
+					content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.",
+					hidden=True)
 
 			except Exception as exception:
-				logger.error("Failed to send embed message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+				logger.error("Failed to run /confess in " + ctx.guild.name + " (" + str(
+					ctx.guild.id) + "). Exception: " + str(exception))
 
 
 		@slash.slash(name="question", description="Ask Sirius a question",
@@ -1083,46 +1089,40 @@ if __name__ == "__main__":
 						 name="question",
 						 description="Your question",
 						 option_type=3,
-						 required=True)],
-					 guild_ids=guild_ids)
+						 required=True)])
 		async def _question(ctx, question):
-			"""Runs on the embed slash command."""
+			"""Runs on the question slash command."""
 
 			logger.debug("`/question` called by " + ctx.author.name)
 
 			try:
 				reply = "**" + ctx.author.name + "**: *" + question + "*\n\n"
-				await ctx.send(content=reply+AI.question(question))
+				await ctx.send(content=reply + AI.question(question))
 
 			except Exception as exception:
-				logger.error("Failed to send embed message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+				logger.error("Failed to run /question message in " + ctx.guild.name + " (" + str(
+					ctx.guild.id) + "). Exception: " + str(exception))
 
 
-		#admin_roles = [role for role in ctx.guild.roles if role.permissions.administrator]
+		# admin_roles = [role for role in ctx.guild.roles if role.permissions.administrator]
 		@slash.slash(name="purge", description="Purge messages from the channel",
 					 options=[create_option(
 						 name="count",
 						 description="How many messages",
 						 option_type=4,
-						 required=True)],
-					 guild_ids=guild_ids
-		)
-		@slash.permission(guild_id=12345678,permissions = [
-			create_permission(99999999, SlashCommandPermissionType.ROLE, True),
-			create_permission(88888888, SlashCommandPermissionType.USER, False)
-		])
+						 required=True)])
 		async def _purge(ctx, count):
-			"""Runs on the embed slash command."""
+			"""Runs on the purge slash command."""
 
 			logger.debug("`/purge` called by " + ctx.author.name)
 
-			#try:
-			purge_button = create_button(style=ButtonStyle.danger,label="Purge "+str(count)+" messages?",custom_id="purge:"+str(count))
-			components = [create_actionrow(*[purge_button])]
-			await ctx.send(content="Purge "+str(count)+" messages?",components=components)
-
-			#except Exception as exception:
-			#	logger.error("Failed to send embed message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+			if ctx.author.guild_permissions.administrator:
+				purge_button = create_button(style=ButtonStyle.danger, label="Purge " + str(count) + " messages?",
+											 custom_id="purge:" + str(count))
+				components = [create_actionrow(*[purge_button])]
+				await ctx.send(content="Purge " + str(count) + " messages?", components=components)
+			else:
+				await ctx.send("You do not have permissions to run this command", hidden=True)
 
 
 		# Buttons...
@@ -1144,12 +1144,16 @@ if __name__ == "__main__":
 					if ctx.author.guild_permissions.administrator:
 						logger.debug("Checking confessions about button press")
 						if id in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
-							del client.data["servers"][str(guild.id)]["confessions"]["messages"][id]  # Removes the confession
-							logger.info("Confession No." + id + " removed from guild " + guild.name + " by " + ctx.author.name)
+							del client.data["servers"][str(guild.id)]["confessions"]["messages"][
+								id]  # Removes the confession
+							logger.info(
+								"Confession No." + id + " removed from guild " + guild.name + " by " + ctx.author.name)
 							client.update_data()
-							await ctx.edit_origin(content="**This message has been removed by "+ctx.author.name+"**")
+							await ctx.edit_origin(
+								content="**This message has been removed by " + ctx.author.name + "**")
 					else:
-						await ctx.edit_origin(content="**" + ctx.author.name +" **tried to remove this message without permissions!")
+						await ctx.edit_origin(
+							content="**" + ctx.author.name + " **tried to remove this message without permissions!")
 
 			if ctx.custom_id.startswith("purge"):
 				if ctx.author.guild_permissions.administrator:
@@ -1158,7 +1162,7 @@ if __name__ == "__main__":
 					logger.info("Purge complete in " + ctx.channel.name + " < " + ctx.guild.name)
 					await ctx.channel.send("Channel purged " + str(count) + " messages")
 				else:
-					logger.info(ctx.author.name+" tried to purge messages")
+					logger.info(ctx.author.name + " tried to purge messages")
 
 			# If the roles functionality is enabled. THIS IS FUCKING BROKEN PABLO. WHY ARE YOU RETURNING WHEN IT COULD NOT BE ROLES!!!
 			if "roles" in client.data["servers"][str(guild.id)]:
@@ -1167,14 +1171,16 @@ if __name__ == "__main__":
 					# Checks if the message is one of the server's roles messages
 					message_relevant = False
 					for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
-						if ctx.origin_message_id == client.data["servers"][str(guild.id)]["roles"]["categories"][category]["message id"]:
+						if ctx.origin_message_id == \
+								client.data["servers"][str(guild.id)]["roles"]["categories"][category]["message id"]:
 							message_relevant = True
 							break
 
 					# Checks if the role ID is one of the server's roles
 					role_id_found = False
 					for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
-						if ctx.custom_id in client.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:
+						if ctx.custom_id in client.data["servers"][str(guild.id)]["roles"]["categories"][category][
+							"list"]:
 							role_id_found = True
 							break
 					if role_id_found is False:
@@ -1182,7 +1188,7 @@ if __name__ == "__main__":
 					# Checks if the role exists and is valid
 					role = guild.get_role(int(ctx.custom_id))
 					if role is None:
-						logger.debug("Could not get role with id: "+ctx.custom_id)
+						logger.debug("Could not get role with id: " + ctx.custom_id)
 						return
 
 					# Adds the role if the user doesn't have it
@@ -1212,7 +1218,8 @@ if __name__ == "__main__":
 					return
 
 				except Exception as exception:
-					logger.error("Failed to add role " + role.name + " to " + ctx.author.name + ". Exception: " + str(exception))  # Error: this may run even if the intention of the button press isn't to add a role
+					logger.error("Failed to add role " + role.name + " to " + ctx.author.name + ". Exception: " + str(
+						exception))  # Error: this may run even if the intention of the button press isn't to add a role
 				finally:
 					try:
 						verify_role = client.data["servers"][str(guild.id)]["roles"]["verify role"]
@@ -1223,11 +1230,9 @@ if __name__ == "__main__":
 					except KeyError:
 						logger.debug("No verification role found in " + guild.name)
 					except Exception as exception:
-						logger.error("Verification failed: "+exception)
+						logger.error("Verification failed: " + exception)
 					return
 
-
 		client.run(DISCORD_TOKEN)
-
 	except Exception as exception:
-		logger.error("Exception: " + exception + "\n")  # Event log
+		logger.error("Exception: " + str(exception) + "\n")  # Event log
