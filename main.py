@@ -25,7 +25,7 @@ from imaging import generate_level_card
 
 
 # Variables
-VERSION = "1.2.5"
+VERSION = "1.3.0"
 with open("config.json", encoding='utf-8') as file:
 	config = json.load(file)
 	DISCORD_TOKEN = config["token"]
@@ -730,16 +730,7 @@ class MyClient(discord.Client):
 				logger.info("`announcement` called by " + message.author.name)  # Event log
 				if len(message.content) > len(PREFIX + "announcement "):
 					argument = message.content[len(PREFIX + "announcement "):]
-					for guild in self.guilds:
-						announcement_sent = False
-						for channel in guild.text_channels:
-							if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
-								logger.debug("Sent announcement to " + guild.name + " in " + channel.name)  # Event log
-								announcement_sent = True
-								await channel.send("**Announcement** (testing)\n" + argument)
-								break
-						if announcement_sent is False:
-							logger.debug("Announcement channel not found in " + guild.name)  # Event log
+					await self.announce(argument)
 				else:
 					logger.error("No announcement argument supplied")  # Event log
 
