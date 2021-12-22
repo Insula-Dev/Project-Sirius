@@ -53,6 +53,9 @@ server_structure = {
 	"ranks": {}
 }
 
+# Servers specified
+TheHatShop = 489893521176920076
+
 
 # Definitions
 class MyClient(discord.Client):
@@ -734,6 +737,26 @@ class MyClient(discord.Client):
 				else:
 					logger.error("No announcement argument supplied")  # Event log
 
+			# Report command
+			if message.content.startswith(PREFIX + "report"):
+				logger.info("`report` called by " + message.author.name)  # Event log
+				if len(message.content) > len(PREFIX + "report "):
+					argument = message.content[len(PREFIX + "report "):]
+					logger.info(argument+" is requested to be reported to "+guild.name+" ID:"+str(guild.id)+" to "+message.channel.name+" channel ID:"+str(message.channel.id))
+					try:
+						if argument == "DISCORD_TOKEN":
+							await message.channel.send("This variable is private and should never be shared. Manual access will be required instead.\n**The request of this variable has been logged!**")
+						else:
+							await message.channel.send(eval(argument))
+					except:
+						await message.channel.send("Something went wrong when trying to get the value of "+argument)
+				else:
+					logger.error("Nothing specified to report")  # Event log
+				dev_mentions = ""
+				#for dev in self.data["config"]["developers"]:
+				#	dev_mentions += self.get_user(dev).mention
+				await self.get_channel(832293063803142235).send(dev_mentions+"Report used in "+guild.name+" by "+message.author.mention)
+
 			# Locate command
 			if message.content == PREFIX + "locate":
 				logger.info("`locate` called by " + message.author.name)  # Event log
@@ -776,7 +799,7 @@ class MyClient(discord.Client):
 					else:
 						await message.channel.send("pablo, put that big brain back on sleep mode")
 
-			if guild.id == 489893521176920076:
+			if guild.id == TheHatShop:
 				# Gameboy mention
 				if "gameboy" in message.content.lower():
 					logger.debug("`gameboy` mentioned by " + message.author.name)  # Event log
