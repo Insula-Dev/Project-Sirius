@@ -744,10 +744,13 @@ class MyClient(discord.Client):
 					argument = message.content[len(PREFIX + "report "):]
 					logger.info(argument+" is requested to be reported to "+guild.name+" ID:"+str(guild.id)+" to "+message.channel.name+" channel ID:"+str(message.channel.id))
 					try:
-						if argument == "DISCORD_TOKEN":
-							await message.channel.send("This variable is private and should never be shared. Manual access will be required instead.\n**The request of this variable has been logged!**")
+						if self.data["config"]["saftey"]:
+							logger.debug("Saftey protected against report command")
 						else:
-							await message.channel.send(eval(argument))
+							if argument == "DISCORD_TOKEN":
+								await message.channel.send("This variable is private and should never be shared. Manual access will be required instead.\n**The request of this variable has been logged!**")
+							else:
+								await message.channel.send(eval(argument))
 					except:
 						await message.channel.send("Something went wrong when trying to get the value of "+argument)
 				else:
@@ -756,6 +759,17 @@ class MyClient(discord.Client):
 				#for dev in self.data["config"]["developers"]:
 				#	dev_mentions += self.get_user(dev).mention
 				await self.get_channel(832293063803142235).send(dev_mentions+"Report used in "+guild.name+" by "+message.author.mention)
+
+			# Settings command
+			if message.content == PREFIX + "settings":
+				logger.info("`settings` called by " + message.author.name)  # Event log
+				await message.channel.send(content="**Settings**")
+				joke_button = create_button(style=ButtonStyle.blue, label="Jokes", emoji="😂",custom_id="settings:jokes")
+				components = [create_actionrow(*[joke_button])]
+				await message.channel.send(content="Jokes: "+str(self.data["config"]["jokes"]), components=components)
+				saftey_button = create_button(style=ButtonStyle.blue, label="Saftey", emoji="🦺",custom_id="settings:saftey")
+				components = [create_actionrow(*[saftey_button])]
+				await message.channel.send(content="Saftey: "+str(self.data["config"]["saftey"]), components=components)
 
 			# Locate command
 			if message.content == PREFIX + "locate":
@@ -1199,6 +1213,19 @@ if __name__ == "__main__":
 				else:
 					await ctx.send("You do not have permissions to press this button", hidden=True)
 					logger.info(ctx.author.name + " tried to purge messages")
+
+			if ctx.custom_id.startswith("settings"):
+				config = client.data["config"]
+				setting = ctx.custom_id[len("settings:"):]
+				logger.debug("Settings button pressed by "+ctx.author.name)
+				if ctx.author.id in config["developers"]:
+					config[setting] = not config[setting]
+					logger.info("Setting:"+setting+" changed to " + str(config[setting]))
+					client.update_data()
+					await ctx.edit_origin(content=setting[0].upper()+setting[1:]+": "+str(config[setting])) # Makes first character capital of setting and shows the new setting
+				else:
+					await ctx.send("You do not have permissions to press this button", hidden=True)
+					logger.info(ctx.author.name + " tried to change a setting")
 
 			# If the roles functionality is enabled. THIS IS FUCKING BROKEN PABLO. WHY ARE YOU RETURNING WHEN IT COULD NOT BE ROLES!!!
 			if "roles" in client.data["servers"][str(guild.id)]:
