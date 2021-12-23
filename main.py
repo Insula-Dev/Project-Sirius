@@ -15,7 +15,7 @@ import re  # Delete this later
 import requests
 from discord_slash import SlashCommand, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_permission, remove_all_commands
-from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle
+from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle, create_select, create_select_option
 from discord_slash.model import SlashCommandPermissionType
 
 import AI # Imports the AI library
@@ -743,6 +743,20 @@ class MyClient(discord.Client):
 					self.update_data()
 					await message.delete()
 
+			# Settings command
+			if message.content == PREFIX + "settings":
+				logger.info("`settings` called by " + message.author.name)  # Event log
+				await message.channel.send(content="**Settings**")
+				channel_options = []
+				for channel in guild.text_channels:
+					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
+						channel_options.append(create_select_option(label=channel.name,value=channel.id,default=True))
+					else:
+						channel_options.append(create_select_option(label=channel.name,value=channel.id))
+				announcement_channel_select = create_select(channel_options,custom_id="settings:announcemennt channel id")
+				components = [create_actionrow(*[announcement_channel_select])]
+				await message.channel.send(content="Announcement Channel:", components=components)
+
 		# If the message was sent by the developers
 		if message.author.id in self.data["config"]["developers"]:
 
@@ -778,14 +792,14 @@ class MyClient(discord.Client):
 				#	dev_mentions += self.get_user(dev).mention
 				await self.get_channel(832293063803142235).send(dev_mentions+"Report used in "+guild.name+" by "+message.author.mention)
 
-			# Settings command
-			if message.content == PREFIX + "settings":
-				logger.info("`settings` called by " + message.author.name)  # Event log
-				await message.channel.send(content="**Settings**")
-				joke_button = create_button(style=ButtonStyle.blue, label="Jokes", emoji="😂",custom_id="settings:jokes")
+			# Config command
+			if message.content == PREFIX + "config":
+				logger.info("`config` called by " + message.author.name)  # Event log
+				await message.channel.send(content="**Config**")
+				joke_button = create_button(style=ButtonStyle.blue, label="Jokes", emoji="😂",custom_id="config:jokes")
 				components = [create_actionrow(*[joke_button])]
 				await message.channel.send(content="Jokes: "+str(self.data["config"]["jokes"]), components=components)
-				saftey_button = create_button(style=ButtonStyle.blue, label="Saftey", emoji="🦺",custom_id="settings:saftey")
+				saftey_button = create_button(style=ButtonStyle.blue, label="Saftey", emoji="🦺",custom_id="config:saftey")
 				components = [create_actionrow(*[saftey_button])]
 				await message.channel.send(content="Saftey: "+str(self.data["config"]["saftey"]), components=components)
 
@@ -1199,9 +1213,9 @@ if __name__ == "__main__":
 		#       on_raw_reaction_add for details)
 		@client.event
 		async def on_component(ctx):
-			"""Runs on button press."""
+			"""Runs on component use."""
 
-			logger.debug("Button pressed by " + ctx.author.name)
+			logger.debug("Component used by " + ctx.author.name)
 
 			guild = ctx.origin_message.guild
 			if ctx.custom_id.startswith("confession"):
@@ -1233,17 +1247,28 @@ if __name__ == "__main__":
 					logger.info(ctx.author.name + " tried to purge messages")
 
 			if ctx.custom_id.startswith("settings"):
-				config = client.data["config"]
+				print(str(ctx.custom_id))
+				config = client.data["servers"][str(guild.id)]["config"]
 				setting = ctx.custom_id[len("settings:"):]
-				logger.debug("Settings button pressed by "+ctx.author.name)
+				logger.debug("Server setting of "+guild.name+" changed by "+ctx.author.name)
+				if ctx.author.guild_permissions.administrator:
+					print(ctx.component.value)
+					config[setting] = ctx.component[0].value
+					print(config)
+					await ctx.edit_origin(content=setting[0].upper()+setting[1:]+": "+str(config[setting])) # Makes first character capital of setting and shows the new setting
+
+			if ctx.custom_id.startswith("config"):
+				config = client.data["config"]
+				setting = ctx.custom_id[len("config:"):]
+				logger.debug("Config button pressed by "+ctx.author.name)
 				if ctx.author.id in config["developers"]:
 					config[setting] = not config[setting]
-					logger.info("Setting:"+setting+" changed to " + str(config[setting]))
+					logger.info("Config:"+setting+" changed to " + str(config[setting]))
 					client.update_data()
 					await ctx.edit_origin(content=setting[0].upper()+setting[1:]+": "+str(config[setting])) # Makes first character capital of setting and shows the new setting
 				else:
 					await ctx.send("You do not have permissions to press this button", hidden=True)
-					logger.info(ctx.author.name + " tried to change a setting")
+					logger.info(ctx.author.name + " tried to change config")
 
 			# If the roles functionality is enabled. THIS IS FUCKING BROKEN PABLO. WHY ARE YOU RETURNING WHEN IT COULD NOT BE ROLES!!!
 			if "roles" in client.data["servers"][str(guild.id)]:
