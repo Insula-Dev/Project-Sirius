@@ -711,10 +711,12 @@ class MyClient(discord.Client):
 						button = (create_button(style=ButtonStyle.red, label="remove", custom_id="confession"+confession))
 						components = [create_actionrow(*[button])]
 						await message.channel.send(embed=confession_embed,components=components)
+					if len(client.data["servers"][str(guild.id)]["confessions"]["messages"]) == 0:
+						await message.channel.send("No confessions un-posted")
 
 			# Print confessions command
-			if message.content == PREFIX + "print confessions":
-				logger.info("`print confessions` called by " + message.author.name)  # Event log
+			if message.content == PREFIX + "post confessions":
+				logger.info("`post confessions` called by " + message.author.name)  # Event log
 				if "confessions" in self.data["servers"][str(guild.id)]:
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
 						confession_embed = discord.Embed(title="Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=0xF0CCA7)
