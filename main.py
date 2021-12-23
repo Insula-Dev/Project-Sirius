@@ -528,7 +528,9 @@ class MyClient(discord.Client):
 
 					members = {}
 					channel_statistics = [''] * (len(guild.text_channels))
+					total_messages = 0
 
+					# Channel statistics info gathered
 					channel_count = 0
 					for channel in guild.text_channels:
 						channel_count += 1
@@ -540,11 +542,13 @@ class MyClient(discord.Client):
 									members[message_sent.author] = 1
 								else:
 									members[message_sent.author] += 1
+						total_messages += message_count
 						if csv:
 							channel_statistics[channel_count//10] += channel.name + "," + str(message_count) + "\n"
 						else:
 							channel_statistics[channel_count//10] += channel.mention + ": " + str(message_count) + "\n"
 
+					# Member statistics gathered from the data obtained when processing channel statistics
 					member_statistics = [''] * (len(members))
 					member_count = 0
 					for member in members:
@@ -570,7 +574,18 @@ class MyClient(discord.Client):
 							csv.write(str(member_string))
 						await message.channel.send(file=discord.File("member_statistics.csv",filename=guild.name+" member_statistics.csv"))
 					else:
-						# Create and send statistics embed
+						# Create and send general statistics embed
+						embed_general = discord.Embed(title="📈 General Statistics for " + guild.name, colour=0xffc000)
+						embed_general.add_field(name="Total Members", value=len([m for m in guild.members if not m.bot]))
+						embed_general.add_field(name="Total Bots", value=len([m for m in guild.members if m.bot]))
+						embed_general.add_field(name="Total Channels", value=len(guild.text_channels))
+						birth = guild.created_at
+						embed_general.add_field(name="Server Birth", value=str(birth.day)+"."+str(birth.month)+"."+str(birth.year))
+						embed_general.add_field(name="Total Messages", value=total_messages)
+						embed_general.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"),icon_url=guild.icon_url)
+						await message.channel.send(embed=embed_general)
+
+						# Create and send channel statistics embed
 						embed_channel = discord.Embed(title="📈 Channel Statistics for " + guild.name, colour=0xffc000)
 						for x in range(len(channel_statistics)//10+1):
 							#print("------\nChannels in set:\n"+str(channel_statistics[x]))
@@ -579,6 +594,7 @@ class MyClient(discord.Client):
 							embed_channel.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
 						await message.channel.send(embed=embed_channel)
 
+						# Create and send members statistics embed
 						embed_member = discord.Embed(title="📈 Member Statistics for " + guild.name, colour=0xffc000)
 						for x in range(len(member_statistics)//10+1):
 							logger.debug("Member:" + str(member_statistics[x]))
