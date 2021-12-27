@@ -17,6 +17,7 @@ from discord_slash import SlashCommand, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_permission, remove_all_commands
 from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle, create_select, create_select_option
 from discord_slash.model import SlashCommandPermissionType
+from discord_components import DiscordComponents, Select, ButtonStyle, Interaction, ActionRow, SelectOption
 
 import AI # Imports the AI library
 from clear_slash_commands import clearCommands
@@ -750,12 +751,12 @@ class MyClient(discord.Client):
 				channel_options = []
 				for channel in guild.text_channels:
 					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
-						channel_options.append(create_select_option(label=channel.name,value=channel.id,default=True))
+						channel_options.append(SelectOption(label=channel.name,value=channel.id,default=True))
 					else:
-						channel_options.append(create_select_option(label=channel.name,value=channel.id))
-				announcement_channel_select = create_select(channel_options,custom_id="settings:announcemennt channel id")
-				components = [create_actionrow(*[announcement_channel_select])]
-				await message.channel.send(content="Announcement Channel:", components=components)
+						channel_options.append(SelectOption(label=channel.name,value=channel.id))
+				announcement_channel_select = Select(options=channel_options,custom_id="settings:announcements channel id",min_values=1,max_values=1)
+				#components = [create_actionrow(*[announcement_channel_select])]
+				await message.channel.send(content="Announcement Channel:", components=[announcement_channel_select])
 
 		# If the message was sent by the developers
 		if message.author.id in self.data["config"]["developers"]:
@@ -1225,16 +1226,12 @@ if __name__ == "__main__":
 					if ctx.author.guild_permissions.administrator:
 						logger.debug("Checking confessions about button press")
 						if id in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
-							del client.data["servers"][str(guild.id)]["confessions"]["messages"][
-								id]  # Removes the confession
-							logger.info(
-								"Confession No." + id + " removed from guild " + guild.name + " by " + ctx.author.name)
+							del client.data["servers"][str(guild.id)]["confessions"]["messages"][id]  # Removes the confession
+							logger.info("Confession No." + id + " removed from guild " + guild.name + " by " + ctx.author.name)
 							client.update_data()
-							await ctx.edit_origin(
-								content="**This message has been removed by " + ctx.author.name + "**")
+							await ctx.edit_origin(content="**This message has been removed by " + ctx.author.name + "**")
 					else:
-						await ctx.edit_origin(
-							content="**" + ctx.author.name + " **tried to remove this message without permissions!")
+						await ctx.edit_origin(content="**" + ctx.author.name + " **tried to remove this message without permissions!")
 
 			if ctx.custom_id.startswith("purge"):
 				if ctx.author.guild_permissions.administrator:
@@ -1247,15 +1244,16 @@ if __name__ == "__main__":
 					logger.info(ctx.author.name + " tried to purge messages")
 
 			if ctx.custom_id.startswith("settings"):
-				print(str(ctx.custom_id))
 				config = client.data["servers"][str(guild.id)]["config"]
 				setting = ctx.custom_id[len("settings:"):]
 				logger.debug("Server setting of "+guild.name+" changed by "+ctx.author.name)
 				if ctx.author.guild_permissions.administrator:
-					print(ctx.component.value)
-					config[setting] = ctx.component[0].value
+					print(ctx.values[0])
+					config[setting] = int(ctx.values[0])
 					print(config)
 					await ctx.edit_origin(content=setting[0].upper()+setting[1:]+": "+str(config[setting])) # Makes first character capital of setting and shows the new setting
+					client.data["servers"][str(guild.id)]["config"] = config
+					client.update_data()
 
 			if ctx.custom_id.startswith("config"):
 				config = client.data["config"]
