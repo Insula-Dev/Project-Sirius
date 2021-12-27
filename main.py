@@ -71,7 +71,7 @@ class MyClient(discord.Client):
 		self.cache = {}
 		self.poll = {}
 		self.purge_messages = {}
-		self.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain of purple Gods")
+		self.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain")
 
 		# Print logs to the console too, for debugging
 		if debug is True:
@@ -774,14 +774,15 @@ class MyClient(discord.Client):
 				logger.info("`report` called by " + message.author.name)  # Event log
 				if len(message.content) > len(PREFIX + "report "):
 					argument = message.content[len(PREFIX + "report "):]
-					logger.info(argument+" is requested to be reported to "+guild.name+" ID:"+str(guild.id)+" to "+message.channel.name+" channel ID:"+str(message.channel.id))
 					try:
 						if self.data["config"]["saftey"]:
 							logger.debug("Saftey protected against report command")
 						else:
-							if argument == "DISCORD_TOKEN":
+							if argument == "DISCORD_TOKEN" or argument == "config":
+								logger.info("SUCCESSFUL: "+argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
 								await message.channel.send("This variable is private and should never be shared. Manual access will be required instead.\n**The request of this variable has been logged!**")
 							else:
+								logger.info("BLOCKED: "+argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
 								await message.channel.send(eval(argument))
 					except:
 						await message.channel.send("Something went wrong when trying to get the value of "+argument)
@@ -1251,6 +1252,7 @@ if __name__ == "__main__":
 					await ctx.edit_origin(content=setting[0].upper()+setting[1:]+": "+str(config[setting])) # Makes first character capital of setting and shows the new setting
 					client.data["servers"][str(guild.id)]["config"] = config
 					client.update_data()
+					return
 
 			if ctx.custom_id.startswith("config"):
 				config = client.data["config"]
@@ -1264,6 +1266,7 @@ if __name__ == "__main__":
 				else:
 					await ctx.send("You do not have permissions to press this button", hidden=True)
 					logger.info(ctx.author.name + " tried to change config")
+					return
 
 			# If the roles functionality is enabled. THIS IS FUCKING BROKEN PABLO. WHY ARE YOU RETURNING WHEN IT COULD NOT BE ROLES!!!
 			if "roles" in client.data["servers"][str(guild.id)]:
