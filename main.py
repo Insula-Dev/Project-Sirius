@@ -17,7 +17,6 @@ from discord_slash import SlashCommand, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_permission, remove_all_commands
 from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle, create_select, create_select_option
 from discord_slash.model import SlashCommandPermissionType
-from discord_components import DiscordComponents, Select, ButtonStyle, Interaction, ActionRow, SelectOption
 
 import AI # Imports the AI library
 from clear_slash_commands import clearCommands
@@ -751,12 +750,12 @@ class MyClient(discord.Client):
 				channel_options = []
 				for channel in guild.text_channels:
 					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
-						channel_options.append(SelectOption(label=channel.name,value=channel.id,default=True))
+						channel_options.append(create_select_option(label=channel.name, value=channel.id, default=True))
 					else:
-						channel_options.append(SelectOption(label=channel.name,value=channel.id))
-				announcement_channel_select = Select(options=channel_options,custom_id="settings:announcements channel id",min_values=1,max_values=1)
-				#components = [create_actionrow(*[announcement_channel_select])]
-				await message.channel.send(content="Announcement Channel:", components=[announcement_channel_select])
+						channel_options.append(create_select_option(label=channel.name, value=channel.id))
+				announcement_channel_select = create_select(channel_options,custom_id="settings:announcements channel id")
+				components = [create_actionrow(*[announcement_channel_select])]
+				await message.channel.send(content="Announcement Channel:", components=components)
 
 		# If the message was sent by the developers
 		if message.author.id in self.data["config"]["developers"]:
