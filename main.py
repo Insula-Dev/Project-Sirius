@@ -1245,11 +1245,9 @@ if __name__ == "__main__":
 			if ctx.custom_id.startswith("settings"):
 				config = client.data["servers"][str(guild.id)]["config"]
 				setting = ctx.custom_id[len("settings:"):]
-				logger.debug("Server setting of "+guild.name+" changed by "+ctx.author.name)
+				logger.debug("Server setting '"+setting+"' of '"+guild.name+"' changed by "+ctx.author.name)
 				if ctx.author.guild_permissions.administrator:
-					print(ctx.values[0])
 					config[setting] = int(ctx.values[0])
-					print(config)
 					await ctx.edit_origin(content=setting[0].upper()+setting[1:]+": "+str(config[setting])) # Makes first character capital of setting and shows the new setting
 					client.data["servers"][str(guild.id)]["config"] = config
 					client.update_data()
