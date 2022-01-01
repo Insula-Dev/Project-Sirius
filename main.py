@@ -13,10 +13,10 @@ import re  # Delete this later
 
 # Local imports
 import requests
-from discord_slash import SlashCommand, SlashContext
+from discord_slash import SlashCommand, SlashContext, MenuContext
 from discord_slash.utils.manage_commands import create_option, create_permission, remove_all_commands
 from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle, create_select, create_select_option
-from discord_slash.model import SlashCommandPermissionType
+from discord_slash.model import SlashCommandPermissionType, ContextMenuType
 
 import AI # Imports the AI library
 from clear_slash_commands import clearCommands
@@ -25,7 +25,7 @@ from imaging import generate_level_card
 
 
 # Variables
-VERSION = "1.3.0"
+VERSION = "1.3.0 InDeepDev"
 with open("config.json", encoding='utf-8') as file:
 	config = json.load(file)
 	DISCORD_TOKEN = config["token"]
@@ -170,8 +170,6 @@ class MyClient(discord.Client):
 		embed_results.add_field(name="Candidates", value="\n".join(options), inline=True)
 		embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
 		if poll["config"]["winner"] == "highest": # Winner is shown as the highest scoring candidate
-
-
 			embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)] + " Score: " + str(highest_count)), inline=False)
 
 		await message.channel.send(embed=embed_results)
@@ -675,6 +673,7 @@ class MyClient(discord.Client):
 
 				# Config
 				winner = "highest"
+				anonymous = False
 
 				# Analyse argument
 				for argument in arguments:
@@ -687,6 +686,9 @@ class MyClient(discord.Client):
 						colour = int(argument[1][-6:],16) # Takes last 6 digits and converts to hex for colour
 					elif argument[0] == "winner":
 						winner = argument[1]
+					elif argument[0] == "anonymous" or argument[0] == "anon":
+						if argument[1].lower() == "true":
+							anonymous = True
 					else:
 						emoji = argument[1].rstrip()
 						if not(emoji in candidates):
@@ -698,24 +700,41 @@ class MyClient(discord.Client):
 
 				# Create and send poll embed
 				embed_poll = discord.Embed(title=title, description=candidates_string, colour=colour)
-				poll_message = await message.channel.send(embed=embed_poll)
+				if anonymous: # Makes embed with buttons for anonymous voting
+					# Adds buttons
+					buttons = []
+					for candidate in candidates:
+						buttons.append(create_button(style=ButtonStyle.blue,label=candidates[candidate],emoji=candidate,custom_id="poll:"+candidate))
+					components = [create_actionrow(*buttons)]
+					poll_message = await message.channel.send(embed=embed_poll, components=components)
+
+					# Setup candidates dict for recording votes so people can't vote multiple times
+					for candidate in candidates:
+						candidates[candidate] = {"name":candidates[candidate],"voters":[]}
+
+				else: # Makes embed with reactions for open voting
+					poll_message = await message.channel.send(embed=embed_poll)
+					# Adds reactions
+					for candidate in candidates:
+						# print("Candidate: " + str(candidate))
+						try:
+							await poll_message.add_reaction(candidate)
+						except discord.errors.HTTPException:
+							await poll_message.channel.send("Pleas format as \"option\" = emoji")
+							await poll_message.delete()
 
 				self.poll[str(message.guild.id)].update({str(poll_message.id): {
 					"title": title,
 					"options": candidates,
 					"config":
 						{
-							"winner": winner
+							"winner": winner,
+							"anonymous": anonymous
 						}
 				}
 				})
 
 				logger.debug(self.poll[str(message.guild.id)])
-
-				# Add reactions to the poll embed
-				for candidate in candidates:
-					# print("Candidate: " + str(candidate))
-					await poll_message.add_reaction(candidate)
 
 			# Review confessions command
 			if message.content == PREFIX + "review confessions":
@@ -724,7 +743,7 @@ class MyClient(discord.Client):
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
 						confession_embed = discord.Embed(title="Review Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=0xFF0A00)
 						confession_embed.set_footer(text="This message is here to be reviewed. Please say if the content is inappropriate!", icon_url=guild.icon_url)
-						button = (create_button(style=ButtonStyle.red, label="remove", custom_id="confession"+confession))
+						button = (create_button(style=ButtonStyle.red, label="remove", custom_id="confession:"+confession))
 						components = [create_actionrow(*[button])]
 						await message.channel.send(embed=confession_embed,components=components)
 					if len(client.data["servers"][str(guild.id)]["confessions"]["messages"]) == 0:
@@ -937,9 +956,10 @@ class MyClient(discord.Client):
 			try:
 				for message in self.poll[str(guild.id)]:
 					if str(payload.message_id) == message:
-						reaction_usage = "polls"
-						logger.debug("Poll message reacted to")
-						break
+						if not self.poll[str(guild.id)]["config"]["anonymous"]: # Anonymous messages don't use reactions
+							reaction_usage = "polls"
+							logger.debug("Poll message reacted to")
+							break
 			except KeyError:
 				pass
 
@@ -1207,6 +1227,36 @@ if __name__ == "__main__":
 				await ctx.send("You do not have permissions to run this command", hidden=True)
 
 
+		@slash.context_menu(target=ContextMenuType.MESSAGE,
+							name="_close_poll",
+							guild_ids=guild_ids)
+		async def _close_poll(ctx: MenuContext):
+			print("Here")
+			if ctx.message.id in client.poll[str(ctx.message.guild.id)]:
+				poll = client.poll[str(ctx.guild.id)][str(ctx.message.id)]
+				options = poll["options"]
+				counts = [len(options[candidate]["voters"]) for candidate in options]
+				print(counts)
+				highest_emoji = ""
+				highest_count = 0
+				for candidate in options:
+					count = len(options[candidate]["voters"])
+					if count > highest_count:
+						highest_count = count
+						highest_emoji = candidate
+
+				title = str(poll["title"])
+				if title == "Embed.Empty":
+					title = ""
+				embed_results = discord.Embed(title=title + " Results")
+				embed_results.add_field(name="Candidates", value="\n".join(options), inline=True)
+				embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
+				if poll["config"]["winner"] == "highest":  # Winner is shown as the highest scoring candidate
+					embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)] + " Score: " + str(highest_count)), inline=False)
+				await ctx.send(content="Poll will now close",hidden=True)
+			else:
+				await ctx.send(content="This is not a poll",hidden=True)
+
 		# Buttons...
 		# The following must be tested:
 		#     - Bots cannot press buttons
@@ -1219,8 +1269,24 @@ if __name__ == "__main__":
 			logger.debug("Component used by " + ctx.author.name)
 
 			guild = ctx.origin_message.guild
-			if ctx.custom_id.startswith("confession"):
-				id = ctx.custom_id[len("confession"):]
+
+			if ctx.custom_id.startswith("poll"):
+				logger.debug("An anonymous user has voted on a poll")
+				candidate = ctx.custom_id[len("poll:"):]
+				print(candidate)
+				print(client.poll[str(guild.id)])
+				poll = client.poll[str(guild.id)][str(ctx.origin_message.id)]
+				print(poll)
+				if ctx.author.id in poll["options"][candidate]["voters"]: # If user has already voted for this option
+					poll["options"][candidate]["voters"].remove(ctx.author.id)
+					await ctx.send(content="You just removed your vote for "+candidate,hidden=True)
+				else:
+					poll["options"][candidate]["voters"].append(ctx.author.id)
+					await ctx.send(content="You just voted for " + candidate,hidden=True)
+
+
+			elif ctx.custom_id.startswith("confession"):
+				id = ctx.custom_id[len("confession:"):]
 				# Placeholder for other buttons functionality. Do not remove without consulting Pablo's forboding psionic foresight
 				if "confessions" in client.data["servers"][str(guild.id)]:
 					if ctx.author.guild_permissions.administrator:
@@ -1233,7 +1299,7 @@ if __name__ == "__main__":
 					else:
 						await ctx.edit_origin(content="**" + ctx.author.name + " **tried to remove this message without permissions!")
 
-			if ctx.custom_id.startswith("purge"):
+			elif ctx.custom_id.startswith("purge"):
 				if ctx.author.guild_permissions.administrator:
 					count = int(ctx.custom_id[len("purge:"):])
 					await ctx.channel.purge(limit=count)
@@ -1243,7 +1309,7 @@ if __name__ == "__main__":
 					await ctx.send("You do not have permissions to press this button", hidden=True)
 					logger.info(ctx.author.name + " tried to purge messages")
 
-			if ctx.custom_id.startswith("settings"):
+			elif ctx.custom_id.startswith("settings"):
 				config = client.data["servers"][str(guild.id)]["config"]
 				setting = ctx.custom_id[len("settings:"):]
 				logger.debug("Server setting '"+setting+"' of '"+guild.name+"' changed by "+ctx.author.name)
@@ -1254,7 +1320,7 @@ if __name__ == "__main__":
 					client.update_data()
 					return
 
-			if ctx.custom_id.startswith("config"):
+			elif ctx.custom_id.startswith("config"):
 				config = client.data["config"]
 				setting = ctx.custom_id[len("config:"):]
 				logger.debug("Config button pressed by "+ctx.author.name)
@@ -1269,7 +1335,7 @@ if __name__ == "__main__":
 					return
 
 			# If the roles functionality is enabled. THIS IS FUCKING BROKEN PABLO. WHY ARE YOU RETURNING WHEN IT COULD NOT BE ROLES!!!
-			if "roles" in client.data["servers"][str(guild.id)]:
+			elif "roles" in client.data["servers"][str(guild.id)]:
 				try:
 
 					# Checks if the message is one of the server's roles messages
