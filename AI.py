@@ -27,31 +27,23 @@ def question(question):
 				   "You've got to beleive in yourself man!",
 				   "google.com\n*(other search engines are available)*"]
 	elif question.lower().startswith("where"):
+		answers = ["To your left",
+				   "To your right",
+				   "It's behind you!",
+				   "Well, where do you think it is?\nIt's not there. It's always the same.\nLost in a forest\nagain",
+				   "Where its always been. Inside of you!",
+				   "Where you last left it",
+				   "Well you know where you saw it last? Yeah neither do I lmao",
+				   "Where you'd least expect it",
+				   "Have you tried looking in your pockets? You might have left it there.",
+				   "Isn't it on your head? If not, I don't know what that is. Might want to see a doctor about it, doesn't look good 😬"]
+
 		if "leave" in question.lower():
-			answers = ["To your left",
-					   "To your right",
-					   "It's behind you!",
-					   "Well, where do you think it is?\nIt's not there. It's always the same.\nLost in a forest\nagain",
-					   "Where its always been. Inside of you!",
-					   "Where you last left it",
-					   "Well you know where you saw it last? Yeah neither do I lmao",
-					   "Where you'd least expect it",
-					   "Have you tried looking in your pockets? You might have left it there.",
-					   "Isn't it on your head? If not, I don't know what that is. Might want to see a doctor about it, doesn't look good 😬"]
+			pass
 		else:
-			answers = ["To your left",
-					   "To your right",
-					   "It's behind you!",
-					   "Well, where do you think it is?\nIt's not there. It's always the same.\nLost in a forest\nagain",
-					   "Where its always been. Inside of you!",
-					   "It's coming over the hill.\nOh no, that's a monster!",
-					   "Where you last left it",
-					   "Well you know where you saw it last? Yeah neither do I lmao",
+			answers + ["It's coming over the hill.\nOh no, that's a monster!",
 					   "Through the door, second turn on the left, then down the stairs, over the rainbow and there you will find the pot of gold.\n\nHold on. What did you ask again?",
-					   "Second door on the right",
-					   "Where you'd least expect it",
-					   "Have you tried looking in your pockets? You might have left it there.",
-					   "Isn't it on your head? If not, I don't know what that is. Might want to see a doctor about it, doesn't look good 😬"]
+					   "Second door on the right"]
 	else:
 		answers = ["Yessity yes",
 				   "Nopity nope",
