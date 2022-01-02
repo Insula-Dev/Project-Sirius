@@ -25,7 +25,7 @@ from imaging import generate_level_card
 
 
 # Variables
-VERSION = "1.3.0 InDeepDev"
+VERSION = "1.3.0 InDev"
 with open("config.json", encoding='utf-8') as file:
 	config = json.load(file)
 	DISCORD_TOKEN = config["token"]
@@ -734,7 +734,7 @@ class MyClient(discord.Client):
 				}
 				})
 
-				logger.debug(self.poll[str(message.guild.id)])
+				logger.debug(f"New poll:{self.poll[str(message.guild.id)]}")
 
 			# Review confessions command
 			if message.content == PREFIX + "review confessions":
@@ -1198,7 +1198,10 @@ if __name__ == "__main__":
 			logger.debug("`/anonymous` called by " + ctx.author.name)
 
 			try:
-				await ctx.send(content="**Anonymous**: *"+message+"*")
+				# TODO
+				# Do checks for unwanted terms here
+				await ctx.send(content="Your message will be sent anonymously",hidden=True)
+				await ctx.channel.send(content="**Anonymous**: *"+message+"*")
 
 			except Exception as exception:
 				logger.error("Failed to run /anonymous message in " + ctx.guild.name + " (" + str(
@@ -1228,19 +1231,18 @@ if __name__ == "__main__":
 
 
 		@slash.context_menu(target=ContextMenuType.MESSAGE,
-							name="_close_poll",
+							name="Close Poll",
 							guild_ids=guild_ids)
 		async def _close_poll(ctx: MenuContext):
-			print("Here")
-			if ctx.message.id in client.poll[str(ctx.message.guild.id)]:
-				poll = client.poll[str(ctx.guild.id)][str(ctx.message.id)]
+			if str(ctx.target_id) in client.poll[str(ctx.target_message.guild.id)]:
+				poll = client.poll[str(ctx.guild.id)][str(ctx.target_id)]
 				options = poll["options"]
-				counts = [len(options[candidate]["voters"]) for candidate in options]
-				print(counts)
+				counts = []
 				highest_emoji = ""
 				highest_count = 0
 				for candidate in options:
 					count = len(options[candidate]["voters"])
+					counts.append(str(count))
 					if count > highest_count:
 						highest_count = count
 						highest_emoji = candidate
@@ -1252,8 +1254,10 @@ if __name__ == "__main__":
 				embed_results.add_field(name="Candidates", value="\n".join(options), inline=True)
 				embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
 				if poll["config"]["winner"] == "highest":  # Winner is shown as the highest scoring candidate
-					embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)] + " Score: " + str(highest_count)), inline=False)
-				await ctx.send(content="Poll will now close",hidden=True)
+					embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)]["name"] + " Score: " + str(highest_count)), inline=False)
+				await ctx.target_message.delete() # Deletes the poll message
+				client.poll[str(ctx.guild.id)].pop(str(ctx.target_id)) # Removes poll entry from dictionary
+				await ctx.send(embeds=[embed_results],hidden=True) # Sends the results embed
 			else:
 				await ctx.send(content="This is not a poll",hidden=True)
 
@@ -1273,10 +1277,7 @@ if __name__ == "__main__":
 			if ctx.custom_id.startswith("poll"):
 				logger.debug("An anonymous user has voted on a poll")
 				candidate = ctx.custom_id[len("poll:"):]
-				print(candidate)
-				print(client.poll[str(guild.id)])
 				poll = client.poll[str(guild.id)][str(ctx.origin_message.id)]
-				print(poll)
 				if ctx.author.id in poll["options"][candidate]["voters"]: # If user has already voted for this option
 					poll["options"][candidate]["voters"].remove(ctx.author.id)
 					await ctx.send(content="You just removed your vote for "+candidate,hidden=True)
