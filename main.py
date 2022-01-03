@@ -19,6 +19,7 @@ from discord_slash.utils.manage_components import create_button, create_actionro
 from discord_slash.model import SlashCommandPermissionType, ContextMenuType
 
 import AI # Imports the AI library
+import log_handling
 from clear_slash_commands import clearCommands
 from log_handling import *
 from imaging import generate_level_card
@@ -389,15 +390,22 @@ class MyClient(discord.Client):
 
 			# Create and send the help embed
 			embed_help = discord.Embed(title="🤔 Need help?", description="Here's a list of " + self.user.name + "'s commands!", colour=0xffc000)
-			embed_help.add_field(name=str(PREFIX + "level"), value="Creates your level card, showing your current level and progress to the next level.")
-			embed_help.add_field(name=str(PREFIX + "embed"), value="Creates an embed. Arguments: title=,description=,colour=[hex code],[name of field]= or just write and it'll be put in the description by deafult")
-			embed_help.add_field(name=str(PREFIX + "poll"), value="Creates a poll embed. Arguments: title=,colour=[hex code],[name of candidate]=[emoji]. All paramaters are optional. Admins react with 🔚 (end) to end poll)")
-			embed_help.add_field(name=str(PREFIX + "help"), value="Creates the bot's help embed, listing the bot's commands.")
-			embed_help.add_field(name=str(PREFIX + "rules"), value="Creates the server's rules embed.\nAdmin only feature.")
-			embed_help.add_field(name=str(PREFIX + "roles"), value="Creates the server's roles embed.\nAdmin only feature.")
-			embed_help.add_field(name=str(PREFIX + "stats"), value="Creates the server's stats embed.\nAdmin only feature.")
-			embed_help.add_field(name=str(PREFIX + "locate"), value="Locates the instance of " + self.user.name + ".\nDev only feature.")
-			embed_help.add_field(name=str(PREFIX + "kill"), value="Ends the instance of " + self.user.name + ".\nDev only feature.")
+			embed_help.add_field(name=str(PREFIX + "__level__"), value="Creates your level card, showing your current level and progress to the next level.")
+			embed_help.add_field(name=str(PREFIX + "__embed__"), value="Creates an embed. Arguments: title=,description=,colour=[hex code],[name of field]=[string (Do not include commas or =)] (or just write and it'll be put in the description by deafult)")
+			embed_help.add_field(name=str(PREFIX + "__poll__"), value="Creates a poll embed. Arguments: title=, colour=[hex code], anonymous(anon)=[true/false], [name of candidate]=[emoji]. All paramaters are optional. Admins react with 🔚 (end) to end poll) or right click>Apps>Close poll for anon poll")
+			embed_help.add_field(name=str(PREFIX + "__help__"), value="Creates the bot's help embed, listing the bot's commands.")
+			embed_help.add_field(name=str(PREFIX + "__rules__"), value="Creates the server's rules embed.\n**Admin only feature.**")
+			embed_help.add_field(name=str(PREFIX + "__roles__"), value="Creates the server's roles embed.\n**Admin only feature.**")
+			embed_help.add_field(name=str(PREFIX + "__stats__"), value="Creates the server's stats embed by default. Can send csv file instead.Argument: csv=[true/false] (Optional. False by default)\n**Admin only feature.**")
+			embed_help.add_field(name=str(PREFIX + "__purge__"), value="Deletes last x amount of messages. Argument: number of messages. **Consider using the slash command instead!**\n**Admin only feature.**")
+			embed_help.add_field(name=str(PREFIX + "__anonymous__"), value="Creates the server's stats embed.\n**Admin only feature.**")
+			embed_help.add_field(name=str(PREFIX + "__review confessions__"), value="Shows all unposted confessions in the channel the is sent in. Each confession has a button to remove it from " + self.user.name + "'s data.\n**Admin only feature.**")
+			embed_help.add_field(name=str(PREFIX + "__post confessions__"), value="Posts all unposted confessions in the channel the command is sent in.\n**Admin only feature.**")
+			embed_help.add_field(name=str(PREFIX + "__settings__"), value="Brings up server settings page\n**Admin only feature.**")
+			embed_help.add_field(name=str(PREFIX + "__config__"), value="Brings up " + self.user.name + " configuration page.\n**Dev only feature.**")
+			embed_help.add_field(name=str(PREFIX + "__report__"), value="Reports the value of the variable(s) given. Argument: [name of almost any variable]\n**Dev only feature. Saftey off to use.**")
+			embed_help.add_field(name=str(PREFIX + "__locate__"), value="Locates the instance of " + self.user.name + ".\n**Dev only feature.**")
+			embed_help.add_field(name=str(PREFIX + "__kill__"), value="Ends the instance of " + self.user.name + ".\n**Dev only feature.**")
 			await message.channel.send(embed=embed_help)
 
 		# If the message was sent by the admins
@@ -797,17 +805,21 @@ class MyClient(discord.Client):
 						if self.data["config"]["saftey"]:
 							logger.debug("Saftey protected against report command")
 						else:
-							if "token" in argument.lower() or "config" in argument or argument == "self.run()" or "vars(" in argument or "help" in argument:
-								logger.info("BLOCKED: "+argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
+							# Searches for illegal terms in query to stop exposing sensitive data or crashing the bot
+							illegal = ["token","config","self.run","vars","help"]
+							for term in illegal:
+								if term in argument.lower():
+									logger.info("ILLEGAL QUERY: " + argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
+									await message.channel.send("aThis variable is private and should never be shared. Manual access will be required instead.\n**The request of this variable has been logged!**")
+									return
+
+							logger.info("LEGAL QUERY: "+argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
+							answer = str(eval(argument))
+							if "token" in answer.lower():
+								logger.info("ILLEGAL ANSWER: " + argument + " is requested with an illegal answer to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
 								await message.channel.send("This variable is private and should never be shared. Manual access will be required instead.\n**The request of this variable has been logged!**")
 							else:
-								logger.info("SUCCESSFUL: "+argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
-								answer =  str(eval(argument))
-								if "token" in answer.lower():
-									logger.info("BLOCKED: " + argument + " is requested with an illegal answer to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
-									await message.channel.send("This variable is private and should never be shared. Manual access will be required instead.\n**The request of this variable has been logged!**")
-								else:
-									await message.channel.send(answer)
+								await message.channel.send(answer)
 					except Exception as e:
 						await message.channel.send("Something went wrong when trying to get the value of "+argument)
 						# TODO make this have a saftey level
