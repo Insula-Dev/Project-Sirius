@@ -797,14 +797,21 @@ class MyClient(discord.Client):
 						if self.data["config"]["saftey"]:
 							logger.debug("Saftey protected against report command")
 						else:
-							if argument == "DISCORD_TOKEN" or argument == "config":
-								logger.info("SUCCESSFUL: "+argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
+							if "token" in argument.lower() or "config" in argument or argument == "self.run()" or "vars(" in argument or "help" in argument:
+								logger.info("BLOCKED: "+argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
 								await message.channel.send("This variable is private and should never be shared. Manual access will be required instead.\n**The request of this variable has been logged!**")
 							else:
-								logger.info("BLOCKED: "+argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
-								await message.channel.send(eval(argument))
-					except:
+								logger.info("SUCCESSFUL: "+argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
+								answer =  str(eval(argument))
+								if "token" in answer.lower():
+									logger.info("BLOCKED: " + argument + " is requested with an illegal answer to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
+									await message.channel.send("This variable is private and should never be shared. Manual access will be required instead.\n**The request of this variable has been logged!**")
+								else:
+									await message.channel.send(answer)
+					except Exception as e:
 						await message.channel.send("Something went wrong when trying to get the value of "+argument)
+						# TODO make this have a saftey level
+						await message.channel.send(e)
 				else:
 					logger.error("Nothing specified to report")  # Event log
 				dev_mentions = ""
