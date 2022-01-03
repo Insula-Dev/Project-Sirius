@@ -1,5 +1,5 @@
 import time
-a = ["token","config","self.run","vars","help"]
+a = ["token","config","self.run","vars","help",""]
 b = "DISCORD_TOKEN"
 print("token" in "DISCORD_TOKEN".lower())
 illegal = ["token","config","self.run","vars","help"]
