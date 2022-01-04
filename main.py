@@ -279,14 +279,15 @@ class MyClient(discord.Client):
 		guild = self.get_guild(message.guild.id)
 
 		# Update the user's experience
-		if (message.author.id not in self.cache[str(guild.id)]) or ((datetime.now() - self.cache[str(guild.id)][message.author.id]).seconds // 3600 > 0):  # This is the longest like of code I've ever seen survive a scrutinised and picky merge from me. Well played.
+		if (message.author.id not in self.cache[str(guild.id)]) or (((datetime.now().minute + datetime.now().hour*60) - self.cache[str(guild.id)][message.author.id]) > 60):  # This is the longest like of code I've ever seen survive a scrutinised and picky merge from me. Well played.
 
 			logger.debug("Adding experience to " + message.author.name)  # Event log
 
 			# Update the cache and increment the user's experience
-			self.cache[str(guild.id)][message.author.id] = datetime.now()
+			self.cache[str(guild.id)][message.author.id] = datetime.now().minute + datetime.now().hour*60
 			try:
 				self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] += 1
+				print(self.cache[str(guild.id)][message.author.id])
 			except KeyError:
 				self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] = 1
 
