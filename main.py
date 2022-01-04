@@ -1415,15 +1415,16 @@ if __name__ == "__main__":
 							logger.debug("Removed role " + role.name + " from " + ctx.author.name)
 
 						# Send Pong response. Incipit Helminth...
-						url = "https://discordapp.com/api/channels/{}/messages".format(ctx.origin_message.channel.id)
-						headers = {
-							"Authorization": "Bot {}".format(config["token"]),
-							"Content-Type": "application/json"
-						}
-						JSON = {
-							"type": 1
-						}
-						r = requests.post(url, headers=headers, data=json.dumps(JSON))
+						with open("config.json") as file:
+							url = "https://discordapp.com/api/channels/{}/messages".format(ctx.origin_message.channel.id)
+							headers = {
+								"Authorization": "Bot {}".format(file.read()["token"]),
+								"Content-Type": "application/json"
+							}
+							JSON = {
+								"type": 1
+							}
+							r = requests.post(url, headers=headers, data=json.dumps(JSON))
 						logger.debug(r.status_code, r.reason)
 						return
 
