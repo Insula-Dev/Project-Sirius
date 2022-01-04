@@ -1405,13 +1405,13 @@ if __name__ == "__main__":
 						# Adds the role if the user doesn't have it
 						if role not in ctx.author.roles:
 							await ctx.author.add_roles(role)
-							await ctx.edit_origin(content="")
+							await ctx.send(content="Added role: "+role.name,hidden=True)
 							logger.debug("Added role " + role.name + " to " + ctx.author.name)
 
 						# Removes the role if the user already has it
 						else:
 							await ctx.author.remove_roles(role)
-							await ctx.edit_origin(content="")
+							await ctx.send(content="Removed role: " + role.name, hidden=True)
 							logger.debug("Removed role " + role.name + " from " + ctx.author.name)
 
 						# Send Pong response. Incipit Helminth...
