@@ -26,7 +26,7 @@ from imaging import generate_level_card
 
 
 # Variables
-VERSION = "1.3.0 InDev"
+VERSION = "1.3.0 Pre-Release"
 with open("config.json", encoding='utf-8') as file:
 	config = json.load(file)
 	DISCORD_TOKEN = config["token"]
@@ -287,7 +287,6 @@ class MyClient(discord.Client):
 			self.cache[str(guild.id)][message.author.id] = datetime.now().minute + datetime.now().hour*60
 			try:
 				self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] += 1
-				print(self.cache[str(guild.id)][message.author.id])
 			except KeyError:
 				self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] = 1
 
@@ -756,7 +755,7 @@ class MyClient(discord.Client):
 						components = [create_actionrow(*[button])]
 						await message.channel.send(embed=confession_embed,components=components)
 					if len(client.data["servers"][str(guild.id)]["confessions"]["messages"]) == 0:
-						await message.channel.send("No confessions un-posted")
+						await message.channel.send("No confessions to review")
 
 			# Print confessions command
 			if message.content == PREFIX + "post confessions":
@@ -1333,11 +1332,13 @@ if __name__ == "__main__":
 					if "confessions" in client.data["servers"][str(guild.id)]:
 						if ctx.author.guild_permissions.administrator:
 							logger.debug("Checking confessions about button press")
-							if id in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
+							if id in client.data["servers"][str(guild.id)]["confessions"]["messages"]: # Checks the button relates to a post stored in data
 								del client.data["servers"][str(guild.id)]["confessions"]["messages"][id]  # Removes the confession
 								logger.info("Confession No." + id + " removed from guild " + guild.name + " by " + ctx.author.name)
 								client.update_data()
 								await ctx.edit_origin(content="**This message has been removed by " + ctx.author.name + "**")
+							else:
+								await ctx.reply(content="This confession is not in data so has likely already been posted!")
 						else:
 							await ctx.edit_origin(content="**" + ctx.author.name + " **tried to remove this message without permissions!")
 
