@@ -402,7 +402,7 @@ class MyClient(discord.Client):
 			embed_help.add_field(name=str(PREFIX + "__post confessions__"), value="Posts all unposted confessions in the channel the command is sent in.\n**Admin only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__settings__"), value="Brings up server settings page\n**Admin only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__config__"), value="Brings up " + self.user.name + " configuration page.\n**Dev only feature.**")
-			embed_help.add_field(name=str(PREFIX + "__report__"), value="Reports the value of the variable(s) given. Argument: [name of almost any variable]\n**Dev only feature. Saftey off to use.**")
+			embed_help.add_field(name=str(PREFIX + "__report__"), value="Reports the value of the variable(s) given. Argument: [name of almost any variable]\n**Dev only feature. safety off to use.**")
 			embed_help.add_field(name=str(PREFIX + "__locate__"), value="Locates the instance of " + self.user.name + ".\n**Dev only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__kill__"), value="Ends the instance of " + self.user.name + ".\n**Dev only feature.**")
 			await message.channel.send(embed=embed_help)
@@ -801,8 +801,8 @@ class MyClient(discord.Client):
 				if len(message.content) > len(PREFIX + "report "):
 					argument = message.content[len(PREFIX + "report "):]
 					try:
-						if self.data["config"]["saftey"]:
-							logger.debug("Saftey protected against report command")
+						if self.data["config"]["safety"]:
+							logger.debug("safety protected against report command")
 						else:
 							# Searches for illegal terms in query to stop exposing sensitive data or crashing the bot
 							illegal = ["token","config","self.run","vars","help"]
@@ -821,7 +821,7 @@ class MyClient(discord.Client):
 								await message.channel.send(answer)
 					except Exception as e:
 						await message.channel.send("Something went wrong when trying to get the value of "+argument)
-						# TODO make this have a saftey level
+						# TODO make this have a safety level
 						await message.channel.send(e)
 				else:
 					logger.error("Nothing specified to report")  # Event log
@@ -837,9 +837,9 @@ class MyClient(discord.Client):
 				joke_button = create_button(style=ButtonStyle.blue, label="Jokes", emoji="😂",custom_id="config:jokes")
 				components = [create_actionrow(*[joke_button])]
 				await message.channel.send(content="Jokes: "+str(self.data["config"]["jokes"]), components=components)
-				saftey_button = create_button(style=ButtonStyle.blue, label="Saftey", emoji="🦺",custom_id="config:saftey")
-				components = [create_actionrow(*[saftey_button])]
-				await message.channel.send(content="Saftey: "+str(self.data["config"]["saftey"]), components=components)
+				safety_button = create_button(style=ButtonStyle.blue, label="safety", emoji="🦺",custom_id="config:safety")
+				components = [create_actionrow(*[safety_button])]
+				await message.channel.send(content="safety: "+str(self.data["config"]["safety"]), components=components)
 
 			# Locate command
 			if message.content == PREFIX + "locate":
