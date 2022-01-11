@@ -809,7 +809,7 @@ class MyClient(discord.Client):
 							for term in illegal:
 								if term in argument.lower():
 									logger.info("ILLEGAL QUERY: " + argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
-									await message.channel.send("aThis variable is private and should never be shared. Manual access will be required instead.\n**The request of this variable has been logged!**")
+									await message.channel.send("This variable is private and should never be shared. Manual access will be required instead.\n**The request of this variable has been logged!**")
 									return
 
 							logger.info("LEGAL QUERY: "+argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
