@@ -62,9 +62,8 @@ Dev only feature.
 
 7. Too many code book the broth.
 8. The Nuclear Key system: all developers agree to the content of each release.
-9. Each release can only come from main.
-10. Only release content is ran on Sirius III.
-11. Never remove features because you broke them.
+9. Only release content is ran on Sirius III.
+10. Never remove features because you broke them.
 
 ### FAQs
 
