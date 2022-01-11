@@ -2,5 +2,6 @@ __pycache__
 .idea
 token.txt
 log_file.log
-rank_card.png
+card.png
 config.json
+test.py
