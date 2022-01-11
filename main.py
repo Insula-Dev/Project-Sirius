@@ -26,14 +26,13 @@ from imaging import generate_level_card
 
 
 # Variables
-VERSION = "1.3.0 Pre-Release"
+VERSION = "1.3.0"
 with open("config.json", encoding='utf-8') as file:
 	config = json.load(file)
 	DISCORD_TOKEN = config["token"]
 	PREFIX = config["prefix"]
 server_structure = {
 	"config": {
-		"admin role id": 0,
 		"announcements channel id": 0
 	},
 	"rules": {
@@ -878,7 +877,7 @@ class MyClient(discord.Client):
 				await message.channel.send(death_note + "\n" + "Uptime: " + self.get_uptime() + ".")
 				global state
 				state = 1
-				print("State here:",state)
+				#print("State here:",state)
 				await client.close()
 
 		# Joke functionality
