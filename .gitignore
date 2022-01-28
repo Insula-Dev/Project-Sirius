@@ -1,7 +1,12 @@
 __pycache__
+.vscode
 .idea
 token.txt
 log_file.log
 card.png
 config.json
 test.py
+channel_statistics.csv
+member_statistics.csv
+level_card.png
+card.png
