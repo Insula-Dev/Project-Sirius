@@ -26,7 +26,7 @@ from imaging import generate_level_card
 # Variables
 with open("config.json", encoding='utf-8') as file:
 	data = json.load(file)
-	DISCORD_TOKEN = data["token"]
+	TOKEN = data["token"]
 	VERSION = data["version"]
 	PREFIX = data["prefix"]
 	DEBUG = data["debug"]
@@ -71,7 +71,7 @@ class MyClient(discord.Client):
 		"""Creates data for a new guild."""
 
 		try:
-			self.data["servers"][str(guild.id)] = server_structure
+			self.data["servers"][str(guild.id)] = SERVER_STRUCTURE
 			self.cache[str(guild.id)] = {}
 			self.poll[str(guild.id)] = {}
 
@@ -1430,7 +1430,7 @@ if __name__ == "__main__":
 							logger.error("Verification failed: " + exception)
 						return
 
-			client.run(DISCORD_TOKEN)
+			client.run(TOKEN)
 
 		except Exception as exception:
 			logger.error("Exception: " + str(exception) + "\n")  # Event log
