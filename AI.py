@@ -39,7 +39,7 @@ def question(message):
 		]
 
 	elif message.lower().startswith("where"):
-		if "leave" in message.lower()
+		if "leave" in message.lower():
 			answers = [
 				"To your left",
 				"To your right",

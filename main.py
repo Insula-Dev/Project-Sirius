@@ -300,10 +300,10 @@ class MyClient(discord.Client):
 
 		# Level leaderboard command
 		if message.content == PREFIX + "leaderboard":
+
 			logger.info("`leaderboard` called by " + message.author.name)  # Event log
 
 			leaderboard = reversed(sorted(self.data["servers"][str(guild.id)]["ranks"].items(), key=lambda item: item[1]))  # Sorts rank dictionary into list
-			logger.debug(leaderboard)
 			lb_message = ""
 			lb_count = ""
 			lb_no = ""
@@ -327,7 +327,8 @@ class MyClient(discord.Client):
 
 		# Embed command
 		if message.content.startswith(PREFIX + "embed"):
-			"""Allow users to embed what they want"""
+
+			logger.info("`embed` called by " + message.author.name)  # Event log
 
 			try:
 				argument_string = message.content[len(PREFIX + "embed "):]
