@@ -1,26 +1,23 @@
 # Imports
-import asyncio
-import math
-import random
+from math import ceil
 from random import randint
-from datetime import date, datetime
 import time
+from datetime import date, datetime
 import json
-import socket
-import discord
 import re  # Delete this later
 import requests
+import socket
+import asyncio
+import discord
 from discord_slash import SlashCommand, SlashContext, MenuContext
 from discord_slash.utils.manage_commands import create_option, create_permission, remove_all_commands
 from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle, create_select, create_select_option
 from discord_slash.model import SlashCommandPermissionType, ContextMenuType
 
 # Local imports
-import AI
-import log_handling
-from clear_slash_commands import clearCommands
 from log_handling import *
 from imaging import generate_level_card
+from ai import question
 
 
 # Variables
@@ -447,7 +444,7 @@ class MyClient(discord.Client):
 						for role in self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"]:
 							buttons.append(create_button(style=ButtonStyle.blue, emoji=await self.get_formatted_emoji(self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role]["emoji"], guild), label=self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role]["name"], custom_id=role))
 						components = []
-						for x in range(math.ceil(len(buttons) / 5)):
+						for x in range(ceil(len(buttons) / 5)):
 							if len(buttons[(5 * x):]) > 5:
 								components.append(create_actionrow(*buttons[(5 * x):(5 * x) + 5]))
 							else:
@@ -1202,7 +1199,7 @@ if __name__ == "__main__":
 
 				try:
 					reply = "**" + ctx.author.name + "**: *" + question + "*\n\n"
-					await ctx.send(content=reply + AI.question(question))
+					await ctx.send(content=reply + question(question))
 
 				except Exception as exception:
 					logger.error("Failed to run /question message in " + ctx.guild.name + " (" + str(
