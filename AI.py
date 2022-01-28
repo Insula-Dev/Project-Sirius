@@ -3,10 +3,10 @@ from random import randint
 
 
 # Functions
-def question(question):
+def question(message):
 	"""Natural language processing, supposedly."""
 
-	if question.lower().startswith("what"):
+	if message.lower().startswith("what"):
 		answers = [
 			"Everything. That's what.",
 			"Nothing at all",
@@ -17,7 +17,7 @@ def question(question):
 			"Poggers"
 		]
 
-	elif question.lower().startswith("why"):
+	elif message.lower().startswith("why"):
 		answers = [
 			"Because you sat on it",
 			"Well it's all down to the choices you make. Everything you have done up to this point has lead to this.",
@@ -25,7 +25,7 @@ def question(question):
 			"Because I wanted to cause chaos ;)"
 		]
 
-	elif question.lower().startswith("how"):
+	elif message.lower().startswith("how"):
 		answers = [
 			"With a lot of love",
 			"It doesn't",
@@ -38,8 +38,8 @@ def question(question):
 			"google.com\n*(other search engines are available)*"
 		]
 
-	elif question.lower().startswith("where"):
-		if "leave" in question.lower()
+	elif message.lower().startswith("where"):
+		if "leave" in message.lower()
 			answers = [
 				"To your left",
 				"To your right",

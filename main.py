@@ -112,7 +112,7 @@ class MyClient(discord.Client):
 			logger.error("Failed to calculate uptime. Exception: " + exception)  # Event log
 			return None
 
-	async def terminatePoll(self, message):
+	async def terminate_poll(self, message):
 		"""Closes poll"""
 
 		reactions = message.reactions
@@ -1057,7 +1057,7 @@ class MyClient(discord.Client):
 				message = await channel.fetch_message(payload.message_id)
 				reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
 				await reaction.remove(payload.member)  # Removes end emoji
-				await self.terminatePoll(message)
+				await self.terminate_poll(message)
 			else:
 				valid_emoji = False
 				for message in self.poll[str(payload.guild_id)]:
@@ -1192,14 +1192,14 @@ if __name__ == "__main__":
 							 option_type=3,
 							 required=True)],
 						 guild_ids=guild_ids)
-			async def _question(ctx, question):
+			async def _question(ctx, message):
 				"""Runs on the question slash command."""
 
 				logger.debug("`/question` called by " + ctx.author.name)
 
 				try:
-					reply = "**" + ctx.author.name + "**: *" + question + "*\n\n"
-					await ctx.send(content=reply + question(question))
+					reply = "**" + ctx.author.name + "**: *" + message + "*\n\n"
+					await ctx.send(content=reply + question(message))
 
 				except Exception as exception:
 					logger.error("Failed to run /question message in " + ctx.guild.name + " (" + str(
