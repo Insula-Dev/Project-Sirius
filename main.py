@@ -9,16 +9,14 @@ import json
 import socket
 import discord
 import re  # Delete this later
-
-
-# Local imports
 import requests
 from discord_slash import SlashCommand, SlashContext, MenuContext
 from discord_slash.utils.manage_commands import create_option, create_permission, remove_all_commands
 from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle, create_select, create_select_option
 from discord_slash.model import SlashCommandPermissionType, ContextMenuType
 
-import AI  # Imports the AI library
+# Local imports
+import AI
 import log_handling
 from clear_slash_commands import clearCommands
 from log_handling import *
@@ -51,13 +49,13 @@ class MyClient(discord.Client):
 		self.cache = {}
 		self.poll = {}
 		self.purge_messages = {}
-		self.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain")
+		self.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain")  # There is no room for purple gods here
 
-		# Print logs to the console too, for debugging
+		# Prints logs to the console
 		if DEBUG is True:
-			x = logging.StreamHandler()  # Create new handler
-			x.setLevel(LEVEL)  # Set handler level
-			logger.addHandler(x)  # Add handler to logger
+			x = logging.StreamHandler()
+			x.setLevel(LEVEL)
+			logger.addHandler(x)
 
 	def update_data(self):
 		"""Writes the data attribute to the file."""
@@ -119,6 +117,7 @@ class MyClient(discord.Client):
 
 	async def terminatePoll(self, message):
 		"""Closes poll"""
+
 		reactions = message.reactions
 		highest_count = 0
 		emojis = []
@@ -155,15 +154,18 @@ class MyClient(discord.Client):
 		await message.channel.send(embed=embed_results)
 		self.poll[str(message.guild.id)].pop(str(message.id))  # Removes poll entry from dictionary
 
-	async def get_formatted_emoji(self,emoji_reference,guild):
+	async def get_formatted_emoji(self, emoji_reference, guild):
 		"""Returns an emoji that discord should always be able to use"""
+
 		if emoji_reference.startswith("<"):
 			parts = emoji_reference.split(":")
 			return discord.utils.get(guild.emojis, name=parts[1])  # Uses the name part to get the emoji
 		else:
 			return emoji_reference
 
-	async def announce(self,announcement,announcement_type="generic"):
+	async def announce(self, announcement, announcement_type="generic"):
+		"""Sends announcement messages to each guild's assigned announcement channel."""
+
 		for guild in self.guilds:
 			if self.data["servers"][str(guild.id)]["config"]["announcements channel id"] != 0:  # Only finds announcement channel if the guild has one set
 				announcement_sent = False
@@ -178,6 +180,7 @@ class MyClient(discord.Client):
 
 	async def on_ready(self):
 		"""Runs when the client is ready."""
+
 		global guild_ids
 		logger.debug("Connected!")
 
@@ -218,12 +221,15 @@ class MyClient(discord.Client):
 				logger.info("    " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
 
 		# Send on_ready announcement
-		await self.announce("**" + self.user.name + " online**\nVersion: " + VERSION,announcement_type="on_ready")
+		await self.announce("**" + self.user.name + " online**\nVersion: " + VERSION, announcement_type="on_ready")
 		guild_ids = []
 		for guild in self.guilds:
 			guild_ids.append(guild.id)
 
 	async def on_disconnect(self):
+		"""Runs on disconnection.
+		Logs disconnection."""
+
 		if self.connected == True:  # Stops code being ran every time discord realises its still disconnected since the last minute or so
 			logger.info("Bot disconnected")
 			self.last_disconnect = datetime.now()
@@ -317,7 +323,7 @@ class MyClient(discord.Client):
 				except AttributeError:
 					logger.debug("Member not found in server")
 
-			embed_leaderboard = discord.Embed(title="Leaderboard",colour=0xffc000)
+			embed_leaderboard = discord.Embed(title="Leaderboard", colour=0xffc000)
 			embed_leaderboard.add_field(name="No.", value=lb_no, inline=True)
 			embed_leaderboard.add_field(name="User",value=lb_message,inline=True)
 			embed_leaderboard.add_field(name="Count", value=lb_count, inline=True)
@@ -352,9 +358,9 @@ class MyClient(discord.Client):
 
 				# Create and send user's embed
 				embed = discord.Embed(title=title, description=description, colour=colour)
-				embed.set_author(name=message.author.name,url=discord.Embed.Empty, icon_url=message.author.avatar_url)
+				embed.set_author(name=message.author.name, url=discord.Embed.Empty, icon_url=message.author.avatar_url)
 				for field in fields:
-					embed.add_field(name=list(field.keys())[0],value=field[list(field.keys())[0]])
+					embed.add_field(name=list(field.keys())[0], value=field[list(field.keys())[0]])
 
 				await message.channel.send(embed=embed)
 				await message.delete()
@@ -439,8 +445,7 @@ class MyClient(discord.Client):
 					for category in self.data["servers"][str(message.guild.id)]["roles"]["categories"]:
 						buttons = []
 						for role in self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"]:
-							buttons.append(create_button(style=ButtonStyle.blue, emoji=await self.get_formatted_emoji(self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role]["emoji"],guild),label=self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role][
-								"name"], custom_id=role))
+							buttons.append(create_button(style=ButtonStyle.blue, emoji=await self.get_formatted_emoji(self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role]["emoji"], guild), label=self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role]["name"], custom_id=role))
 						components = []
 						for x in range(math.ceil(len(buttons) / 5)):
 							if len(buttons[(5 * x):]) > 5:
@@ -545,19 +550,19 @@ class MyClient(discord.Client):
 					logger.debug("Successfully generated statistics")  # Event log
 
 					if csv:
-						with open("channel_statistics.csv","w",encoding="UTF-8") as csv:
+						with open("channel_statistics.csv", "w", encoding="UTF-8") as csv:
 							channel_string = ""
 							for channel in channel_statistics:
 								channel_string += channel
 							csv.write(str(channel_string))
-						await message.channel.send(file=discord.File("channel_statistics.csv",filename=guild.name+" channel_statistics.csv"))
+						await message.channel.send(file=discord.File("channel_statistics.csv", filename=guild.name+" channel_statistics.csv"))
 
-						with open("member_statistics.csv","w",encoding="UTF-8") as csv:
+						with open("member_statistics.csv", "w", encoding="UTF-8") as csv:
 							member_string = ""
 							for member in member_statistics:
 								member_string += member
 							csv.write(str(member_string))
-						await message.channel.send(file=discord.File("member_statistics.csv",filename=guild.name+" member_statistics.csv"))
+						await message.channel.send(file=discord.File("member_statistics.csv", filename=guild.name+" member_statistics.csv"))
 					else:
 						# Create and send general statistics embed
 						embed_general = discord.Embed(title="📈 General Statistics for " + guild.name, colour=0xffc000)
@@ -567,7 +572,7 @@ class MyClient(discord.Client):
 						birth = guild.created_at
 						embed_general.add_field(name="Server Birth", value=str(birth.day)+"."+str(birth.month)+"."+str(birth.year))
 						embed_general.add_field(name="Total Messages", value=total_messages)
-						embed_general.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"),icon_url=guild.icon_url)
+						embed_general.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
 						await message.channel.send(embed=embed_general)
 
 						# Create and send channel statistics embed
@@ -596,7 +601,7 @@ class MyClient(discord.Client):
 						embed_channel_stats.add_field(name="Channels", value=str(channel_statistics))
 					else:
 						for x in range(len(channel_statistics)//1024):
-							embed_channel_stats.add_field(name="Channel stats prt "+str(x+1),value=channel_statistics[0][x*1024:(x+1)*1024])
+							embed_channel_stats.add_field(name="Channel stats prt "+str(x+1), value=channel_statistics[0][x*1024:(x+1)*1024])
 							i = x
 						embed_channel_stats.add_field(name="Channel stats prt " + str(i+1), value=channel_statistics[0][(i+1)*1024:])
 					print(channel_statistics)
@@ -670,7 +675,7 @@ class MyClient(discord.Client):
 					if argument[0] == "title":
 						title = argument[1]
 					elif argument[0] == "colour":
-						colour = int(argument[1][-6:],16)  # Takes last 6 digits and converts to hex for colour
+						colour = int(argument[1][-6:], 16)  # Takes last 6 digits and converts to hex for colour
 					elif argument[0] == "winner":
 						winner = argument[1]
 					elif argument[0] == "anonymous" or argument[0] == "anon":
@@ -691,13 +696,13 @@ class MyClient(discord.Client):
 					# Adds buttons
 					buttons = []
 					for candidate in candidates:
-						buttons.append(create_button(style=ButtonStyle.blue,label=candidates[candidate],emoji=candidate,custom_id="poll:"+candidate))
+						buttons.append(create_button(style=ButtonStyle.blue, label=candidates[candidate], emoji=candidate, custom_id="poll:"+candidate))
 					components = [create_actionrow(*buttons)]
 					poll_message = await message.channel.send(embed=embed_poll, components=components)
 
 					# Setup candidates dict for recording votes so people can't vote multiple times
 					for candidate in candidates:
-						candidates[candidate] = {"name":candidates[candidate],"voters":[]}
+						candidates[candidate] = {"name":candidates[candidate], "voters":[]}
 
 				else: # Makes embed with reactions for open voting
 					poll_message = await message.channel.send(embed=embed_poll)
@@ -732,7 +737,7 @@ class MyClient(discord.Client):
 						confession_embed.set_footer(text="This message is here to be reviewed. Please say if the content is inappropriate!", icon_url=guild.icon_url)
 						button = (create_button(style=ButtonStyle.red, label="remove", custom_id="confession:"+confession))
 						components = [create_actionrow(*[button])]
-						await message.channel.send(embed=confession_embed,components=components)
+						await message.channel.send(embed=confession_embed, components=components)
 					if len(client.data["servers"][str(guild.id)]["confessions"]["messages"]) == 0:
 						await message.channel.send("No confessions to review")
 
@@ -759,7 +764,7 @@ class MyClient(discord.Client):
 						channel_options.append(create_select_option(label=channel.name, value=channel.id, default=True))
 					else:
 						channel_options.append(create_select_option(label=channel.name, value=channel.id))
-				announcement_channel_select = create_select(channel_options,custom_id="settings:announcements channel id")
+				announcement_channel_select = create_select(channel_options, custom_id="settings:announcements channel id")
 				components = [create_actionrow(*[announcement_channel_select])]
 				await message.channel.send(content="Announcement Channel:", components=components)
 
@@ -785,7 +790,7 @@ class MyClient(discord.Client):
 							logger.debug("safety protected against report command")
 						else:
 							# Searches for illegal terms in query to stop exposing sensitive data or crashing the bot
-							illegal = ["token","config","self.run","vars","help"]
+							illegal = ["token", "config", "self.run", "vars", "help"]
 							for term in illegal:
 								if term in argument.lower():
 									logger.info("ILLEGAL QUERY: " + argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
@@ -814,10 +819,10 @@ class MyClient(discord.Client):
 			if message.content == PREFIX + "config":
 				logger.info("`config` called by " + message.author.name)  # Event log
 				await message.channel.send(content="**Config**")
-				joke_button = create_button(style=ButtonStyle.blue, label="Jokes", emoji="😂",custom_id="config:jokes")
+				joke_button = create_button(style=ButtonStyle.blue, label="Jokes", emoji="😂", custom_id="config:jokes")
 				components = [create_actionrow(*[joke_button])]
 				await message.channel.send(content="Jokes: "+str(self.data["config"]["jokes"]), components=components)
-				safety_button = create_button(style=ButtonStyle.blue, label="safety", emoji="🦺",custom_id="config:safety")
+				safety_button = create_button(style=ButtonStyle.blue, label="safety", emoji="🦺", custom_id="config:safety")
 				components = [create_actionrow(*[safety_button])]
 				await message.channel.send(content="safety: "+str(self.data["config"]["safety"]), components=components)
 
@@ -837,7 +842,7 @@ class MyClient(discord.Client):
 				death_note = "**" + self.user.name + " offline**\nReason for shutdown: "+reason
 
 				# Send kill announcement
-				await self.announce(death_note,announcement_type="kill")
+				await self.announce(death_note, announcement_type="kill")
 
 				await message.channel.send(death_note+"\n"+"Uptime: " + self.get_uptime() + ".")
 				await client.close()
@@ -857,7 +862,7 @@ class MyClient(discord.Client):
 				await message.channel.send(death_note + "\n" + "Uptime: " + self.get_uptime() + ".")
 				global state
 				state = 1
-				#print("State here:",state)
+				#print("State here:", state)
 				await client.close()
 
 		# Joke functionality
@@ -1066,7 +1071,7 @@ class MyClient(discord.Client):
 					logger.debug("Unwanted emoji on poll found")
 					channel = await self.fetch_channel(payload.channel_id)
 					message = await channel.fetch_message(payload.message_id)
-					await message.remove_reaction(payload.emoji,payload.member)
+					await message.remove_reaction(payload.emoji, payload.member)
 				else:
 					logger.debug("Wanted emoji on poll found")
 
@@ -1137,7 +1142,7 @@ class MyClient(discord.Client):
 # Main body
 if __name__ == "__main__":
 	state = 1
-	if state == 1: # TODO Change to while to test for restart command
+	if state == 1:  # TODO change to while to test for restart command
 		state = 0
 		try:
 			intents = discord.Intents.all()
@@ -1219,7 +1224,7 @@ if __name__ == "__main__":
 				try:
 					# TODO
 					# Do checks for unwanted terms here
-					await ctx.send(content="Your message will be sent anonymously",hidden=True)
+					await ctx.send(content="Your message will be sent anonymously", hidden=True)
 					await ctx.channel.send(content="**Anonymous**: *"+message+"*")
 
 				except Exception as exception:
@@ -1276,9 +1281,9 @@ if __name__ == "__main__":
 						embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)]["name"] + " Score: " + str(highest_count)), inline=False)
 					await ctx.target_message.delete()  # Deletes the poll message
 					client.poll[str(ctx.guild.id)].pop(str(ctx.target_id))  # Removes poll entry from dictionary
-					await ctx.send(embeds=[embed_results],hidden=True)  # Sends the results embed
+					await ctx.send(embeds=[embed_results], hidden=True)  # Sends the results embed
 				else:
-					await ctx.send(content="This is not a poll",hidden=True)
+					await ctx.send(content="This is not a poll", hidden=True)
 
 			# Buttons...
 			# The following must be tested:
@@ -1299,10 +1304,10 @@ if __name__ == "__main__":
 					poll = client.poll[str(guild.id)][str(ctx.origin_message.id)]
 					if ctx.author.id in poll["options"][candidate]["voters"]:  # If user has already voted for this option
 						poll["options"][candidate]["voters"].remove(ctx.author.id)
-						await ctx.send(content="You just removed your vote for "+candidate,hidden=True)
+						await ctx.send(content="You just removed your vote for "+candidate, hidden=True)
 					else:
 						poll["options"][candidate]["voters"].append(ctx.author.id)
-						await ctx.send(content="You just voted for " + candidate,hidden=True)
+						await ctx.send(content="You just voted for " + candidate, hidden=True)
 
 
 				elif ctx.custom_id.startswith("confession"):
@@ -1386,7 +1391,7 @@ if __name__ == "__main__":
 						# Adds the role if the user doesn't have it
 						if role not in ctx.author.roles:
 							await ctx.author.add_roles(role)
-							await ctx.send(content="Added role: "+role.name,hidden=True)
+							await ctx.send(content="Added role: "+role.name, hidden=True)
 							logger.debug("Added role " + role.name + " to " + ctx.author.name)
 
 						# Removes the role if the user already has it
