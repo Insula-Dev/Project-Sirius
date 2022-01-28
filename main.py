@@ -26,41 +26,21 @@ from imaging import generate_level_card
 
 
 # Variables
-VERSION = "1.3.0"
 with open("config.json", encoding='utf-8') as file:
-	config = json.load(file)
-	DISCORD_TOKEN = config["token"]
-	PREFIX = config["prefix"]
-server_structure = {
-	"config": {
-		"announcements channel id": 0
-	},
-	"rules": {
-		"title": "Server rules",
-		"description": "",
-		"list": [],
-		"image link": ""
-	},
-	"roles": {
-		"verify role": 0,
-		"categories": {
-			"CATEGORY NAME": {
-				"message id": 0,
-				"list": {}
-			}
-		}
-	},
-	"ranks": {}
-}
-
-# Servers specified
-TheHatShop = 489893521176920076
+	data = json.load(file)
+	DISCORD_TOKEN = data["token"]
+	VERSION = data["version"]
+	PREFIX = data["prefix"]
+	DEBUG = data["debug"]
+	LEVEL = data["level"]
+	SERVER_STRUCTURE = data["server structure"]
+	JOKE_SERVERS = data["joke servers"]
 
 
 # Definitions
 class MyClient(discord.Client):
 
-	def __init__(self, debug=False, level="DEBUG", *args, **kwargs):
+	def __init__(self, *args, **kwargs):
 		"""Constructor."""
 
 		super().__init__(*args, **kwargs)
@@ -74,9 +54,9 @@ class MyClient(discord.Client):
 		self.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain")
 
 		# Print logs to the console too, for debugging
-		if debug is True:
+		if DEBUG is True:
 			x = logging.StreamHandler()  # Create new handler
-			x.setLevel(level)  # Set handler level
+			x.setLevel(LEVEL)  # Set handler level
 			logger.addHandler(x)  # Add handler to logger
 
 	def update_data(self):
@@ -901,7 +881,7 @@ class MyClient(discord.Client):
 					else:
 						await message.channel.send("pablo, put that big brain back on sleep mode")
 
-			if guild.id == TheHatShop:
+			if guild.id in JOKE_SERVERS:
 				# Gameboy mention
 				if "gameboy" in message.content.lower():
 					logger.debug("`gameboy` mentioned by " + message.author.name)  # Event log
@@ -1162,7 +1142,7 @@ if __name__ == "__main__":
 		try:
 			intents = discord.Intents.all()
 			intents.members = True
-			client = MyClient(intents=intents, debug=True, level="DEBUG")
+			client = MyClient(intents=intents)
 			slash = SlashCommand(client, sync_commands=True)
 
 			guild_ids = []
