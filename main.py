@@ -18,7 +18,7 @@ from discord_slash.utils.manage_commands import create_option, create_permission
 from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle, create_select, create_select_option
 from discord_slash.model import SlashCommandPermissionType, ContextMenuType
 
-import AI # Imports the AI library
+import AI  # Imports the AI library
 import log_handling
 from clear_slash_commands import clearCommands
 from log_handling import *
@@ -64,7 +64,7 @@ class MyClient(discord.Client):
 		"""Constructor."""
 
 		super().__init__(*args, **kwargs)
-		self.connected = True # Starts true so on first boot, it won't think its restarted
+		self.connected = True  # Starts true so on first boot, it won't think its restarted
 		self.start_time = datetime.now()
 		self.last_disconnect = datetime.now()
 		self.data = {}
@@ -148,7 +148,7 @@ class MyClient(discord.Client):
 			emoji = reaction.emoji
 			if emoji not in emojis:
 				emojis.append(emoji)
-			if str(emoji) != "🔚": # Doesn't count end emote
+			if str(emoji) != "🔚":  # Doesn't count end emote
 				counts.append(str(reaction.count - 1))
 			if reaction.count > highest_count:
 				highest_count = reaction.count
@@ -169,23 +169,23 @@ class MyClient(discord.Client):
 		embed_results = discord.Embed(title=title + " Results")
 		embed_results.add_field(name="Candidates", value="\n".join(options), inline=True)
 		embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
-		if poll["config"]["winner"] == "highest": # Winner is shown as the highest scoring candidate
+		if poll["config"]["winner"] == "highest":  # Winner is shown as the highest scoring candidate
 			embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)] + " Score: " + str(highest_count)), inline=False)
 
 		await message.channel.send(embed=embed_results)
-		self.poll[str(message.guild.id)].pop(str(message.id)) # Removes poll entry from dictionary
+		self.poll[str(message.guild.id)].pop(str(message.id))  # Removes poll entry from dictionary
 
 	async def get_formatted_emoji(self,emoji_reference,guild):
 		"""Returns an emoji that discord should always be able to use"""
 		if emoji_reference.startswith("<"):
 			parts = emoji_reference.split(":")
-			return discord.utils.get(guild.emojis, name=parts[1]) # Uses the name part to get the emoji
+			return discord.utils.get(guild.emojis, name=parts[1])  # Uses the name part to get the emoji
 		else:
 			return emoji_reference
 
 	async def announce(self,announcement,announcement_type="generic"):
 		for guild in self.guilds:
-			if self.data["servers"][str(guild.id)]["config"]["announcements channel id"] != 0: # Only finds announcement channel if the guild has one set
+			if self.data["servers"][str(guild.id)]["config"]["announcements channel id"] != 0:  # Only finds announcement channel if the guild has one set
 				announcement_sent = False
 				for channel in guild.text_channels:
 					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
@@ -244,7 +244,7 @@ class MyClient(discord.Client):
 			guild_ids.append(guild.id)
 
 	async def on_disconnect(self):
-		if self.connected == True: # Stops code being ran every time discord realises its still disconnected since the last minute or so
+		if self.connected == True:  # Stops code being ran every time discord realises its still disconnected since the last minute or so
 			logger.info("Bot disconnected")
 			self.last_disconnect = datetime.now()
 			self.connected = False
@@ -320,7 +320,7 @@ class MyClient(discord.Client):
 		if message.content == PREFIX + "leaderboard":
 			logger.info("`leaderboard` called by " + message.author.name)  # Event log
 
-			leaderboard = reversed(sorted(self.data["servers"][str(guild.id)]["ranks"].items(), key=lambda item: item[1])) # Sorts rank dictionary into list
+			leaderboard = reversed(sorted(self.data["servers"][str(guild.id)]["ranks"].items(), key=lambda item: item[1]))  # Sorts rank dictionary into list
 			logger.debug(leaderboard)
 			lb_message = ""
 			lb_count = ""
@@ -330,8 +330,8 @@ class MyClient(discord.Client):
 			for item in leaderboard:
 				try:
 					name = self.get_user(int(item[0])).name
-					lb_message += str(name)+"\n" # Reverse adds on higher scored names
-					lb_count += str(item[1])+"\n" # Reverse adds on higher scores to separate string for separate embed field
+					lb_message += str(name)+"\n"  # Reverse adds on higher scored names
+					lb_count += str(item[1])+"\n"  # Reverse adds on higher scores to separate string for separate embed field
 					lb_no += str(count)+"\n"
 					count += 1
 				except AttributeError:
@@ -523,7 +523,7 @@ class MyClient(discord.Client):
 
 				argument = message.content[len(PREFIX + "stats "):]
 				csv = False
-				if argument == "csv": # Changes to csv mode where the stats are saved to a csv file instead
+				if argument == "csv":  # Changes to csv mode where the stats are saved to a csv file instead
 					csv = True
 					logger.debug("Using csv mode")
 
@@ -690,7 +690,7 @@ class MyClient(discord.Client):
 					if argument[0] == "title":
 						title = argument[1]
 					elif argument[0] == "colour":
-						colour = int(argument[1][-6:],16) # Takes last 6 digits and converts to hex for colour
+						colour = int(argument[1][-6:],16)  # Takes last 6 digits and converts to hex for colour
 					elif argument[0] == "winner":
 						winner = argument[1]
 					elif argument[0] == "anonymous" or argument[0] == "anon":
@@ -987,19 +987,19 @@ class MyClient(discord.Client):
 				reaction_usage = "roles"
 				logger.debug("Role message reacted to")
 				break
-		if reaction_usage == "none": # No functionality found yet, keep checking
+		if reaction_usage == "none":  # No functionality found yet, keep checking
 			# Poll reaction check
 			try:
 				for message in self.poll[str(guild.id)]:
 					if str(payload.message_id) == message:
-						if not self.poll[str(guild.id)]["config"]["anonymous"]: # Anonymous messages don't use reactions
+						if not self.poll[str(guild.id)]["config"]["anonymous"]:  # Anonymous messages don't use reactions
 							reaction_usage = "polls"
 							logger.debug("Poll message reacted to")
 							break
 			except KeyError:
 				pass
 
-			if reaction_usage == "none": # No functionality found yet, keep checking
+			if reaction_usage == "none":  # No functionality found yet, keep checking
 				# Purge reaction check
 				if payload.message_id in self.purge_messages:  # Did a slightly different system that's doubly efficient than your weird check system
 					logger.debug("Purge message reacted to")
@@ -1080,7 +1080,7 @@ class MyClient(discord.Client):
 				valid_emoji = False
 				for message in self.poll[str(payload.guild_id)]:
 					#print(str(payload.emoji)+"?"+str(self.poll[str(payload.guild_id)][message]["options"]))
-					if str(payload.emoji) in self.poll[str(payload.guild_id)][message]["options"]: # Deletes emojis not related to poll options
+					if str(payload.emoji) in self.poll[str(payload.guild_id)][message]["options"]:  # Deletes emojis not related to poll options
 						valid_emoji = True
 				if not valid_emoji:
 					logger.debug("Unwanted emoji on poll found")
@@ -1294,9 +1294,9 @@ if __name__ == "__main__":
 					embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
 					if poll["config"]["winner"] == "highest":  # Winner is shown as the highest scoring candidate
 						embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)]["name"] + " Score: " + str(highest_count)), inline=False)
-					await ctx.target_message.delete() # Deletes the poll message
-					client.poll[str(ctx.guild.id)].pop(str(ctx.target_id)) # Removes poll entry from dictionary
-					await ctx.send(embeds=[embed_results],hidden=True) # Sends the results embed
+					await ctx.target_message.delete()  # Deletes the poll message
+					client.poll[str(ctx.guild.id)].pop(str(ctx.target_id))  # Removes poll entry from dictionary
+					await ctx.send(embeds=[embed_results],hidden=True)  # Sends the results embed
 				else:
 					await ctx.send(content="This is not a poll",hidden=True)
 
@@ -1317,7 +1317,7 @@ if __name__ == "__main__":
 					logger.debug("An anonymous user has voted on a poll")
 					candidate = ctx.custom_id[len("poll:"):]
 					poll = client.poll[str(guild.id)][str(ctx.origin_message.id)]
-					if ctx.author.id in poll["options"][candidate]["voters"]: # If user has already voted for this option
+					if ctx.author.id in poll["options"][candidate]["voters"]:  # If user has already voted for this option
 						poll["options"][candidate]["voters"].remove(ctx.author.id)
 						await ctx.send(content="You just removed your vote for "+candidate,hidden=True)
 					else:
@@ -1331,7 +1331,7 @@ if __name__ == "__main__":
 					if "confessions" in client.data["servers"][str(guild.id)]:
 						if ctx.author.guild_permissions.administrator:
 							logger.debug("Checking confessions about button press")
-							if id in client.data["servers"][str(guild.id)]["confessions"]["messages"]: # Checks the button relates to a post stored in data
+							if id in client.data["servers"][str(guild.id)]["confessions"]["messages"]:  # Checks the button relates to a post stored in data
 								del client.data["servers"][str(guild.id)]["confessions"]["messages"][id]  # Removes the confession
 								logger.info("Confession No." + id + " removed from guild " + guild.name + " by " + ctx.author.name)
 								client.update_data()
@@ -1357,7 +1357,7 @@ if __name__ == "__main__":
 					logger.debug("Server setting '"+setting+"' of '"+guild.name+"' changed by "+ctx.author.name)
 					if ctx.author.guild_permissions.administrator:
 						config[setting] = int(ctx.values[0])
-						await ctx.edit_origin(content=setting[0].upper()+setting[1:]+": "+str(config[setting])) # Makes first character capital of setting and shows the new setting
+						await ctx.edit_origin(content=setting[0].upper()+setting[1:]+": "+str(config[setting]))  # Makes first character capital of setting and shows the new setting
 						client.data["servers"][str(guild.id)]["config"] = config
 						client.update_data()
 						return
@@ -1370,7 +1370,7 @@ if __name__ == "__main__":
 						config[setting] = not config[setting]
 						logger.info("Config:"+setting+" changed to " + str(config[setting]))
 						client.update_data()
-						await ctx.edit_origin(content=setting[0].upper()+setting[1:]+": "+str(config[setting])) # Makes first character capital of setting and shows the new setting
+						await ctx.edit_origin(content=setting[0].upper()+setting[1:]+": "+str(config[setting]))  # Makes first character capital of setting and shows the new setting
 					else:
 						await ctx.send("You do not have permissions to press this button", hidden=True)
 						logger.info(ctx.author.name + " tried to change config")
