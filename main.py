@@ -168,22 +168,21 @@ class MyClient(discord.Client):
 				announcement_sent = False
 				for channel in guild.text_channels:
 					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
-						logger.debug("Sending "+announcement_type+" announcement to " + guild.name + " in " + channel.name)  # Event log
+						logger.debug("Sending " + announcement_type + " announcement to " + guild.name + " in " + channel.name)  # Event log
 						announcement_sent = True
 						await channel.send(announcement)
 						break
 				if announcement_sent is False:
-					logger.debug("Failed to send "+announcement_type+" announcement. Announcement channel not found in " + guild.name)  # Event log
+					logger.debug("Failed to send " + announcement_type + " announcement. Announcement channel not found in " + guild.name)  # Event log
 
 	async def on_ready(self):
 		"""Runs when the client is ready."""
 
-		global guild_ids
 		logger.debug("Connected!")
 
 		if self.connected == False:
-			logger.info("Last disconnect was "+str(self.last_disconnect))
-			await self.announce("**Reconnected**\nLast disconnect was "+str(self.last_disconnect),announcement_type="reconnection")
+			logger.info("Last disconnect was " + str(self.last_disconnect))
+			await self.announce("**Reconnected**\nLast disconnect was " + str(self.last_disconnect),announcement_type="reconnection")
 		self.connected = True
 
 		# Load the data file into the data variable
@@ -313,9 +312,9 @@ class MyClient(discord.Client):
 			for item in leaderboard:
 				try:
 					name = self.get_user(int(item[0])).name
-					lb_message += str(name)+"\n"  # Reverse adds on higher scored names
-					lb_count += str(item[1])+"\n"  # Reverse adds on higher scores to separate string for separate embed field
-					lb_no += str(count)+"\n"
+					lb_message += str(name) + "\n"  # Reverse adds on higher scored names
+					lb_count += str(item[1]) + "\n"  # Reverse adds on higher scores to separate string for separate embed field
+					lb_no += str(count) + "\n"
 					count += 1
 				except AttributeError:
 					logger.debug("Member not found in server")
@@ -363,7 +362,7 @@ class MyClient(discord.Client):
 				await message.delete()
 			except Exception as exception:
 				logger.error("Failed understand embed command. Exception: " + str(exception))
-				await message.channel.send("Embed Failed: Check you put something to embed and that it's under 1024 character.\n"+str(exception))
+				await message.channel.send("Embed Failed: Check you put something to embed and that it's under 1024 character.\n" + str(exception))
 
 		# Help command
 		if message.content == PREFIX + "help":
@@ -552,14 +551,14 @@ class MyClient(discord.Client):
 							for channel in channel_statistics:
 								channel_string += channel
 							csv.write(str(channel_string))
-						await message.channel.send(file=discord.File("channel_statistics.csv", filename=guild.name+" channel_statistics.csv"))
+						await message.channel.send(file=discord.File("channel_statistics.csv", filename=guild.name + " channel_statistics.csv"))
 
 						with open("member_statistics.csv", "w", encoding="UTF-8") as csv:
 							member_string = ""
 							for member in member_statistics:
 								member_string += member
 							csv.write(str(member_string))
-						await message.channel.send(file=discord.File("member_statistics.csv", filename=guild.name+" member_statistics.csv"))
+						await message.channel.send(file=discord.File("member_statistics.csv", filename=guild.name + " member_statistics.csv"))
 					else:
 						# Create and send general statistics embed
 						embed_general = discord.Embed(title="📈 General Statistics for " + guild.name, colour=0xffc000)
@@ -567,23 +566,23 @@ class MyClient(discord.Client):
 						embed_general.add_field(name="Total Bots", value=len([m for m in guild.members if m.bot]))
 						embed_general.add_field(name="Total Channels", value=len(guild.text_channels))
 						birth = guild.created_at
-						embed_general.add_field(name="Server Birth", value=str(birth.day)+"."+str(birth.month)+"."+str(birth.year))
+						embed_general.add_field(name="Server Birth", value=str(birth.day) + "." + str(birth.month) + "." + str(birth.year))
 						embed_general.add_field(name="Total Messages", value=total_messages)
 						embed_general.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
 						await message.channel.send(embed=embed_general)
 
 						# Create and send channel statistics embed
 						embed_channel = discord.Embed(title="📈 Channel Statistics for " + guild.name, colour=0xffc000)
-						for x in range(len(channel_statistics)//10+1):
-							#print("------\nChannels in set:\n"+str(channel_statistics[x]))
-							logger.debug("------\nChannels in set:\n"+str(channel_statistics[x]))
+						for x in range(len(channel_statistics) // 10 + 1):
+							#print("------\nChannels in set:\n" + str(channel_statistics[x]))
+							logger.debug("------\nChannels in set:\n" + str(channel_statistics[x]))
 							embed_channel.add_field(name="Channels", value=str(channel_statistics[x]))
 							embed_channel.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
 						await message.channel.send(embed=embed_channel)
 
 						# Create and send members statistics embed
 						embed_member = discord.Embed(title="📈 Member Statistics for " + guild.name, colour=0xffc000)
-						for x in range(len(member_statistics)//10+1):
+						for x in range(len(member_statistics) // 10 + 1):
 							logger.debug("Member:" + str(member_statistics[x]))
 							embed_member.add_field(name="Members", value=str(member_statistics[x]))
 							embed_member.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
@@ -598,9 +597,9 @@ class MyClient(discord.Client):
 						embed_channel_stats.add_field(name="Channels", value=str(channel_statistics))
 					else:
 						for x in range(len(channel_statistics)//1024):
-							embed_channel_stats.add_field(name="Channel stats prt "+str(x+1), value=channel_statistics[0][x*1024:(x+1)*1024])
+							embed_channel_stats.add_field(name="Channel stats prt " + str(x + 1), value=channel_statistics[0][x*1024:(x + 1)*1024])
 							i = x
-						embed_channel_stats.add_field(name="Channel stats prt " + str(i+1), value=channel_statistics[0][(i+1)*1024:])
+						embed_channel_stats.add_field(name="Channel stats prt " + str(i + 1), value=channel_statistics[0][(i + 1)*1024:])
 					print(channel_statistics)
 					await message.channel.send(embed=embed_channel_stats)
 
@@ -693,7 +692,7 @@ class MyClient(discord.Client):
 					# Adds buttons
 					buttons = []
 					for candidate in candidates:
-						buttons.append(create_button(style=ButtonStyle.blue, label=candidates[candidate], emoji=candidate, custom_id="poll:"+candidate))
+						buttons.append(create_button(style=ButtonStyle.blue, label=candidates[candidate], emoji=candidate, custom_id="poll:" + candidate))
 					components = [create_actionrow(*buttons)]
 					poll_message = await message.channel.send(embed=embed_poll, components=components)
 
@@ -709,7 +708,7 @@ class MyClient(discord.Client):
 						try:
 							await poll_message.add_reaction(candidate)
 						except discord.errors.HTTPException:
-							await poll_message.channel.send("Pleas format as \"option\" = emoji")
+							await poll_message.channel.send("Please format as \"option\" = emoji")
 							await poll_message.delete()
 
 				self.poll[str(message.guild.id)].update({str(poll_message.id): {
@@ -732,7 +731,7 @@ class MyClient(discord.Client):
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
 						confession_embed = discord.Embed(title="Review Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=0xFF0A00)
 						confession_embed.set_footer(text="This message is here to be reviewed. Please say if the content is inappropriate!", icon_url=guild.icon_url)
-						button = (create_button(style=ButtonStyle.red, label="remove", custom_id="confession:"+confession))
+						button = (create_button(style=ButtonStyle.red, label="remove", custom_id="confession:" + confession))
 						components = [create_actionrow(*[button])]
 						await message.channel.send(embed=confession_embed, components=components)
 					if len(client.data["servers"][str(guild.id)]["confessions"]["messages"]) == 0:
@@ -794,7 +793,7 @@ class MyClient(discord.Client):
 									await message.channel.send("This variable is private and should never be shared. Manual access will be required instead.\n**The request of this variable has been logged!**")
 									return
 
-							logger.info("LEGAL QUERY: "+argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
+							logger.info("LEGAL QUERY: " + argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
 							answer = str(eval(argument))
 							if "token" in answer.lower():
 								logger.info("ILLEGAL ANSWER: " + argument + " is requested with an illegal answer to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
@@ -802,7 +801,7 @@ class MyClient(discord.Client):
 							else:
 								await message.channel.send(answer)
 					except Exception as e:
-						await message.channel.send("Something went wrong when trying to get the value of "+argument)
+						await message.channel.send("Something went wrong when trying to get the value of " + argument)
 						# TODO make this have a safety level
 						await message.channel.send(e)
 				else:
@@ -810,7 +809,7 @@ class MyClient(discord.Client):
 				dev_mentions = ""
 				#for dev in self.data["config"]["developers"]:
 				#	dev_mentions += self.get_user(dev).mention
-				await self.get_channel(832293063803142235).send(dev_mentions+"Report used in "+guild.name+" by "+message.author.mention)
+				await self.get_channel(832293063803142235).send(dev_mentions + "Report used in " + guild.name + " by " + message.author.mention)
 
 			# Config command
 			if message.content == PREFIX + "config":
@@ -818,16 +817,16 @@ class MyClient(discord.Client):
 				await message.channel.send(content="**Config**")
 				joke_button = create_button(style=ButtonStyle.blue, label="Jokes", emoji="😂", custom_id="config:jokes")
 				components = [create_actionrow(*[joke_button])]
-				await message.channel.send(content="Jokes: "+str(self.data["config"]["jokes"]), components=components)
+				await message.channel.send(content="Jokes: " + str(self.data["config"]["jokes"]), components=components)
 				safety_button = create_button(style=ButtonStyle.blue, label="safety", emoji="🦺", custom_id="config:safety")
 				components = [create_actionrow(*[safety_button])]
-				await message.channel.send(content="safety: "+str(self.data["config"]["safety"]), components=components)
+				await message.channel.send(content="safety: " + str(self.data["config"]["safety"]), components=components)
 
 			# Locate command
 			if message.content == PREFIX + "locate":
 				logger.info("`locate` called by " + message.author.name)  # Event log
 				hostname = socket.gethostname()
-				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "** (**" + str(round(self.latency)) + "**ms)" + "\nUptime: " + self.get_uptime() + "."+ "\nLast disconnect: " + str(self.last_disconnect) + ".")
+				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "** (**" + str(round(self.latency)) + "**ms)" + "\nUptime: " + self.get_uptime() + "." + "\nLast disconnect: " + str(self.last_disconnect) + ".")
 
 			# Kill command
 			if message.content.startswith(PREFIX + "kill"):
@@ -836,12 +835,12 @@ class MyClient(discord.Client):
 					await message.channel.send("Doggie down")
 
 				reason = message.content[len(PREFIX + "kill"):]
-				death_note = "**" + self.user.name + " offline**\nReason for shutdown: "+reason
+				death_note = "**" + self.user.name + " offline**\nReason for shutdown: " + reason
 
 				# Send kill announcement
 				await self.announce(death_note, announcement_type="kill")
 
-				await message.channel.send(death_note+"\n"+"Uptime: " + self.get_uptime() + ".")
+				await message.channel.send(death_note + "\n" + "Uptime: " + self.get_uptime() + ".")
 				await client.close()
 
 			# Restart command
@@ -941,7 +940,7 @@ class MyClient(discord.Client):
 			logger.debug("Sent welcome message for " + member.guild.name + " to " + member.name)  # Event log
 		except Exception as exception:
 			# If user has impeded direct messages
-			logger.debug("Failed to send welcome message for " + member.guild.name +" to " + member.name + ". Exception: " + exception)  # Event log
+			logger.debug("Failed to send welcome message for " + member.guild.name + " to " + member.name + ". Exception: " + exception)  # Event log
 
 	async def on_member_remove(self, member):
 		"""Runs when a member leaves.
@@ -1061,7 +1060,7 @@ class MyClient(discord.Client):
 			else:
 				valid_emoji = False
 				for message in self.poll[str(payload.guild_id)]:
-					#print(str(payload.emoji)+"?"+str(self.poll[str(payload.guild_id)][message]["options"]))
+					#print(str(payload.emoji) + "?" + str(self.poll[str(payload.guild_id)][message]["options"]))
 					if str(payload.emoji) in self.poll[str(payload.guild_id)][message]["options"]:  # Deletes emojis not related to poll options
 						valid_emoji = True
 				if not valid_emoji:
@@ -1151,13 +1150,19 @@ if __name__ == "__main__":
 			for guild in client.guilds:
 				guild_ids += guild.id
 
-			@slash.slash(name="confess", description="Use the command to send an anonymous message to be posted later",
-						 options=[create_option(
-							 name="confession",
-							 description="Your message",
-							 option_type=3,
-							 required=True)],
-						 guild_ids=guild_ids)
+			@slash.slash(
+				name="confess",
+				description="Use the command to send an anonymous message to be posted later",
+				options=[
+					create_option(
+						name="confession",
+						description="Your message",
+						option_type=3,
+						required=True
+						)
+				],
+				guild_ids=guild_ids
+			)
 			async def _confess(ctx, confession):
 				"""Runs on the confession slash command."""
 
@@ -1176,22 +1181,24 @@ if __name__ == "__main__":
 					client.update_data()
 
 					await ctx.defer(hidden=True)
-					await ctx.send(
-						content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.",
-						hidden=True)
+					await ctx.send(content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.", hidden=True)
 
 				except Exception as exception:
-					logger.error("Failed to run /confess in " + ctx.guild.name + " (" + str(
-						ctx.guild.id) + "). Exception: " + str(exception))
+					logger.error("Failed to run /confess in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
-
-			@slash.slash(name="question", description="Ask Sirius a question",
-						 options=[create_option(
-							 name="question",
-							 description="Your question",
-							 option_type=3,
-							 required=True)],
-						 guild_ids=guild_ids)
+			@slash.slash(
+				name="question",
+				description="Ask Sirius a question",
+				options=[
+					create_option(
+						name="question",
+						description="Your question",
+						option_type=3,
+						required=True
+					)
+				],
+				guild_ids=guild_ids
+			)
 			async def _question(ctx, message):
 				"""Runs on the question slash command."""
 
@@ -1202,17 +1209,21 @@ if __name__ == "__main__":
 					await ctx.send(content=reply + question(message))
 
 				except Exception as exception:
-					logger.error("Failed to run /question message in " + ctx.guild.name + " (" + str(
-						ctx.guild.id) + "). Exception: " + str(exception))
+					logger.error("Failed to run /question message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
-
-			@slash.slash(name="anonymous", description="Say something in the channel anonymously",
-						 options=[create_option(
-							 name="message",
-							 description="Your message",
-							 option_type=3,
-							 required=True)],
-						 guild_ids=guild_ids)
+			@slash.slash(
+				name="anonymous",
+				description="Say something in the channel anonymously",
+				options=[
+					create_option(
+						name="message",
+						description="Your message",
+						option_type=3,
+						required=True
+					)
+				],
+				guild_ids=guild_ids
+			)
 			async def _anonymous(ctx, message):
 				"""Runs on the anonymous message slash command."""
 
@@ -1222,38 +1233,42 @@ if __name__ == "__main__":
 					# TODO
 					# Do checks for unwanted terms here
 					await ctx.send(content="Your message will be sent anonymously", hidden=True)
-					await ctx.channel.send(content="**Anonymous**: *"+message+"*")
+					await ctx.channel.send(content="**Anonymous**: *" + message + "*")
 
 				except Exception as exception:
-					logger.error("Failed to run /anonymous message in " + ctx.guild.name + " (" + str(
-						ctx.guild.id) + "). Exception: " + str(exception))
-
+					logger.error("Failed to run /anonymous message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
 			# admin_roles = [role for role in ctx.guild.roles if role.permissions.administrator]
-			@slash.slash(name="purge", description="Purge messages from the channel",
-						 options=[create_option(
-							 name="count",
-							 description="How many messages",
-							 option_type=4,
-							 required=True)],
-						 guild_ids=guild_ids)
+			@slash.slash(
+				name="purge",
+				description="Purge messages from the channel",
+				options=[
+					create_option(
+						name="count",
+						description="How many messages",
+						option_type=4,
+						required=True
+					)
+				],
+				guild_ids=guild_ids
+			)
 			async def _purge(ctx, count):
 				"""Runs on the purge slash command."""
 
 				logger.debug("`/purge` called by " + ctx.author.name)
 
 				if ctx.author.guild_permissions.administrator:
-					purge_button = create_button(style=ButtonStyle.danger, label="Purge " + str(count) + " messages?",
-												 custom_id="purge:" + str(count))
+					purge_button = create_button(style=ButtonStyle.danger, label="Purge " + str(count) + " messages?", custom_id="purge:" + str(count))
 					components = [create_actionrow(*[purge_button])]
 					await ctx.send(content="Purge " + str(count) + " messages?", components=components)
 				else:
 					await ctx.send("You do not have permissions to run this command", hidden=True)
 
-
-			@slash.context_menu(target=ContextMenuType.MESSAGE,
-								name="Close Poll",
-								guild_ids=guild_ids)
+			@slash.context_menu(
+				target=ContextMenuType.MESSAGE,
+				name="Close Poll",
+				guild_ids=guild_ids
+			)
 			async def _close_poll(ctx: MenuContext):
 				if str(ctx.target_id) in client.poll[str(ctx.target_message.guild.id)]:
 					poll = client.poll[str(ctx.guild.id)][str(ctx.target_id)]
@@ -1301,7 +1316,7 @@ if __name__ == "__main__":
 					poll = client.poll[str(guild.id)][str(ctx.origin_message.id)]
 					if ctx.author.id in poll["options"][candidate]["voters"]:  # If user has already voted for this option
 						poll["options"][candidate]["voters"].remove(ctx.author.id)
-						await ctx.send(content="You just removed your vote for "+candidate, hidden=True)
+						await ctx.send(content="You just removed your vote for " + candidate, hidden=True)
 					else:
 						poll["options"][candidate]["voters"].append(ctx.author.id)
 						await ctx.send(content="You just voted for " + candidate, hidden=True)
@@ -1336,10 +1351,10 @@ if __name__ == "__main__":
 				elif ctx.custom_id.startswith("settings"):
 					config = client.data["servers"][str(guild.id)]["config"]
 					setting = ctx.custom_id[len("settings:"):]
-					logger.debug("Server setting '"+setting+"' of '"+guild.name+"' changed by "+ctx.author.name)
+					logger.debug("Server setting '" + setting + "' of '" + guild.name + "' changed by " + ctx.author.name)
 					if ctx.author.guild_permissions.administrator:
 						config[setting] = int(ctx.values[0])
-						await ctx.edit_origin(content=setting[0].upper()+setting[1:]+": "+str(config[setting]))  # Makes first character capital of setting and shows the new setting
+						await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))  # Makes first character capital of setting and shows the new setting
 						client.data["servers"][str(guild.id)]["config"] = config
 						client.update_data()
 						return
@@ -1347,12 +1362,12 @@ if __name__ == "__main__":
 				elif ctx.custom_id.startswith("config"):
 					config = client.data["config"]
 					setting = ctx.custom_id[len("config:"):]
-					logger.debug("Config button pressed by "+ctx.author.name)
+					logger.debug("Config button pressed by " + ctx.author.name)
 					if ctx.author.id in config["developers"]:
 						config[setting] = not config[setting]
-						logger.info("Config:"+setting+" changed to " + str(config[setting]))
+						logger.info("Config:" + setting + " changed to " + str(config[setting]))
 						client.update_data()
-						await ctx.edit_origin(content=setting[0].upper()+setting[1:]+": "+str(config[setting]))  # Makes first character capital of setting and shows the new setting
+						await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))  # Makes first character capital of setting and shows the new setting
 					else:
 						await ctx.send("You do not have permissions to press this button", hidden=True)
 						logger.info(ctx.author.name + " tried to change config")
@@ -1365,20 +1380,19 @@ if __name__ == "__main__":
 						# Checks if the message is one of the server's roles messages
 						message_relevant = False
 						for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
-							if ctx.origin_message_id == \
-									client.data["servers"][str(guild.id)]["roles"]["categories"][category]["message id"]:
+							if ctx.origin_message_id == client.data["servers"][str(guild.id)]["roles"]["categories"][category]["message id"]:
 								message_relevant = True
 								break
 
 						# Checks if the role ID is one of the server's roles
 						role_id_found = False
 						for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
-							if ctx.custom_id in client.data["servers"][str(guild.id)]["roles"]["categories"][category][
-								"list"]:
+							if ctx.custom_id in client.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:
 								role_id_found = True
 								break
 						if role_id_found is False:
 							return
+
 						# Checks if the role exists and is valid
 						role = guild.get_role(int(ctx.custom_id))
 						if role is None:
@@ -1388,7 +1402,7 @@ if __name__ == "__main__":
 						# Adds the role if the user doesn't have it
 						if role not in ctx.author.roles:
 							await ctx.author.add_roles(role)
-							await ctx.send(content="Added role: "+role.name, hidden=True)
+							await ctx.send(content="Added role: " + role.name, hidden=True)
 							logger.debug("Added role " + role.name + " to " + ctx.author.name)
 
 						# Removes the role if the user already has it
