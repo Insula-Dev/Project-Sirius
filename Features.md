@@ -1,4 +1,6 @@
-# All members
+# Commands
+
+## All members
 
 The following features are available to all members:
 - `/help` posts the help embed.
@@ -7,7 +9,7 @@ The following features are available to all members:
 - `/confess` submits an anonymous confession.
 - `/ping` obtains the bot latency.
 
-# Admin only
+## Admin only
 
 The following features are available to admin members:
 - `/rules` posts the roles embed.
@@ -18,7 +20,7 @@ The following features are available to admin members:
 - `/post_confessions` posts submitted confessions.
 - `/purge` deletes the last messages.
 
-# Developer only
+## Developer only
 
 The following features are available to developers:
 - `/announce` sends a message in all server announcement channels.
