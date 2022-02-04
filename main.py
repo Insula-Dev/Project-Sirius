@@ -1,10 +1,10 @@
 # Imports
 from math import ceil
 from random import randint
-import time
+from os import path
 from datetime import date, datetime
 import json
-import re  # Delete this later
+import re
 import requests
 import socket
 import asyncio
@@ -17,20 +17,49 @@ from discord_slash.model import SlashCommandPermissionType, ContextMenuType
 # Local imports
 from log_handling import *
 from imaging import generate_level_card
-from ai import question
+from AI import question
 
+# Loads config CONST variables
+DEFAULT_TOKEN = "ENTER TOKEN HERE"
+DEFAULT_PREFIX = "-"
+DEFAULT_DEBUG = True
+DEFAULT_LEVEL = "INFO"
+DEFAULT_JOKE_SERVERS = []
 
-# Variables
-with open("config.json", encoding='utf-8') as file:
-	data = json.load(file)
-	TOKEN = data["token"]
-	VERSION = data["version"]
-	PREFIX = data["prefix"]
-	DEBUG = data["debug"]
-	LEVEL = data["level"]
-	SERVER_STRUCTURE = data["server structure"]
-	JOKE_SERVERS = data["joke servers"]
+TOKEN = DEFAULT_TOKEN
+PREFIX = DEFAULT_PREFIX
+DEBUG = DEFAULT_DEBUG
+LEVEL = DEFAULT_LEVEL
+JOKE_SERVERS = DEFAULT_JOKE_SERVERS
 
+def setup_config():
+	global TOKEN,PREFIX,DEBUG,LEVEL
+
+	def initiate_const(name,default,dictionary):
+		try:
+			const = dictionary[name]
+		except KeyError:
+			return default
+
+	if not path.exists("config.json"):
+		configFile = open("config.json", "w")
+		json.dump(
+			{
+				"token": DEFAULT_TOKEN,
+				"prefix": DEFAULT_PREFIX,
+				"debug": DEFAULT_DEBUG,
+				"level": DEFAULT_LEVEL,
+				"joke servers": DEFAULT_JOKE_SERVERS
+			},
+			configFile, indent=4)
+	else:
+		with open("config.json", encoding='utf-8') as file:
+			data = json.load(file)
+			TOKEN = initiate_const("token",DEFAULT_TOKEN,data)
+			PREFIX = initiate_const("prefix",DEFAULT_PREFIX,data)
+			DEBUG = initiate_const("debug",DEFAULT_DEBUG,data)
+			LEVEL = initiate_const("level",DEFAULT_LEVEL,data)
+			JOKE_SERVERS = initiate_const("joke servers",DEFAULT_JOKE_SERVERS,data)
 
 # Definitions
 class MyClient(discord.Client):
@@ -1142,6 +1171,7 @@ if __name__ == "__main__":
 	if state == 1:  # TODO change to while to test for restart command
 		state = 0
 		try:
+			setup_config()
 			intents = discord.Intents.all()
 			intents.members = True
 			client = MyClient(intents=intents)
