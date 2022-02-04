@@ -1182,6 +1182,21 @@ if __name__ == "__main__":
 				guild_ids += guild.id
 
 			@slash.slash(
+				name="ping",
+				description="Ping the bot to obtain latency.",
+				guild_ids=guild_ids
+			)
+			async def _ping(ctx):
+				"""Runs on the ping slash command."""
+
+				logger.debug("`/ping` called by " + ctx.author.name)
+
+				try:
+					await ctx.send(content=str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5])
+				except Exception as exception:
+					logger.error("Failed to run `/ping` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+			@slash.slash(
 				name="confess",
 				description="Use the command to send an anonymous message to be posted later",
 				options=[
@@ -1215,7 +1230,7 @@ if __name__ == "__main__":
 					await ctx.send(content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.", hidden=True)
 
 				except Exception as exception:
-					logger.error("Failed to run /confess in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+					logger.error("Failed to run `/confess` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
 			@slash.slash(
 				name="question",
@@ -1240,7 +1255,7 @@ if __name__ == "__main__":
 					await ctx.send(content=reply + question(message))
 
 				except Exception as exception:
-					logger.error("Failed to run /question message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+					logger.error("Failed to run `/question` message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
 			@slash.slash(
 				name="anonymous",
@@ -1267,7 +1282,7 @@ if __name__ == "__main__":
 					await ctx.channel.send(content="**Anonymous**: *" + message + "*")
 
 				except Exception as exception:
-					logger.error("Failed to run /anonymous message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+					logger.error("Failed to run `/anonymous` message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
 			# admin_roles = [role for role in ctx.guild.roles if role.permissions.administrator]
 			@slash.slash(
