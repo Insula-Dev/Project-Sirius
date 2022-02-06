@@ -26,6 +26,25 @@ DEFAULT_DEBUG = True
 DEFAULT_LEVEL = "INFO"
 DEFAULT_JOKE_SERVERS = []
 
+VERSION = "1.3.1 InDev"
+SERVER_STRUCTURE = \
+{
+	"config": {
+		"announcements channel id": 0
+	},
+	"rules": {
+		"title": "Server rules",
+		"description": "",
+		"list": [],
+		"image link": ""
+	},
+	"roles": {
+		"verify role": 0,
+		"categories": {}
+	},
+	"ranks": {}
+}
+
 TOKEN = DEFAULT_TOKEN
 PREFIX = DEFAULT_PREFIX
 DEBUG = DEFAULT_DEBUG
@@ -33,11 +52,11 @@ LEVEL = DEFAULT_LEVEL
 JOKE_SERVERS = DEFAULT_JOKE_SERVERS
 
 def setup_config():
-	global TOKEN,PREFIX,DEBUG,LEVEL
+	global TOKEN,PREFIX,DEBUG,LEVEL,JOKE_SERVERS
 
 	def initiate_const(name,default,dictionary):
 		try:
-			const = dictionary[name]
+			return dictionary[name]
 		except KeyError:
 			return default
 
@@ -60,6 +79,8 @@ def setup_config():
 			DEBUG = initiate_const("debug",DEFAULT_DEBUG,data)
 			LEVEL = initiate_const("level",DEFAULT_LEVEL,data)
 			JOKE_SERVERS = initiate_const("joke servers",DEFAULT_JOKE_SERVERS,data)
+
+setup_config()
 
 # Definitions
 class MyClient(discord.Client):
@@ -787,9 +808,9 @@ class MyClient(discord.Client):
 				channel_options = []
 				for channel in guild.text_channels:
 					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
-						channel_options.append(create_select_option(label=channel.name, value=channel.id, default=True))
+						channel_options.append(create_select_option(label=channel.name, value=str(channel.id), default=True))
 					else:
-						channel_options.append(create_select_option(label=channel.name, value=channel.id))
+						channel_options.append(create_select_option(label=channel.name, value=str(channel.id)))
 				announcement_channel_select = create_select(channel_options, custom_id="settings:announcements channel id")
 				components = [create_actionrow(*[announcement_channel_select])]
 				await message.channel.send(content="Announcement Channel:", components=components)
@@ -1170,326 +1191,326 @@ if __name__ == "__main__":
 	state = 1
 	if state == 1:  # TODO change to while to test for restart command
 		state = 0
-		try:
-			setup_config()
-			intents = discord.Intents.all()
-			intents.members = True
-			client = MyClient(intents=intents)
-			slash = SlashCommand(client, sync_commands=True)
+		#try:
+		setup_config()
+		intents = discord.Intents.all()
+		intents.members = True
+		client = MyClient(intents=intents)
+		slash = SlashCommand(client, sync_commands=True)
 
-			guild_ids = []
-			for guild in client.guilds:
-				guild_ids += guild.id
+		guild_ids = []
+		for guild in client.guilds:
+			guild_ids += guild.id
 
-			@slash.slash(
-				name="ping",
-				description="Ping the bot to obtain latency.",
-				guild_ids=guild_ids
-			)
-			async def _ping(ctx):
-				"""Runs on the ping slash command."""
+		@slash.slash(
+			name="ping",
+			description="Ping the bot to obtain latency.",
+			guild_ids=guild_ids
+		)
+		async def _ping(ctx):
+			"""Runs on the ping slash command."""
 
-				logger.debug("`/ping` called by " + ctx.author.name)
+			logger.debug("`/ping` called by " + ctx.author.name)
 
-				try:
-					await ctx.send(content=str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5])
-				except Exception as exception:
-					logger.error("Failed to run `/ping` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+			try:
+				await ctx.send(content=str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5])
+			except Exception as exception:
+				logger.error("Failed to run `/ping` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
-			@slash.slash(
-				name="confess",
-				description="Use the command to send an anonymous message to be posted later",
-				options=[
-					create_option(
-						name="confession",
-						description="Your message",
-						option_type=3,
-						required=True
-						)
-				],
-				guild_ids=guild_ids
-			)
-			async def _confess(ctx, confession):
-				"""Runs on the confession slash command."""
-
-				logger.debug("`/confess` called anonymously")
-
-				try:
-					server_data = client.data["servers"][str(ctx.guild.id)]  # Used for easy reference
-
-					if "confessions" not in server_data:
-						server_data.update({"confessions": {"metadata": {"count": 0}, "messages": {}}})
-					server_data["confessions"]["metadata"]["count"] += 1
-					confession_data = {str(server_data["confessions"]["metadata"]["count"]): confession}
-					server_data["confessions"]["messages"].update(confession_data)
-
-					client.data["servers"][str(ctx.guild.id)] = server_data
-					client.update_data()
-
-					await ctx.defer(hidden=True)
-					await ctx.send(content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.", hidden=True)
-
-				except Exception as exception:
-					logger.error("Failed to run `/confess` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
-
-			@slash.slash(
-				name="question",
-				description="Ask Sirius a question",
-				options=[
-					create_option(
-						name="question",
-						description="Your question",
-						option_type=3,
-						required=True
+		@slash.slash(
+			name="confess",
+			description="Use the command to send an anonymous message to be posted later",
+			options=[
+				create_option(
+					name="confession",
+					description="Your message",
+					option_type=3,
+					required=True
 					)
-				],
-				guild_ids=guild_ids
-			)
-			async def _question(ctx, message):
-				"""Runs on the question slash command."""
+			],
+			guild_ids=guild_ids
+		)
+		async def _confess(ctx, confession):
+			"""Runs on the confession slash command."""
 
-				logger.debug("`/question` called by " + ctx.author.name)
+			logger.debug("`/confess` called anonymously")
 
-				try:
-					reply = "**" + ctx.author.name + "**: *" + message + "*\n\n"
-					await ctx.send(content=reply + question(message))
+			try:
+				server_data = client.data["servers"][str(ctx.guild.id)]  # Used for easy reference
 
-				except Exception as exception:
-					logger.error("Failed to run `/question` message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+				if "confessions" not in server_data:
+					server_data.update({"confessions": {"metadata": {"count": 0}, "messages": {}}})
+				server_data["confessions"]["metadata"]["count"] += 1
+				confession_data = {str(server_data["confessions"]["metadata"]["count"]): confession}
+				server_data["confessions"]["messages"].update(confession_data)
 
-			@slash.slash(
-				name="anonymous",
-				description="Say something in the channel anonymously",
-				options=[
-					create_option(
-						name="message",
-						description="Your message",
-						option_type=3,
-						required=True
-					)
-				],
-				guild_ids=guild_ids
-			)
-			async def _anonymous(ctx, message):
-				"""Runs on the anonymous message slash command."""
+				client.data["servers"][str(ctx.guild.id)] = server_data
+				client.update_data()
 
-				logger.debug("`/anonymous` called by " + ctx.author.name)
+				await ctx.defer(hidden=True)
+				await ctx.send(content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.", hidden=True)
 
-				try:
-					# TODO
-					# Do checks for unwanted terms here
-					await ctx.send(content="Your message will be sent anonymously", hidden=True)
-					await ctx.channel.send(content="**Anonymous**: *" + message + "*")
+			except Exception as exception:
+				logger.error("Failed to run `/confess` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
-				except Exception as exception:
-					logger.error("Failed to run `/anonymous` message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+		@slash.slash(
+			name="question",
+			description="Ask Sirius a question",
+			options=[
+				create_option(
+					name="question",
+					description="Your question",
+					option_type=3,
+					required=True
+				)
+			],
+			guild_ids=guild_ids
+		)
+		async def _question(ctx, message):
+			"""Runs on the question slash command."""
 
-			# admin_roles = [role for role in ctx.guild.roles if role.permissions.administrator]
-			@slash.slash(
-				name="purge",
-				description="Purge messages from the channel",
-				options=[
-					create_option(
-						name="count",
-						description="How many messages",
-						option_type=4,
-						required=True
-					)
-				],
-				guild_ids=guild_ids
-			)
-			async def _purge(ctx, count):
-				"""Runs on the purge slash command."""
+			logger.debug("`/question` called by " + ctx.author.name)
 
-				logger.debug("`/purge` called by " + ctx.author.name)
+			try:
+				reply = "**" + ctx.author.name + "**: *" + message + "*\n\n"
+				await ctx.send(content=reply + question(message))
 
+			except Exception as exception:
+				logger.error("Failed to run `/question` message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+		@slash.slash(
+			name="anonymous",
+			description="Say something in the channel anonymously",
+			options=[
+				create_option(
+					name="message",
+					description="Your message",
+					option_type=3,
+					required=True
+				)
+			],
+			guild_ids=guild_ids
+		)
+		async def _anonymous(ctx, message):
+			"""Runs on the anonymous message slash command."""
+
+			logger.debug("`/anonymous` called by " + ctx.author.name)
+
+			try:
+				# TODO
+				# Do checks for unwanted terms here
+				await ctx.send(content="Your message will be sent anonymously", hidden=True)
+				await ctx.channel.send(content="**Anonymous**: *" + message + "*")
+
+			except Exception as exception:
+				logger.error("Failed to run `/anonymous` message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+		# admin_roles = [role for role in ctx.guild.roles if role.permissions.administrator]
+		@slash.slash(
+			name="purge",
+			description="Purge messages from the channel",
+			options=[
+				create_option(
+					name="count",
+					description="How many messages",
+					option_type=4,
+					required=True
+				)
+			],
+			guild_ids=guild_ids
+		)
+		async def _purge(ctx, count):
+			"""Runs on the purge slash command."""
+
+			logger.debug("`/purge` called by " + ctx.author.name)
+
+			if ctx.author.guild_permissions.administrator:
+				purge_button = create_button(style=ButtonStyle.danger, label="Purge " + str(count) + " messages?", custom_id="purge:" + str(count))
+				components = [create_actionrow(*[purge_button])]
+				await ctx.send(content="Purge " + str(count) + " messages?", components=components)
+			else:
+				await ctx.send("You do not have permissions to run this command", hidden=True)
+
+		@slash.context_menu(
+			target=ContextMenuType.MESSAGE,
+			name="Close Poll",
+			guild_ids=guild_ids
+		)
+		async def _close_poll(ctx: MenuContext):
+			if str(ctx.target_id) in client.poll[str(ctx.target_message.guild.id)]:
+				poll = client.poll[str(ctx.guild.id)][str(ctx.target_id)]
+				options = poll["options"]
+				counts = []
+				highest_emoji = ""
+				highest_count = 0
+				for candidate in options:
+					count = len(options[candidate]["voters"])
+					counts.append(str(count))
+					if count > highest_count:
+						highest_count = count
+						highest_emoji = candidate
+
+				title = str(poll["title"])
+				if title == "Embed.Empty":
+					title = ""
+				embed_results = discord.Embed(title=title + " Results")
+				embed_results.add_field(name="Candidates", value="\n".join(options), inline=True)
+				embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
+				if poll["config"]["winner"] == "highest":  # Winner is shown as the highest scoring candidate
+					embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)]["name"] + " Score: " + str(highest_count)), inline=False)
+				await ctx.target_message.delete()  # Deletes the poll message
+				client.poll[str(ctx.guild.id)].pop(str(ctx.target_id))  # Removes poll entry from dictionary
+				await ctx.send(embeds=[embed_results], hidden=True)  # Sends the results embed
+			else:
+				await ctx.send(content="This is not a poll", hidden=True)
+
+		# Buttons...
+		# The following must be tested:
+		#     - Bots cannot press buttons
+		#     - What happens when the bot isn't in the guild or the guild isn't cached (see
+		#       on_raw_reaction_add for details)
+		@client.event
+		async def on_component(ctx):
+			"""Runs on component use."""
+
+			logger.debug("Component used by " + ctx.author.name)
+
+			guild = ctx.origin_message.guild
+
+			if ctx.custom_id.startswith("poll"):
+				logger.debug("An anonymous user has voted on a poll")
+				candidate = ctx.custom_id[len("poll:"):]
+				poll = client.poll[str(guild.id)][str(ctx.origin_message.id)]
+				if ctx.author.id in poll["options"][candidate]["voters"]:  # If user has already voted for this option
+					poll["options"][candidate]["voters"].remove(ctx.author.id)
+					await ctx.send(content="You just removed your vote for " + candidate, hidden=True)
+				else:
+					poll["options"][candidate]["voters"].append(ctx.author.id)
+					await ctx.send(content="You just voted for " + candidate, hidden=True)
+
+
+			elif ctx.custom_id.startswith("confession"):
+				id = ctx.custom_id[len("confession:"):]
+				# Placeholder for other buttons functionality. Do not remove without consulting Pablo's forboding psionic foresight
+				if "confessions" in client.data["servers"][str(guild.id)]:
+					if ctx.author.guild_permissions.administrator:
+						logger.debug("Checking confessions about button press")
+						if id in client.data["servers"][str(guild.id)]["confessions"]["messages"]:  # Checks the button relates to a post stored in data
+							del client.data["servers"][str(guild.id)]["confessions"]["messages"][id]  # Removes the confession
+							logger.info("Confession No." + id + " removed from guild " + guild.name + " by " + ctx.author.name)
+							client.update_data()
+							await ctx.edit_origin(content="**This message has been removed by " + ctx.author.name + "**")
+						else:
+							await ctx.reply(content="This confession is not in data so has likely already been posted!")
+					else:
+						await ctx.edit_origin(content="**" + ctx.author.name + " **tried to remove this message without permissions!")
+
+			elif ctx.custom_id.startswith("purge"):
 				if ctx.author.guild_permissions.administrator:
-					purge_button = create_button(style=ButtonStyle.danger, label="Purge " + str(count) + " messages?", custom_id="purge:" + str(count))
-					components = [create_actionrow(*[purge_button])]
-					await ctx.send(content="Purge " + str(count) + " messages?", components=components)
+					count = int(ctx.custom_id[len("purge:"):])
+					await ctx.channel.purge(limit=count)
+					logger.info("Purge complete in " + ctx.channel.name + " < " + ctx.guild.name)
+					await ctx.channel.send("Channel purged " + str(count) + " messages")
 				else:
-					await ctx.send("You do not have permissions to run this command", hidden=True)
+					await ctx.send("You do not have permissions to press this button", hidden=True)
+					logger.info(ctx.author.name + " tried to purge messages")
 
-			@slash.context_menu(
-				target=ContextMenuType.MESSAGE,
-				name="Close Poll",
-				guild_ids=guild_ids
-			)
-			async def _close_poll(ctx: MenuContext):
-				if str(ctx.target_id) in client.poll[str(ctx.target_message.guild.id)]:
-					poll = client.poll[str(ctx.guild.id)][str(ctx.target_id)]
-					options = poll["options"]
-					counts = []
-					highest_emoji = ""
-					highest_count = 0
-					for candidate in options:
-						count = len(options[candidate]["voters"])
-						counts.append(str(count))
-						if count > highest_count:
-							highest_count = count
-							highest_emoji = candidate
+			elif ctx.custom_id.startswith("settings"):
+				config = client.data["servers"][str(guild.id)]["config"]
+				setting = ctx.custom_id[len("settings:"):]
+				logger.debug("Server setting '" + setting + "' of '" + guild.name + "' changed by " + ctx.author.name)
+				if ctx.author.guild_permissions.administrator:
+					config[setting] = int(ctx.values[0])
+					await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))  # Makes first character capital of setting and shows the new setting
+					client.data["servers"][str(guild.id)]["config"] = config
+					client.update_data()
+					return
 
-					title = str(poll["title"])
-					if title == "Embed.Empty":
-						title = ""
-					embed_results = discord.Embed(title=title + " Results")
-					embed_results.add_field(name="Candidates", value="\n".join(options), inline=True)
-					embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
-					if poll["config"]["winner"] == "highest":  # Winner is shown as the highest scoring candidate
-						embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)]["name"] + " Score: " + str(highest_count)), inline=False)
-					await ctx.target_message.delete()  # Deletes the poll message
-					client.poll[str(ctx.guild.id)].pop(str(ctx.target_id))  # Removes poll entry from dictionary
-					await ctx.send(embeds=[embed_results], hidden=True)  # Sends the results embed
+			elif ctx.custom_id.startswith("config"):
+				config = client.data["config"]
+				setting = ctx.custom_id[len("config:"):]
+				logger.debug("Config button pressed by " + ctx.author.name)
+				if ctx.author.id in config["developers"]:
+					config[setting] = not config[setting]
+					logger.info("Config:" + setting + " changed to " + str(config[setting]))
+					client.update_data()
+					await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))  # Makes first character capital of setting and shows the new setting
 				else:
-					await ctx.send(content="This is not a poll", hidden=True)
+					await ctx.send("You do not have permissions to press this button", hidden=True)
+					logger.info(ctx.author.name + " tried to change config")
+					return
 
-			# Buttons...
-			# The following must be tested:
-			#     - Bots cannot press buttons
-			#     - What happens when the bot isn't in the guild or the guild isn't cached (see
-			#       on_raw_reaction_add for details)
-			@client.event
-			async def on_component(ctx):
-				"""Runs on component use."""
+			# If the roles functionality is enabled. THIS IS FUCKING BROKEN PABLO. WHY ARE YOU RETURNING WHEN IT COULD NOT BE ROLES!!!
+			elif "roles" in client.data["servers"][str(guild.id)]:
+				try:
 
-				logger.debug("Component used by " + ctx.author.name)
+					# Checks if the message is one of the server's roles messages
+					message_relevant = False
+					for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
+						if ctx.origin_message_id == client.data["servers"][str(guild.id)]["roles"]["categories"][category]["message id"]:
+							message_relevant = True
+							break
 
-				guild = ctx.origin_message.guild
-
-				if ctx.custom_id.startswith("poll"):
-					logger.debug("An anonymous user has voted on a poll")
-					candidate = ctx.custom_id[len("poll:"):]
-					poll = client.poll[str(guild.id)][str(ctx.origin_message.id)]
-					if ctx.author.id in poll["options"][candidate]["voters"]:  # If user has already voted for this option
-						poll["options"][candidate]["voters"].remove(ctx.author.id)
-						await ctx.send(content="You just removed your vote for " + candidate, hidden=True)
-					else:
-						poll["options"][candidate]["voters"].append(ctx.author.id)
-						await ctx.send(content="You just voted for " + candidate, hidden=True)
-
-
-				elif ctx.custom_id.startswith("confession"):
-					id = ctx.custom_id[len("confession:"):]
-					# Placeholder for other buttons functionality. Do not remove without consulting Pablo's forboding psionic foresight
-					if "confessions" in client.data["servers"][str(guild.id)]:
-						if ctx.author.guild_permissions.administrator:
-							logger.debug("Checking confessions about button press")
-							if id in client.data["servers"][str(guild.id)]["confessions"]["messages"]:  # Checks the button relates to a post stored in data
-								del client.data["servers"][str(guild.id)]["confessions"]["messages"][id]  # Removes the confession
-								logger.info("Confession No." + id + " removed from guild " + guild.name + " by " + ctx.author.name)
-								client.update_data()
-								await ctx.edit_origin(content="**This message has been removed by " + ctx.author.name + "**")
-							else:
-								await ctx.reply(content="This confession is not in data so has likely already been posted!")
-						else:
-							await ctx.edit_origin(content="**" + ctx.author.name + " **tried to remove this message without permissions!")
-
-				elif ctx.custom_id.startswith("purge"):
-					if ctx.author.guild_permissions.administrator:
-						count = int(ctx.custom_id[len("purge:"):])
-						await ctx.channel.purge(limit=count)
-						logger.info("Purge complete in " + ctx.channel.name + " < " + ctx.guild.name)
-						await ctx.channel.send("Channel purged " + str(count) + " messages")
-					else:
-						await ctx.send("You do not have permissions to press this button", hidden=True)
-						logger.info(ctx.author.name + " tried to purge messages")
-
-				elif ctx.custom_id.startswith("settings"):
-					config = client.data["servers"][str(guild.id)]["config"]
-					setting = ctx.custom_id[len("settings:"):]
-					logger.debug("Server setting '" + setting + "' of '" + guild.name + "' changed by " + ctx.author.name)
-					if ctx.author.guild_permissions.administrator:
-						config[setting] = int(ctx.values[0])
-						await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))  # Makes first character capital of setting and shows the new setting
-						client.data["servers"][str(guild.id)]["config"] = config
-						client.update_data()
+					# Checks if the role ID is one of the server's roles
+					role_id_found = False
+					for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
+						if ctx.custom_id in client.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:
+							role_id_found = True
+							break
+					if role_id_found is False:
 						return
 
-				elif ctx.custom_id.startswith("config"):
-					config = client.data["config"]
-					setting = ctx.custom_id[len("config:"):]
-					logger.debug("Config button pressed by " + ctx.author.name)
-					if ctx.author.id in config["developers"]:
-						config[setting] = not config[setting]
-						logger.info("Config:" + setting + " changed to " + str(config[setting]))
-						client.update_data()
-						await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))  # Makes first character capital of setting and shows the new setting
-					else:
-						await ctx.send("You do not have permissions to press this button", hidden=True)
-						logger.info(ctx.author.name + " tried to change config")
+					# Checks if the role exists and is valid
+					role = guild.get_role(int(ctx.custom_id))
+					if role is None:
+						logger.debug("Could not get role with id: " + ctx.custom_id)
 						return
 
-				# If the roles functionality is enabled. THIS IS FUCKING BROKEN PABLO. WHY ARE YOU RETURNING WHEN IT COULD NOT BE ROLES!!!
-				elif "roles" in client.data["servers"][str(guild.id)]:
+					# Adds the role if the user doesn't have it
+					if role not in ctx.author.roles:
+						await ctx.author.add_roles(role)
+						await ctx.send(content="Added role: " + role.name, hidden=True)
+						logger.debug("Added role " + role.name + " to " + ctx.author.name)
+
+					# Removes the role if the user already has it
+					else:
+						await ctx.author.remove_roles(role)
+						await ctx.send(content="Removed role: " + role.name, hidden=True)
+						logger.debug("Removed role " + role.name + " from " + ctx.author.name)
+
+					# Send Pong response. Incipit Helminth...
+					with open("config.json") as file:
+						url = "https://discordapp.com/api/channels/{}/messages".format(ctx.origin_message.channel.id)
+						headers = {
+							"Authorization": "Bot {}".format(file.read()["token"]),
+							"Content-Type": "application/json"
+						}
+						JSON = {
+							"type": 1
+						}
+						r = requests.post(url, headers=headers, data=json.dumps(JSON))
+					logger.debug(r.status_code, r.reason)
+					return
+
+				except Exception as exception:
+					logger.error("Failed to add role " + role.name + " to " + ctx.author.name + ". Exception: " + str(
+						exception))  # Error: this may run even if the intention of the button press isn't to add a role
+				finally:
 					try:
-
-						# Checks if the message is one of the server's roles messages
-						message_relevant = False
-						for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
-							if ctx.origin_message_id == client.data["servers"][str(guild.id)]["roles"]["categories"][category]["message id"]:
-								message_relevant = True
-								break
-
-						# Checks if the role ID is one of the server's roles
-						role_id_found = False
-						for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
-							if ctx.custom_id in client.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:
-								role_id_found = True
-								break
-						if role_id_found is False:
-							return
-
-						# Checks if the role exists and is valid
-						role = guild.get_role(int(ctx.custom_id))
-						if role is None:
-							logger.debug("Could not get role with id: " + ctx.custom_id)
-							return
-
-						# Adds the role if the user doesn't have it
-						if role not in ctx.author.roles:
+						verify_role = client.data["servers"][str(guild.id)]["roles"]["verify role"]
+						if verify_role != 0:
+							role = guild.get_role(verify_role)
 							await ctx.author.add_roles(role)
-							await ctx.send(content="Added role: " + role.name, hidden=True)
-							logger.debug("Added role " + role.name + " to " + ctx.author.name)
-
-						# Removes the role if the user already has it
-						else:
-							await ctx.author.remove_roles(role)
-							await ctx.send(content="Removed role: " + role.name, hidden=True)
-							logger.debug("Removed role " + role.name + " from " + ctx.author.name)
-
-						# Send Pong response. Incipit Helminth...
-						with open("config.json") as file:
-							url = "https://discordapp.com/api/channels/{}/messages".format(ctx.origin_message.channel.id)
-							headers = {
-								"Authorization": "Bot {}".format(file.read()["token"]),
-								"Content-Type": "application/json"
-							}
-							JSON = {
-								"type": 1
-							}
-							r = requests.post(url, headers=headers, data=json.dumps(JSON))
-						logger.debug(r.status_code, r.reason)
-						return
-
+							logger.debug("Verified " + ctx.author.name + " on " + guild.name)
+					except KeyError:
+						logger.debug("No verification role found in " + guild.name)
 					except Exception as exception:
-						logger.error("Failed to add role " + role.name + " to " + ctx.author.name + ". Exception: " + str(
-							exception))  # Error: this may run even if the intention of the button press isn't to add a role
-					finally:
-						try:
-							verify_role = client.data["servers"][str(guild.id)]["roles"]["verify role"]
-							if verify_role != 0:
-								role = guild.get_role(verify_role)
-								await ctx.author.add_roles(role)
-								logger.debug("Verified " + ctx.author.name + " on " + guild.name)
-						except KeyError:
-							logger.debug("No verification role found in " + guild.name)
-						except Exception as exception:
-							logger.error("Verification failed: " + exception)
-						return
+						logger.error("Verification failed: " + exception)
+					return
 
-			client.run(TOKEN)
+		client.run(TOKEN)
 
-		except Exception as exception:
-			logger.error("Exception: " + str(exception) + "\n")  # Event log
+		#except Exception as exception:
+		#	logger.error("Exception: " + str(exception) + "\n")  # Event log
 	print("State:", state)
 	#time.sleep(10)
