@@ -1,0 +1,10 @@
+__pycache__
+.vscode
+.idea
+test.py
+config.json
+data.json
+log_file.log
+card.png
+channel_statistics.csv
+member_statistics.csv
