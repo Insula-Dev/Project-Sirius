@@ -1,0 +1,14 @@
+04/02/2022 19:31:48.594 | INFO | main.py | on_ready | Sirius II is ready.
+05/02/2022 14:30:08.888 | INFO | main.py | on_ready | Sirius II is ready.
+05/02/2022 23:24:58.419 | INFO | main.py | on_ready | Sirius II is ready.
+06/02/2022 10:03:14.848 | INFO | main.py | on_ready | Sirius II is ready.
+06/02/2022 10:03:48.263 | INFO | main.py | on_ready | Sirius II is ready.
+06/02/2022 10:03:49.148 | DEBUG | main.py | help | `.help` called by IkelosOne
+06/02/2022 10:03:53.438 | DEBUG | main.py | eightball | `.eightball` called by IkelosOne
+06/02/2022 10:04:33.301 | INFO | main.py | on_ready | Sirius II is ready.
+06/02/2022 10:04:35.272 | DEBUG | main.py | eightball | `.eightball` called by IkelosOne
+06/02/2022 10:04:44.218 | DEBUG | main.py | eightball | `.eightball` called by IkelosOne
+06/02/2022 12:56:06.312 | INFO | main.py | on_ready | Sirius II is ready.
+06/02/2022 12:56:17.838 | DEBUG | main.py | eightball | `.eightball` called by IkelosOne
+06/02/2022 12:56:26.686 | DEBUG | main.py | eightball | `.eightball` called by IkelosOne
+06/02/2022 12:56:37.955 | DEBUG | main.py | eightball | `.eightball` called by IkelosOne
