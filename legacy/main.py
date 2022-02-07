@@ -55,9 +55,11 @@ def setup_config():
 	global TOKEN,PREFIX,DEBUG,LEVEL,JOKE_SERVERS
 
 	def initiate_const(name,default,dictionary):
+		"""Returns value if found in the dictionary, else makes new entry with default value"""
 		try:
 			return dictionary[name]
 		except KeyError:
+			dictionary[name] = default
 			return default
 
 	if not path.exists("config.json"):
@@ -71,6 +73,7 @@ def setup_config():
 				"joke servers": DEFAULT_JOKE_SERVERS
 			},
 			configFile, indent=4)
+		configFile.close()
 	else:
 		with open("config.json", encoding='utf-8') as file:
 			data = json.load(file)
