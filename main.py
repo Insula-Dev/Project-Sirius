@@ -204,11 +204,8 @@ async def _poll(
 		for x in range(len(options)):
 			buttons.append(create_button(style=ButtonStyle.blue, label=options[x], custom_id=str(x)))
 		for x in range(len(options) % 5):
-
 			"""Create buttons here"""
-
 			action_row = create_actionrow(*buttons())
-
 			for i in range(len()):
 				buttons.append(create_button(style=ButtonStyle.blue, label=options[x], custom_id="poll:" + str(x)))
 		components = [create_actionrow(*buttons)]
