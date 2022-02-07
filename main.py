@@ -1,5 +1,8 @@
 # Imports
+from math import ceil
 import random
+
+# Discord specific imports
 import discord
 from discord.ext import commands
 from discord_slash import SlashCommand
@@ -8,7 +11,7 @@ from discord_slash.utils.manage_components import create_button, create_actionro
 
 # Local imports
 from log_handling import *
-from commands.help import _help
+#from commands.help import _help
 
 
 # Variables
@@ -24,11 +27,11 @@ def populate_actionrows(button_list):
     """Returns a list of actionrows of 5 or less buttons."""
 
     actionrow_list = []
-    for x in range(ceil(len(buttons_list) / 5)):
-        if len(buttons_list[(5 * x):]) > 5:
+    for x in range(ceil(len(button_list) / 5)):
+        if len(button_list[(5 * x):]) > 5:
             actionrow_list.append(create_actionrow(*button_list[(5 * x):(5 * x) + 5]))
         else:
-            actionrow_list.append(create_actionrow(*buttons[(5 * x):]))
+            actionrow_list.append(create_actionrow(*button_list[(5 * x):]))
     return actionrow_list
 
 
@@ -38,17 +41,17 @@ if DEBUG is True:
 	x.setLevel(LEVEL)
 	logger.addHandler(x)
 
-client = commands.Bot(command_prefix=PREFIX, help_command=None)
+bot = commands.Bot(command_prefix=PREFIX, help_command=None)
+slash = SlashCommand(bot, sync_commands=True)
 
-client.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain")
+bot.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain")
 
-@client.event
+@bot.event
 async def on_ready():
-	logger.info(f"{client.user.name} is ready.")
-
+	logger.info(f"{bot.user.name} is ready.")
 
 guild_ids = []
-for guild in client.guilds:
+for guild in bot.guilds:
 	guild_ids=guild_ids
 
 @slash.slash(
@@ -68,9 +71,9 @@ async def _help(ctx, question=None):
 	logger.debug(f"`{PREFIX}help` called by {ctx.author.name}")
 	try:
 		if question is not None:
-		embed = discord.Embed(title="🤔 Need help?", description=f"Here's a list of {client.user.name}'s commands!", colour=COLOUR)
-		embed.add_field(name="__help__", value="...")
-		await ctx.send(embed=embed)
+			embed = discord.Embed(title="🤔 Need help?", description=f"Here's a list of {bot.user.name}'s commands!", colour=COLOUR)
+			embed.add_field(name="__help__", value="...")
+			await ctx.send(embed=embed)
 	except Exception as exception:
 		logger.error(f"Failed to run `{PREFIX}help` in {ctx.guild.name} ({ctx.guild.id})")
 
@@ -82,7 +85,7 @@ async def _help(ctx, question=None):
 async def _ping(ctx):
 	logger.debug(f"`{PREFIX}ping` called by {ctx.author.name}")
 	try:
-		await ctx.send(f"Pong! {round(client.latency * 1000)}ms")
+		await ctx.send(f"Pong! {round(bot.latency * 1000)}ms")
 	except Exception as exception:
 		logger.error(f"Failed to run `{PREFIX}ping` in {ctx.guild.name} ({ctx.guild.id})")
 
@@ -155,4 +158,4 @@ async def _poll(ctx, question, option1, option2, option3=None, option4=None, opt
 	except Exception as exception:
 		logger.error(f"Failed to run `/poll` in {ctx.guild.name} ({ctx.guild.id})")
 
-client.run(TOKEN)
+bot.run(TOKEN)
