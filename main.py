@@ -872,6 +872,10 @@ class MyClient(discord.Client):
 				safety_button = create_button(style=ButtonStyle.blue, label="safety", emoji="🦺", custom_id="config:safety")
 				components = [create_actionrow(*[safety_button])]
 				await message.channel.send(content="safety: " + str(self.data["config"]["safety"]), components=components)
+				upload_data_button = create_button(style=ButtonStyle.blue, label="Data", emoji="🔡", custom_id="config:send:data.json")
+				upload_log_button = create_button(style=ButtonStyle.blue, label="Log", emoji="📄", custom_id="config:send:log_file.log")
+				components = [create_actionrow(*[upload_data_button,upload_log_button])]
+				await message.channel.send(content="Files: ", components=components)
 
 			# Locate command
 			if message.content == PREFIX + "locate":
@@ -1431,10 +1435,14 @@ if __name__ == "__main__":
 				setting = ctx.custom_id[len("config:"):]
 				logger.debug("Config button pressed by " + ctx.author.name)
 				if ctx.author.id in config["developers"]:
-					config[setting] = not config[setting]
-					logger.info("Config:" + setting + " changed to " + str(config[setting]))
-					client.update_data()
-					await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))  # Makes first character capital of setting and shows the new setting
+					if setting.startswith("send:"): # All send file buttons dealt with here
+						setting = setting[len("send:"):]
+						await ctx.reply(content="File: "+setting,file=discord.File(r''+setting))
+					else: # Toggle boolean commands here
+						config[setting] = not config[setting] # Toggles boolean value
+						logger.info("Config:" + setting + " changed to " + str(config[setting]))
+						client.update_data()
+						await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))  # Makes first character capital of setting and shows the new setting
 				else:
 					await ctx.send("You do not have permissions to press this button", hidden=True)
 					logger.info(ctx.author.name + " tried to change config")
