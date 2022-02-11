@@ -23,10 +23,12 @@ command_info = {
 	"help": "(help description)",
 	"ping": "(ping description)",
 	"8ball": "(8ball description)",
-	"poll": "(poll description)"
+	"poll": "(poll description)",
+	"confess": "(confession description)"
 }
 cache = {
-	"polls": {}
+	"polls": {},
+	"confessions": {},
 }
 
 
@@ -63,7 +65,7 @@ for guild in client.guilds:
 
 @slash.slash(
 	name="help",
-	description="...",
+	description=command_info["help"],
 	options=[
 		create_option(
 			name="command",
@@ -91,7 +93,7 @@ async def _help(ctx, command=None):
 
 @slash.slash(
 	name="ping",
-	description="...",
+	description=command_info["ping"],
 	guild_ids=guild_ids
 )
 async def _ping(ctx):
@@ -105,7 +107,7 @@ async def _ping(ctx):
 
 @slash.slash(
 	name="8ball",
-	description="...",
+	description=command_info["8ball"],
 	options=[
 		create_option(
 			name="question",
@@ -128,7 +130,7 @@ async def _8ball(ctx, question):
 
 @slash.slash(
 	name="poll",
-	description="description",
+	description=command_info["poll"],
 	options=[
 		create_option(
 			name="question",
@@ -209,11 +211,32 @@ async def _poll(ctx, question, option1, option2, option3=None, option4=None, opt
 	except Exception as exception:
 		logger.error(f"Failed to run `/poll` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
 
+@slash.slash(
+	name="confess",
+	description=command_info["confess"],
+	options=[
+		create_option(
+			name="confession",
+			description="...",
+			option_type=3,
+			required=True
+		)
+	],
+	guild_ids=guild_ids)
+async def _confession(ctx, confession):
+	"""Confession command."""
+
+	logger.debug(f"`/confess` called by {ctx.author.name}")
+	cache["confessions"][len(cache["confessions"]) + 1] = confession
+	print(cache)
+	await ctx.send(content="Thank you for your confession.", hidden=True)
+
 @client.event
 async def on_component(ctx):
 	"""Runs on component use."""
 
 	logger.debug(f"Component used by {ctx.author.name}")
+
 	if ctx.custom_id.startswith("poll"):
 		logger.debug(f"Anonymous poll vote by {ctx.author.name}")
 		# If the user hasn't voted before
