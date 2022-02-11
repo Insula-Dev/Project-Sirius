@@ -10,7 +10,6 @@ from discord_slash.utils.manage_components import create_button, create_actionro
 
 # Local imports
 from log_handling import *
-from commands.help import _help
 
 
 # Variables
@@ -49,7 +48,6 @@ client.activity = discord.Activity(type=discord.ActivityType.listening, name="th
 async def on_ready():
 	logger.info(f"{client.user.name} is ready.")
 
-
 guild_ids = []
 for guild in client.guilds:
 	guild_ids=guild_ids
@@ -68,6 +66,8 @@ for guild in client.guilds:
 	guild_ids=guild_ids
 )
 async def _help(ctx, command=None):
+	"""Help command."""
+
 	logger.debug(f"`/help` called by {ctx.author.name}")
 	try:
 		if question is not None:
@@ -83,6 +83,8 @@ async def _help(ctx, command=None):
 	guild_ids=guild_ids
 )
 async def _ping(ctx):
+	"""Ping command."""
+
 	logger.debug(f"`/ping` called by {ctx.author.name}")
 	try:
 		await ctx.send(f"Pong! {round(client.latency * 1000)}ms")
@@ -103,6 +105,8 @@ async def _ping(ctx):
 	guild_ids=guild_ids
 )
 async def _8ball(ctx, question):
+	"""8ball command."""
+
 	logger.debug(f"`/eightball` called by {ctx.author.name}")
 	try:
 		responses = ["It is certain.", "It is decidedly so.", "Without a doubt.", "Yes - definitely.", "You may rely on it.", "As I see it, yes.", "Most likely.", "Outlook good.", "Yes.", "Signs point to yes.", "Reply hazy, try again.", "Ask again later.", "Better not tell you now.", "Cannot predict now.", "Concentrate and ask again.", "Don't count on it.", "My reply is no.", "Outlook not so good.", "Very doubtful."]
@@ -138,6 +142,7 @@ async def _8ball(ctx, question):
 async def _poll(ctx, question, option1, option2, option3=None, option4=None, option5=None, option6=None, option7=None, option8=None, option9=None):
 	logger.debug(f"`/poll` called by {ctx.author.name}")
 
+	"""Poll command."""
 
 	try:
 		embed = discord.Embed(title=question, description="...")
