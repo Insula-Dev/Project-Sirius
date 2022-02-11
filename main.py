@@ -28,22 +28,22 @@ DEFAULT_JOKE_SERVERS = []
 
 VERSION = "1.3.1 InDev"
 SERVER_STRUCTURE = \
-{
-	"config": {
-		"announcements channel id": 0
-	},
-	"rules": {
-		"title": "Server rules",
-		"description": "",
-		"list": [],
-		"image link": ""
-	},
-	"roles": {
-		"verify role": 0,
-		"categories": {}
-	},
-	"ranks": {}
-}
+	{
+		"config": {
+			"announcements channel id": 0
+		},
+		"rules": {
+			"title": "Server rules",
+			"description": "",
+			"list": [],
+			"image link": ""
+		},
+		"roles": {
+			"verify role": 0,
+			"categories": {}
+		},
+		"ranks": {}
+	}
 
 TOKEN = DEFAULT_TOKEN
 PREFIX = DEFAULT_PREFIX
@@ -51,10 +51,11 @@ DEBUG = DEFAULT_DEBUG
 LEVEL = DEFAULT_LEVEL
 JOKE_SERVERS = DEFAULT_JOKE_SERVERS
 
-def setup_config():
-	global TOKEN,PREFIX,DEBUG,LEVEL,JOKE_SERVERS
 
-	def initiate_const(name,default,dictionary):
+def setup_config():
+	global TOKEN, PREFIX, DEBUG, LEVEL, JOKE_SERVERS
+
+	def initiate_const(name, default, dictionary):
 		try:
 			return dictionary[name]
 		except KeyError:
@@ -70,17 +71,20 @@ def setup_config():
 				"level": DEFAULT_LEVEL,
 				"joke servers": DEFAULT_JOKE_SERVERS
 			},
-			configFile, indent=4)
+			configFile, indent=4
+		)
 	else:
 		with open("config.json", encoding='utf-8') as file:
 			data = json.load(file)
-			TOKEN = initiate_const("token",DEFAULT_TOKEN,data)
-			PREFIX = initiate_const("prefix",DEFAULT_PREFIX,data)
-			DEBUG = initiate_const("debug",DEFAULT_DEBUG,data)
-			LEVEL = initiate_const("level",DEFAULT_LEVEL,data)
-			JOKE_SERVERS = initiate_const("joke servers",DEFAULT_JOKE_SERVERS,data)
+			TOKEN = initiate_const("token", DEFAULT_TOKEN, data)
+			PREFIX = initiate_const("prefix", DEFAULT_PREFIX, data)
+			DEBUG = initiate_const("debug", DEFAULT_DEBUG, data)
+			LEVEL = initiate_const("level", DEFAULT_LEVEL, data)
+			JOKE_SERVERS = initiate_const("joke servers", DEFAULT_JOKE_SERVERS, data)
+
 
 setup_config()
+
 
 # Definitions
 class MyClient(discord.Client):
@@ -184,7 +188,7 @@ class MyClient(discord.Client):
 		poll = self.poll[str(message.guild.id)][str(message.id)]
 
 		options = []
-		#for option in poll["options"]:  # Makes list of options
+		# for option in poll["options"]:  # Makes list of options
 		for emoji in emojis:
 			if str(emoji) != "🔚":
 				options.append(str(emoji) + " " + poll["options"][str(emoji)])
@@ -232,7 +236,7 @@ class MyClient(discord.Client):
 
 		if self.connected == False:
 			logger.info("Last disconnect was " + str(self.last_disconnect))
-			await self.announce("**Reconnected**\nLast disconnect was " + str(self.last_disconnect),announcement_type="reconnection")
+			await self.announce("**Reconnected**\nLast disconnect was " + str(self.last_disconnect), announcement_type="reconnection")
 		self.connected = True
 
 		# Load the data file into the data variable
@@ -242,7 +246,6 @@ class MyClient(discord.Client):
 			logger.debug("Loaded data.json")  # Event log
 		except Exception as exception:
 			logger.critical("Failed to load data.json. Exception: " + str(exception))  # Event log
-
 
 		# Check if the bot has been added to a guild while offline
 		for guild in self.guilds:
@@ -310,12 +313,12 @@ class MyClient(discord.Client):
 		guild = self.get_guild(message.guild.id)
 
 		# Update the user's experience
-		if (message.author.id not in self.cache[str(guild.id)]) or (((datetime.now().minute + datetime.now().hour*60) - self.cache[str(guild.id)][message.author.id]) > 60):  # This is the longest like of code I've ever seen survive a scrutinised and picky merge from me. Well played.
+		if (message.author.id not in self.cache[str(guild.id)]) or (((datetime.now().minute + datetime.now().hour * 60) - self.cache[str(guild.id)][message.author.id]) > 60):  # This is the longest like of code I've ever seen survive a scrutinised and picky merge from me. Well played.
 
 			logger.debug("Adding experience to " + message.author.name)  # Event log
 
 			# Update the cache and increment the user's experience
-			self.cache[str(guild.id)][message.author.id] = datetime.now().minute + datetime.now().hour*60
+			self.cache[str(guild.id)][message.author.id] = datetime.now().minute + datetime.now().hour * 60
 			try:
 				self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] += 1
 			except KeyError:
@@ -371,7 +374,7 @@ class MyClient(discord.Client):
 
 			embed_leaderboard = discord.Embed(title="Leaderboard", colour=0xffc000)
 			embed_leaderboard.add_field(name="No.", value=lb_no, inline=True)
-			embed_leaderboard.add_field(name="User",value=lb_message,inline=True)
+			embed_leaderboard.add_field(name="User", value=lb_message, inline=True)
 			embed_leaderboard.add_field(name="Count", value=lb_count, inline=True)
 			await message.channel.send(embed=embed_leaderboard)
 
@@ -399,7 +402,7 @@ class MyClient(discord.Client):
 						elif argument[0] == "colour":
 							colour = int(argument[1][-6:], 16)
 						else:
-							fields.append({argument[0]:argument[1]})
+							fields.append({argument[0]: argument[1]})
 					else:
 						description = argument[0]
 
@@ -581,9 +584,9 @@ class MyClient(discord.Client):
 									members[message_sent.author] += 1
 						total_messages += message_count
 						if csv:
-							channel_statistics[channel_count//10] += channel.name + "," + str(message_count) + "\n"
+							channel_statistics[channel_count // 10] += channel.name + "," + str(message_count) + "\n"
 						else:
-							channel_statistics[channel_count//10] += channel.mention + ": " + str(message_count) + "\n"
+							channel_statistics[channel_count // 10] += channel.mention + ": " + str(message_count) + "\n"
 
 					# Member statistics gathered from the data obtained when processing channel statistics
 					member_statistics = [''] * (len(members))
@@ -593,7 +596,7 @@ class MyClient(discord.Client):
 						if csv:
 							member_statistics[member_count // 10] += member.name + "," + str(members[member]) + "\n"
 						else:
-							member_statistics[member_count//10] += member.mention + ": " + str(members[member]) + "\n"
+							member_statistics[member_count // 10] += member.mention + ": " + str(members[member]) + "\n"
 					logger.debug("Successfully generated statistics")  # Event log
 
 					if csv:
@@ -625,7 +628,7 @@ class MyClient(discord.Client):
 						# Create and send channel statistics embed
 						embed_channel = discord.Embed(title="📈 Channel Statistics for " + guild.name, colour=0xffc000)
 						for x in range(len(channel_statistics) // 10 + 1):
-							#print("------\nChannels in set:\n" + str(channel_statistics[x]))
+							# print("------\nChannels in set:\n" + str(channel_statistics[x]))
 							logger.debug("------\nChannels in set:\n" + str(channel_statistics[x]))
 							embed_channel.add_field(name="Channels", value=str(channel_statistics[x]))
 							embed_channel.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
@@ -670,7 +673,6 @@ class MyClient(discord.Client):
 					await message.channel.send("Error: Something went wrong on our side...")
 				await waiting_message.delete()
 
-
 			# Purge Command
 			if message.content.startswith(PREFIX + "purge"):
 				logger.info("`purge` called by " + message.author.name)  # Event log
@@ -699,7 +701,7 @@ class MyClient(discord.Client):
 
 				# !!! Clunky and breakable
 				argument_string = message.content[len(PREFIX + "poll "):]
-				if len(argument_string) <2:
+				if len(argument_string) < 2:
 					logger.debug("Poll command had no viable arguments - cancelled")
 					return
 				arguments = re.split("\,\s|\,", argument_string)  # Replace with arguments = argument.split(", ")
@@ -730,7 +732,7 @@ class MyClient(discord.Client):
 							anonymous = True
 					else:
 						emoji = argument[1].rstrip()
-						if not(emoji in candidates):
+						if not (emoji in candidates):
 							candidates[emoji] = argument[0]
 							candidates_string += argument[1] + " - " + argument[0] + "\n"
 						else:
@@ -739,7 +741,7 @@ class MyClient(discord.Client):
 
 				# Create and send poll embed
 				embed_poll = discord.Embed(title=title, description=candidates_string, colour=colour)
-				if anonymous: # Makes embed with buttons for anonymous voting
+				if anonymous:  # Makes embed with buttons for anonymous voting
 					# Adds buttons
 					buttons = []
 					for candidate in candidates:
@@ -749,9 +751,9 @@ class MyClient(discord.Client):
 
 					# Setup candidates dict for recording votes so people can't vote multiple times
 					for candidate in candidates:
-						candidates[candidate] = {"name":candidates[candidate], "voters":[]}
+						candidates[candidate] = {"name": candidates[candidate], "voters": []}
 
-				else: # Makes embed with reactions for open voting
+				else:  # Makes embed with reactions for open voting
 					poll_message = await message.channel.send(embed=embed_poll)
 					# Adds reactions
 					for candidate in candidates:
@@ -762,16 +764,19 @@ class MyClient(discord.Client):
 							await poll_message.channel.send("Please format as \"option\" = emoji")
 							await poll_message.delete()
 
-				self.poll[str(message.guild.id)].update({str(poll_message.id): {
-					"title": title,
-					"options": candidates,
-					"config":
-						{
-							"winner": winner,
-							"anonymous": anonymous
+				self.poll[str(message.guild.id)].update(
+					{
+						str(poll_message.id): {
+							"title": title,
+							"options": candidates,
+							"config":
+								{
+									"winner": winner,
+									"anonymous": anonymous
+								}
 						}
-				}
-				})
+					}
+				)
 
 				logger.debug(f"New poll:{self.poll[str(message.guild.id)]}")
 
@@ -858,7 +863,7 @@ class MyClient(discord.Client):
 				else:
 					logger.error("Nothing specified to report")  # Event log
 				dev_mentions = ""
-				#for dev in self.data["config"]["developers"]:
+				# for dev in self.data["config"]["developers"]:
 				#	dev_mentions += self.get_user(dev).mention
 				await self.get_channel(832293063803142235).send(dev_mentions + "Report used in " + guild.name + " by " + message.author.mention)
 
@@ -874,7 +879,7 @@ class MyClient(discord.Client):
 				await message.channel.send(content="safety: " + str(self.data["config"]["safety"]), components=components)
 				upload_data_button = create_button(style=ButtonStyle.blue, label="Data", emoji="🔡", custom_id="config:send:data.json")
 				upload_log_button = create_button(style=ButtonStyle.blue, label="Log", emoji="📄", custom_id="config:send:log_file.log")
-				components = [create_actionrow(*[upload_data_button,upload_log_button])]
+				components = [create_actionrow(*[upload_data_button, upload_log_button])]
 				await message.channel.send(content="Files: ", components=components)
 
 			# Locate command
@@ -913,7 +918,7 @@ class MyClient(discord.Client):
 				await message.channel.send(death_note + "\n" + "Uptime: " + self.get_uptime() + ".")
 				global state
 				state = 1
-				#print("State here:", state)
+				# print("State here:", state)
 				await client.close()
 
 		# Joke functionality
@@ -1101,7 +1106,6 @@ class MyClient(discord.Client):
 			except Exception as exception:
 				logger.error("Failed to add role " + role.name + " to " + payload.member.name + ". Exception: " + exception)  # Event log
 
-
 		if reaction_usage == "polls":
 			if str(payload.emoji) == "🔚":
 
@@ -1115,7 +1119,7 @@ class MyClient(discord.Client):
 			else:
 				valid_emoji = False
 				for message in self.poll[str(payload.guild_id)]:
-					#print(str(payload.emoji) + "?" + str(self.poll[str(payload.guild_id)][message]["options"]))
+					# print(str(payload.emoji) + "?" + str(self.poll[str(payload.guild_id)][message]["options"]))
 					if str(payload.emoji) in self.poll[str(payload.guild_id)][message]["options"]:  # Deletes emojis not related to poll options
 						valid_emoji = True
 				if not valid_emoji:
@@ -1190,12 +1194,13 @@ class MyClient(discord.Client):
 			# Send an error message
 			await payload.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
+
 # Main body
 if __name__ == "__main__":
 	state = 1
 	if state == 1:  # TODO change to while to test for restart command
 		state = 0
-		#try:
+		# try:
 		setup_config()
 		intents = discord.Intents.all()
 		intents.members = True
@@ -1205,6 +1210,7 @@ if __name__ == "__main__":
 		guild_ids = []
 		for guild in client.guilds:
 			guild_ids += guild.id
+
 
 		@slash.slash(
 			name="ping",
@@ -1221,6 +1227,7 @@ if __name__ == "__main__":
 			except Exception as exception:
 				logger.error("Failed to run `/ping` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
+
 		@slash.slash(
 			name="confess",
 			description="Use the command to send an anonymous message to be posted later",
@@ -1230,7 +1237,7 @@ if __name__ == "__main__":
 					description="Your message",
 					option_type=3,
 					required=True
-					)
+				)
 			],
 			guild_ids=guild_ids
 		)
@@ -1257,6 +1264,7 @@ if __name__ == "__main__":
 			except Exception as exception:
 				logger.error("Failed to run `/confess` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
+
 		@slash.slash(
 			name="question",
 			description="Ask Sirius a question",
@@ -1281,6 +1289,7 @@ if __name__ == "__main__":
 
 			except Exception as exception:
 				logger.error("Failed to run `/question` message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
 
 		@slash.slash(
 			name="anonymous",
@@ -1309,6 +1318,7 @@ if __name__ == "__main__":
 			except Exception as exception:
 				logger.error("Failed to run `/anonymous` message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
+
 		# admin_roles = [role for role in ctx.guild.roles if role.permissions.administrator]
 		@slash.slash(
 			name="purge",
@@ -1334,6 +1344,7 @@ if __name__ == "__main__":
 				await ctx.send(content="Purge " + str(count) + " messages?", components=components)
 			else:
 				await ctx.send("You do not have permissions to run this command", hidden=True)
+
 
 		@slash.context_menu(
 			target=ContextMenuType.MESSAGE,
@@ -1367,6 +1378,7 @@ if __name__ == "__main__":
 				await ctx.send(embeds=[embed_results], hidden=True)  # Sends the results embed
 			else:
 				await ctx.send(content="This is not a poll", hidden=True)
+
 
 		# Buttons...
 		# The following must be tested:
@@ -1435,11 +1447,11 @@ if __name__ == "__main__":
 				setting = ctx.custom_id[len("config:"):]
 				logger.debug("Config button pressed by " + ctx.author.name)
 				if ctx.author.id in config["developers"]:
-					if setting.startswith("send:"): # All send file buttons dealt with here
+					if setting.startswith("send:"):  # All send file buttons dealt with here
 						setting = setting[len("send:"):]
-						await ctx.reply(content="File: "+setting,file=discord.File(r''+setting))
-					else: # Toggle boolean commands here
-						config[setting] = not config[setting] # Toggles boolean value
+						await ctx.reply(content="File: " + setting, file=discord.File(r'' + setting))
+					else:  # Toggle boolean commands here
+						config[setting] = not config[setting]  # Toggles boolean value
 						logger.info("Config:" + setting + " changed to " + str(config[setting]))
 						client.update_data()
 						await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))  # Makes first character capital of setting and shows the new setting
@@ -1501,8 +1513,11 @@ if __name__ == "__main__":
 					return
 
 				except Exception as exception:
-					logger.error("Failed to add role " + role.name + " to " + ctx.author.name + ". Exception: " + str(
-						exception))  # Error: this may run even if the intention of the button press isn't to add a role
+					logger.error(
+						"Failed to add role " + role.name + " to " + ctx.author.name + ". Exception: " + str(
+							exception
+						)
+						)  # Error: this may run even if the intention of the button press isn't to add a role
 				finally:
 					try:
 						verify_role = client.data["servers"][str(guild.id)]["roles"]["verify role"]
@@ -1516,9 +1531,10 @@ if __name__ == "__main__":
 						logger.error("Verification failed: " + exception)
 					return
 
+
 		client.run(TOKEN)
 
-		#except Exception as exception:
-		#	logger.error("Exception: " + str(exception) + "\n")  # Event log
+	# except Exception as exception:
+	#	logger.error("Exception: " + str(exception) + "\n")  # Event log
 	print("State:", state)
-	#time.sleep(10)
+# time.sleep(10)
