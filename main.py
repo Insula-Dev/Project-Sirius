@@ -1,5 +1,6 @@
 # Imports
 import random
+import json
 import discord
 from discord.ext import commands
 from discord_slash import SlashCommand
@@ -12,7 +13,8 @@ from commands.help import _help
 
 
 # Variables
-TOKEN = "ODMxOTQ0NTIyNzQ4NTI2Njg0.YHcmtw.XfoMoovL5mkn8RZHvKlvhf9a-mU"
+with open("config.json") as file:
+	TOKEN = json.load(file)["token"]
 PREFIX = "."
 DEBUG = True
 LEVEL = "DEBUG"
