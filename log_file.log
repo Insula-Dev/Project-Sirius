@@ -12,3 +12,21 @@
 06/02/2022 12:56:17.838 | DEBUG | main.py | eightball | `.eightball` called by IkelosOne
 06/02/2022 12:56:26.686 | DEBUG | main.py | eightball | `.eightball` called by IkelosOne
 06/02/2022 12:56:37.955 | DEBUG | main.py | eightball | `.eightball` called by IkelosOne
+11/02/2022 12:29:59.751 | INFO | main.py | on_ready | Sirius II is ready.
+11/02/2022 12:33:15.612 | INFO | main.py | on_ready | Sirius II is ready.
+11/02/2022 12:38:16.475 | INFO | main.py | on_ready | Sirius II is ready.
+11/02/2022 12:43:44.364 | DEBUG | main.py | _poll | `/poll` called by IkelosOne
+11/02/2022 12:43:45.374 | ERROR | main.py | _poll | Failed to run `/poll` in Arun Testing Co. (834213187468394517). Exception: name 'ButtonStyle' is not defined
+11/02/2022 12:43:56.538 | DEBUG | main.py | _help | `/help` called by IkelosOne
+11/02/2022 12:44:09.801 | DEBUG | main.py | _help | `/help` called by IkelosOne
+11/02/2022 12:45:24.912 | INFO | main.py | on_ready | Sirius II is ready.
+11/02/2022 12:45:31.829 | DEBUG | main.py | _help | `/help` called by IkelosOne
+11/02/2022 12:45:36.698 | DEBUG | main.py | _help | `/help` called by IkelosOne
+11/02/2022 12:46:31.032 | INFO | main.py | on_ready | Sirius II is ready.
+11/02/2022 12:47:00.440 | DEBUG | main.py | _poll | `/poll` called by IkelosOne
+11/02/2022 12:47:24.484 | INFO | main.py | on_ready | Sirius II is ready.
+11/02/2022 12:47:34.331 | DEBUG | main.py | _poll | `/poll` called by IkelosOne
+11/02/2022 12:48:07.725 | INFO | main.py | on_ready | Sirius II is ready.
+11/02/2022 12:48:14.793 | DEBUG | main.py | _poll | `/poll` called by IkelosOne
+11/02/2022 12:52:09.497 | INFO | main.py | on_ready | Sirius II is ready.
+11/02/2022 12:52:15.608 | DEBUG | main.py | _poll | `/poll` called by IkelosOne
