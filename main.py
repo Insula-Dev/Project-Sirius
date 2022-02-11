@@ -19,6 +19,12 @@ PREFIX = "."
 DEBUG = True
 LEVEL = "DEBUG"
 COLOUR = 0xffc000
+command_info = {
+	"help": "(help description)",
+	"ping": "(ping description)",
+	"8ball": "(8ball description)",
+	"poll": "(poll description)"
+}
 
 
 # Functions
@@ -70,9 +76,12 @@ async def _help(ctx, command=None):
 
 	logger.debug(f"`/help` called by {ctx.author.name}")
 	try:
-		if question is not None:
-		embed = discord.Embed(title="🤔 Need help?", description=f"Here's a list of {client.user.name}'s commands!", colour=COLOUR)
-		embed.add_field(name="__help__", value="...")
+		if command is None:
+			embed = discord.Embed(title="🤔 Need help?", description=f"Here's a list of {client.user.name}'s commands!", colour=COLOUR)
+			for command in command_info:
+				embed.add_field(name=f"__{command}__", value=command_info[command])
+		elif command in command_info:
+			embed = discord.Embed(title=f"__{command}__ command", description=command_info[command], colour=COLOUR)
 		await ctx.send(embed=embed)
 	except Exception as exception:
 		logger.error(f"Failed to run `/help` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
