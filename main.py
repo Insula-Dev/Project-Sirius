@@ -1,11 +1,12 @@
 # Imports
 import random
 import json
+import math
 import discord
 from discord.ext import commands
 from discord_slash import SlashCommand
 from discord_slash.utils.manage_commands import create_option
-from discord_slash.utils.manage_components import create_button, create_actionrow
+from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle
 
 # Local imports
 from log_handling import *
@@ -26,11 +27,11 @@ def populate_actionrows(button_list):
     """Returns a list of actionrows of 5 or less buttons."""
 
     actionrow_list = []
-    for x in range(ceil(len(buttons_list) / 5)):
-        if len(buttons_list[(5 * x):]) > 5:
+    for x in range(math.ceil(len(button_list) / 5)):
+        if len(button_list[(5 * x):]) > 5:
             actionrow_list.append(create_actionrow(*button_list[(5 * x):(5 * x) + 5]))
         else:
-            actionrow_list.append(create_actionrow(*buttons[(5 * x):]))
+            actionrow_list.append(create_actionrow(*button_list[(5 * x):]))
     return actionrow_list
 
 
@@ -41,7 +42,7 @@ if DEBUG is True:
 	logger.addHandler(x)
 
 client = commands.Bot(command_prefix=PREFIX, help_command=None)
-
+slash = SlashCommand(client, sync_commands=True)
 client.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain")
 
 @client.event
