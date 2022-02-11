@@ -11,7 +11,6 @@ from discord_slash.utils.manage_components import create_button, create_actionro
 # Local imports
 from log_handling import *
 
-
 # Variables
 with open("config.json") as file:
 	TOKEN = json.load(file)["token"]
@@ -34,15 +33,15 @@ cache = {
 
 # Functions
 def populate_actionrows(button_list):
-    """Returns a list of actionrows of 5 or less buttons."""
+	"""Returns a list of actionrows of 5 or less buttons."""
 
-    actionrow_list = []
-    for x in range(math.ceil(len(button_list) / 5)):
-        if len(button_list[(5 * x):]) > 5:
-            actionrow_list.append(create_actionrow(*button_list[(5 * x):(5 * x) + 5]))
-        else:
-            actionrow_list.append(create_actionrow(*button_list[(5 * x):]))
-    return actionrow_list
+	actionrow_list = []
+	for x in range(math.ceil(len(button_list) / 5)):
+		if len(button_list[(5 * x):]) > 5:
+			actionrow_list.append(create_actionrow(*button_list[(5 * x):(5 * x) + 5]))
+		else:
+			actionrow_list.append(create_actionrow(*button_list[(5 * x):]))
+	return actionrow_list
 
 
 # Main code
@@ -55,13 +54,16 @@ client = commands.Bot(command_prefix=PREFIX, help_command=None)
 slash = SlashCommand(client, sync_commands=True)
 client.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain")
 
+
 @client.event
 async def on_ready():
 	logger.info(f"{client.user.name} is ready.")
 
+
 guild_ids = []
 for guild in client.guilds:
-	guild_ids=guild_ids
+	guild_ids = guild_ids
+
 
 @slash.slash(
 	name="help",
@@ -91,6 +93,7 @@ async def _help(ctx, command=None):
 	except Exception as exception:
 		logger.error(f"Failed to run `/help` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
 
+
 @slash.slash(
 	name="ping",
 	description=command_info["ping"],
@@ -104,6 +107,7 @@ async def _ping(ctx):
 		await ctx.send(f"Pong! {round(client.latency * 1000)}ms")
 	except Exception as exception:
 		logger.error(f"Failed to run `/ping` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
+
 
 @slash.slash(
 	name="8ball",
@@ -128,6 +132,7 @@ async def _8ball(ctx, question):
 	except Exception as exception:
 		logger.error(f"Failed to run `/eightball` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
 
+
 @slash.slash(
 	name="poll",
 	description=command_info["poll"],
@@ -138,7 +143,7 @@ async def _8ball(ctx, question):
 			option_type=3,
 			required=True
 		),
-		 create_option(
+		create_option(
 			name="option1",
 			description="...",
 			option_type=3,
@@ -211,6 +216,7 @@ async def _poll(ctx, question, option1, option2, option3=None, option4=None, opt
 	except Exception as exception:
 		logger.error(f"Failed to run `/poll` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
 
+
 @slash.slash(
 	name="confess",
 	description=command_info["confess"],
@@ -222,7 +228,8 @@ async def _poll(ctx, question, option1, option2, option3=None, option4=None, opt
 			required=True
 		)
 	],
-	guild_ids=guild_ids)
+	guild_ids=guild_ids
+)
 async def _confession(ctx, confession):
 	"""Confession command."""
 
@@ -230,6 +237,7 @@ async def _confession(ctx, confession):
 	cache["confessions"][len(cache["confessions"]) + 1] = confession
 	print(cache)
 	await ctx.send(content="Thank you for your confession.", hidden=True)
+
 
 @client.event
 async def on_component(ctx):
@@ -252,5 +260,6 @@ async def on_component(ctx):
 			else:
 				del cache["polls"][ctx.origin_message.id][ctx.author.id]
 				await ctx.send(content=f"Removed your vote for {ctx.custom_id}", hidden=True)
+
 
 client.run(TOKEN)
