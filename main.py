@@ -134,18 +134,60 @@ async def _8ball(ctx, question):
 			required=True
 		),
 		 create_option(
-			name="option 1",
+			name="option1",
 			description="...",
 			option_type=3,
 			required=True
 		),
 		create_option(
-			name="option 2",
+			name="option2",
 			description="...",
 			option_type=3,
 			required=True
+		),
+		create_option(
+			name="option3",
+			description="...",
+			option_type=3,
+			required=False
+		),
+		create_option(
+			name="option4",
+			description="...",
+			option_type=3,
+			required=False
+		),
+		create_option(
+			name="option5",
+			description="...",
+			option_type=3,
+			required=False
+		),
+		create_option(
+			name="option6",
+			description="...",
+			option_type=3,
+			required=False
+		),
+		create_option(
+			name="option7",
+			description="...",
+			option_type=3,
+			required=False
+		),
+		create_option(
+			name="option8",
+			description="...",
+			option_type=3,
+			required=False
+		),
+		create_option(
+			name="option9",
+			description="...",
+			option_type=3,
+			required=False
 		)
-	] + [create_option(name="option " + str(x), description="1", option_type=3, required=False) for x in range(3, 10)],
+	],
 	guild_ids=guild_ids
 )
 async def _poll(ctx, question, option1, option2, option3=None, option4=None, option5=None, option6=None, option7=None, option8=None, option9=None):
