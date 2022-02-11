@@ -64,15 +64,15 @@ for guild in client.guilds:
 	],
 	guild_ids=guild_ids
 )
-async def _help(ctx, question=None):
-	logger.debug(f"`{PREFIX}help` called by {ctx.author.name}")
+async def _help(ctx, command=None):
+	logger.debug(f"`/help` called by {ctx.author.name}")
 	try:
 		if question is not None:
 		embed = discord.Embed(title="🤔 Need help?", description=f"Here's a list of {client.user.name}'s commands!", colour=COLOUR)
 		embed.add_field(name="__help__", value="...")
 		await ctx.send(embed=embed)
 	except Exception as exception:
-		logger.error(f"Failed to run `{PREFIX}help` in {ctx.guild.name} ({ctx.guild.id})")
+		logger.error(f"Failed to run `/help` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
 
 @slash.slash(
 	name="ping",
@@ -80,11 +80,11 @@ async def _help(ctx, question=None):
 	guild_ids=guild_ids
 )
 async def _ping(ctx):
-	logger.debug(f"`{PREFIX}ping` called by {ctx.author.name}")
+	logger.debug(f"`/ping` called by {ctx.author.name}")
 	try:
 		await ctx.send(f"Pong! {round(client.latency * 1000)}ms")
 	except Exception as exception:
-		logger.error(f"Failed to run `{PREFIX}ping` in {ctx.guild.name} ({ctx.guild.id})")
+		logger.error(f"Failed to run `/ping` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
 
 @slash.slash(
 	name="8ball",
@@ -100,12 +100,12 @@ async def _ping(ctx):
 	guild_ids=guild_ids
 )
 async def _8ball(ctx, question):
-	logger.debug(f"`{PREFIX}eightball` called by {ctx.author.name}")
+	logger.debug(f"`/eightball` called by {ctx.author.name}")
 	try:
 		responses = ["It is certain.", "It is decidedly so.", "Without a doubt.", "Yes - definitely.", "You may rely on it.", "As I see it, yes.", "Most likely.", "Outlook good.", "Yes.", "Signs point to yes.", "Reply hazy, try again.", "Ask again later.", "Better not tell you now.", "Cannot predict now.", "Concentrate and ask again.", "Don't count on it.", "My reply is no.", "Outlook not so good.", "Very doubtful."]
 		await ctx.reply(random.choice(responses))
 	except Exception as exception:
-		logger.error(f"Failed to run `{PREFIX}eightball` in {ctx.guild.name} ({ctx.guild.id})")
+		logger.error(f"Failed to run `/eightball` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
 
 @slash.slash(
 	name="poll",
@@ -153,6 +153,6 @@ async def _poll(ctx, question, option1, option2, option3=None, option4=None, opt
 				buttons.append(create_button(style=ButtonStyle.blue, label=options[x], custom_id="poll:" + str(x)))
 		components = [create_actionrow(*buttons)]
 	except Exception as exception:
-		logger.error(f"Failed to run `/poll` in {ctx.guild.name} ({ctx.guild.id})")
+		logger.error(f"Failed to run `/poll` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
 
 client.run(TOKEN)
