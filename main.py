@@ -25,6 +25,9 @@ command_info = {
 	"8ball": "(8ball description)",
 	"poll": "(poll description)"
 }
+cache = {
+	"polls": {}
+}
 
 
 # Functions
@@ -191,27 +194,40 @@ async def _8ball(ctx, question):
 	guild_ids=guild_ids
 )
 async def _poll(ctx, question, option1, option2, option3=None, option4=None, option5=None, option6=None, option7=None, option8=None, option9=None):
-	logger.debug(f"`/poll` called by {ctx.author.name}")
-
 	"""Poll command."""
 
+	logger.debug(f"`/poll` called by {ctx.author.name}")
 	try:
-		embed = discord.Embed(title=question, description="...")
-		message = await ctx.send(embed=embed)
+		embed = discord.Embed(title=question, description="...", colour=COLOUR)
 		options = list(filter(None, [option1, option2, option3, option4, option5, option6, option7, option8, option9]))
 		buttons = []
 		for x in range(len(options)):
-			buttons.append(create_button(style=ButtonStyle.blue, label=options[x], custom_id=str(x)))
-		for x in range(len(options) % 5):
-
-			"""Create buttons here"""
-
-			action_row = create_actionrow(*buttons())
-
-			for i in range(len()):
-				buttons.append(create_button(style=ButtonStyle.blue, label=options[x], custom_id="poll:" + str(x)))
-		components = [create_actionrow(*buttons)]
+			buttons.append(create_button(style=ButtonStyle.blue, label=options[x], custom_id="poll" + str(x + 1)))
+		components = populate_actionrows(buttons)
+		message = await ctx.send(embed=embed, components=components)
+		cache["polls"][message.id] = {}
 	except Exception as exception:
 		logger.error(f"Failed to run `/poll` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
+
+@client.event
+async def on_component(ctx):
+	"""Runs on component use."""
+
+	logger.debug(f"Component used by {ctx.author.name}")
+	if ctx.custom_id.startswith("poll"):
+		logger.debug(f"Anonymous poll vote by {ctx.author.name}")
+		# If the user hasn't voted before
+		if ctx.author.id not in cache["polls"][ctx.origin_message.id]:
+			cache["polls"][ctx.origin_message.id][ctx.author.id] = ctx.custom_id
+			await ctx.send(content=f"Gave your vote to {ctx.custom_id}", hidden=True)
+		else:
+			# If the user is changing their vote
+			if cache["polls"][ctx.origin_message.id][ctx.author.id] != ctx.custom_id:
+				cache["polls"][ctx.origin_message.id][ctx.author.id] = ctx.custom_id
+				await ctx.send(content=f"Changed your vote to {ctx.custom_id}", hidden=True)
+			# If the user is removing their vote
+			else:
+				del cache["polls"][ctx.origin_message.id][ctx.author.id]
+				await ctx.send(content=f"Removed your vote for {ctx.custom_id}", hidden=True)
 
 client.run(TOKEN)
