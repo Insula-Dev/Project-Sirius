@@ -49,22 +49,26 @@ def mask_circle_solid(pil_img, background_colour, blur_radius, offset=0):
 	mask = mask.filter(ImageFilter.GaussianBlur(blur_radius))
 	return Image.composite(pil_img, background, mask)
 
+def get_picture(url):
+	# Request profile picture and save it as card.png
+	with requests.get(url) as request:
+		with open("card.png", "wb") as file:
+			file.write(request.content)
+
+	image = None # To let card get closed
+	with Image.open("card.png") as picture:
+		image = picture
+	return image
+
 def generate_level_card(profile_picture_url, name, rank, percentage):
 	"""Generates the level card."""
 
 	global text_colour
 
-	# Request profile picture and save it as card.png
-	with requests.get(profile_picture_url) as request:
-		Image.open(request.content)
-		with open("card.png", "wb") as file:
-			file.write(request.content)
-
 	# Prepare the profile picture using PIL
-	with Image.open("card.png") as profile_picture:
-		profile_picture = profile_picture.resize((150*card_scale, 150*card_scale), Image.NEAREST)  # Simplify? Size?
-		bg_colour = tuple(ImageStat.Stat(profile_picture).median) # Makes background colour the median of the profile picture
-		#profile_picture.show()
+	profile_picture = get_picture(profile_picture_url)
+	profile_picture = profile_picture.resize((150*card_scale, 150*card_scale), Image.NEAREST)  # Simplify? Size?
+	bg_colour = tuple(ImageStat.Stat(profile_picture).median) # Makes background colour the median of the profile picture
 
 	# Prepare the card
 	card = Image.new(mode="RGBA", size=(500*card_scale, 200*card_scale), color=bg_colour)
@@ -110,16 +114,9 @@ Problems:
 
 
 if __name__ == '__main__':
-	results = []
-	for x in range(10):
-		t0 = time.perf_counter()
-		generate_level_card("https://cdn.discordapp.com/avatars/258284765776576512/8788db8822a8c74c491681ac5c7758ec.webp?size=1024","Arun",1,20)
-		t1 = time.perf_counter()
-		results.append(t1-t0)
-		print(results[x])
-	sum = 0
-	for result in results:
-		sum += result
-	print(f"Average: {sum/len(results)}")
+	im = get_picture("https://cdn.discordapp.com/icons/755420029482303488/a_c96342be77385d12d99d8b07c1d622d0.webp?size=96")
+	im.show()
+	#generate_level_card("https://cdn.discordapp.com/guilds/834213187468394517/users/258284765776576512/avatars/5e3a063c3b7bcb5366d514cf08ad9272.webp?size=80","Arun",1,20)
+
 	# Average 0.12635878966666664 for scale 2
 	# Average 0.10261608966666663 for scale 1
