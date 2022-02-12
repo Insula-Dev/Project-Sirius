@@ -133,7 +133,8 @@ class MyClient(discord.Client):
 		"""Creates data for a new guild."""
 
 		try:
-			self.data["servers"][str(guild.id)] = SERVER_STRUCTURE
+			if str(guild.id) not in self.data["servers"]: # Check if server data already exists
+				self.data["servers"][str(guild.id)] = SERVER_STRUCTURE
 			self.cache[str(guild.id)] = {}
 			self.poll[str(guild.id)] = {}
 
@@ -301,11 +302,9 @@ class MyClient(discord.Client):
 
 		logger.info(self.user.name + " has joined the guild: " + guild.name + " with id: " + str(guild.id))  # Event log
 
-		# Check if server data already exists
-		if str(guild.id) not in self.data["servers"]:
 
-			# Initialise guild
-			self.initialise_guild(guild)
+		# Initialise guild
+		self.initialise_guild(guild)
 
 	async def on_message(self, message):
 		"""Runs on message."""
@@ -473,7 +472,7 @@ class MyClient(discord.Client):
 
 					# Create the rules embed
 					embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], colour=0xffc000, inline=False)
-					embed_rules.set_footer(text="Rules updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
+					embed_rules.set_footer(text="Rules updated • " + date.today().strftime("%d/%m/%Y"),  icon_url=guild.icon_url_as(size=128))
 					embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
 					embed_image = discord.Embed(description="That's all.", colour=0xffc000)
 					image = self.data["servers"][str(guild.id)]["rules"]["image link"]
@@ -628,7 +627,7 @@ class MyClient(discord.Client):
 						birth = guild.created_at
 						embed_general.add_field(name="Server Birth", value=str(birth.day) + "." + str(birth.month) + "." + str(birth.year))
 						embed_general.add_field(name="Total Messages", value=total_messages)
-						embed_general.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
+						embed_general.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"),  icon_url=guild.icon_url_as(size=128))
 						await message.channel.send(embed=embed_general)
 
 						# Create and send channel statistics embed
@@ -637,7 +636,7 @@ class MyClient(discord.Client):
 							# print("------\nChannels in set:\n" + str(channel_statistics[x]))
 							logger.debug("------\nChannels in set:\n" + str(channel_statistics[x]))
 							embed_channel.add_field(name="Channels", value=str(channel_statistics[x]))
-							embed_channel.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
+							embed_channel.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"),  icon_url=guild.icon_url_as(size=128))
 						await message.channel.send(embed=embed_channel)
 
 						# Create and send members statistics embed
@@ -645,7 +644,7 @@ class MyClient(discord.Client):
 						for x in range(len(member_statistics) // 10 + 1):
 							logger.debug("Member:" + str(member_statistics[x]))
 							embed_member.add_field(name="Members", value=str(member_statistics[x]))
-							embed_member.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"), icon_url=guild.icon_url)
+							embed_member.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"),  icon_url=guild.icon_url_as(size=128))
 						await message.channel.send(embed=embed_member)
 
 				except discord.errors.HTTPException as exception:
@@ -793,12 +792,13 @@ class MyClient(discord.Client):
 				if "confessions" in self.data["servers"][str(guild.id)]:
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
 						confession_embed = discord.Embed(title="Review Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=0xFF0A00)
-						confession_embed.set_footer(text="This message is here to be reviewed. Please say if the content is inappropriate!", icon_url=guild.icon_url)
+						confession_embed.set_footer(text="This message is here to be reviewed. Please say if the content is inappropriate!", icon_url=guild.icon_url_as(size=128))
 						button = (create_button(style=ButtonStyle.red, label="remove", custom_id="confession:" + confession))
 						components = [create_actionrow(*[button])]
 						await message.channel.send(embed=confession_embed, components=components)
-					if len(client.data["servers"][str(guild.id)]["confessions"]["messages"]) == 0:
-						await message.channel.send("No confessions to review")
+					if len(client.data["servers"][str(guild.id)]["confessions"]["messages"]) != 0:
+						return
+				await message.channel.send("No confessions to review")
 
 			# Post confessions command
 			if message.content == PREFIX + "post confessions":
@@ -806,7 +806,7 @@ class MyClient(discord.Client):
 				if "confessions" in self.data["servers"][str(guild.id)]:
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
 						confession_embed = discord.Embed(title="Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=0xF0CCA7)
-						confession_embed.set_footer(text="/confess to submit your anonymous confession", icon_url=self.user.avatar_url)
+						confession_embed.set_footer(text="/confess to submit your anonymous confession",  icon_url=guild.icon_url_as(size=128))
 						await message.channel.send(embed=confession_embed)
 
 					self.data["servers"][str(guild.id)]["confessions"]["messages"] = {}
