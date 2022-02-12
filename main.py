@@ -433,7 +433,7 @@ class MyClient(discord.Client):
 			embed_help.add_field(name=str(PREFIX + "__roles__"), value="Creates the server's roles embed.\n**Admin only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__stats__"), value="Creates the server's stats embed by default. Can send csv file instead.Argument: csv=[true/false] (Optional. False by default)\n**Admin only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__purge__"), value="Deletes last x amount of messages. Argument: number of messages. **Consider using the slash command instead!**\n**Admin only feature.**")
-			embed_help.add_field(name=str(PREFIX + "__anonymous__"), value="Creates the server's stats embed.\n**Admin only feature.**")
+			embed_help.add_field(name=str(PREFIX + "__anonymous__"), value="Posts your message anonymously in the current channel")
 			embed_help.add_field(name=str(PREFIX + "__review confessions__"), value="Shows all unposted confessions in the channel the is sent in. Each confession has a button to remove it from " + self.user.name + "'s data.\n**Admin only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__post confessions__"), value="Posts all unposted confessions in the channel the command is sent in.\n**Admin only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__settings__"), value="Brings up server settings page\n**Admin only feature.**")
