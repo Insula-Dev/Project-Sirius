@@ -507,12 +507,7 @@ class MyClient(discord.Client):
 						buttons = []
 						for role in self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"]:
 							buttons.append(create_button(style=ButtonStyle.blue, emoji=await self.get_formatted_emoji(self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role]["emoji"], guild), label=self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role]["name"], custom_id=role))
-						components = []
-						for x in range(ceil(len(buttons) / 5)):
-							if len(buttons[(5 * x):]) > 5:
-								components.append(create_actionrow(*buttons[(5 * x):(5 * x) + 5]))
-							else:
-								components.append(create_actionrow(*buttons[(5 * x):]))
+						components = populate_actionrows(buttons) # Puts buttons in to rows of 5 or less
 						category_message = await message.channel.send(content="**" + category + "**\n" + "Select the roles for this category!", components=components)
 
 						# Updates the category's message id
@@ -758,8 +753,7 @@ class MyClient(discord.Client):
 					buttons = []
 					for candidate in candidates:
 						buttons.append(create_button(style=ButtonStyle.blue, label=candidates[candidate], emoji=candidate, custom_id="poll:" + candidate))
-					#components = [create_actionrow(*buttons)]
-					components = populate_actionrows(buttons)
+					components = populate_actionrows(buttons) # Puts buttons in to rows of 5 or less
 					poll_message = await message.channel.send(embed=embed_poll, components=components)
 
 					# Setup candidates dict for recording votes so people can't vote multiple times
