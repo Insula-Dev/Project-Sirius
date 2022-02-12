@@ -85,6 +85,17 @@ def setup_config():
 
 setup_config()
 
+# Functions
+def populate_actionrows(button_list):
+	"""Returns a list of actionrows of 5 or less buttons."""
+
+	actionrow_list = []
+	for x in range(ceil(len(button_list) / 5)):
+		if len(button_list[(5 * x):]) > 5:
+			actionrow_list.append(create_actionrow(*button_list[(5 * x):(5 * x) + 5]))
+		else:
+			actionrow_list.append(create_actionrow(*button_list[(5 * x):]))
+	return actionrow_list
 
 # Definitions
 class MyClient(discord.Client):
@@ -718,6 +729,7 @@ class MyClient(discord.Client):
 
 				# Analyse argument
 				for argument in arguments:
+					argument = argument.strip()
 					argument = argument.split("=")
 					# print("Argument 0, 1:", argument[0], argument[1])
 					poll_time = str(datetime.now())
@@ -746,7 +758,8 @@ class MyClient(discord.Client):
 					buttons = []
 					for candidate in candidates:
 						buttons.append(create_button(style=ButtonStyle.blue, label=candidates[candidate], emoji=candidate, custom_id="poll:" + candidate))
-					components = [create_actionrow(*buttons)]
+					#components = [create_actionrow(*buttons)]
+					components = populate_actionrows(buttons)
 					poll_message = await message.channel.send(embed=embed_poll, components=components)
 
 					# Setup candidates dict for recording votes so people can't vote multiple times
@@ -793,7 +806,7 @@ class MyClient(discord.Client):
 					if len(client.data["servers"][str(guild.id)]["confessions"]["messages"]) == 0:
 						await message.channel.send("No confessions to review")
 
-			# Print confessions command
+			# Post confessions command
 			if message.content == PREFIX + "post confessions":
 				logger.info("`post confessions` called by " + message.author.name)  # Event log
 				if "confessions" in self.data["servers"][str(guild.id)]:
