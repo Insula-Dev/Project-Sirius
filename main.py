@@ -26,7 +26,7 @@ DEFAULT_DEBUG = True
 DEFAULT_LEVEL = "INFO"
 DEFAULT_JOKE_SERVERS = []
 
-VERSION = "1.3.1 InDev"
+VERSION = "1.3.1 Pre-Release"
 SERVER_STRUCTURE = \
 	{
 		"config": {
