@@ -1398,7 +1398,7 @@ if __name__ == "__main__":
 					embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)]["name"] + " Score: " + str(highest_count)), inline=False)
 				await ctx.target_message.delete()  # Deletes the poll message
 				client.poll[str(ctx.guild.id)].pop(str(ctx.target_id))  # Removes poll entry from dictionary
-				await ctx.send(embeds=[embed_results], hidden=True)  # Sends the results embed
+				await ctx.send(embeds=[embed_results])  # Sends the results embed
 			else:
 				await ctx.send(content="This is not a poll", hidden=True)
 
