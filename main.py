@@ -9,6 +9,7 @@ import requests
 import socket
 import asyncio
 import discord
+#from discord.ui import Modal, InputText
 from discord_slash import SlashCommand, SlashContext, MenuContext
 from discord_slash.utils.manage_commands import create_option, create_permission, remove_all_commands
 from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle, create_select, create_select_option
@@ -339,8 +340,12 @@ class MyClient(discord.Client):
 		else:
 			logger.debug("Not adding experience to " + message.author.name)  # Event log
 
+		if not message.content.startswith(PREFIX):
+			return
+		else:
+			message.content = message.content[len(PREFIX):]
 		# Get level command
-		if message.content == PREFIX + "level":
+		if message.content == "level":
 
 			logger.info("`level` called by " + message.author.name)  # Event log
 
@@ -362,7 +367,7 @@ class MyClient(discord.Client):
 			await message.channel.send(file=file)
 
 		# Level leaderboard command
-		if message.content == PREFIX + "leaderboard":
+		if message.content == "leaderboard":
 
 			logger.info("`leaderboard` called by " + message.author.name)  # Event log
 
@@ -389,12 +394,12 @@ class MyClient(discord.Client):
 			await message.channel.send(embed=embed_leaderboard)
 
 		# Embed command
-		if message.content.startswith(PREFIX + "embed"):
+		if message.content.startswith("embed"):
 
 			logger.info("`embed` called by " + message.author.name)  # Event log
 
 			try:
-				argument_string = message.content[len(PREFIX + "embed "):]
+				argument_string = message.content[len("embed "):]
 				arguments = re.split(",(?!\s)", argument_string)  # Splits arguments when there is not a space after the comma, if there is, it is assumed to be part of a sentance.
 				title = discord.Embed.Empty
 				description = discord.Embed.Empty
@@ -429,7 +434,7 @@ class MyClient(discord.Client):
 				await message.channel.send("Embed Failed: Check you put something to embed and that it's under 1024 character.\n" + str(exception))
 
 		# Help command
-		if message.content == PREFIX + "help":
+		if message.content == "help":
 
 			logger.info("`help` called by " + message.author.name)  # Event log
 
@@ -457,7 +462,7 @@ class MyClient(discord.Client):
 		if message.author.guild_permissions.administrator:
 
 			# Rules command
-			if message.content == PREFIX + "rules":
+			if message.content == "rules":
 
 				logger.info("`rules` called by " + message.author.name)  # Event log
 
@@ -495,7 +500,7 @@ class MyClient(discord.Client):
 					await message.channel.send("Uh oh, you haven't set up any rules! Get a server admin to set them up at https://www.lingscars.com/")
 
 			# Role buttons command
-			if message.content == PREFIX + "roles":
+			if message.content == "roles":
 				# If the roles functionality is enabled
 				if "roles" in self.data["servers"][str(message.guild.id)]:
 					# try:
@@ -523,7 +528,7 @@ class MyClient(discord.Client):
 					await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
 			# Roles command
-			if message.content == PREFIX + "react roles":
+			if message.content == "react roles":
 
 				logger.info("`roles` called by " + message.author.name)  # Event log
 
@@ -557,11 +562,11 @@ class MyClient(discord.Client):
 					await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
 
 			# Stats command
-			if message.content.startswith(PREFIX + "stats"):
+			if message.content.startswith("stats"):
 
 				logger.info("`stats` called by " + message.author.name)  # Event log
 
-				argument = message.content[len(PREFIX + "stats "):]
+				argument = message.content[len("stats "):]
 				csv = False
 				if argument == "csv":  # Changes to csv mode where the stats are saved to a csv file instead
 					csv = True
@@ -679,16 +684,16 @@ class MyClient(discord.Client):
 				await waiting_message.delete()
 
 			# Purge Command
-			if message.content.startswith(PREFIX + "purge"):
+			if message.content.startswith("purge"):
 				logger.info("`purge` called by " + message.author.name)  # Event log
-				argument = message.content[len(PREFIX + "purge "):]
+				argument = message.content[len("purge "):]
 				number = int(argument)
 
 				purge_message = await message.channel.send("React with 👍 to confirm")
 				self.purge_messages[purge_message.id] = number
 
 			# Poll command
-			if message.content.startswith(PREFIX + "poll"):
+			if message.content.startswith("poll"):
 				"""ERRORS TO TEST FOR: DONE
 				- Duplicate emojis
 				- Custom emojis
@@ -705,7 +710,7 @@ class MyClient(discord.Client):
 				await message.channel.purge(limit=1)
 
 				# !!! Clunky and breakable
-				argument_string = message.content[len(PREFIX + "poll "):]
+				argument_string = message.content[len("poll "):]
 				if len(argument_string) < 2:
 					logger.debug("Poll command had no viable arguments - cancelled")
 					return
@@ -787,7 +792,7 @@ class MyClient(discord.Client):
 				logger.debug(f"New poll:{self.poll[str(message.guild.id)]}")
 
 			# Review confessions command
-			if message.content == PREFIX + "review confessions":
+			if message.content == "review confessions":
 				logger.info("`review confessions` called by " + message.author.name)  # Event log
 				if "confessions" in self.data["servers"][str(guild.id)]:
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
@@ -801,7 +806,7 @@ class MyClient(discord.Client):
 				await message.channel.send("No confessions to review")
 
 			# Post confessions command
-			if message.content == PREFIX + "post confessions":
+			if message.content == "post confessions":
 				logger.info("`post confessions` called by " + message.author.name)  # Event log
 				if "confessions" in self.data["servers"][str(guild.id)]:
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
@@ -814,7 +819,7 @@ class MyClient(discord.Client):
 					await message.delete()
 
 			# Settings command
-			if message.content == PREFIX + "settings":
+			if message.content == "settings":
 				logger.info("`settings` called by " + message.author.name)  # Event log
 				await message.channel.send(content="**Settings**")
 				channel_options = []
@@ -831,19 +836,19 @@ class MyClient(discord.Client):
 		if message.author.id in self.data["config"]["developers"]:
 
 			# Announcement command
-			if message.content.startswith(PREFIX + "announcement"):
+			if message.content.startswith("announcement"):
 				logger.info("`announcement` called by " + message.author.name)  # Event log
-				if len(message.content) > len(PREFIX + "announcement "):
-					argument = message.content[len(PREFIX + "announcement "):]
+				if len(message.content) > len("announcement "):
+					argument = message.content[len("announcement "):]
 					await self.announce(argument)
 				else:
 					logger.error("No announcement argument supplied")  # Event log
 
 			# Report command
-			if message.content.startswith(PREFIX + "report"):
+			if message.content.startswith("report"):
 				logger.info("`report` called by " + message.author.name)  # Event log
-				if len(message.content) > len(PREFIX + "report "):
-					argument = message.content[len(PREFIX + "report "):]
+				if len(message.content) > len("report "):
+					argument = message.content[len("report "):]
 					try:
 						if self.data["config"]["safety"]:
 							logger.debug("safety protected against report command")
@@ -875,7 +880,7 @@ class MyClient(discord.Client):
 				await self.get_channel(832293063803142235).send(dev_mentions + "Report used in " + guild.name + " by " + message.author.mention)
 
 			# Config command
-			if message.content == PREFIX + "config":
+			if message.content == "config":
 				logger.info("`config` called by " + message.author.name)  # Event log
 				await message.channel.send(content="**Config**")
 				joke_button = create_button(style=ButtonStyle.blue, label="Jokes", emoji="😂", custom_id="config:jokes")
@@ -888,20 +893,30 @@ class MyClient(discord.Client):
 				upload_log_button = create_button(style=ButtonStyle.blue, label="Log", emoji="📄", custom_id="config:send:log_file.log")
 				components = [create_actionrow(*[upload_data_button, upload_log_button])]
 				await message.channel.send(content="Files: ", components=components)
+				class activity_modal(discord.ui.Modal):
+					def __init__(self,title,custom_id,current_activity):
+						super()._innit_(title,custom_id)
+						self.add_item(discord.ui.InputText(label="Activity",value=current_activity.name))
+
+					async def callback(self,ctx):
+						await ctx.reply("Activity updated",hidden=True)
+
+				activity_modal = activity_modal(self.username+"'s Activity","config:activity",self.activity)
+				await message.channel.send_modal(activity_modal)
 
 			# Locate command
-			if message.content == PREFIX + "locate":
+			if message.content == "locate":
 				logger.info("`locate` called by " + message.author.name)  # Event log
 				hostname = socket.gethostname()
 				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "** (**" + str(round(self.latency)) + "**ms)" + "\nUptime: " + self.get_uptime() + "." + "\nLast disconnect: " + str(self.last_disconnect) + ".")
 
 			# Kill command
-			if message.content.startswith(PREFIX + "kill"):
+			if message.content.startswith("kill"):
 				logger.info("`kill` called by " + message.author.name)  # Event log
 				if self.data["config"]["jokes"] is True:
 					await message.channel.send("Doggie down")
 
-				reason = message.content[len(PREFIX + "kill"):]
+				reason = message.content[len("kill"):]
 				death_note = "**" + self.user.name + " offline**\nReason for shutdown: " + reason
 
 				# Send kill announcement
@@ -911,12 +926,12 @@ class MyClient(discord.Client):
 				await client.close()
 
 			# Restart command
-			if message.content.startswith(PREFIX + "restart"):
+			if message.content.startswith("restart"):
 				logger.info("`restart` called by " + message.author.name)  # Event log
 				if self.data["config"]["jokes"] is True:
 					await message.channel.send("Doggie resurrection")
 
-				reason = message.content[len(PREFIX + "restart"):]
+				reason = message.content[len("restart"):]
 				death_note = "**" + self.user.name + " offline**\nReason for restart: " + reason
 
 				# Send restart announcement
@@ -967,30 +982,30 @@ class MyClient(discord.Client):
 					await message.channel.send("85 commits in and haha bot print funny is still our sense of humour.")
 
 			# Token command
-			if message.content == PREFIX + "token":
+			if message.content == "token":
 				logger.debug("`token` called by " + message.author.name)  # Event log
 				await message.channel.send("IdrOppED ThE TokEN gUYS!!!!")
 
 			# Summon lizzie command
-			if message.content == PREFIX + "summon lizzie":
+			if message.content == "summon lizzie":
 				logger.debug("`summon_lizzie` called by " + message.author.name)  # Event log
 				for x in range(100):
 					await message.channel.send(guild.get_member(692684372247314445).mention)
 
 			# Summon leo command
-			if message.content == PREFIX + "summon leo":
+			if message.content == "summon leo":
 				logger.debug("`summon_leo` called by " + message.author.name)  # Event log
 				for x in range(100):
 					await message.channel.send(guild.get_member(242790351524462603).mention)
 
 			# Teaching bitches how to swim
-			if message.content == PREFIX + "swim":
+			if message.content == "swim":
 				logger.debug("`swim` called by " + message.author.name)  # Event log
 				await message.channel.send("/play https://youtu.be/uoZgZT4DGSY")
 				await message.channel.send("No swimming lessons today ):")
 
 			# Overlay Israel (Warning: DEFCON 1)
-			if message.content == PREFIX + "israeli defcon 1":
+			if message.content == "israeli defcon 1":
 				logger.debug("`israeli_defcon_1` called by " + message.author.name)  # Event log
 				await message.channel.send("apologies in advance...")
 				while True:
@@ -1028,6 +1043,7 @@ class MyClient(discord.Client):
 		guild = self.get_guild(payload.guild_id)
 		# Make sure that the message the user is reacting to is the one we care about. Would be removed because dumb but you've integrated the whole thing way too much. This is not very modular at all!
 		reaction_usage = "none"
+		print("react")
 
 		# Role reaction check
 		for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:
