@@ -1043,7 +1043,6 @@ class MyClient(discord.Client):
 		guild = self.get_guild(payload.guild_id)
 		# Make sure that the message the user is reacting to is the one we care about. Would be removed because dumb but you've integrated the whole thing way too much. This is not very modular at all!
 		reaction_usage = "none"
-		print("react")
 
 		# Role reaction check
 		for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:
@@ -1056,12 +1055,12 @@ class MyClient(discord.Client):
 			try:
 				for message in self.poll[str(guild.id)]:
 					if str(payload.message_id) == message:
-						if not self.poll[str(guild.id)]["config"]["anonymous"]:  # Anonymous messages don't use reactions
+						if not self.poll[str(guild.id)][message]["config"]["anonymous"]:  # Anonymous messages don't use reactions
 							reaction_usage = "polls"
 							logger.debug("Poll message reacted to")
 							break
 			except KeyError:
-				pass
+				logger.debug("Couldn't find some data in polls")
 
 			if reaction_usage == "none":  # No functionality found yet, keep checking
 				# Purge reaction check
@@ -1142,7 +1141,6 @@ class MyClient(discord.Client):
 			else:
 				valid_emoji = False
 				for message in self.poll[str(payload.guild_id)]:
-					# print(str(payload.emoji) + "?" + str(self.poll[str(payload.guild_id)][message]["options"]))
 					if str(payload.emoji) in self.poll[str(payload.guild_id)][message]["options"]:  # Deletes emojis not related to poll options
 						valid_emoji = True
 				if not valid_emoji:
