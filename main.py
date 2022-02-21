@@ -707,7 +707,7 @@ class MyClient(discord.Client):
 				logger.info("`poll` called by " + message.author.name)  # Event log
 
 				# Delete the command message
-				await message.channel.purge(limit=1)
+				await message.delete()
 
 				# !!! Clunky and breakable
 				argument_string = message.content[len("poll "):]
