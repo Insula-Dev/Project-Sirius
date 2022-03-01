@@ -7,7 +7,6 @@ import json
 import re
 import requests
 import socket
-import asyncio
 import discord
 #from discord.ui import Modal, InputText
 from discord_slash import SlashCommand, SlashContext, MenuContext
@@ -26,6 +25,7 @@ DEFAULT_PREFIX = "-"
 DEFAULT_DEBUG = True
 DEFAULT_LEVEL = "INFO"
 DEFAULT_JOKE_SERVERS = []
+DEFAULT_DEFAULT_COLOUR = 0xffc000 # Default
 
 VERSION = "1.3.1 Pre-Release"
 SERVER_STRUCTURE = \
@@ -51,10 +51,11 @@ PREFIX = DEFAULT_PREFIX
 DEBUG = DEFAULT_DEBUG
 LEVEL = DEFAULT_LEVEL
 JOKE_SERVERS = DEFAULT_JOKE_SERVERS
+DEFAULT_COLOUR = DEFAULT_DEFAULT_COLOUR
 
 
 def setup_config():
-	global TOKEN, PREFIX, DEBUG, LEVEL, JOKE_SERVERS
+	global TOKEN, PREFIX, DEBUG, LEVEL, JOKE_SERVERS, DEFAULT_COLOUR
 
 	def initiate_const(name, default, dictionary):
 		try:
@@ -70,7 +71,8 @@ def setup_config():
 				"prefix": DEFAULT_PREFIX,
 				"debug": DEFAULT_DEBUG,
 				"level": DEFAULT_LEVEL,
-				"joke servers": DEFAULT_JOKE_SERVERS
+				"joke servers": DEFAULT_JOKE_SERVERS,
+				"default colour": DEFAULT_DEFAULT_COLOUR
 			},
 			configFile, indent=4
 		)
@@ -82,6 +84,7 @@ def setup_config():
 			DEBUG = initiate_const("debug", DEFAULT_DEBUG, data)
 			LEVEL = initiate_const("level", DEFAULT_LEVEL, data)
 			JOKE_SERVERS = initiate_const("joke servers", DEFAULT_JOKE_SERVERS, data)
+			DEFAULT_COLOUR = initiate_const("default colour", DEFAULT_DEFAULT_COLOUR, data)
 
 
 setup_config()
@@ -226,6 +229,12 @@ class MyClient(discord.Client):
 			return discord.utils.get(guild.emojis, name=parts[1])  # Uses the name part to get the emoji
 		else:
 			return emoji_reference
+
+	def get_server_colour(self,guild_id):
+		if "colour theme" in self.data["servers"][str(guild_id)]["config"]:
+			return self.data["servers"][str(guild_id)]["config"]["colour theme"]
+		else:
+			return DEFAULT_COLOUR
 
 	async def announce(self, announcement, announcement_type="generic"):
 		"""Sends announcement messages to each guild's assigned announcement channel."""
@@ -387,7 +396,7 @@ class MyClient(discord.Client):
 				except AttributeError:
 					logger.debug("Member not found in server")
 
-			embed_leaderboard = discord.Embed(title="Leaderboard", colour=0xffc000)
+			embed_leaderboard = discord.Embed(title="Leaderboard", colour=self.get_server_colour(guild.id))
 			embed_leaderboard.add_field(name="No.", value=lb_no, inline=True)
 			embed_leaderboard.add_field(name="User", value=lb_message, inline=True)
 			embed_leaderboard.add_field(name="Count", value=lb_count, inline=True)
@@ -403,7 +412,7 @@ class MyClient(discord.Client):
 				arguments = re.split(",(?!\s)", argument_string)  # Splits arguments when there is not a space after the comma, if there is, it is assumed to be part of a sentance.
 				title = discord.Embed.Empty
 				description = discord.Embed.Empty
-				colour = 0xffc000
+				colour = self.get_server_colour(guild.id)
 				fields = []
 
 				# Analyse argument
@@ -439,7 +448,7 @@ class MyClient(discord.Client):
 			logger.info("`help` called by " + message.author.name)  # Event log
 
 			# Create and send the help embed
-			embed_help = discord.Embed(title="🤔 Need help?", description="Here's a list of " + self.user.name + "'s commands!", colour=0xffc000)
+			embed_help = discord.Embed(title="🤔 Need help?", description="Here's a list of " + self.user.name + "'s commands!", colour=self.get_server_colour(guild.id))
 			embed_help.add_field(name=str(PREFIX + "__level__"), value="Creates your level card, showing your current level and progress to the next level.")
 			embed_help.add_field(name=str(PREFIX + "__embed__"), value="Creates an embed. Arguments: title=,description=,colour=[hex code],[name of field]=[string (Do not include commas or =)] (or just write and it'll be put in the description by deafult)")
 			embed_help.add_field(name=str(PREFIX + "__poll__"), value="Creates a poll embed. Arguments: title=, colour=[hex code], anonymous(anon)=[true/false], [name of candidate]=[emoji]. All paramaters are optional. Admins react with 🔚 (end) to end poll) or right click>Apps>Close poll for anon poll")
@@ -473,13 +482,13 @@ class MyClient(discord.Client):
 					await message.delete()
 
 					# Create the welcome embed !!! This is messy. Decide embed format and what should be customisable
-					embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#000000000000000000> is for this, and <#000000000000000001> is for that.", colour=0xffc000)
+					embed_welcome = discord.Embed(title="👋 Welcome to " + message.guild.name + ".", description="[Discord community server description]\n\nTake a moment to familiarise yourself with the rules below.\nChannel <#000000000000000000> is for this, and <#000000000000000001> is for that.", colour=self.get_server_colour(guild.id))
 
 					# Create the rules embed
-					embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], colour=0xffc000, inline=False)
+					embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], colour=self.get_server_colour(guild.id), inline=False)
 					embed_rules.set_footer(text="Rules updated • " + date.today().strftime("%d/%m/%Y"),  icon_url=guild.icon_url_as(size=128))
 					embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
-					embed_image = discord.Embed(description="That's all.", colour=0xffc000)
+					embed_image = discord.Embed(description="That's all.", colour=self.get_server_colour(guild.id))
 					image = self.data["servers"][str(guild.id)]["rules"]["image link"]
 					if image != None:
 						if image[:6] == "https:":
@@ -625,7 +634,7 @@ class MyClient(discord.Client):
 						await message.channel.send(file=discord.File("member_statistics.csv", filename=guild.name + " member_statistics.csv"))
 					else:
 						# Create and send general statistics embed
-						embed_general = discord.Embed(title="📈 General Statistics for " + guild.name, colour=0xffc000)
+						embed_general = discord.Embed(title="📈 General Statistics for " + guild.name, colour=self.get_server_colour(guild.id))
 						embed_general.add_field(name="Total Members", value=len([m for m in guild.members if not m.bot]))
 						embed_general.add_field(name="Total Bots", value=len([m for m in guild.members if m.bot]))
 						embed_general.add_field(name="Total Channels", value=len(guild.text_channels))
@@ -636,7 +645,7 @@ class MyClient(discord.Client):
 						await message.channel.send(embed=embed_general)
 
 						# Create and send channel statistics embed
-						embed_channel = discord.Embed(title="📈 Channel Statistics for " + guild.name, colour=0xffc000)
+						embed_channel = discord.Embed(title="📈 Channel Statistics for " + guild.name, colour=self.get_server_colour(guild.id))
 						for x in range(len(channel_statistics) // 10 + 1):
 							# print("------\nChannels in set:\n" + str(channel_statistics[x]))
 							logger.debug("------\nChannels in set:\n" + str(channel_statistics[x]))
@@ -645,7 +654,7 @@ class MyClient(discord.Client):
 						await message.channel.send(embed=embed_channel)
 
 						# Create and send members statistics embed
-						embed_member = discord.Embed(title="📈 Member Statistics for " + guild.name, colour=0xffc000)
+						embed_member = discord.Embed(title="📈 Member Statistics for " + guild.name, colour=self.get_server_colour(guild.id))
 						for x in range(len(member_statistics) // 10 + 1):
 							logger.debug("Member:" + str(member_statistics[x]))
 							embed_member.add_field(name="Members", value=str(member_statistics[x]))
@@ -796,7 +805,7 @@ class MyClient(discord.Client):
 				logger.info("`review confessions` called by " + message.author.name)  # Event log
 				if "confessions" in self.data["servers"][str(guild.id)]:
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
-						confession_embed = discord.Embed(title="Review Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=0xFF0A00)
+						confession_embed = discord.Embed(title="Review Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=0XF57E3D)
 						confession_embed.set_footer(text="This message is here to be reviewed. Please say if the content is inappropriate!", icon_url=guild.icon_url_as(size=128))
 						button = (create_button(style=ButtonStyle.red, label="remove", custom_id="confession:" + confession))
 						components = [create_actionrow(*[button])]
@@ -810,7 +819,7 @@ class MyClient(discord.Client):
 				logger.info("`post confessions` called by " + message.author.name)  # Event log
 				if "confessions" in self.data["servers"][str(guild.id)]:
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
-						confession_embed = discord.Embed(title="Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=0xF0CCA7)
+						confession_embed = discord.Embed(title="Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=self.get_server_colour(guild.id))
 						confession_embed.set_footer(text="/confess to submit your anonymous confession",  icon_url=guild.icon_url_as(size=128))
 						await message.channel.send(embed=confession_embed)
 
@@ -831,6 +840,37 @@ class MyClient(discord.Client):
 				announcement_channel_select = create_select(channel_options, custom_id="settings:announcements channel id")
 				components = [create_actionrow(*[announcement_channel_select])]
 				await message.channel.send(content="Announcement Channel:", components=components)
+
+				colours = {
+					"teal" : 0x1abc9c,
+					"dark teal" : 0x11806a,
+					"green" : 0x2ecc71,
+					"dark green" : 0x1f8b4c,
+					"blue" : 0x3498db,
+					"dark blue" : 0x206694,
+					"purple" : 0x9b59b6,
+					"dark purple" : 0x71368a,
+					"magenta" : 0xe91e63,
+					"dark magenta" : 0xad1457,
+					"gold" : 0xf1c40f,
+					"dark gold" : 0xc27c0e,
+					"orange" : 0xe67e22,
+					"dark orange" : 0xa84300,
+					"red" : 0xe74c3c,
+					"dark red" : 0x992d22,
+					"lighter grey" : 0x95a5a6,
+					"dark grey" : 0x607d8b,
+					"light grey" : 0x979c9f,
+					"darker grey" : 0x546e7a,
+					"blurple" : 0x7289da,
+					"greyple" : 0x99aab5
+				} # https://www.codegrepper.com/code-examples/python/discord+py+color
+				colour_options = []
+				for colour in colours:
+					colour_options.append(create_select_option(label=colour, value=str(colours[colour])))
+				colour_select = create_select(colour_options, custom_id="settings:colour theme")
+				components = [create_actionrow(*[colour_select])]
+				await message.channel.send(content="Server Colour Theme:", components=components)
 
 		# If the message was sent by the developers
 		if message.author.id in self.data["config"]["developers"]:
@@ -895,14 +935,14 @@ class MyClient(discord.Client):
 				await message.channel.send(content="Files: ", components=components)
 				class activity_modal(discord.ui.Modal):
 					def __init__(self,title,custom_id,current_activity):
-						super()._innit_(title,custom_id)
+						super().__init__(title,custom_id)
 						self.add_item(discord.ui.InputText(label="Activity",value=current_activity.name))
 
 					async def callback(self,ctx):
 						await ctx.reply("Activity updated",hidden=True)
 
-				activity_modal = activity_modal(self.username+"'s Activity","config:activity",self.activity)
-				await message.channel.send_modal(activity_modal)
+				activity_modal = activity_modal(self.user.name+"'s Activity","config:activity",self.activity)
+				await message.send_modal(activity_modal)
 
 			# Locate command
 			if message.content == "locate":
@@ -1232,7 +1272,6 @@ if __name__ == "__main__":
 		for guild in client.guilds:
 			guild_ids += guild.id
 
-
 		@slash.slash(
 			name="ping",
 			description="Ping the bot to obtain latency.",
@@ -1409,7 +1448,6 @@ if __name__ == "__main__":
 		@client.event
 		async def on_component(ctx):
 			"""Runs on component use."""
-
 			logger.debug("Component used by " + ctx.author.name)
 
 			guild = ctx.origin_message.guild
@@ -1453,10 +1491,12 @@ if __name__ == "__main__":
 					logger.info(ctx.author.name + " tried to purge messages")
 
 			elif ctx.custom_id.startswith("settings"):
+				print("Settings")
 				config = client.data["servers"][str(guild.id)]["config"]
 				setting = ctx.custom_id[len("settings:"):]
 				logger.debug("Server setting '" + setting + "' of '" + guild.name + "' changed by " + ctx.author.name)
 				if ctx.author.guild_permissions.administrator:
+					print(f"Value:{ctx.values[0]}")
 					config[setting] = int(ctx.values[0])
 					await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))  # Makes first character capital of setting and shows the new setting
 					client.data["servers"][str(guild.id)]["config"] = config
