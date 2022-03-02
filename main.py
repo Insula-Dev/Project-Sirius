@@ -8,6 +8,7 @@ import re
 import requests
 import socket
 import discord
+import discord.ext.commands
 #from discord.ui import Modal, InputText
 from discord_slash import SlashCommand, SlashContext, MenuContext
 from discord_slash.utils.manage_commands import create_option, create_permission, remove_all_commands
@@ -102,12 +103,12 @@ def populate_actionrows(button_list):
 	return actionrow_list
 
 # Definitions
-class MyClient(discord.Client):
+class MyClient(discord.ext.commands.Bot):
 
 	def __init__(self, *args, **kwargs):
 		"""Constructor."""
 
-		super().__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs,command_prefix=PREFIX)
 		self.connected = True  # Starts true so on first boot, it won't think its restarted
 		self.start_time = datetime.now()
 		self.last_disconnect = datetime.now()
@@ -926,23 +927,20 @@ class MyClient(discord.Client):
 				joke_button = create_button(style=ButtonStyle.blue, label="Jokes", emoji="😂", custom_id="config:jokes")
 				components = [create_actionrow(*[joke_button])]
 				await message.channel.send(content="Jokes: " + str(self.data["config"]["jokes"]), components=components)
+
 				safety_button = create_button(style=ButtonStyle.blue, label="safety", emoji="🦺", custom_id="config:safety")
 				components = [create_actionrow(*[safety_button])]
 				await message.channel.send(content="safety: " + str(self.data["config"]["safety"]), components=components)
-				upload_data_button = create_button(style=ButtonStyle.blue, label="Data", emoji="🔡", custom_id="config:send:data.json")
-				upload_log_button = create_button(style=ButtonStyle.blue, label="Log", emoji="📄", custom_id="config:send:log_file.log")
+
+				upload_data_button = create_button(style=ButtonStyle.grey, label="Data", emoji="🔡", custom_id="config:send:data.json")
+				upload_log_button = create_button(style=ButtonStyle.grey, label="Log", emoji="📄", custom_id="config:send:log_file.log")
 				components = [create_actionrow(*[upload_data_button, upload_log_button])]
 				await message.channel.send(content="Files: ", components=components)
-				class activity_modal(discord.ui.Modal):
-					def __init__(self,title,custom_id,current_activity):
-						super().__init__(title,custom_id)
-						self.add_item(discord.ui.InputText(label="Activity",value=current_activity.name))
 
-					async def callback(self,ctx):
-						await ctx.reply("Activity updated",hidden=True)
+				activity_button = create_button(style=ButtonStyle.green, label="Activity", emoji="🏃‍♀️", custom_id="config:modal:activity")
+				components = [create_actionrow(*[activity_button])]
+				await message.channel.send(content="Activity: ", components=components)
 
-				activity_modal = activity_modal(self.user.name+"'s Activity","config:activity",self.activity)
-				await message.send_modal(activity_modal)
 
 			# Locate command
 			if message.content == "locate":
@@ -1491,12 +1489,10 @@ if __name__ == "__main__":
 					logger.info(ctx.author.name + " tried to purge messages")
 
 			elif ctx.custom_id.startswith("settings"):
-				print("Settings")
 				config = client.data["servers"][str(guild.id)]["config"]
 				setting = ctx.custom_id[len("settings:"):]
 				logger.debug("Server setting '" + setting + "' of '" + guild.name + "' changed by " + ctx.author.name)
 				if ctx.author.guild_permissions.administrator:
-					print(f"Value:{ctx.values[0]}")
 					config[setting] = int(ctx.values[0])
 					await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))  # Makes first character capital of setting and shows the new setting
 					client.data["servers"][str(guild.id)]["config"] = config
@@ -1511,6 +1507,18 @@ if __name__ == "__main__":
 					if setting.startswith("send:"):  # All send file buttons dealt with here
 						setting = setting[len("send:"):]
 						await ctx.reply(content="File: " + setting, file=discord.File(r'' + setting))
+					if setting.startswith("modal:"):
+						setting = setting[len("modal:"):]
+						class activity_modal(discord.ui.Modal):
+							def __init__(self, title, custom_id, current_activity):
+								super().__init__(title, custom_id)
+								self.add_item(discord.ui.InputText(label="Activity", value=current_activity.name))
+
+							async def callback(self, ctx):
+								await ctx.reply("Activity updated", hidden=True)
+
+						activity_modal = activity_modal(client.user.name + "'s Activity", "config:activity", client.activity)
+						await ctx.interaction.send_modal(activity_modal)
 					else:  # Toggle boolean commands here
 						config[setting] = not config[setting]  # Toggles boolean value
 						logger.info("Config:" + setting + " changed to " + str(config[setting]))
