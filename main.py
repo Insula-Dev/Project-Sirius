@@ -28,7 +28,7 @@ DEFAULT_LEVEL = "INFO"
 DEFAULT_JOKE_SERVERS = []
 DEFAULT_DEFAULT_COLOUR = 0xffc000 # Default
 
-VERSION = "1.3.1 Pre-Release"
+VERSION = "1.3.1 Release Candidate 1"
 SERVER_STRUCTURE = \
 	{
 		"config": {
@@ -454,11 +454,12 @@ class MyClient(discord.ext.commands.Bot):
 			embed_help.add_field(name=str(PREFIX + "__embed__"), value="Creates an embed. Arguments: title=,description=,colour=[hex code],[name of field]=[string (Do not include commas or =)] (or just write and it'll be put in the description by deafult)")
 			embed_help.add_field(name=str(PREFIX + "__poll__"), value="Creates a poll embed. Arguments: title=, colour=[hex code], anonymous(anon)=[true/false], [name of candidate]=[emoji]. All paramaters are optional. Admins react with 🔚 (end) to end poll) or right click>Apps>Close poll for anon poll")
 			embed_help.add_field(name=str(PREFIX + "__help__"), value="Creates the bot's help embed, listing the bot's commands.")
+			embed_help.add_field(name=str(PREFIX + "__/question__"), value="Asks Sirius a question. Don't expect a very insightful response...")
+			embed_help.add_field(name=str(PREFIX + "__/anonymous__"), value="Posts your message anonymously in the current channel")
 			embed_help.add_field(name=str(PREFIX + "__rules__"), value="Creates the server's rules embed.\n**Admin only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__roles__"), value="Creates the server's roles embed.\n**Admin only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__stats__"), value="Creates the server's stats embed by default. Can send csv file instead.Argument: csv=[true/false] (Optional. False by default)\n**Admin only feature.**")
-			embed_help.add_field(name=str(PREFIX + "__purge__"), value="Deletes last x amount of messages. Argument: number of messages. **Consider using the slash command instead!**\n**Admin only feature.**")
-			embed_help.add_field(name=str(PREFIX + "__anonymous__"), value="Posts your message anonymously in the current channel")
+			embed_help.add_field(name=str(PREFIX + "__(/)purge__"), value="Deletes last x amount of messages. Argument: number of messages. **Consider using the slash command instead!**\n**Admin only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__review confessions__"), value="Shows all unposted confessions in the channel the is sent in. Each confession has a button to remove it from " + self.user.name + "'s data.\n**Admin only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__post confessions__"), value="Posts all unposted confessions in the channel the command is sent in.\n**Admin only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__settings__"), value="Brings up server settings page\n**Admin only feature.**")
@@ -946,7 +947,9 @@ class MyClient(discord.ext.commands.Bot):
 			if message.content == "locate":
 				logger.info("`locate` called by " + message.author.name)  # Event log
 				hostname = socket.gethostname()
-				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "** (**" + str(round(self.latency)) + "**ms)" + "\nUptime: " + self.get_uptime() + "." + "\nLast disconnect: " + str(self.last_disconnect) + ".")
+				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) +
+										   "\n** (**" + str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5] + "**s)" +
+										   "\nUptime: " + self.get_uptime() + "." + "\nLast disconnect: " + str(self.last_disconnect) + ".")
 
 			# Kill command
 			if message.content.startswith("kill"):
@@ -1426,7 +1429,7 @@ if __name__ == "__main__":
 				title = str(poll["title"])
 				if title == "Embed.Empty":
 					title = ""
-				embed_results = discord.Embed(title=title + " Results")
+				embed_results = discord.Embed(title=title + " Results",colour=client.get_server_colour(ctx.guild_id))
 				embed_results.add_field(name="Candidates", value="\n".join(options), inline=True)
 				embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
 				if poll["config"]["winner"] == "highest":  # Winner is shown as the highest scoring candidate
@@ -1508,6 +1511,7 @@ if __name__ == "__main__":
 						setting = setting[len("send:"):]
 						await ctx.reply(content="File: " + setting, file=discord.File(r'' + setting))
 					if setting.startswith("modal:"):
+						print("there")
 						setting = setting[len("modal:"):]
 						class activity_modal(discord.ui.Modal):
 							def __init__(self, title, custom_id, current_activity):
@@ -1516,7 +1520,7 @@ if __name__ == "__main__":
 
 							async def callback(self, ctx):
 								await ctx.reply("Activity updated", hidden=True)
-
+						print("here")
 						activity_modal = activity_modal(client.user.name + "'s Activity", "config:activity", client.activity)
 						await ctx.interaction.send_modal(activity_modal)
 					else:  # Toggle boolean commands here
