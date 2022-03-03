@@ -18,7 +18,7 @@ from discord_slash.model import SlashCommandPermissionType, ContextMenuType
 # Local imports
 from log_handling import *
 from imaging import generate_level_card
-from AI import question
+import AI
 
 # Loads config CONST variables
 DEFAULT_TOKEN = "ENTER TOKEN HERE"
@@ -28,7 +28,7 @@ DEFAULT_LEVEL = "INFO"
 DEFAULT_JOKE_SERVERS = []
 DEFAULT_DEFAULT_COLOUR = 0xffc000 # Default
 
-VERSION = "1.3.1 Release Candidate 1"
+VERSION = "1.3.1"
 SERVER_STRUCTURE = \
 	{
 		"config": {
@@ -1341,14 +1341,14 @@ if __name__ == "__main__":
 			],
 			guild_ids=guild_ids
 		)
-		async def _question(ctx, message):
+		async def _question(ctx, question):
 			"""Runs on the question slash command."""
 
 			logger.debug("`/question` called by " + ctx.author.name)
 
 			try:
-				reply = "**" + ctx.author.name + "**: *" + message + "*\n\n"
-				await ctx.send(content=reply + question(message))
+				reply = "**" + ctx.author.name + "**: *" + question + "*\n\n"
+				await ctx.send(content=reply + AI.question(question))
 
 			except Exception as exception:
 				logger.error("Failed to run `/question` message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
