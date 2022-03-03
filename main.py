@@ -948,8 +948,8 @@ class MyClient(discord.ext.commands.Bot):
 				logger.info("`locate` called by " + message.author.name)  # Event log
 				hostname = socket.gethostname()
 				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) +
-										   "\n** (**" + str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5] + "**s)" +
-										   "\nUptime: " + self.get_uptime() + "." + "\nLast disconnect: " + str(self.last_disconnect) + ".")
+										   "\nLAtency: " + str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5] + "s" +
+										   "\nUptime: " + self.get_uptime() + "." + "\nLast disconnect: " + str(self.last_disconnect)[0:16])
 
 			# Kill command
 			if message.content.startswith("kill"):
