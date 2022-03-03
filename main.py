@@ -948,7 +948,7 @@ class MyClient(discord.ext.commands.Bot):
 				logger.info("`locate` called by " + message.author.name)  # Event log
 				hostname = socket.gethostname()
 				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) +
-										   "\nLAtency: " + str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5] + "s" +
+										   "\nLatency: " + str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5] + "s" +
 										   "\nUptime: " + self.get_uptime() + "." + "\nLast disconnect: " + str(self.last_disconnect)[0:16])
 
 			# Kill command
@@ -1284,7 +1284,7 @@ if __name__ == "__main__":
 			logger.debug("`/ping` called by " + ctx.author.name)
 
 			try:
-				await ctx.send(content=str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5])
+				await ctx.send(content=str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5]+"s")
 			except Exception as exception:
 				logger.error("Failed to run `/ping` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
