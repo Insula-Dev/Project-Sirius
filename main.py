@@ -454,6 +454,7 @@ class MyClient(discord.ext.commands.Bot):
 			embed_help.add_field(name=str(PREFIX + "__embed__"), value="Creates an embed. Arguments: title=,description=,colour=[hex code],[name of field]=[string (Do not include commas or =)] (or just write and it'll be put in the description by deafult)")
 			embed_help.add_field(name=str(PREFIX + "__poll__"), value="Creates a poll embed. Arguments: title=, colour=[hex code], anonymous(anon)=[true/false], [name of candidate]=[emoji]. All paramaters are optional. Admins react with 🔚 (end) to end poll) or right click>Apps>Close poll for anon poll")
 			embed_help.add_field(name=str(PREFIX + "__help__"), value="Creates the bot's help embed, listing the bot's commands.")
+			embed_help.add_field(name=str(PREFIX + "__/confess__"), value="Send your confession to the database anonymously for admins to review and post")
 			embed_help.add_field(name=str(PREFIX + "__/question__"), value="Asks Sirius a question. Don't expect a very insightful response...")
 			embed_help.add_field(name=str(PREFIX + "__/anonymous__"), value="Posts your message anonymously in the current channel")
 			embed_help.add_field(name=str(PREFIX + "__rules__"), value="Creates the server's rules embed.\n**Admin only feature.**")
@@ -938,9 +939,9 @@ class MyClient(discord.ext.commands.Bot):
 				components = [create_actionrow(*[upload_data_button, upload_log_button])]
 				await message.channel.send(content="Files: ", components=components)
 
-				activity_button = create_button(style=ButtonStyle.green, label="Activity", emoji="🏃‍♀️", custom_id="config:modal:activity")
-				components = [create_actionrow(*[activity_button])]
-				await message.channel.send(content="Activity: ", components=components)
+				#activity_button = create_button(style=ButtonStyle.green, label="Activity", emoji="🏃‍♀️", custom_id="config:modal:activity")
+				#components = [create_actionrow(*[activity_button])]
+				#await message.channel.send(content="Activity: ", components=components)
 
 
 			# Locate command
@@ -948,8 +949,9 @@ class MyClient(discord.ext.commands.Bot):
 				logger.info("`locate` called by " + message.author.name)  # Event log
 				hostname = socket.gethostname()
 				await message.channel.send("This instance is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) +
-										   "\nLatency: " + str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5] + "s" +
-										   "\nUptime: " + self.get_uptime() + "." + "\nLast disconnect: " + str(self.last_disconnect)[0:16])
+														"\nLatency: " + str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5] + "s" +
+														"\nUptime: " + self.get_uptime() + "." +
+														"\nLast disconnect: " + str(self.last_disconnect)[0:16])
 
 			# Kill command
 			if message.content.startswith("kill"):
