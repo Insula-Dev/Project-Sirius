@@ -28,7 +28,9 @@ DEFAULT_LEVEL = "INFO"
 DEFAULT_JOKE_SERVERS = []
 DEFAULT_DEFAULT_COLOUR = 0xffc000 # Default
 
-VERSION = "1.3.1"
+hostname = socket.gethostname()
+
+VERSION = "1.3.2 InDev"
 SERVER_STRUCTURE = \
 	{
 		"config": {
@@ -926,6 +928,10 @@ class MyClient(discord.ext.commands.Bot):
 			if message.content == "config":
 				logger.info("`config` called by " + message.author.name)  # Event log
 				await message.channel.send(content="**Config**")
+				await message.channel.send(content="This instance of "+VERSION+" is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**" +
+														"\nLatency: " + str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5] + "s" +
+														"\nUptime: " + self.get_uptime() + "." +
+														"\nLast disconnect: " + str(self.last_disconnect)[0:16])
 				joke_button = create_button(style=ButtonStyle.blue, label="Jokes", emoji="😂", custom_id="config:jokes")
 				components = [create_actionrow(*[joke_button])]
 				await message.channel.send(content="Jokes: " + str(self.data["config"]["jokes"]), components=components)
@@ -939,6 +945,10 @@ class MyClient(discord.ext.commands.Bot):
 				components = [create_actionrow(*[upload_data_button, upload_log_button])]
 				await message.channel.send(content="Files: ", components=components)
 
+				kill_button = create_button(style=ButtonStyle.red, label="Kill", emoji="🔪",custom_id="config:kill")
+				components = [create_actionrow(*[kill_button])]
+				await message.channel.send(content="Control: ", components=components)
+
 				#activity_button = create_button(style=ButtonStyle.green, label="Activity", emoji="🏃‍♀️", custom_id="config:modal:activity")
 				#components = [create_actionrow(*[activity_button])]
 				#await message.channel.send(content="Activity: ", components=components)
@@ -947,7 +957,6 @@ class MyClient(discord.ext.commands.Bot):
 			# Locate command
 			if message.content == "locate":
 				logger.info("`locate` called by " + message.author.name)  # Event log
-				hostname = socket.gethostname()
 				await message.channel.send("This instance of "+VERSION+" is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**" +
 														"\nLatency: " + str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5] + "s" +
 														"\nUptime: " + self.get_uptime() + "." +
@@ -1506,6 +1515,19 @@ if __name__ == "__main__":
 						print("here")
 						activity_modal = activity_modal(client.user.name + "'s Activity", "config:activity", client.activity)
 						await ctx.interaction.send_modal(activity_modal)
+					elif setting == "kill":
+						logger.info("`kill` called by " + ctx.author.name)  # Event log
+						if client.data["config"]["jokes"] is True:
+							await ctx.channel.send("Doggie down")
+
+						reason = "Killed from config panel"
+						death_note = "**" + client.user.name + " offline**\nReason for shutdown: " + reason
+
+						# Send kill announcement
+						await client.announce(death_note, announcement_type="kill")
+
+						await ctx.send(death_note + "\n" + "Uptime: " + client.get_uptime() + ".")
+						await client.close()
 					else:  # Toggle boolean commands here
 						config[setting] = not config[setting]  # Toggles boolean value
 						logger.info("Config:" + setting + " changed to " + str(config[setting]))
