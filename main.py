@@ -948,7 +948,7 @@ class MyClient(discord.ext.commands.Bot):
 			if message.content == "locate":
 				logger.info("`locate` called by " + message.author.name)  # Event log
 				hostname = socket.gethostname()
-				await message.channel.send("This instance of "+VERSION+" is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) +"**"+
+				await message.channel.send("This instance of "+VERSION+" is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**" +
 														"\nLatency: " + str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5] + "s" +
 														"\nUptime: " + self.get_uptime() + "." +
 														"\nLast disconnect: " + str(self.last_disconnect)[0:16])
