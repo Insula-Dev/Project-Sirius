@@ -968,23 +968,6 @@ class MyClient(discord.ext.commands.Bot):
 				await message.channel.send(death_note + "\n" + "Uptime: " + self.get_uptime() + ".")
 				await client.close()
 
-			# Restart command
-			if message.content.startswith("restart"):
-				logger.info("`restart` called by " + message.author.name)  # Event log
-				if self.data["config"]["jokes"] is True:
-					await message.channel.send("Doggie resurrection")
-
-				reason = message.content[len("restart"):]
-				death_note = "**" + self.user.name + " offline**\nReason for restart: " + reason
-
-				# Send restart announcement
-				await self.announce(death_note, announcement_type="restart")
-
-				await message.channel.send(death_note + "\n" + "Uptime: " + self.get_uptime() + ".")
-				global state
-				state = 1
-				# print("State here:", state)
-				await client.close()
 
 		# Joke functionality
 		if self.data["config"]["jokes"] is True:
@@ -1261,10 +1244,8 @@ class MyClient(discord.ext.commands.Bot):
 
 # Main body
 if __name__ == "__main__":
-	state = 1
-	if state == 1:  # TODO change to while to test for restart command
-		state = 0
-		# try:
+
+	try:
 		setup_config()
 		intents = discord.Intents.all()
 		intents.members = True
@@ -1589,10 +1570,7 @@ if __name__ == "__main__":
 
 				except Exception as exception:
 					logger.error(
-						"Failed to add role " + role.name + " to " + ctx.author.name + ". Exception: " + str(
-							exception
-						)
-						)  # Error: this may run even if the intention of the button press isn't to add a role
+						"Failed to add role " + role.name + " to " + ctx.author.name + ". Exception: " + str(exception))  # Error: this may run even if the intention of the button press isn't to add a role
 				finally:
 					try:
 						verify_role = client.data["servers"][str(guild.id)]["roles"]["verify role"]
@@ -1606,10 +1584,7 @@ if __name__ == "__main__":
 						logger.error("Verification failed: " + exception)
 					return
 
-
 		client.run(TOKEN)
 
-	# except Exception as exception:
-	#	logger.error("Exception: " + str(exception) + "\n")  # Event log
-	print("State:", state)
-# time.sleep(10)
+	except Exception as exception:
+		logger.error("Exception: " + str(exception) + "\n")  # Event log
