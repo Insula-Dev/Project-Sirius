@@ -6,7 +6,7 @@ from random import randint
 def question(message):
 	"""Natural language processing, supposedly."""
 
-	if message.lower().startswith("what"):
+	if "what" in message.lower():
 		answers = [
 			"Everything. That's what.",
 			"Nothing at all",
@@ -17,7 +17,7 @@ def question(message):
 			"Poggers"
 		]
 
-	elif message.lower().startswith("why"):
+	elif "why" in message.lower():
 		answers = [
 			"Because you sat on it",
 			"Well it's all down to the choices you make. Everything you have done up to this point has lead to this.",
@@ -25,7 +25,7 @@ def question(message):
 			"Because I wanted to cause chaos ;)"
 		]
 
-	elif message.lower().startswith("how"):
+	elif "how" in message.lower():
 		answers = [
 			"With a lot of love",
 			"It doesn't",
@@ -38,7 +38,7 @@ def question(message):
 			"google.com\n*(other search engines are available)*"
 		]
 
-	elif message.lower().startswith("where"):
+	elif "where" in message.lower():
 		if "leave" in message.lower():
 			answers = [
 				"To your left",
@@ -57,6 +57,26 @@ def question(message):
 				"It's coming over the hill.\nOh no, that's a monster!",
 				"Through the door, second turn on the left, then down the stairs, over the rainbow and there you will find the pot of gold.\n\nHold on. What did you ask again?",
 				"Second door on the right"
+			]
+
+	elif "who" in message.lower():
+		if "created" in message.lower():
+			answers = [
+					"Me thinks it is Arun",
+				  	"Prehaps it is Pablo",
+				  	"Has it occured to you that it was in fact God"
+					]
+		else:
+			answers = [
+				"Look into your soul, and you will find them inside of you!",
+				"We can assume it is Arun, the corrupt creator",
+				"MR Bean",
+				"The Menaces known as the \"Teletubbies\"",
+				"The person you seek is in your house, residing on the ground floor",
+				"The person you seek is using your bathroom as we speak",
+				"It is I, Sirius",
+				"Good gracious me its God",
+				"Ask your mum, I'm sure she'll know ;)"
 			]
 
 	else:
