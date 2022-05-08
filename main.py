@@ -837,7 +837,11 @@ class MyClient(discord.ext.commands.Bot):
 				logger.info("`settings` called by " + message.author.name)  # Event log
 				await message.channel.send(content="**Settings**")
 				channel_options = []
-				for channel in guild.text_channels:
+				if len(guild.text_channels) > 25:
+					channels = guild.text_channels[:25]
+				else:
+					channels = guild.text_channels
+				for channel in channels:
 					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
 						channel_options.append(create_select_option(label=channel.name, value=str(channel.id), default=True))
 					else:
