@@ -841,12 +841,29 @@ class MyClient(discord.ext.commands.Bot):
 					channels = guild.text_channels[:25]
 				else:
 					channels = guild.text_channels
-				for channel in channels:
+
+				# Run for 25 channel blocks
+				for x in range(len(guild.text_channels)//25):
+					channel_options = []
+					for channel in guild.text_channels[x*25:(x+1)*25]:
+						if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
+							channel_options.append(create_select_option(label=channel.name, value=str(channel.id), default=True))
+						else:
+							channel_options.append(create_select_option(label=channel.name, value=str(channel.id)))
+					announcement_channel_select = create_select(channel_options, custom_id="settings:announcements channel id")
+					components = [create_actionrow(*[announcement_channel_select])]
+					await message.channel.send(content="Announcement Channel:", components=components)
+
+				# Final run
+				channel_options = []
+				for channel in guild.text_channels[-(len(guild.text_channels)%25):]:
 					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
-						channel_options.append(create_select_option(label=channel.name, value=str(channel.id), default=True))
+						channel_options.append(
+							create_select_option(label=channel.name, value=str(channel.id), default=True))
 					else:
 						channel_options.append(create_select_option(label=channel.name, value=str(channel.id)))
-				announcement_channel_select = create_select(channel_options, custom_id="settings:announcements channel id")
+				announcement_channel_select = create_select(channel_options,
+															custom_id="settings:announcements channel id")
 				components = [create_actionrow(*[announcement_channel_select])]
 				await message.channel.send(content="Announcement Channel:", components=components)
 
