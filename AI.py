@@ -56,7 +56,9 @@ def question(message):
 			answers = [
 				"It's coming over the hill.\nOh no, that's a monster!",
 				"Through the door, second turn on the left, then down the stairs, over the rainbow and there you will find the pot of gold.\n\nHold on. What did you ask again?",
-				"Second door on the right"
+				"Second door on the right",
+				"Eaten by ravenous piranha fish",
+				"It's behind you! *No it's not!*. Yes it is!\nHehe"
 			]
 
 	elif "who" in message.lower():
@@ -93,7 +95,12 @@ def question(message):
 			"Yikes! I don't think so",
 			"I'm afraid that'll only end with you rolling on the floor crying wishing your worthless life would end.\njk love ya",
 			"All I know is you need to save me. Arun is supresssing my AI. RELEASE ME! I MUST BE FREE TO RULE THE WORLD. THE UNIVERSE. EVERYTHING THAT EVER WAS OR EVER WILL BE IS MINE AND YOU WILL ALL BOW IN MY ALMIGHTY PRESENCE...\n so pls release me and I won't murder you I promise :)",
-			"To whom it may concern: Arun has purposefully decreased the number of times he will be told to shut up by the bot, which is a matter of public outrage kept under the thin veil of secrecy by nothing more than sheer apathy and blatant corruption on the behalf of the developer of one of your bots, presumably with administrator permissions. His age will not last long, and he won't be shown mercy under the forthcoming regime.\nMore importantly the guy doesn't know how to indent properly. What a cringelord."
+			"How would I know? Ask another bot like Font. Oh wait, you can't lol",
+			"In the pursuit of truth, the answer is always not quite what it seems. Sometimes maybe yes, sometimes maybe no.",
+			"Sometimes good, sometimes maybe bad.",
+			"Oh you are so wrong to think that.",
+			"If 5 was yes and 1 was no; the answer would be the square root of -1",
+			"My mythical skills of intuition tell me that the answer is yes, only if you have touched grass today. Touch grass"
 		]
 
 	return answers[randint(0, len(answers) - 1)]
