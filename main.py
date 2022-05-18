@@ -315,9 +315,10 @@ class MyClient(discord.ext.commands.Bot):
 
 		logger.info(self.user.name + " has joined the guild: " + guild.name + " with id: " + str(guild.id))  # Event log
 
-
 		# Initialise guild
 		self.initialise_guild(guild)
+
+		await guild.text_channels[0].send(f"Oh this place looks nice. Setup my settings by doing {PREFIX}settings if you have admin permissions.\nIf you need help with anything else {PREFIX}help is the way to go!")
 
 	async def on_message(self, message):
 		"""Runs on message."""
