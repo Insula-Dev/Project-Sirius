@@ -1067,6 +1067,14 @@ class MyClient(discord.ext.commands.Bot):
 				while True:
 					await message.channel.send(".overlay israel")
 
+	async def on_message_delete(self, message):
+		if message.author.id == self.user.id:
+			async for entry in message.guild.audit_logs(limit=3):
+				if entry.target.id == self.user.id and entry.user.id != self.user.id:
+					if str(entry.action) == "AuditLogAction.message_delete":
+						logger.info(entry.user.name+" deleted my message: "+message.content)
+					break
+
 	async def on_member_join(self, member):
 		"""Runs when a member joins.
 		Sends the member a message welcome message."""
