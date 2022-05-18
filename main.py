@@ -867,6 +867,7 @@ class MyClient(discord.ext.commands.Bot):
 				components = [create_actionrow(*[announcement_channel_select])]
 				await message.channel.send(content="Announcement Channel:", components=components)
 
+				# Server colour
 				colours = {
 					"teal" : 0x1abc9c,
 					"dark teal" : 0x11806a,
@@ -897,6 +898,15 @@ class MyClient(discord.ext.commands.Bot):
 				colour_select = create_select(colour_options, custom_id="settings:colour theme")
 				components = [create_actionrow(*[colour_select])]
 				await message.channel.send(content="Server Colour Theme:", components=components)
+
+				# Delete logging
+				dlogging_options = []
+				dlogging_options.append(create_select_option(label="Off", value=0))
+				dlogging_options.append(create_select_option(label="Own messages", value=1))
+				dlogging_options.append(create_select_option(label="All messages (as if I would do this)", value=2))
+				dlogging_select = create_select(dlogging_options, custom_id="settings:delete_logging")
+				components = [create_actionrow(*[dlogging_select])]
+				await message.channel.send(content="Delete logging options:", components=components)
 
 		# If the message was sent by the developers
 		if message.author.id in self.data["config"]["developers"]:
@@ -1073,6 +1083,10 @@ class MyClient(discord.ext.commands.Bot):
 				if entry.target.id == self.user.id and entry.user.id != self.user.id:
 					if str(entry.action) == "AuditLogAction.message_delete":
 						logger.info(entry.user.name+" deleted my message: "+message.content)
+						config = client.data["servers"][str(message.guild.id)]["config"]
+						if "delete_logging" in config:
+							if config["delete_logging"] >= 1: # To allow for different level in the future
+								await message.channel.send(entry.user.name+" deleted my message: |"+message.content+"|")
 					break
 
 	async def on_member_join(self, member):
