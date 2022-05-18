@@ -5,8 +5,25 @@ from random import randint
 # Functions
 def question(message):
 	"""Natural language processing, supposedly."""
+	message = message.lower()
 
-	if "what" in message.lower():
+	if "font" in message:
+		answers = [
+					"Sirius better! Sirius better!",
+				   	"Sirius is the superior breed of bot",
+				   	"Font bad. It sounds like fountain but its not and its bad",
+					"Maybe in 50 years time when Arun has moved on and Jack is still trying to compete with how far ahead my technology is, Font will be better *in some select departments."
+				   ]
+
+	elif "scale" in message:
+		answers = [
+			"A solid "+str(randint(-100, 10000)),
+			"I'd say its a possible "+str(randint(-100, 10000)),
+			"It's gotta be around "+str(randint(0, 12)),
+			"Well that would be a saucy "+str(randint(-100, 10000))+" from me"
+		]
+
+	elif "what" in message:
 		answers = [
 			"Everything. That's what.",
 			"Nothing at all",
@@ -17,7 +34,7 @@ def question(message):
 			"Poggers"
 		]
 
-	elif "why" in message.lower():
+	elif "why" in message:
 		answers = [
 			"Because you sat on it",
 			"Well it's all down to the choices you make. Everything you have done up to this point has lead to this.",
@@ -25,7 +42,7 @@ def question(message):
 			"Because I wanted to cause chaos ;)"
 		]
 
-	elif "how" in message.lower():
+	elif "how" in message:
 		answers = [
 			"With a lot of love",
 			"It doesn't",
@@ -38,8 +55,8 @@ def question(message):
 			"google.com\n*(other search engines are available)*"
 		]
 
-	elif "where" in message.lower():
-		if "leave" in message.lower():
+	elif "where" in message:
+		if "leave" in message:
 			answers = [
 				"To your left",
 				"To your right",
@@ -61,8 +78,8 @@ def question(message):
 				"It's behind you! *No it's not!*. Yes it is!\nHehe"
 			]
 
-	elif "who" in message.lower():
-		if "created" in message.lower():
+	elif "who" in message:
+		if "created" in message:
 			answers = [
 					"Me thinks it is Arun",
 				  	"Prehaps it is Pablo",
@@ -100,7 +117,12 @@ def question(message):
 			"Sometimes good, sometimes maybe bad.",
 			"Oh you are so wrong to think that.",
 			"If 5 was yes and 1 was no; the answer would be the square root of -1",
-			"My mythical skills of intuition tell me that the answer is yes, only if you have touched grass today. Touch grass"
+			"My mythical skills of intuition tell me that the answer is yes, only if you have touched grass today. Touch grass",
+			"Well...from a certain point of view, I wouldn't say otherwise...",
+			"Probably",
+			"Probably not",
+			"Uhuh...yeah",
+			"Right...yeah I don't know. Unfortunately I am not the source of all the answers in the universe"
 		]
 
 	return answers[randint(0, len(answers) - 1)]
