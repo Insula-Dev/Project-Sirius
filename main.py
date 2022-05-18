@@ -661,7 +661,6 @@ class MyClient(discord.ext.commands.Bot):
 						# Create and send members statistics embed
 						embed_member = discord.Embed(title="📈 Member Statistics for " + guild.name, colour=self.get_server_colour(guild.id))
 						for x in range(len(member_statistics) // 10 + 1):
-							logger.debug("Member:" + str(member_statistics[x]))
 							embed_member.add_field(name="Members", value=str(member_statistics[x]))
 							embed_member.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"),  icon_url=guild.icon_url_as(size=128))
 						await message.channel.send(embed=embed_member)
@@ -1384,10 +1383,12 @@ if __name__ == "__main__":
 			logger.debug("`/anonymous` called by " + ctx.author.name)
 
 			try:
-				# TODO
-				# Do checks for unwanted terms here
-				await ctx.send(content="Your message will be sent anonymously", hidden=True)
-				await ctx.channel.send(content="**Anonymous**: *" + message + "*")
+				blacklist = ["@","nigger","nigga"]
+				if (any (word in message for word in blacklist)):
+					await ctx.send(content="Your message will not be sent due to its contents", hidden=True)
+				else:
+					await ctx.send(content="Your message will be sent anonymously", hidden=True)
+					await ctx.channel.send(content="**Anonymous**: *" + message + "*")
 
 			except Exception as exception:
 				logger.error("Failed to run `/anonymous` message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
