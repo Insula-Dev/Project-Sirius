@@ -734,7 +734,7 @@ class MyClient(discord.ext.commands.Bot):
 
 				# Embed
 				title = discord.Embed.Empty
-				colour = 0xffc000
+				colour = self.get_server_colour(guild.id)
 
 				# Config
 				winner = "highest"
@@ -1443,6 +1443,111 @@ if __name__ == "__main__":
 			else:
 				await ctx.send("You do not have permissions to run this command", hidden=True)
 
+		@slash.slash(
+			name="poll",
+			description="Create anonymous poll",
+			options=[
+				create_option(
+					name="question",
+					description="The poll's question",
+					option_type=3,
+					required=True
+				),
+				create_option(
+					name="option1",
+					description="...",
+					option_type=3,
+					required=True
+				),
+				create_option(
+					name="option2",
+					description="...",
+					option_type=3,
+					required=True
+				),
+				create_option(
+					name="option3",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option4",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option5",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option6",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option7",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option8",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option9",
+					description="...",
+					option_type=3,
+					required=False
+				)
+			],
+			guild_ids=guild_ids
+		)
+		async def _poll(ctx, question, option1, option2, option3=None, option4=None, option5=None, option6=None,
+						option7=None, option8=None, option9=None):
+			"""Poll command."""
+
+			logger.debug(f"`/poll` called by {ctx.author.name}")
+			#try:
+			embed = discord.Embed(title=question, description="...",colour=int(client.get_server_colour(ctx.guild.id)))
+			options = list(
+				filter(None, [option1, option2, option3, option4, option5, option6, option7, option8, option9]))
+			buttons = []
+			for option in options:
+				buttons.append(create_button(style=ButtonStyle.blue, label=option, custom_id="poll:" + option))
+			components = populate_actionrows(buttons)
+			poll_message = await ctx.send(embed=embed, components=components)
+
+			# Setup candidates dict for recording votes so people can't vote multiple times
+			candidates = {} # Options dictionary
+			for option in options:
+				candidates[option] = {"name": option, "voters": []}
+
+			client.poll[str(ctx.guild.id)].update(
+				{
+					str(poll_message.id): {
+						"title": question,
+						"options": candidates,
+						"config":
+							{
+								"winner": "highest",
+								"anonymous": True
+							}
+					}
+				}
+			)
+			logger.debug(f"New poll:{client.poll[str(message.guild.id)]}")
+
+			#except Exception as exception:
+			#	logger.error(f"Failed to run `/poll` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
+
 
 		@slash.context_menu(
 			target=ContextMenuType.MESSAGE,
@@ -1470,7 +1575,10 @@ if __name__ == "__main__":
 				embed_results.add_field(name="Candidates", value="\n".join(options), inline=True)
 				embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
 				if poll["config"]["winner"] == "highest":  # Winner is shown as the highest scoring candidate
-					embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)]["name"] + " Score: " + str(highest_count)), inline=False)
+					if str(highest_emoji) == poll["options"][str(highest_emoji)]["name"]:
+						embed_results.add_field(name="Winner", value=(poll["options"][str(highest_emoji)]["name"] + " Score: " + str(highest_count)), inline=False)
+					else: # Shows seperate emoji for winner
+						embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)]["name"] + " Score: " + str(highest_count)), inline=False)
 				await ctx.target_message.delete()  # Deletes the poll message
 				client.poll[str(ctx.guild.id)].pop(str(ctx.target_id))  # Removes poll entry from dictionary
 				await ctx.send(embeds=[embed_results])  # Sends the results embed
