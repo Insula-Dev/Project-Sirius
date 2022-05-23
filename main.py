@@ -233,6 +233,28 @@ class MyClient(discord.ext.commands.Bot):
 		else:
 			return emoji_reference
 
+	async def create_thread_message(self, channel_id, content, tts=False, embeds=[]):  # Made from the corpse of helminth
+		token = 'Bot ' + TOKEN
+
+		# Converts embed(s) into json
+		try:
+			for x in range(len(embeds)):
+				embeds[x] = embeds[x].to_dict()
+		except TypeError:
+			embeds = [embeds.to_dict()]
+
+		headers = {
+			"authorization": token,
+			"content-type": "application/json"
+		}
+		request_body = {
+			"content": content,
+			"tts": tts,
+			"embeds": embeds
+		}
+
+		return requests.post("https://discordapp.com/api/channels/" + str(channel_id) + "/messages", headers=headers,data=json.dumps(request_body))
+
 	def get_server_colour(self,guild_id):
 		if "colour theme" in self.data["servers"][str(guild_id)]["config"]:
 			return self.data["servers"][str(guild_id)]["config"]["colour theme"]
@@ -1333,32 +1355,54 @@ if __name__ == "__main__":
 					description="Your message",
 					option_type=3,
 					required=True
+				),
+				create_option(
+					name="image",
+					description="Photo",
+					option_type=11,
+					required=False
 				)
 			],
 			guild_ids=guild_ids
 		)
-		async def _confess(ctx, confession):
+		async def _confess(ctx, confession, image=None):
 			"""Runs on the confession slash command."""
 
 			logger.debug("`/confess` called anonymously")
 
-			try:
-				server_data = client.data["servers"][str(ctx.guild.id)]  # Used for easy reference
+			#try:
+			server_data = client.data["servers"][str(ctx.guild.id)]  # Used for easy reference
 
-				if "confessions" not in server_data:
-					server_data.update({"confessions": {"metadata": {"count": 0}, "messages": {}}})
-				server_data["confessions"]["metadata"]["count"] += 1
-				confession_data = {str(server_data["confessions"]["metadata"]["count"]): confession}
-				server_data["confessions"]["messages"].update(confession_data)
+			if "confessions" not in server_data:
+				server_data.update({"confessions": {"metadata": {"count": 0}, "messages": {}}})
+			server_data["confessions"]["metadata"]["count"] += 1
+			confession_data = {str(server_data["confessions"]["metadata"]["count"]): confession}
+			if image!= None:
+				print(image)
+				print(type(image))
+				print(f"Channel id: {ctx.channel.id}")
+				url = f"https://discordapp.com/api/channels/{ctx.channel.id}/messages"
+				headers = {
+					"authorization": f"Bot {TOKEN}",
+					"content-type": "application/json"
+				}
+				data = {
+					"content": confession,
+					"attachments": [int(image)]
+				}
 
-				client.data["servers"][str(ctx.guild.id)] = server_data
-				client.update_data()
+				print(f"Request: {requests.post(url, headers=headers, json=data).json()}")
+			server_data["confessions"]["messages"].update(confession_data)
 
-				await ctx.defer(hidden=True)
-				await ctx.send(content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.", hidden=True)
+			client.data["servers"][str(ctx.guild.id)] = server_data
+			client.update_data()
 
-			except Exception as exception:
-				logger.error("Failed to run `/confess` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+			#await ctx.send(content="This")
+			#await ctx.defer(hidden=True)
+			#await ctx.send(content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.", hidden=True)
+
+			#except Exception as exception:
+			#	logger.error("Failed to run `/confess` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
 
 		@slash.slash(
@@ -1406,12 +1450,14 @@ if __name__ == "__main__":
 			logger.debug("`/anonymous` called by " + ctx.author.name)
 
 			try:
+				print(ctx.channel_id)
+
 				blacklist = ["@","nigger","nigga"]
 				if (any (word in message for word in blacklist)):
 					await ctx.send(content="Your message will not be sent due to its contents", hidden=True)
 				else:
 					await ctx.send(content="Your message will be sent anonymously", hidden=True)
-					await ctx.channel.send(content="**Anonymous**: *" + message + "*")
+					await client.create_thread_message(ctx.channel_id,"**Anonymous**: *" + message + "*")
 
 			except Exception as exception:
 				logger.error("Failed to run `/anonymous` message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
