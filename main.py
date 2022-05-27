@@ -884,9 +884,12 @@ class MyClient(discord.ext.commands.Bot):
 							create_select_option(label=channel.name, value=str(channel.id), default=True))
 					else:
 						channel_options.append(create_select_option(label=channel.name, value=str(channel.id)))
-				announcement_channel_select = create_select(channel_options,
-															custom_id="settings:announcements channel id")
+				announcement_channel_select = create_select(channel_options,custom_id="settings:announcements channel id")
 				components = [create_actionrow(*[announcement_channel_select])]
+				await message.channel.send(content="Announcement Channel:", components=components)
+
+				no_announcement_button = create_button(style=ButtonStyle.red, label="Turn off announcements", emoji="❌", custom_id="settings:announcements channel id")
+				components = [create_actionrow(*[no_announcement_button])]
 				await message.channel.send(content="Announcement Channel:", components=components)
 
 				# Server colour
@@ -1380,6 +1383,8 @@ if __name__ == "__main__":
 			if image!= None:
 				print(image)
 				print(type(image))
+				#image = discord.utils.get(discord.Attachment,id=image)
+				print(image)
 				print(f"Channel id: {ctx.channel.id}")
 				url = f"https://discordapp.com/api/channels/{ctx.channel.id}/messages"
 				headers = {
@@ -1388,7 +1393,7 @@ if __name__ == "__main__":
 				}
 				data = {
 					"content": confession,
-					"attachments": [int(image)]
+					"attachments": [str(image)]
 				}
 
 				print(f"Request: {requests.post(url, headers=headers, json=data).json()}")
@@ -1687,7 +1692,11 @@ if __name__ == "__main__":
 				setting = ctx.custom_id[len("settings:"):]
 				logger.debug("Server setting '" + setting + "' of '" + guild.name + "' changed by " + ctx.author.name)
 				if ctx.author.guild_permissions.administrator:
-					config[setting] = int(ctx.values[0])
+					print(ctx.values)
+					if ctx.values == None:
+						config[setting] = None
+					else:
+						config[setting] = int(ctx.values[0])
 					await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))  # Makes first character capital of setting and shows the new setting
 					client.data["servers"][str(guild.id)]["config"] = config
 					client.update_data()
