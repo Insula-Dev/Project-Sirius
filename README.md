@@ -104,6 +104,34 @@ The Trojan Canine was the wooden dog used by the apes, during the UEACS War, to 
 
 Here comes Pablo insurrecting again.
 
+#### Matthew 6:24-36 revised
+
+>   Consider the polls of the world, how they work
+>   
+>   They toil not, neither do they spin
+>   
+>   And yet I say unto you, that even Pablo in all his glory
+>   
+>   Was not arrayed like one of these
+>   
+>   Wherefore if Arun so maketh the polls of the bot
+>   
+>   Which today break and tomorrow are cast in the release
+>   
+>   Shall he not, much more, break you?
+>   
+>   Therefore, take no thought saying:
+>   
+>   For what shall we vote? Or what shall we poll over? Or, wherewithal shall we be cooked?
+>   
+>   For your doggedly father knows you have need of all these things
+>   
+>   But seek ye first, the kingdom of Arun and his cookedness
+>   
+>   And all these things shall be added unto you
+>   
+>   Oh ye of cook'ed brain
+
 ### Credits
 
 Thanks to Jack for fixing Arun's Raspberry Pi. That was cool.
