@@ -1577,7 +1577,7 @@ if __name__ == "__main__":
 				{
 					str(poll_message.id): {
 						"title": question,
-						"options": candidates,
+						"voters": {},
 						"config":
 							{
 								"winner": "highest",
@@ -1600,29 +1600,33 @@ if __name__ == "__main__":
 		async def _close_poll(ctx: MenuContext):
 			if str(ctx.target_id) in client.poll[str(ctx.target_message.guild.id)]:
 				poll = client.poll[str(ctx.guild.id)][str(ctx.target_id)]
-				options = poll["options"]
 				counts = []
 				highest_option = ""
 				highest_count = 0
-				for candidate in options:
-					count = len(options[candidate]["voters"])
+				results_dict = {}
+				# Compiles results for each option
+				for voter in poll["voters"]:
+					selected_option = poll["voters"][voter]
+					if selected_option not in results_dict:
+						results_dict[selected_option] = 0
+					results_dict[selected_option] += 1
+
+				# Uses results dict to find highest scorer
+				for option in results_dict:
+					count = results_dict[option]
 					counts.append(str(count))
 					if count > highest_count:
 						highest_count = count
-						highest_option = candidate
+						highest_option = option
 
 				title = str(poll["title"])
 				if title == "Embed.Empty":
 					title = ""
 				embed_results = discord.Embed(title=f"Results of: \"{title}\"",colour=client.get_server_colour(ctx.guild_id))
-				embed_results.add_field(name="Options", value="\n".join(options), inline=True)
+				embed_results.add_field(name="Options", value="\n".join(results_dict.keys()), inline=True)
 				embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
 				if poll["config"]["winner"] == "highest":  # Winner is shown as the highest scoring candidate
-					if str(highest_option) == poll["options"][str(highest_option)]["name"]:
-						embed_results.add_field(name="Winner", value=(poll["options"][str(highest_option)]["name"] + " Score: " + str(highest_count)), inline=False)
-					else: # Shows seperate emoji for winner
-						embed_results.add_field(name="Winner", value=(str(highest_option) + " " + poll["options"][str(highest_option)]["name"] + " Score: " + str(highest_count)), inline=False)
-				#await ctx.target_message.delete()  # Deletes the poll message
+					embed_results.add_field(name="Winner", value=(highest_option + " Score: " + str(highest_count)), inline=False)
 				client.poll[str(ctx.guild.id)].pop(str(ctx.target_id))  # Removes poll entry from dictionary
 				await ctx.send(embeds=[embed_results])  # Sends the results embed
 			else:
@@ -1642,17 +1646,30 @@ if __name__ == "__main__":
 			guild = ctx.origin_message.guild
 
 			if ctx.custom_id.startswith("poll"):
-				
-				logger.debug("An anonymous user has voted on a poll")
-				candidate = ctx.custom_id[len("poll:"):]
-				poll = client.poll[str(guild.id)][str(ctx.origin_message.id)]
-				if ctx.author.id in poll["options"][candidate]["voters"]:  # If user has already voted for this option
-					poll["options"][candidate]["voters"].remove(ctx.author.id)
-					await ctx.send(content="You just removed your vote for " + candidate, hidden=True)
-				else:
-					poll["options"][candidate]["voters"].append(ctx.author.id)
-					await ctx.send(content="You just voted for " + candidate, hidden=True)
 
+				logger.debug(f"Anonymous poll vote by {ctx.author.name}")
+				option = ctx.custom_id[len("poll:"):]
+
+				if str(ctx.origin_message.id) in client.poll[str(guild.id)]:
+					poll = client.poll[str(guild.id)][str(ctx.origin_message.id)]
+				else:
+					await ctx.send(content=f"This poll is closed", hidden=True)
+					return
+
+				# If the user hasn't voted before
+				print(poll["voters"])
+				if ctx.author.id not in poll["voters"]:
+					poll["voters"][ctx.author.id] = option
+					await ctx.send(content=f"Gave your vote to {option}", hidden=True)
+				else:
+					# If the user is changing their vote
+					if poll["voters"][ctx.author.id] != option:
+						poll["voters"][ctx.author.id] = option
+						await ctx.send(content=f"Changed your vote to {option}", hidden=True)
+					# If the user is removing their vote
+					else:
+						del poll["voters"][ctx.author.id]
+						await ctx.send(content=f"Removed your vote for {option}", hidden=True)
 
 			elif ctx.custom_id.startswith("confession"):
 				id = ctx.custom_id[len("confession:"):]
