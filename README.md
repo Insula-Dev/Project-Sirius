@@ -104,7 +104,7 @@ The Trojan Canine was the wooden dog used by the apes, during the UEACS War, to 
 
 Here comes Pablo insurrecting again.
 
-####
+#### Matthew 6:24-36 revised
 
 Consider the polls of the world, how they work
 They toil not, neither do they spin
