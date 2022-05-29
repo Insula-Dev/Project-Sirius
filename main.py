@@ -1557,7 +1557,7 @@ if __name__ == "__main__":
 
 			logger.debug(f"`/poll` called by {ctx.author.name}")
 			#try:
-			embed = discord.Embed(title=question, description="...",colour=int(client.get_server_colour(ctx.guild.id)))
+			embed = discord.Embed(title=f"> {question}", description="Select or unselect an option below:",colour=int(client.get_server_colour(ctx.guild.id)))
 			options = list(
 				filter(None, [option1, option2, option3, option4, option5, option6, option7, option8, option9]))
 			buttons = []
@@ -1613,14 +1613,14 @@ if __name__ == "__main__":
 				if title == "Embed.Empty":
 					title = ""
 				embed_results = discord.Embed(title=title + " Results",colour=client.get_server_colour(ctx.guild_id))
-				embed_results.add_field(name="Candidates", value="\n".join(options), inline=True)
+				embed_results.add_field(name="Options", value="\n".join(options), inline=True)
 				embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
 				if poll["config"]["winner"] == "highest":  # Winner is shown as the highest scoring candidate
 					if str(highest_emoji) == poll["options"][str(highest_emoji)]["name"]:
 						embed_results.add_field(name="Winner", value=(poll["options"][str(highest_emoji)]["name"] + " Score: " + str(highest_count)), inline=False)
 					else: # Shows seperate emoji for winner
 						embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)]["name"] + " Score: " + str(highest_count)), inline=False)
-				await ctx.target_message.delete()  # Deletes the poll message
+				#await ctx.target_message.delete()  # Deletes the poll message
 				client.poll[str(ctx.guild.id)].pop(str(ctx.target_id))  # Removes poll entry from dictionary
 				await ctx.send(embeds=[embed_results])  # Sends the results embed
 			else:
