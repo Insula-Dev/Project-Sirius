@@ -1612,7 +1612,7 @@ if __name__ == "__main__":
 				title = str(poll["title"])
 				if title == "Embed.Empty":
 					title = ""
-				embed_results = discord.Embed(title=title + " Results",colour=client.get_server_colour(ctx.guild_id))
+				embed_results = discord.Embed(title=f"Results of: \"{title}\"",colour=client.get_server_colour(ctx.guild_id))
 				embed_results.add_field(name="Options", value="\n".join(options), inline=True)
 				embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
 				if poll["config"]["winner"] == "highest":  # Winner is shown as the highest scoring candidate
