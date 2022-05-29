@@ -30,7 +30,7 @@ DEFAULT_DEFAULT_COLOUR = 0xffc000 # Default
 
 hostname = socket.gethostname()
 
-VERSION = "1.3.2 InDev"
+VERSION = "1.3.2 Pre-Release 1"
 SERVER_STRUCTURE = \
 	{
 		"config": {
@@ -888,7 +888,7 @@ class MyClient(discord.ext.commands.Bot):
 				components = [create_actionrow(*[announcement_channel_select])]
 				await message.channel.send(content="Announcement Channel:", components=components)
 
-				no_announcement_button = create_button(style=ButtonStyle.red, label="Turn off announcements", emoji="❌", custom_id="settings:announcements channel id")
+				no_announcement_button = create_button(style=ButtonStyle.red, label="Turn off announcements", emoji="❎", custom_id="settings:announcements channel id")
 				components = [create_actionrow(*[no_announcement_button])]
 				await message.channel.send(content="Announcement Channel:", components=components)
 
@@ -984,10 +984,12 @@ class MyClient(discord.ext.commands.Bot):
 			if message.content == "config":
 				logger.info("`config` called by " + message.author.name)  # Event log
 				await message.channel.send(content="**Config**")
-				await message.channel.send(content="This instance of "+VERSION+" is being run on **" + hostname + "**, IP address **" + socket.gethostbyname(hostname) + "**" +
-														"\nLatency: " + str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5] + "s" +
-														"\nUptime: " + self.get_uptime() + "." +
-														"\nLast disconnect: " + str(self.last_disconnect)[0:16])
+				if "add info" in self.data["config"] and self.data["config"]["add info"]:
+					additional_info = f"\nLatency: {str(int(client.latency // 1))}.{str(client.latency % 1)[2:5]}s\nUptime: {self.get_uptime()}.\nLast disconnect: {str(self.last_disconnect)[0:16]}"
+					locate_embed = discord.Embed(title="Additional Info:", description=additional_info,colour=int(self.get_server_colour(message.guild.id)))
+					locate_embed.set_footer(text=f"Command called by {message.author.name}",icon_url=guild.icon_url_as(size=128))
+					await message.channel.send(content=f"This instance of {VERSION} is being run on **{hostname}**, IP address **{socket.gethostbyname(hostname)}**",embed=locate_embed)
+
 				joke_button = create_button(style=ButtonStyle.blue, label="Jokes", emoji="😂", custom_id="config:jokes")
 				components = [create_actionrow(*[joke_button])]
 				await message.channel.send(content="Jokes: " + str(self.data["config"]["jokes"]), components=components)
@@ -995,6 +997,13 @@ class MyClient(discord.ext.commands.Bot):
 				safety_button = create_button(style=ButtonStyle.blue, label="safety", emoji="🦺", custom_id="config:safety")
 				components = [create_actionrow(*[safety_button])]
 				await message.channel.send(content="safety: " + str(self.data["config"]["safety"]), components=components)
+
+				add_info_button = create_button(style=ButtonStyle.blue, label="Show Additional Info", emoji="🩺",custom_id="config:add info")
+				components = [create_actionrow(*[add_info_button])]
+				if "add info" in self.data["config"]:
+					await message.channel.send(content="Add info: " + str(self.data["config"]["add info"]),components=components)
+				else:
+					await message.channel.send(content="Add info: False", components=components)
 
 				upload_data_button = create_button(style=ButtonStyle.grey, label="Data", emoji="🔡", custom_id="config:send:data.json")
 				upload_log_button = create_button(style=ButtonStyle.grey, label="Log", emoji="📄", custom_id="config:send:log_file.log")
@@ -1014,11 +1023,15 @@ class MyClient(discord.ext.commands.Bot):
 			if message.content == "locate":
 				logger.info("`locate` called by " + message.author.name)  # Event log
 
-				additional_info = f"\nLatency: {str(int(client.latency // 1)) }.{str(client.latency % 1)[2:5] }s\nUptime: {self.get_uptime() }.\nLast disconnect: {str(self.last_disconnect)[0:16]}"
-				locate_embed = discord.Embed(title="Additional Info:", description=additional_info, colour=int(self.get_server_colour(message.guild.id)))
-				locate_embed.set_footer(text=f"Command called by {message.author.name}", icon_url=guild.icon_url_as(size=128))
+				main_info = f"This instance of {VERSION} is being run on **{hostname}**, IP address **{socket.gethostbyname(hostname)}**"
+				if "add info" in self.data["config"] and self.data["config"]["add info"]:
+					additional_info = f"\nLatency: {str(int(client.latency // 1)) }.{str(client.latency % 1)[2:5] }s\nUptime: {self.get_uptime() }.\nLast disconnect: {str(self.last_disconnect)[0:16]}"
+					locate_embed = discord.Embed(title="Additional Info:", description=additional_info, colour=int(self.get_server_colour(message.guild.id)))
+					locate_embed.set_footer(text=f"Command called by {message.author.name}", icon_url=guild.icon_url_as(size=128))
+					await message.channel.send(content=main_info,embed=locate_embed)
+				else:
+					await message.channel.send(content=main_info)
 
-				await message.channel.send(content=f"This instance of {VERSION} is being run on **{hostname}**, IP address **{socket.gethostbyname(hostname)}**",embed=locate_embed)
 			# Kill command
 			if message.content.startswith("kill"):
 				logger.info("`kill` called by " + message.author.name)  # Event log
@@ -1359,12 +1372,6 @@ if __name__ == "__main__":
 					description="Your message",
 					option_type=3,
 					required=True
-				),
-				create_option(
-					name="image",
-					description="Photo",
-					option_type=11,
-					required=False
 				)
 			],
 			guild_ids=guild_ids
@@ -1374,41 +1381,23 @@ if __name__ == "__main__":
 
 			logger.debug("`/confess` called anonymously")
 
-			#try:
-			server_data = client.data["servers"][str(ctx.guild.id)]  # Used for easy reference
+			try:
+				server_data = client.data["servers"][str(ctx.guild.id)]  # Used for easy reference
 
-			if "confessions" not in server_data:
-				server_data.update({"confessions": {"metadata": {"count": 0}, "messages": {}}})
-			server_data["confessions"]["metadata"]["count"] += 1
-			confession_data = {str(server_data["confessions"]["metadata"]["count"]): confession}
-			if image!= None:
-				print(image)
-				print(type(image))
-				#image = discord.utils.get(discord.Attachment,id=image)
-				print(image)
-				print(f"Channel id: {ctx.channel.id}")
-				url = f"https://discordapp.com/api/channels/{ctx.channel.id}/messages"
-				headers = {
-					"authorization": f"Bot {TOKEN}",
-					"content-type": "application/json"
-				}
-				data = {
-					"content": confession,
-					"attachments": [str(image)]
-				}
+				if "confessions" not in server_data:
+					server_data.update({"confessions": {"metadata": {"count": 0}, "messages": {}}})
+				server_data["confessions"]["metadata"]["count"] += 1
+				confession_data = {str(server_data["confessions"]["metadata"]["count"]): confession}
+				server_data["confessions"]["messages"].update(confession_data)
 
-				print(f"Request: {requests.post(url, headers=headers, json=data).json()}")
-			server_data["confessions"]["messages"].update(confession_data)
+				client.data["servers"][str(ctx.guild.id)] = server_data
+				client.update_data()
 
-			client.data["servers"][str(ctx.guild.id)] = server_data
-			client.update_data()
+				await ctx.defer(hidden=True)
+				await ctx.send(content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.", hidden=True)
 
-			#await ctx.send(content="This")
-			#await ctx.defer(hidden=True)
-			#await ctx.send(content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.", hidden=True)
-
-			#except Exception as exception:
-			#	logger.error("Failed to run `/confess` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+			except Exception as exception:
+				logger.error("Failed to run `/confess` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
 
 		@slash.slash(
@@ -1738,6 +1727,8 @@ if __name__ == "__main__":
 						await ctx.send(death_note + "\n" + "Uptime: " + client.get_uptime() + ".")
 						await client.close()
 					else:  # Toggle boolean commands here
+						if setting not in config:
+							config[setting] = False
 						config[setting] = not config[setting]  # Toggles boolean value
 						logger.info("Config:" + setting + " changed to " + str(config[setting]))
 						client.update_data()
