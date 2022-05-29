@@ -1125,7 +1125,10 @@ class MyClient(discord.ext.commands.Bot):
 						config = client.data["servers"][str(message.guild.id)]["config"]
 						if "delete_logging" in config:
 							if config["delete_logging"] >= 1: # To allow for different level in the future
-								await message.channel.send(entry.user.name+" deleted my message: |"+message.content+"|")
+								try:
+									await message.channel.send(entry.user.name+" deleted my message: |"+message.content+"|")
+								except Exception as exception:
+									logger.debug("Deleted message couldn't be logged in channel " + ". Exception: " + exception)  # Event log
 					break
 
 	async def on_member_join(self, member):
@@ -1551,8 +1554,7 @@ if __name__ == "__main__":
 			],
 			guild_ids=guild_ids
 		)
-		async def _poll(ctx, question, option1, option2, option3=None, option4=None, option5=None, option6=None,
-						option7=None, option8=None, option9=None):
+		async def _poll(ctx, question, option1, option2, option3=None, option4=None, option5=None, option6=None,option7=None, option8=None, option9=None):
 			"""Poll command."""
 
 			logger.debug(f"`/poll` called by {ctx.author.name}")
@@ -1600,14 +1602,14 @@ if __name__ == "__main__":
 				poll = client.poll[str(ctx.guild.id)][str(ctx.target_id)]
 				options = poll["options"]
 				counts = []
-				highest_emoji = ""
+				highest_option = ""
 				highest_count = 0
 				for candidate in options:
 					count = len(options[candidate]["voters"])
 					counts.append(str(count))
 					if count > highest_count:
 						highest_count = count
-						highest_emoji = candidate
+						highest_option = candidate
 
 				title = str(poll["title"])
 				if title == "Embed.Empty":
@@ -1616,10 +1618,10 @@ if __name__ == "__main__":
 				embed_results.add_field(name="Options", value="\n".join(options), inline=True)
 				embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
 				if poll["config"]["winner"] == "highest":  # Winner is shown as the highest scoring candidate
-					if str(highest_emoji) == poll["options"][str(highest_emoji)]["name"]:
-						embed_results.add_field(name="Winner", value=(poll["options"][str(highest_emoji)]["name"] + " Score: " + str(highest_count)), inline=False)
+					if str(highest_option) == poll["options"][str(highest_option)]["name"]:
+						embed_results.add_field(name="Winner", value=(poll["options"][str(highest_option)]["name"] + " Score: " + str(highest_count)), inline=False)
 					else: # Shows seperate emoji for winner
-						embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)]["name"] + " Score: " + str(highest_count)), inline=False)
+						embed_results.add_field(name="Winner", value=(str(highest_option) + " " + poll["options"][str(highest_option)]["name"] + " Score: " + str(highest_count)), inline=False)
 				#await ctx.target_message.delete()  # Deletes the poll message
 				client.poll[str(ctx.guild.id)].pop(str(ctx.target_id))  # Removes poll entry from dictionary
 				await ctx.send(embeds=[embed_results])  # Sends the results embed
@@ -1640,6 +1642,7 @@ if __name__ == "__main__":
 			guild = ctx.origin_message.guild
 
 			if ctx.custom_id.startswith("poll"):
+				
 				logger.debug("An anonymous user has voted on a poll")
 				candidate = ctx.custom_id[len("poll:"):]
 				poll = client.poll[str(guild.id)][str(ctx.origin_message.id)]
