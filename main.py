@@ -134,7 +134,7 @@ class MyClient(discord.ext.commands.Bot):
 				json.dump(self.data, file, indent=4)
 			logger.debug("Updated data.json")  # Event log
 		except Exception as exception:
-			logger.critical("Failed to update data.json. Exception: " + exception)  # Event log
+			logger.critical("Failed to update data.json. Exception: " + str(exception))  # Event log
 
 	def initialise_guild(self, guild):
 		"""Creates data for a new guild."""
@@ -149,7 +149,7 @@ class MyClient(discord.ext.commands.Bot):
 			self.update_data()
 			logger.info("Initialised guild: " + guild.name + " (ID: " + str(guild.id) + ")")  # Event log
 		except Exception as exception:
-			logger.critical("Failed to initialise guild: " + guild.name + " (ID: " + str(guild.id) + "). Exception: " + exception)  # Event log
+			logger.critical("Failed to initialise guild: " + guild.name + " (ID: " + str(guild.id) + "). Exception: " + str(exception))  # Event log
 
 	def get_uptime(self):
 		"""Returns instance uptime."""
@@ -182,7 +182,7 @@ class MyClient(discord.ext.commands.Bot):
 			logger.debug("Calculated uptime")  # Event log
 			return uptime
 		except Exception as exception:
-			logger.error("Failed to calculate uptime. Exception: " + exception)  # Event log
+			logger.error("Failed to calculate uptime. Exception: " + str(exception))  # Event log
 			return None
 
 	async def terminate_poll(self, message):
@@ -1128,7 +1128,7 @@ class MyClient(discord.ext.commands.Bot):
 								try:
 									await message.channel.send(entry.user.name+" deleted my message: |"+message.content+"|")
 								except Exception as exception:
-									logger.debug("Deleted message couldn't be logged in channel " + ". Exception: " + exception)  # Event log
+									logger.debug("Deleted message couldn't be logged in channel " + ". Exception: " + str(exception))  # Event log
 					break
 
 	async def on_member_join(self, member):
@@ -1142,7 +1142,7 @@ class MyClient(discord.ext.commands.Bot):
 			logger.debug("Sent welcome message for " + member.guild.name + " to " + member.name)  # Event log
 		except Exception as exception:
 			# If user has impeded direct messages
-			logger.debug("Failed to send welcome message for " + member.guild.name + " to " + member.name + ". Exception: " + exception)  # Event log
+			logger.debug("Failed to send welcome message for " + member.guild.name + " to " + member.name + ". Exception: " + str(exception))  # Event log
 
 	async def on_member_remove(self, member):
 		"""Runs when a member leaves.
@@ -1246,7 +1246,7 @@ class MyClient(discord.ext.commands.Bot):
 				logger.info("Role `" + role.name + "` added to " + payload.member.name)  # Event log
 			# If we want to do something in case of errors we'd do it here
 			except Exception as exception:
-				logger.error("Failed to add role " + role.name + " to " + payload.member.name + ". Exception: " + exception)  # Event log
+				logger.error("Failed to add role " + role.name + " to " + payload.member.name + ". Exception: " + str(exception))  # Event log
 
 		if reaction_usage == "polls":
 			if str(payload.emoji) == "🔚":
@@ -1327,7 +1327,7 @@ class MyClient(discord.ext.commands.Bot):
 				logger.info("Role `" + role.name + "` removed from " + member.name)  # Event log
 			# If we want to do something in case of errors we'd do it here
 			except Exception as exception:
-				logger.error("Failed to remove role " + role.name + " from " + payload.member.name + ". Exception: " + exception)  # Event log
+				logger.error("Failed to remove role " + role.name + " from " + payload.member.name + ". Exception: " + str(exception))  # Event log
 
 		# If the roles haven't been set up
 		else:
@@ -1811,8 +1811,7 @@ if __name__ == "__main__":
 					return
 
 				except Exception as exception:
-					logger.error(
-						"Failed to add role " + role.name + " to " + ctx.author.name + ". Exception: " + str(exception))  # Error: this may run even if the intention of the button press isn't to add a role
+					logger.error("Failed to add role " + role.name + " to " + ctx.author.name + ". Exception: " + str(exception))  # Error: this may run even if the intention of the button press isn't to add a role
 				finally:
 					try:
 						verify_role = client.data["servers"][str(guild.id)]["roles"]["verify role"]
@@ -1823,7 +1822,7 @@ if __name__ == "__main__":
 					except KeyError:
 						logger.debug("No verification role found in " + guild.name)
 					except Exception as exception:
-						logger.error("Verification failed: " + exception)
+						logger.error("Verification failed: " + str(exception))
 					return
 
 		client.run(TOKEN)
