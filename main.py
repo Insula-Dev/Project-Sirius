@@ -30,7 +30,7 @@ DEFAULT_DEFAULT_COLOUR = 0xffc000 # Default
 
 hostname = socket.gethostname()
 
-VERSION = "1.3.2 Pre-Release 1"
+VERSION = "1.3.2 Pre-Release 2"
 SERVER_STRUCTURE = \
 	{
 		"config": {
@@ -1448,7 +1448,6 @@ if __name__ == "__main__":
 			logger.debug("`/anonymous` called by " + ctx.author.name)
 
 			try:
-				print(ctx.channel_id)
 
 				blacklist = ["@","nigger","nigga"]
 				if (any (word in message for word in blacklist)):
@@ -1657,7 +1656,6 @@ if __name__ == "__main__":
 					return
 
 				# If the user hasn't voted before
-				print(poll["voters"])
 				if ctx.author.id not in poll["voters"]:
 					poll["voters"][ctx.author.id] = option
 					await ctx.send(content=f"Gave your vote to {option}", hidden=True)
@@ -1702,7 +1700,6 @@ if __name__ == "__main__":
 				setting = ctx.custom_id[len("settings:"):]
 				logger.debug("Server setting '" + setting + "' of '" + guild.name + "' changed by " + ctx.author.name)
 				if ctx.author.guild_permissions.administrator:
-					print(ctx.values)
 					if ctx.values == None:
 						config[setting] = None
 					else:
