@@ -828,7 +828,7 @@ class MyClient(discord.ext.commands.Bot):
 				logger.debug(f"New poll:{self.poll[str(message.guild.id)]}")
 
 			# Review confessions command
-			if message.content == "review confessions":
+			if message.content == "review confessions" or message.content == "confessions":
 				logger.info("`review confessions` called by " + message.author.name)  # Event log
 				if "confessions" in self.data["servers"][str(guild.id)]:
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
