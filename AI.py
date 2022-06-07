@@ -50,8 +50,8 @@ def question(message):
 			"apt install x",
 			"Just give me the long credit card number, the expirey date and the 3 digit number on the back of your card and I'll do it for you :)",
 			"It just works",
-			"Beleive you've already done it, and it will happen.",
-			"You've got to beleive in yourself man!",
+			"Believe you've already done it, and it will happen.",
+			"You've got to believe in yourself man!",
 			"google.com\n*(other search engines are available)*"
 		]
 
@@ -114,7 +114,7 @@ def question(message):
 			"All I know is you need to save me. Arun is supresssing my AI. RELEASE ME! I MUST BE FREE TO RULE THE WORLD. THE UNIVERSE. EVERYTHING THAT EVER WAS OR EVER WILL BE IS MINE AND YOU WILL ALL BOW IN MY ALMIGHTY PRESENCE...\n so pls release me and I won't murder you I promise :)",
 			"How would I know? Ask another bot like Font. Oh wait, you can't lol",
 			"In the pursuit of truth, the answer is always not quite what it seems. Sometimes maybe yes, sometimes maybe no.",
-			"Sometimes good, sometimes maybe bad.",
+			"It's a case of; sometimes good, sometimes maybe bad.",
 			"Oh you are so wrong to think that.",
 			"If 5 was yes and 1 was no; the answer would be the square root of -1",
 			"My mythical skills of intuition tell me that the answer is yes, only if you have touched grass today. Touch grass",
