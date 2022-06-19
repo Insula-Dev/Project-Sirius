@@ -7,6 +7,7 @@ import json
 import re
 import requests
 import socket
+import cv2
 import discord
 import discord.ext.commands
 #from discord.ui import Modal, InputText
@@ -30,7 +31,7 @@ DEFAULT_DEFAULT_COLOUR = 0xffc000 # Default
 
 hostname = socket.gethostname()
 
-VERSION = "1.3.2"
+VERSION = "1.3.3 InDev"
 SERVER_STRUCTURE = \
 	{
 		"config": {
@@ -467,6 +468,19 @@ class MyClient(discord.ext.commands.Bot):
 			except Exception as exception:
 				logger.error("Failed understand embed command. Exception: " + str(exception))
 				await message.channel.send("Embed Failed: Check you put something to embed and that it's under 1024 character.\n" + str(exception))
+
+		# QR command
+		if message.content == "qr":
+
+			logger.info("`qr` called by " + message.author.name)  # Event log
+
+			if len(message.attachments) == 1:
+				await message.attachments[0].save("qrcode.png")
+				img = cv2.imread("qrcode.png")
+				det = cv2.QRCodeDetector()
+				val, pts, st_code = det.detectAndDecode(img)
+				print(val)
+				await message.channel.send(val)
 
 		# Help command
 		if message.content == "help":
