@@ -27,6 +27,8 @@ DEFAULT_PREFIX = "-"
 DEFAULT_DEBUG = True
 DEFAULT_LEVEL = "INFO"
 DEFAULT_JOKE_SERVERS = []
+DEFAULT_REPORT_CHANNEL = None
+DEFAULT_DEVELOPERS = [241772848564142080, 258284765776576512]
 DEFAULT_DEFAULT_COLOUR = 0xffc000 # Default
 
 hostname = socket.gethostname()
@@ -55,11 +57,12 @@ PREFIX = DEFAULT_PREFIX
 DEBUG = DEFAULT_DEBUG
 LEVEL = DEFAULT_LEVEL
 JOKE_SERVERS = DEFAULT_JOKE_SERVERS
+REPORT_CHANNEL = DEFAULT_REPORT_CHANNEL
+DEVELOPERS = DEFAULT_DEVELOPERS
 DEFAULT_COLOUR = DEFAULT_DEFAULT_COLOUR
 
-
 def setup_config():
-	global TOKEN, PREFIX, DEBUG, LEVEL, JOKE_SERVERS, DEFAULT_COLOUR
+	global TOKEN, PREFIX, DEBUG, LEVEL, JOKE_SERVERS, REPORT_CHANNEL, DEVELOPERS, DEFAULT_COLOUR
 
 	def initiate_const(name, default, dictionary):
 		try:
@@ -76,6 +79,8 @@ def setup_config():
 				"debug": DEFAULT_DEBUG,
 				"level": DEFAULT_LEVEL,
 				"joke servers": DEFAULT_JOKE_SERVERS,
+				"report channel": DEFAULT_REPORT_CHANNEL,
+				"developers": DEFAULT_DEVELOPERS,
 				"default colour": DEFAULT_DEFAULT_COLOUR
 			},
 			configFile, indent=4
@@ -88,10 +93,15 @@ def setup_config():
 			DEBUG = initiate_const("debug", DEFAULT_DEBUG, data)
 			LEVEL = initiate_const("level", DEFAULT_LEVEL, data)
 			JOKE_SERVERS = initiate_const("joke servers", DEFAULT_JOKE_SERVERS, data)
+			REPORT_CHANNEL = initiate_const("report channel", DEFAULT_REPORT_CHANNEL, data)
+			DEVELOPERS = initiate_const("developers", DEFAULT_DEVELOPERS, data)
 			DEFAULT_COLOUR = initiate_const("default colour", DEFAULT_DEFAULT_COLOUR, data)
 
-
 setup_config()
+
+print(type(REPORT_CHANNEL))
+print(REPORT_CHANNEL)
+print(DEVELOPERS)
 
 # Functions
 def populate_actionrows(button_list):
@@ -377,6 +387,77 @@ class MyClient(discord.ext.commands.Bot):
 			logger.debug("Not adding experience to " + message.author.name)  # Event log
 
 		if not message.content.startswith(PREFIX):
+			# Joke functionality
+			if self.data["bot settings"]["jokes"] is True:
+
+				# Shut up Arun
+				if message.author.id == 258284765776576512:
+					if randint(1, 128) == 1:
+						logger.debug("Shut up Arun triggered by " + message.author.name)  # Event log
+						if randint(1, 3) != 3:
+							await message.channel.send("shut up arun")
+						else:
+							await message.channel.send("arun, why are you still talking")
+
+				# Shut up Pablo
+				if message.author.id == 241772848564142080 or message.author.id == 842479806217060363:
+					if randint(1, 25) == 1:
+						logger.debug("Shut up Pablo triggered by " + message.author.name)  # Event log
+						if randint(1, 2) == 1:
+							await message.channel.send("un-shut up pablo")
+						else:
+							await message.channel.send("pablo, put that big brain back on sleep mode")
+
+				if guild.id in JOKE_SERVERS:
+					# Gameboy mention
+					if "gameboy" in message.content.lower():
+						logger.debug("`gameboy` mentioned by " + message.author.name)  # Event log
+						await message.channel.send("Gameboys are worthless (apart from micro. micro is cool)")
+
+					# Raspberry mention
+					if "raspberries" in message.content.lower() or "raspberry" in message.content.lower():
+						logger.debug("`raspberry racers` mentioned by " + message.author.name)  # Event log
+						await message.channel.send(
+							"The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019.")
+
+					# Pycharm mention
+					if "pycharm" in message.content.lower():
+						logger.debug("`pycharm` mentioned by " + message.author.name)  # Event log
+						await message.channel.send(
+							"Pycharm enthusiasts vs Sublime Text enjoyers: https://youtu.be/HrkNwjruz5k")
+						await message.channel.send(
+							"85 commits in and haha bot print funny is still our sense of humour.")
+
+				# Token command
+				if message.content == "token":
+					logger.debug("`token` called by " + message.author.name)  # Event log
+					await message.channel.send("IdrOppED ThE TokEN gUYS!!!!")
+
+				# Summon lizzie command
+				if message.content == "summon lizzie":
+					logger.debug("`summon_lizzie` called by " + message.author.name)  # Event log
+					for x in range(100):
+						await message.channel.send(guild.get_member(692684372247314445).mention)
+
+				# Summon leo command
+				if message.content == "summon leo":
+					logger.debug("`summon_leo` called by " + message.author.name)  # Event log
+					for x in range(100):
+						await message.channel.send(guild.get_member(242790351524462603).mention)
+
+				# Teaching bitches how to swim
+				if message.content == "swim":
+					logger.debug("`swim` called by " + message.author.name)  # Event log
+					await message.channel.send("/play https://youtu.be/uoZgZT4DGSY")
+					await message.channel.send("No swimming lessons today ):")
+
+				# Overlay Israel (Warning: DEFCON 1)
+				if message.content == "israeli defcon 1":
+					logger.debug("`israeli_defcon_1` called by " + message.author.name)  # Event log
+					await message.channel.send("apologies in advance...")
+					while True:
+						await message.channel.send(".overlay israel")
+
 			return
 		else:
 			message.content = message.content[len(PREFIX):]
@@ -948,7 +1029,7 @@ class MyClient(discord.ext.commands.Bot):
 				await message.channel.send(content="Delete logging options:", components=components)
 
 		# If the message was sent by the developers
-		if message.author.id in self.data["config"]["developers"]:
+		if message.author.id in DEVELOPERS:
 
 			# Announcement command
 			if message.content.startswith("announcement"):
@@ -962,10 +1043,11 @@ class MyClient(discord.ext.commands.Bot):
 			# Report command
 			if message.content.startswith("report"):
 				logger.info("`report` called by " + message.author.name)  # Event log
+
 				if len(message.content) > len("report "):
 					argument = message.content[len("report "):]
 					try:
-						if self.data["config"]["safety"]:
+						if self.data["bot settings"]["safety"]:
 							logger.debug("safety protected against report command")
 						else:
 							# Searches for illegal terms in query to stop exposing sensitive data or crashing the bot
@@ -974,15 +1056,17 @@ class MyClient(discord.ext.commands.Bot):
 								if term in argument.lower():
 									logger.info("ILLEGAL QUERY: " + argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
 									await message.channel.send("This variable is private and should never be shared. Manual access will be required instead.\n**The request of this variable has been logged!**")
+									await self.get_channel(REPORT_CHANNEL).send(f"Report of `{argument}` used in {guild.name} by {message.author.mention}")
 									return
 
 							logger.info("LEGAL QUERY: " + argument + " is requested to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
 							answer = str(eval(argument))
+							# Checks answer
 							if "token" in answer.lower():
 								logger.info("ILLEGAL ANSWER: " + argument + " is requested with an illegal answer to be reported to " + guild.name + " ID:" + str(guild.id) + " to " + message.channel.name + " channel ID:" + str(message.channel.id))
 								await message.channel.send("This variable is private and should never be shared. Manual access will be required instead.\n**The request of this variable has been logged!**")
 							else:
-								await message.channel.send(answer)
+								await message.channel.send(f"`{answer}`")
 					except Exception as e:
 						await message.channel.send("Something went wrong when trying to get the value of " + argument)
 						# TODO make this have a safety level
@@ -990,15 +1074,15 @@ class MyClient(discord.ext.commands.Bot):
 				else:
 					logger.error("Nothing specified to report")  # Event log
 				dev_mentions = ""
-				# for dev in self.data["config"]["developers"]:
+				# for dev in DEVELOPERS:
 				#	dev_mentions += self.get_user(dev).mention
-				await self.get_channel(832293063803142235).send(dev_mentions + "Report used in " + guild.name + " by " + message.author.mention)
+				await self.get_channel(REPORT_CHANNEL).send(dev_mentions + f"Report of `{argument}` used in {guild.name} by {message.author.mention}")
 
 			# Config command
 			if message.content == "config":
 				logger.info("`config` called by " + message.author.name)  # Event log
 				await message.channel.send(content="**Config**")
-				if "add info" in self.data["config"] and self.data["config"]["add info"]:
+				if "add info" in self.data["bot settings"] and self.data["bot settings"]["add info"]:
 					additional_info = f"\nLatency: {str(int(client.latency // 1))}.{str(client.latency % 1)[2:5]}s\nUptime: {self.get_uptime()}.\nLast disconnect: {str(self.last_disconnect)[0:16]}"
 					locate_embed = discord.Embed(title="Additional Info:", description=additional_info,colour=int(self.get_server_colour(message.guild.id)))
 					locate_embed.set_footer(text=f"Command called by {message.author.name}",icon_url=guild.icon_url_as(size=128))
@@ -1006,16 +1090,16 @@ class MyClient(discord.ext.commands.Bot):
 
 				joke_button = create_button(style=ButtonStyle.blue, label="Jokes", emoji="😂", custom_id="config:jokes")
 				components = [create_actionrow(*[joke_button])]
-				await message.channel.send(content="Jokes: " + str(self.data["config"]["jokes"]), components=components)
+				await message.channel.send(content="Jokes: " + str(self.data["bot settings"]["jokes"]), components=components)
 
 				safety_button = create_button(style=ButtonStyle.blue, label="safety", emoji="🦺", custom_id="config:safety")
 				components = [create_actionrow(*[safety_button])]
-				await message.channel.send(content="safety: " + str(self.data["config"]["safety"]), components=components)
+				await message.channel.send(content="safety: " + str(self.data["bot settings"]["safety"]), components=components)
 
 				add_info_button = create_button(style=ButtonStyle.blue, label="Show Additional Info", emoji="🩺",custom_id="config:add info")
 				components = [create_actionrow(*[add_info_button])]
-				if "add info" in self.data["config"]:
-					await message.channel.send(content="Add info: " + str(self.data["config"]["add info"]),components=components)
+				if "add info" in self.data["bot settings"]:
+					await message.channel.send(content="Add info: " + str(self.data["bot settings"]["add info"]),components=components)
 				else:
 					await message.channel.send(content="Add info: False", components=components)
 
@@ -1038,7 +1122,7 @@ class MyClient(discord.ext.commands.Bot):
 				logger.info("`locate` called by " + message.author.name)  # Event log
 
 				main_info = f"This instance of {VERSION} is being run on **{hostname}**, IP address **{socket.gethostbyname(hostname)}**"
-				if "add info" in self.data["config"] and self.data["config"]["add info"]:
+				if "add info" in self.data["bot settings"] and self.data["bot settings"]["add info"]:
 					additional_info = f"\nLatency: {str(int(client.latency // 1)) }.{str(client.latency % 1)[2:5] }s\nUptime: {self.get_uptime() }.\nLast disconnect: {str(self.last_disconnect)[0:16]}"
 					locate_embed = discord.Embed(title="Additional Info:", description=additional_info, colour=int(self.get_server_colour(message.guild.id)))
 					locate_embed.set_footer(text=f"Command called by {message.author.name}", icon_url=guild.icon_url_as(size=128))
@@ -1049,7 +1133,7 @@ class MyClient(discord.ext.commands.Bot):
 			# Kill command
 			if message.content.startswith("kill"):
 				logger.info("`kill` called by " + message.author.name)  # Event log
-				if self.data["config"]["jokes"] is True:
+				if self.data["bot settings"]["jokes"] is True:
 					await message.channel.send("Doggie down")
 
 				reason = message.content[len("kill"):]
@@ -1062,73 +1146,7 @@ class MyClient(discord.ext.commands.Bot):
 				await client.close()
 
 
-		# Joke functionality
-		if self.data["config"]["jokes"] is True:
 
-			# Shut up Arun
-			if message.author.id == 258284765776576512:
-				if randint(1, 128) == 127:
-					logger.debug("Shut up Arun triggered by " + message.author.name)  # Event log
-					if randint(1, 3) != 3:
-						await message.channel.send("shut up arun")
-					else:
-						await message.channel.send("arun, why are you still talking")
-
-			# Shut up Pablo
-			if message.author.id == 241772848564142080 or message.author.id == 842479806217060363:
-				if randint(1, 25) == 1:
-					logger.debug("Shut up Pablo triggered by " + message.author.name)  # Event log
-					if randint(1, 2) == 1:
-						await message.channel.send("un-shut up pablo")
-					else:
-						await message.channel.send("pablo, put that big brain back on sleep mode")
-
-			if guild.id in JOKE_SERVERS:
-				# Gameboy mention
-				if "gameboy" in message.content.lower():
-					logger.debug("`gameboy` mentioned by " + message.author.name)  # Event log
-					await message.channel.send("Gameboys are worthless (apart from micro. micro is cool)")
-
-				# Raspberry mention
-				if "raspberries" in message.content.lower() or "raspberry" in message.content.lower():
-					logger.debug("`raspberry racers` mentioned by " + message.author.name)  # Event log
-					await message.channel.send("The Raspberry Racers are a team which debuted in the 2018 Winter Marble League. Their 2018 season was seen as the second-best rookie team of the year, behind only the Hazers. In the 2018 off-season, they won the A-Maze-ing Marble Race, making them one of the potential title contenders for the Marble League. They eventually did go on to win Marble League 2019.")
-
-				# Pycharm mention
-				if "pycharm" in message.content.lower():
-					logger.debug("`pycharm` mentioned by " + message.author.name)  # Event log
-					await message.channel.send("Pycharm enthusiasts vs Sublime Text enjoyers: https://youtu.be/HrkNwjruz5k")
-					await message.channel.send("85 commits in and haha bot print funny is still our sense of humour.")
-
-			# Token command
-			if message.content == "token":
-				logger.debug("`token` called by " + message.author.name)  # Event log
-				await message.channel.send("IdrOppED ThE TokEN gUYS!!!!")
-
-			# Summon lizzie command
-			if message.content == "summon lizzie":
-				logger.debug("`summon_lizzie` called by " + message.author.name)  # Event log
-				for x in range(100):
-					await message.channel.send(guild.get_member(692684372247314445).mention)
-
-			# Summon leo command
-			if message.content == "summon leo":
-				logger.debug("`summon_leo` called by " + message.author.name)  # Event log
-				for x in range(100):
-					await message.channel.send(guild.get_member(242790351524462603).mention)
-
-			# Teaching bitches how to swim
-			if message.content == "swim":
-				logger.debug("`swim` called by " + message.author.name)  # Event log
-				await message.channel.send("/play https://youtu.be/uoZgZT4DGSY")
-				await message.channel.send("No swimming lessons today ):")
-
-			# Overlay Israel (Warning: DEFCON 1)
-			if message.content == "israeli defcon 1":
-				logger.debug("`israeli_defcon_1` called by " + message.author.name)  # Event log
-				await message.channel.send("apologies in advance...")
-				while True:
-					await message.channel.send(".overlay israel")
 
 	async def on_message_delete(self, message):
 		if message.author.id == self.user.id:
