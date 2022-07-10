@@ -5,9 +5,12 @@ from os import path
 from datetime import date, datetime
 import json
 import re
+
+import numpy as np
 import requests
 import socket
 import cv2
+from pyzbar import pyzbar
 import discord
 import discord.ext.commands
 #from discord.ui import Modal, InputText
@@ -477,8 +480,59 @@ class MyClient(discord.ext.commands.Bot):
 			if len(message.attachments) == 1:
 				await message.attachments[0].save("qrcode.png")
 				img = cv2.imread("qrcode.png")
+				grey =  cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+				cv2.imshow("image", img)
+				cv2.waitKey(0)
+				cv2.imshow("image",grey)
+				cv2.waitKey(0)
+				cv2.destroyAllWindows()
+				_, thresh = cv2.threshold(grey, 120, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+				# The bigger the kernel, the more the white region increases.
+				# If the resizing step was ignored, then the kernel will have to be bigger
+				# than the one given here.
+				kernel = np.ones((3, 3), np.uint8)
+				thresh = cv2.dilate(thresh, kernel, iterations=1)
+				cv2.imshow("image", thresh)
+				cv2.waitKey(0)
+				cv2.destroyAllWindows()
+				contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+				bboxes = []
+				for cnt in contours:
+					area = cv2.contourArea(cnt)
+					xmin, ymin, width, height = cv2.boundingRect(cnt)
+					extent = area / (width * height)
+
+					# filter non-rectangular objects and small objects
+					if (extent > np.pi / 4) and (area > 100):
+						bboxes.append((xmin, ymin, xmin + width, ymin + height))
+
+				qrs = []
+				info = set()
+				for xmin, ymin, xmax, ymax in bboxes:
+					print("Doing bbox")
+					roi = img[ymin:ymax, xmin:xmax]
+					detections = pyzbar.decode(roi, symbols=[pyzbar.ZBarSymbol.QRCODE])
+					cv2.imshow("image", roi)
+					cv2.waitKey(0)
+					cv2.destroyAllWindows()
+					det = cv2.QRCodeDetector()
+					val, pts, st_code = det.detectAndDecode(roi)
+					print(f"Val:{val}")
+					for barcode in detections:
+						print("Found barcode")
+						info.add(barcode.data)
+						# bounding box coordinates
+						x, y, w, h = barcode.rect
+						qrs.append((xmin + x, ymin + y, xmin + x + w, ymin + y + height))
+
+				print(f"QRS:{qrs}")
+				for q in qrs:
+					print(q)
+				print("List printed")
+
 				det = cv2.QRCodeDetector()
-				val, pts, st_code = det.detectAndDecode(img)
+				val, pts, st_code = det.detectAndDecode(thresh)
 				print(val)
 				await message.channel.send(val)
 
