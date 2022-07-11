@@ -99,10 +99,6 @@ def setup_config():
 
 setup_config()
 
-print(type(REPORT_CHANNEL))
-print(REPORT_CHANNEL)
-print(DEVELOPERS)
-
 # Functions
 def populate_actionrows(button_list):
 	"""Returns a list of actionrows of 5 or less buttons."""
@@ -275,17 +271,21 @@ class MyClient(discord.ext.commands.Bot):
 	async def announce(self, announcement, announcement_type="generic"):
 		"""Sends announcement messages to each guild's assigned announcement channel."""
 
-		for guild in self.guilds:
-			if self.data["servers"][str(guild.id)]["config"]["announcements channel id"] != 0:  # Only finds announcement channel if the guild has one set
-				announcement_sent = False
-				for channel in guild.text_channels:
-					if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
-						logger.debug("Sending " + announcement_type + " announcement to " + guild.name + " in " + channel.name)  # Event log
-						announcement_sent = True
-						await channel.send(announcement)
-						break
-				if announcement_sent is False:
-					logger.debug("Failed to send " + announcement_type + " announcement. Announcement channel not found in " + guild.name)  # Event log
+		if announcement_type == "alert":
+			await self.get_channel(REPORT_CHANNEL).send(announcement)
+
+		else:
+			for guild in self.guilds:
+				if self.data["servers"][str(guild.id)]["config"]["announcements channel id"] != 0:  # Only finds announcement channel if the guild has one set
+					announcement_sent = False
+					for channel in guild.text_channels:
+						if channel.id == self.data["servers"][str(guild.id)]["config"]["announcements channel id"]:
+							logger.debug("Sending " + announcement_type + " announcement to " + guild.name + " in " + channel.name)  # Event log
+							announcement_sent = True
+							await channel.send(announcement)
+							break
+					if announcement_sent is False:
+						logger.debug("Failed to send " + announcement_type + " announcement. Announcement channel not found in " + guild.name)  # Event log
 
 	async def on_ready(self):
 		"""Runs when the client is ready."""
@@ -347,6 +347,7 @@ class MyClient(discord.ext.commands.Bot):
 		The bot initialises the guild if it has no data on it."""
 
 		logger.info(self.user.name + " has joined the guild: " + guild.name + " with id: " + str(guild.id))  # Event log
+		await self.announce(self.user.name + " has joined the guild: " + guild.name + " with id: " + str(guild.id),"alert")  # Event log
 
 		# Initialise guild
 		self.initialise_guild(guild)
@@ -1076,7 +1077,7 @@ class MyClient(discord.ext.commands.Bot):
 				dev_mentions = ""
 				# for dev in DEVELOPERS:
 				#	dev_mentions += self.get_user(dev).mention
-				await self.get_channel(REPORT_CHANNEL).send(dev_mentions + f"Report of `{argument}` used in {guild.name} by {message.author.mention}")
+				await self.announce(dev_mentions + f"Report of `{argument}` used in {guild.name} by {message.author.mention}","alert")
 
 			# Config command
 			if message.content == "config":
