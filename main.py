@@ -33,7 +33,7 @@ DEFAULT_DEFAULT_COLOUR = 0xffc000 # Default
 
 hostname = socket.gethostname()
 
-VERSION = "1.3.3 InDev"
+VERSION = "1.3.3 Add Roles Dev"
 SERVER_STRUCTURE = \
 	{
 		"config": {
@@ -694,6 +694,39 @@ class MyClient(discord.ext.commands.Bot):
 				else:
 					logger.debug("Roles have not been set up for " + str(message.guild.id))  # Event log
 					await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
+
+			# Edit roles command
+			if message.content == "edit roles":
+				# If the roles functionality is enabled
+				if "roles" in self.data["servers"][str(message.guild.id)]:
+					# try:
+
+					# Creates and sends the roles messages
+					await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
+					for category in self.data["servers"][str(message.guild.id)]["roles"]["categories"]:
+						buttons = []
+						buttons.append(create_button(style=ButtonStyle.green, emoji="🇨🇭", label=category, custom_id=f"add role:{category}"))
+						components = populate_actionrows(buttons)  # Puts buttons in to rows of 5 or less
+						await message.channel.send(content="**" + category + "**\n" + "Select the roles for this category!",components=components)
+						buttons = []
+						for role in self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"]:
+							buttons.append(create_button(style=ButtonStyle.red, emoji=await self.get_formatted_emoji(self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role]["emoji"], guild), label=self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role]["name"], custom_id=f"remove roll:{role}"))
+						components = populate_actionrows(buttons) # Puts buttons in to rows of 5 or less
+						category_message = await message.channel.send(content="Select a role to remove", components=components)
+
+						# Updates the category's message id
+						#self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["message id"] = category_message.id
+
+					# Write the updated data
+					#self.update_data()
+
+				# except Exception as exception:
+				#	logger.error("Failed to send roles message in " + message.guild.name + " (" + str(message.guild.id) + "). Exception: " + str(exception))
+
+				# If the roles functionality is disabled
+				else:
+					await message.channel.send("Uh oh, you haven't set up any roles! Get a server admin to set them up at https://www.lingscars.com/")
+
 
 			# Stats command
 			if message.content.startswith("stats"):
@@ -1728,6 +1761,46 @@ if __name__ == "__main__":
 				else:
 					await ctx.send("You do not have permissions to press this button", hidden=True)
 					logger.info(ctx.author.name + " tried to purge messages")
+
+			elif ctx.custom_id.startswith("add role"):
+				roles = client.data["servers"][str(guild.id)]["roles"]["category"]
+				category = ctx.custom_id[len("add role:"):]
+				logger.debug(f"Add role to category '{category}' in '" + guild.name + "' requested by " + ctx.author.name)
+				if ctx.author.guild_permissions.administrator:
+					if category in roles:
+						await ctx.send(f"Please enter the name and emoji you'd like to use for this role")
+						role_name = ""
+						role_id = 0
+						role_emoji = ""
+						parameters = parameter.split(",")  # Splits parameter string into a list
+						for param in parameters:
+							print("Checking: " + param)
+							if param.startswith("name="):
+								print("name")
+								role_name = param[len("name="):]
+								# Find role id for role with name
+								print("Roles are:\n" + str(message.guild.roles))
+								for role in message.guild.roles:
+									print("Role " + role.name)
+									if role.name == role_name:
+										role_id = role.id
+										break
+								if role_id == 0:
+									print("Role \"" + role_name + "\"was not identified")
+							elif param.startswith("emoji="):
+								print("emoji")
+								role_emoji_name = param[len("emoji="):]
+								print(message.guild.emojis)
+								for emoji in message.guild.emojis:
+									print("Emoji " + emoji.name)
+									if emoji.name == role_emoji_name:
+										role_emoji = "<:" + role_emoji_name + ":" + str(emoji.id) + ">"
+										break
+								if role_emoji == "":
+									print("Emoji \"" + role_emoji_name + "\"was not identified")
+						client.data["servers"][str(guild.id)]["config"] = config
+					client.update_data()
+					return
 
 			elif ctx.custom_id.startswith("settings"):
 				config = client.data["servers"][str(guild.id)]["config"]
