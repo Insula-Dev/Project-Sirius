@@ -587,6 +587,7 @@ class MyClient(discord.ext.commands.Bot):
 			embed_help.add_field(name=str(PREFIX + "__settings__"), value="Brings up server settings page\n**Admin only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__config__"), value="Brings up " + self.user.name + " configuration page.\n**Dev only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__report__"), value="Reports the value of the variable(s) given. Argument: [name of almost any variable]\n**Dev only feature. safety off to use.**")
+			embed_help.add_field(name=str(PREFIX + "__announce__"), value="Sends a generic announcement with a parameter for the message.\n**Dev only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__locate__"), value="Locates the instance of " + self.user.name + ".\n**Dev only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__kill__"), value="Ends the instance of " + self.user.name + ".\n**Dev only feature.**")
 			await message.channel.send(embed=embed_help)
@@ -1032,14 +1033,14 @@ class MyClient(discord.ext.commands.Bot):
 		# If the message was sent by the developers
 		if message.author.id in DEVELOPERS:
 
-			# Announcement command
-			if message.content.startswith("announcement"):
-				logger.info("`announcement` called by " + message.author.name)  # Event log
-				if len(message.content) > len("announcement "):
-					argument = message.content[len("announcement "):]
+			# Announce command
+			if message.content.startswith("announce"):
+				logger.info("`announce` called by " + message.author.name)  # Event log
+				if len(message.content) > len("announce "):
+					argument = message.content[len("announce "):]
 					await self.announce(argument)
 				else:
-					logger.error("No announcement argument supplied")  # Event log
+					logger.error("No announce argument supplied")  # Event log
 
 			# Report command
 			if message.content.startswith("report"):
