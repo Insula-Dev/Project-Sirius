@@ -66,22 +66,43 @@ def upgrade_data():
 	global DEVELOPERS
 	new_data = {}
 	data = {}
+	config = {}
 	try:
 		with open("data.json", encoding='utf-8') as file:
 			data = json.load(file)
+		with open("config.json", encoding='utf-8') as config_file:
+			config = json.load(config_file)
 		if "config" in data:
 			print("Upgrading data file")
-			if "developers" in data["config"]:
-				print("Moving developers data")
-				DEVELOPERS = data["config"]["developers"]
-				del data["config"]["developers"]
-			new_data = {"bot settings":data["config"]}
+
+			# Data "config" rename to "bot settings"
+			new_data = {"bot settings": data["config"]}
 			del data["config"]
-		new_data.update(data)
+
+			new_data.update(data)
+
+			# Developers move to config
+			if "developers" in data["bot settings"]:
+				print("Detected developers in old location")
+				# Checks if config or data developers should be used
+				move = "y"
+				if "developers" in config:
+					move = input("Developers found in config file, would you like to replace with ones in data file? Y/N").lower()
+				if move == "y":
+					print("Moving developers data")
+					DEVELOPERS = data["bot settings"]["developers"]
+					config["developers"] = DEVELOPERS
+				del data["bot settings"]["developers"]
+
+		else:
+			new_data.update(data)
+
 		with open("data.json", "w", encoding='utf-8') as file:
 			json.dump(new_data, file, indent=4)
+		with open("config.json", "w") as file:
+			json.dump(config,file, indent=4)
 	except Exception as exception:
-		print("Failed to check data file was upgrade")
+		print(f"Failed to check data file was upgraded: {exception}")
 upgrade_data()
 
 def setup_config():
