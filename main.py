@@ -61,6 +61,29 @@ REPORT_CHANNEL = DEFAULT_REPORT_CHANNEL
 DEVELOPERS = DEFAULT_DEVELOPERS
 DEFAULT_COLOUR = DEFAULT_DEFAULT_COLOUR
 
+# Data upgrade
+def upgrade_data():
+	global DEVELOPERS
+	new_data = {}
+	data = {}
+	try:
+		with open("data.json", encoding='utf-8') as file:
+			data = json.load(file)
+		if "config" in data:
+			print("Upgrading data file")
+			if "developers" in data["config"]:
+				print("Moving developers data")
+				DEVELOPERS = data["config"]["developers"]
+				del data["config"]["developers"]
+			new_data = {"bot settings":data["config"]}
+			del data["config"]
+		new_data.update(data)
+		with open("data.json", "w", encoding='utf-8') as file:
+			json.dump(new_data, file, indent=4)
+	except Exception as exception:
+		print("Failed to check data file was upgrade")
+upgrade_data()
+
 def setup_config():
 	global TOKEN, PREFIX, DEBUG, LEVEL, JOKE_SERVERS, REPORT_CHANNEL, DEVELOPERS, DEFAULT_COLOUR
 
@@ -71,31 +94,23 @@ def setup_config():
 			return default
 
 	if not path.exists("config.json"):
-		configFile = open("config.json", "w")
-		json.dump(
-			{
-				"token": DEFAULT_TOKEN,
-				"prefix": DEFAULT_PREFIX,
-				"debug": DEFAULT_DEBUG,
-				"level": DEFAULT_LEVEL,
-				"joke servers": DEFAULT_JOKE_SERVERS,
-				"report channel": DEFAULT_REPORT_CHANNEL,
-				"developers": DEFAULT_DEVELOPERS,
-				"default colour": DEFAULT_DEFAULT_COLOUR
-			},
-			configFile, indent=4
-		)
-	else:
-		with open("config.json", encoding='utf-8') as file:
+		with open("config.json", "w") as file:
+			TOKEN = input("Please input your bot's token (this will be stored in the config.json file)")
+			json.dump({"token":TOKEN},file, indent=4)
+			print("config.json created")
+	with open("config.json", encoding='utf-8') as file:
+		try:
 			data = json.load(file)
-			TOKEN = initiate_const("token", DEFAULT_TOKEN, data)
-			PREFIX = initiate_const("prefix", DEFAULT_PREFIX, data)
-			DEBUG = initiate_const("debug", DEFAULT_DEBUG, data)
-			LEVEL = initiate_const("level", DEFAULT_LEVEL, data)
-			JOKE_SERVERS = initiate_const("joke servers", DEFAULT_JOKE_SERVERS, data)
-			REPORT_CHANNEL = initiate_const("report channel", DEFAULT_REPORT_CHANNEL, data)
-			DEVELOPERS = initiate_const("developers", DEFAULT_DEVELOPERS, data)
-			DEFAULT_COLOUR = initiate_const("default colour", DEFAULT_DEFAULT_COLOUR, data)
+		except json.JSONDecodeError:
+			data = {}
+		TOKEN = initiate_const("token", DEFAULT_TOKEN, data)
+		PREFIX = initiate_const("prefix", DEFAULT_PREFIX, data)
+		DEBUG = initiate_const("debug", DEFAULT_DEBUG, data)
+		LEVEL = initiate_const("level", DEFAULT_LEVEL, data)
+		JOKE_SERVERS = initiate_const("joke servers", DEFAULT_JOKE_SERVERS, data)
+		REPORT_CHANNEL = initiate_const("report channel", DEFAULT_REPORT_CHANNEL, data)
+		DEVELOPERS = initiate_const("developers", DEFAULT_DEVELOPERS, data)
+		DEFAULT_COLOUR = initiate_const("default colour", DEFAULT_DEFAULT_COLOUR, data)
 
 setup_config()
 
@@ -110,24 +125,6 @@ def populate_actionrows(button_list):
 		else:
 			actionrow_list.append(create_actionrow(*button_list[(5 * x):]))
 	return actionrow_list
-
-# Data upgrade
-def upgrade_data():
-	new_data = {}
-	data = {}
-	try:
-		with open("data.json", encoding='utf-8') as file:
-			data = json.load(file)
-		if "config" in data:
-			print("Upgrading data file")
-			new_data = {"bot settings":data["config"]}
-			del data["config"]
-		new_data.update(data)
-		with open("data.json", "w", encoding='utf-8') as file:
-			json.dump(new_data, file, indent=4)
-	except Exception as exception:
-		print("Failed to check data file was upgrade")
-upgrade_data()
 
 # Definitions
 class MyClient(discord.ext.commands.Bot):
