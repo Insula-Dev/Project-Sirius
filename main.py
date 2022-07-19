@@ -111,6 +111,24 @@ def populate_actionrows(button_list):
 			actionrow_list.append(create_actionrow(*button_list[(5 * x):]))
 	return actionrow_list
 
+# Data upgrade
+def upgrade_data():
+	new_data = {}
+	data = {}
+	try:
+		with open("data.json", encoding='utf-8') as file:
+			data = json.load(file)
+		if "config" in data:
+			print("Upgrading data file")
+			new_data = {"bot settings":data["config"]}
+			del data["config"]
+		new_data.update(data)
+		with open("data.json", "w", encoding='utf-8') as file:
+			json.dump(new_data, file, indent=4)
+	except Exception as exception:
+		print("Failed to check data file was upgrade")
+upgrade_data()
+
 # Definitions
 class MyClient(discord.ext.commands.Bot):
 
