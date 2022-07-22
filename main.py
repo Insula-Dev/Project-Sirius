@@ -101,9 +101,16 @@ def upgrade_data():
 			json.dump(new_data, file, indent=4)
 		with open("config.json", "w") as file:
 			json.dump(config,file, indent=4)
+	except FileNotFoundError:
+		print("data.json not setup. This is a fresh install!")
 	except Exception as exception:
 		print(f"Failed to check data file was upgraded: {exception}")
 upgrade_data()
+
+def create_config():
+	with open("config.json", "w") as file:
+		TOKEN = input("Please input your bot's token (this will be stored in the config.json file)")
+		json.dump({"token": TOKEN}, file, indent=4)
 
 def setup_config():
 	global TOKEN, PREFIX, DEBUG, LEVEL, JOKE_SERVERS, REPORT_CHANNEL, DEVELOPERS, DEFAULT_COLOUR
@@ -115,16 +122,17 @@ def setup_config():
 			return default
 
 	if not path.exists("config.json"):
-		with open("config.json", "w") as file:
-			TOKEN = input("Please input your bot's token (this will be stored in the config.json file)")
-			json.dump({"token":TOKEN},file, indent=4)
-			print("config.json created")
+		create_config()
+		print("config.json created")
 	with open("config.json", encoding='utf-8') as file:
 		try:
 			data = json.load(file)
 		except json.JSONDecodeError:
 			data = {}
 		TOKEN = initiate_const("token", DEFAULT_TOKEN, data)
+		if TOKEN == DEFAULT_TOKEN:
+			create_config()
+			print("config.json setup")
 		PREFIX = initiate_const("prefix", DEFAULT_PREFIX, data)
 		DEBUG = initiate_const("debug", DEFAULT_DEBUG, data)
 		LEVEL = initiate_const("level", DEFAULT_LEVEL, data)
@@ -1895,4 +1903,4 @@ if __name__ == "__main__":
 		client.run(TOKEN)
 
 	except Exception as exception:
-		logger.error("Exception: " + str(exception) + "\n")  # Event log
+		logger.error(f"Exception \"{type(exception).__name__}\" : {exception.args[0]}\n")  # Event log
