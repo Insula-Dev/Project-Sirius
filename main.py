@@ -545,6 +545,8 @@ class MyClient(discord.ext.commands.Bot):
 					lb_message += str(name) + "\n"  # Reverse adds on higher scored names
 					lb_count += str(item[1]) + "\n"  # Reverse adds on higher scores to separate string for separate embed field
 					lb_no += str(count) + "\n"
+					if count >= 100:
+						break
 					count += 1
 				except AttributeError:
 					logger.debug("Member not found in server")
