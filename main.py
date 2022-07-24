@@ -82,7 +82,7 @@ def upgrade_data():
 			new_data.update(data)
 
 			# Developers move to config
-			if "developers" in data["bot settings"]:
+			if "developers" in new_data["bot settings"]:
 				print("Detected developers in old location")
 				# Checks if config or data developers should be used
 				move = "y"
@@ -90,9 +90,9 @@ def upgrade_data():
 					move = input("Developers found in config file, would you like to replace with ones in data file? Y/N").lower()
 				if move == "y":
 					print("Moving developers data")
-					DEVELOPERS = data["bot settings"]["developers"]
+					DEVELOPERS = new_data["bot settings"]["developers"]
 					config["developers"] = DEVELOPERS
-				del data["bot settings"]["developers"]
+				del new_data["bot settings"]["developers"]
 
 		else:
 			new_data.update(data)
@@ -104,7 +104,7 @@ def upgrade_data():
 	except FileNotFoundError:
 		print("data.json not setup. This is a fresh install!")
 	except Exception as exception:
-		print(f"Failed to check data file was upgraded: {exception}")
+		print(f"Failed to check data file was upgraded: \"{type(exception).__name__}\" : {exception.args[0]}\n")
 upgrade_data()
 
 def create_config():
