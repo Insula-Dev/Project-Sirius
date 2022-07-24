@@ -717,7 +717,7 @@ class MyClient(discord.ext.commands.Bot):
 					await message.delete()
 
 					# Send one roles message per category
-					await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
+					await message.channel.send("🗒️ **Role selection**\nClick to get a role, click again to remove it.")
 					for category in self.data["servers"][str(guild.id)]["roles"]["categories"]:  # For category in roles
 						roles = []
 						for role in self.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:  # For role in category
