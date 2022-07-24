@@ -1870,7 +1870,7 @@ if __name__ == "__main__":
 					# Removes the role if the user already has it
 					else:
 						await ctx.author.remove_roles(role)
-						logger.debug(f"Added role `{role.name}` from {ctx.author.name}")
+						logger.debug(f"Removed role `{role.name}` from {ctx.author.name}")
 						await ctx.send(content="Removed role: " + role.name, hidden=True)
 
 					""""# Send Pong response. Incipit Helminth...
