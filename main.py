@@ -1321,7 +1321,7 @@ class MyClient(discord.ext.commands.Bot):
 			# Finally, add the role.
 			try:
 				await payload.member.add_roles(role)
-				logger.info("Role `" + role.name + "` added to " + payload.member.name)  # Event log
+				logger.info(f"Role `{role.name}` added to {payload.member.name}")  # Event log
 			# If we want to do something in case of errors we'd do it here
 			except Exception as exception:
 				logger.error("Failed to add role " + role.name + " to " + payload.member.name + ". Exception: " + str(exception))  # Event log
@@ -1862,16 +1862,16 @@ if __name__ == "__main__":
 					# Adds the role if the user doesn't have it
 					if role not in ctx.author.roles:
 						await ctx.author.add_roles(role)
+						logger.debug(f"Added role `{role.name}` added to {ctx.author.name}")
 						await ctx.send(content="Added role: " + role.name, hidden=True)
-						logger.debug("Added role " + role.name + " to " + ctx.author.name)
 
 					# Removes the role if the user already has it
 					else:
 						await ctx.author.remove_roles(role)
+						logger.debug(f"Added role `{role.name}` from {ctx.author.name}")
 						await ctx.send(content="Removed role: " + role.name, hidden=True)
-						logger.debug("Removed role " + role.name + " from " + ctx.author.name)
 
-					# Send Pong response. Incipit Helminth...
+					""""# Send Pong response. Incipit Helminth...
 					with open("config.json") as file:
 						url = "https://discordapp.com/api/channels/{}/messages".format(ctx.origin_message.channel.id)
 						headers = {
@@ -1882,7 +1882,7 @@ if __name__ == "__main__":
 							"type": 1
 						}
 						r = requests.post(url, headers=headers, data=json.dumps(JSON))
-					logger.debug(r.status_code, r.reason)
+					logger.debug(r.status_code, r.reason)"""
 					return
 
 				except Exception as exception:
