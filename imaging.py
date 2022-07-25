@@ -60,7 +60,7 @@ def get_picture(url):
 		image = picture
 	return image
 
-def generate_level_card(profile_picture_url, name, rank, percentage):
+def generate_level_card(profile_picture_url, name, rank, percentage, server_picture=None):
 	"""Generates the level card."""
 
 	global text_colour
@@ -101,6 +101,15 @@ def generate_level_card(profile_picture_url, name, rank, percentage):
 	card.paste(bar_background, (200*card_scale, 100*card_scale))
 	card.paste(bar_overlay, (205*card_scale, 105*card_scale))
 	#card.show()
+
+	# Adds server profile picture if provided
+	if server_picture != None:
+		print(server_picture)
+		server_picture = get_picture(server_picture)
+		server_picture = server_picture.resize((30 * card_scale, 30 * card_scale), Image.NEAREST)
+		server_picture = mask_circle_solid(server_picture, bg_colour, 2)
+		server_picture.show()
+		card.paste(server_picture, (445 * card_scale, 25 * card_scale))
 	card.save("card.png")
 
 
