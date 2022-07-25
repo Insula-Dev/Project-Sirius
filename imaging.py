@@ -104,11 +104,10 @@ def generate_level_card(profile_picture_url, name, rank, percentage, server_pict
 
 	# Adds server profile picture if provided
 	if server_picture != None:
-		print(server_picture)
 		server_picture = get_picture(server_picture)
 		server_picture = server_picture.resize((30 * card_scale, 30 * card_scale), Image.NEAREST)
 		server_picture = mask_circle_solid(server_picture, bg_colour, 2)
-		server_picture.show()
+		#server_picture.show()
 		card.paste(server_picture, (445 * card_scale, 25 * card_scale))
 	card.save("card.png")
 
