@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageStat
 card_scale = 2
 bg_colour = (66, 141, 255)
 grey_colour = (40, 40, 40)
-theme_colour = (74, 60, 232)
+theme_colour = (50,200,200)
 alt_colour = (180, 80, 250)
 text_colour = (255, 252, 252)
 main_font = ImageFont.truetype("Resources/NHaasGroteskTXPro-55Rg.ttf", 28*card_scale)
@@ -64,6 +64,7 @@ def generate_level_card(profile_picture_url, name, rank, percentage):
 	"""Generates the level card."""
 
 	global text_colour
+	global theme_colour
 
 	# Prepare the profile picture using PIL
 	profile_picture = get_picture(profile_picture_url)
@@ -85,8 +86,9 @@ def generate_level_card(profile_picture_url, name, rank, percentage):
 
 	# Add the text to the card
 	drawn = ImageDraw.Draw(card)
-	if bg_colour[0] > 150 and bg_colour[1] > 150 and bg_colour[2] > 150: # Makes text white if background if background is "dark"
+	if bg_colour[0] > 150 and bg_colour[1] > 150 and bg_colour[2] > 150: # Makes text dark if background if background is "light"
 		text_colour = (0, 0, 0)
+		theme_colour = (74, 60, 232)
 	drawn.text((200*card_scale, 25*card_scale), "Level: " + str(rank), text_colour, font=main_font)
 	drawn.text((200*card_scale, 55*card_scale), name, text_colour, font=sub_font)
 	drawn.text((200*card_scale, 78*card_scale), str(percentage) + "%", theme_colour, font=sub_font)
