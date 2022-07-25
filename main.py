@@ -754,7 +754,10 @@ class MyClient(discord.ext.commands.Bot):
 
 				try:
 					# Generate statistics
-					waiting_message = await message.channel.send("This may take some time...")
+					if csv:
+						waiting_message = await message.channel.send("Processing stats for csv\nThis may take some time...")
+					else:
+						waiting_message = await message.channel.send("Processing stats to display\nThis may take some time...")
 
 					members = {}
 					channel_statistics = [''] * (len(guild.text_channels))
