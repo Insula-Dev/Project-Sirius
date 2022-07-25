@@ -977,7 +977,7 @@ class MyClient(discord.ext.commands.Bot):
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
 						confession_embed = discord.Embed(title="Review Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=0XF57E3D)
 						confession_embed.set_footer(text="This message is here to be reviewed. Please say if the content is inappropriate!", icon_url=guild.icon_url_as(size=128))
-						button = (create_button(style=ButtonStyle.red, label="remove", custom_id="confession:" + confession))
+						button = (create_button(style=ButtonStyle.red, label="Remove", custom_id="confession:" + confession))
 						components = [create_actionrow(*[button])]
 						await message.channel.send(embed=confession_embed, components=components)
 					if len(client.data["servers"][str(guild.id)]["confessions"]["messages"]) != 0:
