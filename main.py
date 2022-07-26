@@ -1640,39 +1640,40 @@ if __name__ == "__main__":
 			"""Poll command."""
 
 			logger.debug(f"`/poll` called by {ctx.author.name}")
-			#try:
-			embed = discord.Embed(title=f"> {question}", description="Select or unselect an option below:",colour=int(client.get_server_colour(ctx.guild.id)))
-			options = list(
-				filter(None, [option1, option2, option3, option4, option5, option6, option7, option8, option9]))
-			buttons = []
-			for option in options:
-				buttons.append(create_button(style=ButtonStyle.blue, label=option, custom_id="poll:" + option))
-			components = populate_actionrows(buttons)
-			poll_message = await ctx.send(embed=embed, components=components)
+			try:
+				embed = discord.Embed(title=f"> {question}", description="Select or unselect an option below:",colour=int(client.get_server_colour(ctx.guild.id)))
+				options = list(
+					filter(None, [option1, option2, option3, option4, option5, option6, option7, option8, option9]))
+				buttons = []
+				for option in options:
+					buttons.append(create_button(style=ButtonStyle.blue, label=option, custom_id="poll:" + option))
+				components = populate_actionrows(buttons)
+				poll_message = await ctx.send(embed=embed, components=components)
 
-			# Setup candidates dict for recording votes so people can't vote multiple times
-			candidates = {} # Options dictionary
-			for option in options:
-				candidates[option] = {"name": option, "voters": []}
+				# Setup candidates dict for recording votes so people can't vote multiple times
+				candidates = {} # Options dictionary
+				for option in options:
+					candidates[option] = {"name": option, "voters": []}
 
-			client.poll[str(ctx.guild.id)].update(
-				{
-					str(poll_message.id): {
-						"title": question,
-						"voters": {},
-						"config":
-							{
-								"winner": "highest",
-								"anonymous": True,
-								"multi": False
-							}
+				client.poll[str(ctx.guild.id)].update(
+					{
+						str(poll_message.id): {
+							"title": question,
+							"voters": {},
+							"config":
+								{
+									"winner": "highest",
+									"anonymous": True,
+									"multi": False
+								}
+						}
 					}
-				}
-			)
-			logger.debug(f"New poll:{client.poll[str(ctx.guild.id)]}")
+				)
+				logger.debug(f"New poll:{client.poll[str(ctx.guild.id)]}")
 
-			#except Exception as exception:
-			#	logger.error(f"Failed to run `/poll` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
+			except Exception as exception:
+				logger.error(f"Failed to run `/poll` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
+				await ctx.send("Failed to create poll. Check there are no duplicate values!",hidden=True)
 
 
 		@slash.context_menu(
