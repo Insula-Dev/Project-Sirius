@@ -1675,6 +1675,112 @@ if __name__ == "__main__":
 				logger.error(f"Failed to run `/poll` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
 				await ctx.send("Failed to create poll. Check there are no duplicate values!",hidden=True)
 
+		@slash.slash(
+			name="multi_poll",
+			description="Create anonymous multi poll. (Users can vote for multiple options)",
+			options=[
+				create_option(
+					name="question",
+					description="The poll's question",
+					option_type=3,
+					required=True
+				),
+				create_option(
+					name="option1",
+					description="...",
+					option_type=3,
+					required=True
+				),
+				create_option(
+					name="option2",
+					description="...",
+					option_type=3,
+					required=True
+				),
+				create_option(
+					name="option3",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option4",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option5",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option6",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option7",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option8",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option9",
+					description="...",
+					option_type=3,
+					required=False
+				)
+			],
+			guild_ids=guild_ids
+		)
+		async def _multi_poll(ctx, question, option1, option2, option3=None, option4=None, option5=None, option6=None,option7=None, option8=None, option9=None):
+			"""Poll command."""
+
+			logger.debug(f"`/multi_poll` called by {ctx.author.name}")
+			try:
+				embed = discord.Embed(title=f"> {question}", description="Select or unselect an option below:",colour=int(client.get_server_colour(ctx.guild.id)))
+				options = list(
+					filter(None, [option1, option2, option3, option4, option5, option6, option7, option8, option9]))
+				buttons = []
+				for option in options:
+					buttons.append(create_button(style=ButtonStyle.blue, label=option, custom_id="poll:" + option))
+				components = populate_actionrows(buttons)
+				poll_message = await ctx.send(embed=embed, components=components)
+
+				# Setup candidates dict for recording votes so people can't vote multiple times
+				candidates = {} # Options dictionary
+				for option in options:
+					candidates[option] = {"name": option, "voters": []}
+
+				client.poll[str(ctx.guild.id)].update(
+					{
+						str(poll_message.id): {
+							"title": question,
+							"voters": {},
+							"config":
+								{
+									"winner": "highest",
+									"anonymous": True,
+									"multi": True
+								}
+						}
+					}
+				)
+				logger.debug(f"New poll:{client.poll[str(ctx.guild.id)]}")
+
+			except Exception as exception:
+				logger.error(f"Failed to run `/multi_poll` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
+				await ctx.send("Failed to create multi poll. Check there are no duplicate values!",hidden=True)
+
 
 		@slash.context_menu(
 			target=ContextMenuType.MESSAGE,
@@ -1746,17 +1852,30 @@ if __name__ == "__main__":
 
 				# If the user hasn't voted before
 				if ctx.author.id not in poll["voters"]:
-					poll["voters"][ctx.author.id] = option
-					await ctx.send(content=f"Gave your vote to {option}", hidden=True)
-				else:
-					# If the user is changing their vote
-					if poll["voters"][ctx.author.id] != option:
-						poll["voters"][ctx.author.id] = option
-						await ctx.send(content=f"Changed your vote to {option}", hidden=True)
-					# If the user is removing their vote
+					if poll["config"]["multi"]:
+						poll["voters"][ctx.author.id] = [option]
+						await ctx.send(content=f"Gave a vote to {option}", hidden=True)
 					else:
-						del poll["voters"][ctx.author.id]
-						await ctx.send(content=f"Removed your vote for {option}", hidden=True)
+						poll["voters"][ctx.author.id] = option
+						await ctx.send(content=f"Gave your vote to {option}", hidden=True)
+				else:
+					if poll["config"]["multi"]:
+						if option in poll["voters"][ctx.author.id]:
+							poll["voters"][ctx.author.id].remove(option)
+							await ctx.send(content=f"Removed your vote for {option}", hidden=True)
+						else:
+							poll["voters"][ctx.author.id].append(option)
+							await ctx.send(content=f"Gave a vote to {option}", hidden=True)
+					else:
+						# If the user is changing their vote
+						if poll["voters"][ctx.author.id] != option:
+							poll["voters"][ctx.author.id] = option
+							await ctx.send(content=f"Changed your vote to {option}", hidden=True)
+						# If the user is removing their vote
+						else:
+							del poll["voters"][ctx.author.id]
+							await ctx.send(content=f"Removed your vote for {option}", hidden=True)
+
 
 			elif ctx.custom_id.startswith("confession"):
 				id = ctx.custom_id[len("confession:"):]
