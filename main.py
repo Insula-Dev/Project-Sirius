@@ -33,7 +33,7 @@ DEFAULT_DEFAULT_COLOUR = 0xffc000 # Default
 
 hostname = socket.gethostname()
 
-VERSION = "1.3.3 InDev"
+VERSION = "1.3.3 Preview 1"
 SERVER_STRUCTURE = \
 	{
 		"config": {
