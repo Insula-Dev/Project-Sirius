@@ -1663,12 +1663,13 @@ if __name__ == "__main__":
 						"config":
 							{
 								"winner": "highest",
-								"anonymous": True
+								"anonymous": True,
+								"multi": False
 							}
 					}
 				}
 			)
-			logger.debug(f"New poll:{client.poll[str(message.guild.id)]}")
+			logger.debug(f"New poll:{client.poll[str(ctx.guild.id)]}")
 
 			#except Exception as exception:
 			#	logger.error(f"Failed to run `/poll` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
@@ -1680,7 +1681,7 @@ if __name__ == "__main__":
 			guild_ids=guild_ids
 		)
 		async def _close_poll(ctx: MenuContext):
-			if str(ctx.target_id) in client.poll[str(ctx.target_message.guild.id)]:
+			if str(ctx.target_id) in client.poll[str(ctx.target_message.guild.id)]: # Checks message is in self.poll
 				poll = client.poll[str(ctx.guild.id)][str(ctx.target_id)]
 				counts = []
 				highest_option = ""
@@ -1688,10 +1689,14 @@ if __name__ == "__main__":
 				results_dict = {}
 				# Compiles results for each option
 				for voter in poll["voters"]:
-					selected_option = poll["voters"][voter]
-					if selected_option not in results_dict:
-						results_dict[selected_option] = 0
-					results_dict[selected_option] += 1
+					if poll["config"]["multi"]:
+						selected_options = poll["voters"][voter]  # Option(s) selected by voter
+					else:
+						selected_options = [poll["voters"][voter]]  # Makes option into list
+					for selected_option in selected_options:
+						if selected_option not in results_dict:
+							results_dict[selected_option] = 0
+						results_dict[selected_option] += 1
 
 				# Uses results dict to find highest scorer
 				for option in results_dict:
