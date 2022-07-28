@@ -261,7 +261,7 @@ class MyClient(discord.ext.commands.Bot):
 		# for option in poll["options"]:  # Makes list of options
 		for emoji in emojis:
 			if str(emoji) != "🔚":
-				options.append(str(emoji) + " " + poll["options"][str(emoji)])
+				options.append(str(emoji) + " " + poll["voters"][str(emoji)])
 
 		title = str(poll["title"])
 		if title == "Embed.Empty":
@@ -270,7 +270,7 @@ class MyClient(discord.ext.commands.Bot):
 		embed_results.add_field(name="Candidates", value="\n".join(options), inline=True)
 		embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
 		if poll["config"]["winner"] == "highest":  # Winner is shown as the highest scoring candidate
-			embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["options"][str(highest_emoji)] + " Score: " + str(highest_count)), inline=False)
+			embed_results.add_field(name="Winner", value=(str(highest_emoji) + " " + poll["voters"][str(highest_emoji)] + " Score: " + str(highest_count)), inline=False)
 
 		await message.channel.send(embed=embed_results)
 		self.poll[str(message.guild.id)].pop(str(message.id))  # Removes poll entry from dictionary
@@ -908,29 +908,33 @@ class MyClient(discord.ext.commands.Bot):
 				winner = "highest"
 				anonymous = False
 
-				# Analyse argument
-				for argument in arguments:
-					argument = argument.strip()
-					argument = argument.split("=")
-					# print("Argument 0, 1:", argument[0], argument[1])
-					poll_time = str(datetime.now())
-					if argument[0] == "title":
-						title = argument[1]
-					elif argument[0] == "colour":
-						colour = int(argument[1][-6:], 16)  # Takes last 6 digits and converts to hex for colour
-					elif argument[0] == "winner":
-						winner = argument[1]
-					elif argument[0] == "anonymous" or argument[0] == "anon":
-						if argument[1].lower() == "true":
-							anonymous = True
-					else:
-						emoji = argument[1].rstrip()
-						if not (emoji in candidates):
-							candidates[emoji] = argument[0]
-							candidates_string += argument[1] + " - " + argument[0] + "\n"
+				try:
+					# Analyse argument
+					for argument in arguments:
+						argument = argument.strip()
+						argument = argument.split("=")
+						# print("Argument 0, 1:", argument[0], argument[1])
+						poll_time = str(datetime.now())
+						if argument[0] == "title":
+							title = argument[1]
+						elif argument[0] == "colour":
+							colour = int(argument[1][-6:], 16)  # Takes last 6 digits and converts to hex for colour
+						elif argument[0] == "winner":
+							winner = argument[1]
+						elif argument[0] == "anonymous" or argument[0] == "anon":
+							if argument[1].lower() == "true":
+								anonymous = True
 						else:
-							logger.debug("Duplicate emoji in poll detected")
-							await message.channel.send("Please only use an emoji once per poll")
+							emoji = argument[1].rstrip()
+							if not (emoji in candidates):
+								candidates[emoji] = argument[0]
+								candidates_string += argument[1] + " - " + argument[0] + "\n"
+							else:
+								logger.debug("Duplicate emoji in poll detected")
+								await message.channel.send("Please only use an emoji once per poll")
+				except Exception as exception:
+					logger.error(f"Failed to read poll command. Exception \"{type(exception).__name__}\" : {exception.args[0]}\n")
+					await message.channel.send("The poll command could not be read. Please format as `\"title\" = question, \"option\" = emoji, (\"anonymous\" = True/False)`")
 
 				# Create and send poll embed
 				embed_poll = discord.Embed(title=title, description=candidates_string, colour=colour)
@@ -943,8 +947,9 @@ class MyClient(discord.ext.commands.Bot):
 					poll_message = await message.channel.send(embed=embed_poll, components=components)
 
 					# Setup candidates dict for recording votes so people can't vote multiple times
-					for candidate in candidates:
-						candidates[candidate] = {"name": candidates[candidate], "voters": []}
+					#for candidate in candidates:
+					#	candidates[candidate] = {"name": candidates[candidate], "voters": []}
+					candidates = {}
 
 				else:  # Makes embed with reactions for open voting
 					poll_message = await message.channel.send(embed=embed_poll)
@@ -954,18 +959,19 @@ class MyClient(discord.ext.commands.Bot):
 						try:
 							await poll_message.add_reaction(candidate)
 						except discord.errors.HTTPException:
-							await poll_message.channel.send("Please format as \"option\" = emoji")
+							await poll_message.channel.send("Please format as `title = question, \"option\" = emoji, (anonymous = True/False)`")
 							await poll_message.delete()
 
 				self.poll[str(message.guild.id)].update(
 					{
 						str(poll_message.id): {
 							"title": title,
-							"options": candidates,
+							"voters": candidates,
 							"config":
 								{
 									"winner": winner,
-									"anonymous": anonymous
+									"anonymous": anonymous,
+									"multi": True
 								}
 						}
 					}
@@ -1344,7 +1350,7 @@ class MyClient(discord.ext.commands.Bot):
 			else:
 				valid_emoji = False
 				for message in self.poll[str(payload.guild_id)]:
-					if str(payload.emoji) in self.poll[str(payload.guild_id)][message]["options"]:  # Deletes emojis not related to poll options
+					if str(payload.emoji) in self.poll[str(payload.guild_id)][message]["voters"]:  # Deletes emojis not related to poll options
 						valid_emoji = True
 				if not valid_emoji:
 					logger.debug("Unwanted emoji on poll found")
