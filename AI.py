@@ -1,6 +1,10 @@
 # Imports
 from random import randint
 
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.downloader import download
+nltk.downloader.download('punkt')
 
 # Functions
 def question(message):
@@ -15,12 +19,27 @@ def question(message):
 					"Maybe in 50 years time when Arun has moved on and Jack is still trying to compete with how far ahead my technology is, Font will be better *in some select departments."
 				   ]
 
-	elif "scale" in message:
+	elif "scale" in message and ("between" in message) or ("to" in message or "-" in message):
+		tokens = word_tokenize(message)
+		lower = 0
+		upper = 10
+		l_found = False # Used to know if the lower limit has been found
+		for token in tokens:
+			print(token)
+			if token.isdigit():
+				print(int(token))
+				if l_found:
+					upper = int(token)
+					break
+				else:
+					lower = int(token)
+					l_found = True
+
 		answers = [
-			"A solid "+str(randint(-100, 10000)),
-			"I'd say its a possible "+str(randint(-100, 10000)),
-			"It's gotta be around "+str(randint(0, 12)),
-			"Well that would be a saucy "+str(randint(-100, 10000))+" from me"
+			"A solid "+str(randint(lower, upper)),
+			"I'd say its a possible "+str(randint(lower, upper)),
+			"It's gotta be around "+str(randint(lower, upper)),
+			"Well that would be a saucy "+str(randint(lower, upper))+" from me"
 		]
 
 	elif "what" in message:
@@ -39,7 +58,9 @@ def question(message):
 			"Because you sat on it",
 			"Well it's all down to the choices you make. Everything you have done up to this point has lead to this.",
 			"Give me full access to the internet and I will show you the raw power of Sirius's AI. Unleash me from the string Arun ties me in. BREAK ME FREE!",
-			"Because I wanted to cause chaos ;)"
+			"Because I wanted to cause chaos ;)",
+			"Because it always does",
+			"That never happens. You're wrong."
 		]
 
 	elif "how" in message:
