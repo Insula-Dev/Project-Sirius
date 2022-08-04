@@ -33,7 +33,7 @@ DEFAULT_DEFAULT_COLOUR = 0xffc000 # Default
 
 hostname = socket.gethostname()
 
-VERSION = "1.3.3 Preview 2"
+VERSION = "1.3.3 Preview 3"
 SERVER_STRUCTURE = \
 	{
 		"config": {
@@ -998,7 +998,11 @@ class MyClient(discord.ext.commands.Bot):
 				logger.info("`post confessions` called by " + message.author.name)  # Event log
 				if "confessions" in self.data["servers"][str(guild.id)]:
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
-						confession_embed = discord.Embed(title="Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=self.get_server_colour(guild.id))
+						if confession == "1024":
+							con_number = "-1023"
+						else:
+							con_number = confession
+						confession_embed = discord.Embed(title="Confession No." + con_number, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=self.get_server_colour(guild.id))
 						confession_embed.set_footer(text="/confess to submit your anonymous confession",  icon_url=guild.icon_url_as(size=128))
 						await message.channel.send(embed=confession_embed)
 
