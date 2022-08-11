@@ -20,6 +20,7 @@ from discord_slash.model import SlashCommandPermissionType, ContextMenuType
 from log_handling import *
 from imaging import generate_level_card
 import AI
+from colours import colours
 
 # Loads config CONST variables
 DEFAULT_TOKEN = "ENTER TOKEN HERE"
@@ -579,7 +580,11 @@ class MyClient(discord.ext.commands.Bot):
 						elif argument[0] == "description":
 							description = argument[1]
 						elif argument[0] == "colour":
-							colour = int(argument[1][-6:], 16)
+							try:
+								colour = int(argument[1][-6:], 16)
+							except ValueError:
+								if argument[1] in colours:
+									colour = colours[argument[1]]
 						else:
 							fields.append({argument[0]: argument[1]})
 					else:
@@ -594,7 +599,7 @@ class MyClient(discord.ext.commands.Bot):
 				await message.channel.send(embed=embed)
 				await message.delete()
 			except Exception as exception:
-				logger.error("Failed understand embed command. Exception: " + str(exception))
+				logger.error(f"Failed understand embed command. Exception: \"{type(exception).__name__}\" : {exception.args[0]}")
 				await message.channel.send("Embed Failed: Check you put something to embed and that it's under 1024 character.\n" + str(exception))
 
 		# QR command
@@ -918,7 +923,11 @@ class MyClient(discord.ext.commands.Bot):
 						if argument[0] == "title":
 							title = argument[1]
 						elif argument[0] == "colour":
-							colour = int(argument[1][-6:], 16)  # Takes last 6 digits and converts to hex for colour
+							try:
+								colour = int(argument[1][-6:], 16)
+							except ValueError:
+								if argument[1] in colours:
+									colour = colours[argument[1]]
 						elif argument[0] == "winner":
 							winner = argument[1]
 						elif argument[0] == "anonymous" or argument[0] == "anon":
@@ -1050,31 +1059,7 @@ class MyClient(discord.ext.commands.Bot):
 				components = [create_actionrow(*[no_announcement_button])]
 				await message.channel.send(content="Announcement Channel:", components=components)
 
-				# Server colour
-				colours = {
-					"teal" : 0x1abc9c,
-					"dark teal" : 0x11806a,
-					"green" : 0x2ecc71,
-					"dark green" : 0x1f8b4c,
-					"blue" : 0x3498db,
-					"dark blue" : 0x206694,
-					"purple" : 0x9b59b6,
-					"dark purple" : 0x71368a,
-					"magenta" : 0xe91e63,
-					"dark magenta" : 0xad1457,
-					"gold" : 0xf1c40f,
-					"dark gold" : 0xc27c0e,
-					"orange" : 0xe67e22,
-					"dark orange" : 0xa84300,
-					"red" : 0xe74c3c,
-					"dark red" : 0x992d22,
-					"lighter grey" : 0x95a5a6,
-					"dark grey" : 0x607d8b,
-					"light grey" : 0x979c9f,
-					"darker grey" : 0x546e7a,
-					"blurple" : 0x7289da,
-					"greyple" : 0x99aab5
-				} # https://www.codegrepper.com/code-examples/python/discord+py+color
+
 				colour_options = []
 				for colour in colours:
 					colour_options.append(create_select_option(label=colour, value=str(colours[colour])))
