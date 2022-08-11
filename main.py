@@ -1000,9 +1000,11 @@ class MyClient(discord.ext.commands.Bot):
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
 						if confession == "1024":
 							con_number = "-1023"
+							con_start = ">"
 						else:
 							con_number = confession
-						confession_embed = discord.Embed(title="Confession No." + con_number, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=self.get_server_colour(guild.id))
+							con_start = "> "
+						confession_embed = discord.Embed(title="Confession No." + con_number, description= con_start + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=self.get_server_colour(guild.id))
 						confession_embed.set_footer(text="/confess to submit your anonymous confession",  icon_url=guild.icon_url_as(size=128))
 						await message.channel.send(embed=confession_embed)
 
