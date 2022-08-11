@@ -625,6 +625,7 @@ class MyClient(discord.ext.commands.Bot):
 			embed_help.add_field(name=str(PREFIX + "__embed__"), value="Creates an embed. Arguments: title=,description=,colour=[hex code],[name of field]=[string (Do not include commas or =)] (or just write and it'll be put in the description by deafult)")
 			embed_help.add_field(name=str(PREFIX + "__poll__"), value="Creates a poll embed. Arguments: title=, colour=[hex code], anonymous(anon)=[true/false], [name of candidate]=[emoji]. All paramaters are optional. Admins react with 🔚 (end) to end poll) or right click>Apps>Close poll for anon poll")
 			embed_help.add_field(name=str(PREFIX + "__help__"), value="Creates the bot's help embed, listing the bot's commands.")
+			embed_help.add_field(name=str(PREFIX + "__leaderboard__"), value="Displays leaderboard for Sirius' levelling system")
 			embed_help.add_field(name=str("__/confess__"), value="Send your confession to the database anonymously for admins to review and post")
 			embed_help.add_field(name=str("__/question__"), value="Asks Sirius a question. Don't expect a very insightful response...")
 			embed_help.add_field(name=str("__/anonymous__"), value="Posts your message anonymously in the current channel")
