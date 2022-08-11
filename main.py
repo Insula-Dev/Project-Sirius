@@ -34,7 +34,7 @@ DEFAULT_DEFAULT_COLOUR = 0xffc000 # Default
 
 hostname = socket.gethostname()
 
-VERSION = "1.3.3 Preview 3"
+VERSION = "1.3.3"
 SERVER_STRUCTURE = \
 	{
 		"config": {
@@ -612,7 +612,6 @@ class MyClient(discord.ext.commands.Bot):
 				img = cv2.imread("qrcode.png")
 				det = cv2.QRCodeDetector()
 				val, pts, st_code = det.detectAndDecode(img)
-				print(val)
 				await message.channel.send(val)
 
 		# Help command
@@ -626,9 +625,9 @@ class MyClient(discord.ext.commands.Bot):
 			embed_help.add_field(name=str(PREFIX + "__embed__"), value="Creates an embed. Arguments: title=,description=,colour=[hex code],[name of field]=[string (Do not include commas or =)] (or just write and it'll be put in the description by deafult)")
 			embed_help.add_field(name=str(PREFIX + "__poll__"), value="Creates a poll embed. Arguments: title=, colour=[hex code], anonymous(anon)=[true/false], [name of candidate]=[emoji]. All paramaters are optional. Admins react with 🔚 (end) to end poll) or right click>Apps>Close poll for anon poll")
 			embed_help.add_field(name=str(PREFIX + "__help__"), value="Creates the bot's help embed, listing the bot's commands.")
-			embed_help.add_field(name=str(PREFIX + "__/confess__"), value="Send your confession to the database anonymously for admins to review and post")
-			embed_help.add_field(name=str(PREFIX + "__/question__"), value="Asks Sirius a question. Don't expect a very insightful response...")
-			embed_help.add_field(name=str(PREFIX + "__/anonymous__"), value="Posts your message anonymously in the current channel")
+			embed_help.add_field(name=str("__/confess__"), value="Send your confession to the database anonymously for admins to review and post")
+			embed_help.add_field(name=str("__/question__"), value="Asks Sirius a question. Don't expect a very insightful response...")
+			embed_help.add_field(name=str("__/anonymous__"), value="Posts your message anonymously in the current channel")
 			embed_help.add_field(name=str(PREFIX + "__rules__"), value="Creates the server's rules embed.\n**Admin only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__roles__"), value="Creates the server's roles embed.\n**Admin only feature.**")
 			embed_help.add_field(name=str(PREFIX + "__stats__"), value="Creates the server's stats embed by default. Can send csv file instead.Argument: csv=[true/false] (Optional. False by default)\n**Admin only feature.**")
