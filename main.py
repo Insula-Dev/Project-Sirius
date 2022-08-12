@@ -1915,10 +1915,9 @@ if __name__ == "__main__":
 					return
 
 			elif ctx.custom_id.startswith("config"):
-				config = client.data["config"]
 				setting = ctx.custom_id[len("config:"):]
-				logger.debug("Config button pressed by " + ctx.author.name)
-				if ctx.author.id in config["developers"]:
+				logger.debug("A config button pressed by " + ctx.author.name)
+				if ctx.author.id in DEVELOPERS:
 					if setting.startswith("send:"):  # All send file buttons dealt with here
 						setting = setting[len("send:"):]
 						await ctx.reply(content="File: " + setting, file=discord.File(r'' + setting))
@@ -1937,7 +1936,7 @@ if __name__ == "__main__":
 						await ctx.interaction.send_modal(activity_modal)
 					elif setting == "kill":
 						logger.info("`kill` called by " + ctx.author.name)  # Event log
-						if client.data["config"]["jokes"] is True:
+						if client.data["bot settings"]["jokes"] is True:
 							await ctx.channel.send("Doggie down")
 
 						reason = "Killed from config panel"
@@ -1949,12 +1948,13 @@ if __name__ == "__main__":
 						await ctx.send(death_note + "\n" + "Uptime: " + client.get_uptime() + ".")
 						await client.close()
 					else:  # Toggle boolean commands here
-						if setting not in config:
-							config[setting] = False
-						config[setting] = not config[setting]  # Toggles boolean value
-						logger.info("Config:" + setting + " changed to " + str(config[setting]))
+						bot_settings = client.data["bot settings"]
+						if setting not in bot_settings:
+							bot_settings[setting] = False
+						bot_settings[setting] = not bot_settings[setting]  # Toggles boolean value
+						logger.info("Config:" + setting + " changed to " + str(bot_settings[setting]))
 						client.update_data()
-						await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))  # Makes first character capital of setting and shows the new setting
+						await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(bot_settings[setting]))  # Makes first character capital of setting and shows the new setting
 				else:
 					await ctx.send("You do not have permissions to press this button", hidden=True)
 					logger.info(ctx.author.name + " tried to change config")
