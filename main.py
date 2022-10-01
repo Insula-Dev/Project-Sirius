@@ -146,7 +146,7 @@ setup_config()
 
 # Functions
 def populate_actionrows(button_list):
-	"""Returns a list of actionrows of 5 or less buttons."""
+	"""Returns a list of actionrows of 5 or fewer buttons."""
 
 	actionrow_list = []
 	for x in range(ceil(len(button_list) / 5)):
