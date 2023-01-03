@@ -1,5 +1,7 @@
 # Project-Sirius
 
+This is a discord bot made using the discord.py library. Created by Arun and Pablo.
+
 >   Sirius rises late in the dark, liquid sky
 >   
 >   On summer nights, star of stars,
