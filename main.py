@@ -1474,23 +1474,37 @@ if __name__ == "__main__":
 
 			logger.debug("`/confess` called anonymously")
 
-			try:
-				server_data = client.data["servers"][str(ctx.guild.id)]  # Used for easy reference
+			#try:
+			server_data = client.data["servers"][str(ctx.guild.id)]  # Used for easy reference
 
-				if "confessions" not in server_data:
-					server_data.update({"confessions": {"metadata": {"count": 0}, "messages": {}}})
-				server_data["confessions"]["metadata"]["count"] += 1
-				confession_data = {str(server_data["confessions"]["metadata"]["count"]): confession}
-				server_data["confessions"]["messages"].update(confession_data)
+			if "confessions" not in server_data:
+				server_data.update({"confessions": {"metadata": {"count": 0}, "messages": {}}})
 
-				client.data["servers"][str(ctx.guild.id)] = server_data
-				client.update_data()
+			confession_count = str(server_data["confessions"]["metadata"]["count"])
+			# Checks for spam of same confession
+			flag_spam = False
+			if confession_count in server_data["confessions"]["messages"] and confession == server_data["confessions"]["messages"][confession_count]:
+				if str(int(confession_count)-1) in server_data["confessions"]["messages"] and confession == server_data["confessions"]["messages"][str(int(confession_count)-1)]:
+					await ctx.send(content="Repeated spam confessions identified automatically. Please refrain from making any further attempts.",hidden=False)
+					return
+				else:
+					flag_spam = True
 
-				await ctx.defer(hidden=True)
+			server_data["confessions"]["metadata"]["count"] += 1
+			confession_data = {str(server_data["confessions"]["metadata"]["count"]): confession}
+			server_data["confessions"]["messages"].update(confession_data)
+
+			client.data["servers"][str(ctx.guild.id)] = server_data
+			client.update_data()
+
+			await ctx.defer(hidden=True)
+			if flag_spam:
+				await ctx.send(content="This confession has been automatically identified as spam. Further attempts to spam confessions will result in your username being reported to admins.",hidden=True)
+			else:
 				await ctx.send(content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.", hidden=True)
 
-			except Exception as exception:
-				logger.error("Failed to run `/confess` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+			#except Exception as exception:
+			#	logger.error("Failed to run `/confess` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception.args[0]))
 
 
 		@slash.slash(
