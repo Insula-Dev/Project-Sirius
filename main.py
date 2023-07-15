@@ -111,7 +111,8 @@ upgrade_data()
 def create_config():
 	with open("config.json", "w") as file:
 		TOKEN = input("Please input your bot's token (this will be stored in the config.json file)")
-		json.dump({"token": TOKEN}, file, indent=4)
+		json.dump({"token": TOKEN,"prefix":PREFIX,"debug":DEBUG,"level":LEVEL,"joke servers":JOKE_SERVERS,"report channel":REPORT_CHANNEL,"developers":DEVELOPERS,"default colour":DEFAULT_COLOUR}, file, indent=4)
+		print("Additional config can be written in config.json")
 
 def setup_config():
 	global TOKEN, PREFIX, DEBUG, LEVEL, JOKE_SERVERS, REPORT_CHANNEL, DEVELOPERS, DEFAULT_COLOUR
@@ -317,7 +318,10 @@ class MyClient(discord.ext.commands.Bot):
 		"""Sends announcement messages to each guild's assigned announcement channel."""
 
 		if announcement_type == "alert":
-			await self.get_channel(REPORT_CHANNEL).send(announcement)
+			try:
+				await self.get_channel(REPORT_CHANNEL).send(announcement)
+			except AttributeError:
+				logger.info("No report channel set. It is highly recommended to set one in config.json")
 
 		else:
 			for guild in self.guilds:
@@ -348,11 +352,12 @@ class MyClient(discord.ext.commands.Bot):
 				self.data = json.load(file)
 			logger.debug("Loaded data.json")  # Event log
 		except Exception as exception:
-			logger.critical(f"Failed to load data.json. Exception: {exception}. Attempting to make new data.")  # Event log
-			self.data = {"servers":{},"bot settings":{
-				"jokes": False,
-				"safety": True,
-				"add info": True}}
+			logger.debug(f"Failed to load data.json. Exception: {exception}. Attempting to make new data.")  # Event log
+			self.data = {"bot settings":{
+					"jokes": False,
+					"safety": True,
+					"add info": True},
+				"servers":{}}
 			self.update_data()
 
 		# Check if the bot has been added to a guild while offline
@@ -1424,615 +1429,615 @@ class MyClient(discord.ext.commands.Bot):
 # Main body
 if __name__ == "__main__":
 
-	#try:
-	setup_config()
-	intents = discord.Intents.all()
-	intents.members = True
-	client = MyClient(intents=intents)
-	slash = SlashCommand(client, sync_commands=True)
+	try:
+		setup_config()
+		intents = discord.Intents.all()
+		intents.members = True
+		client = MyClient(intents=intents)
+		slash = SlashCommand(client, sync_commands=True)
 
-	guild_ids = []
-	for guild in client.guilds:
-		guild_ids += guild.id
+		guild_ids = []
+		for guild in client.guilds:
+			guild_ids += guild.id
 
-	@slash.slash(
-		name="ping",
-		description="Ping the bot to obtain latency.",
-		guild_ids=guild_ids
-	)
-	async def _ping(ctx):
-		"""Runs on the ping slash command."""
+		@slash.slash(
+			name="ping",
+			description="Ping the bot to obtain latency.",
+			guild_ids=guild_ids
+		)
+		async def _ping(ctx):
+			"""Runs on the ping slash command."""
 
-		logger.debug("`/ping` called by " + ctx.author.name)
+			logger.debug("`/ping` called by " + ctx.author.name)
 
-		try:
-			await ctx.send(content=str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5]+"s")
-		except Exception as exception:
-			logger.error("Failed to run `/ping` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
-
-
-	@slash.slash(
-		name="confess",
-		description="Use the command to send an anonymous message to be posted later",
-		options=[
-			create_option(
-				name="confession",
-				description="Your message",
-				option_type=3,
-				required=True
-			)
-		],
-		guild_ids=guild_ids
-	)
-	async def _confess(ctx, confession, image=None):
-		"""Runs on the confession slash command."""
-
-		logger.debug("`/confess` called anonymously")
-
-		try:
-			server_data = client.data["servers"][str(ctx.guild.id)]  # Used for easy reference
-
-			if "confessions" not in server_data:
-				server_data.update({"confessions": {"metadata": {"count": 0}, "messages": {}}})
-			server_data["confessions"]["metadata"]["count"] += 1
-			confession_data = {str(server_data["confessions"]["metadata"]["count"]): confession}
-			server_data["confessions"]["messages"].update(confession_data)
-
-			client.data["servers"][str(ctx.guild.id)] = server_data
-			client.update_data()
-
-			await ctx.defer(hidden=True)
-			await ctx.send(content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.", hidden=True)
-
-		except Exception as exception:
-			logger.error("Failed to run `/confess` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
-
-
-	@slash.slash(
-		name="question",
-		description="Ask Sirius a question",
-		options=[
-			create_option(
-				name="question",
-				description="Your question",
-				option_type=3,
-				required=True
-			)
-		],
-		guild_ids=guild_ids
-	)
-	async def _question(ctx, question):
-		"""Runs on the question slash command."""
-
-		logger.debug("`/question` called by " + ctx.author.name)
-
-		try:
-			reply = "**" + ctx.author.name + "**: *" + question + "*\n\n"
-			await ctx.send(content=reply + AI.question(question))
-
-		except Exception as exception:
-			logger.error("Failed to run `/question` message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
-
-
-	@slash.slash(
-		name="anonymous",
-		description="Say something in the channel anonymously",
-		options=[
-			create_option(
-				name="message",
-				description="Your message",
-				option_type=3,
-				required=True
-			)
-		],
-		guild_ids=guild_ids
-	)
-	async def _anonymous(ctx, message):
-		"""Runs on the anonymous message slash command."""
-
-		logger.debug("`/anonymous` called by " + ctx.author.name)
-
-		try:
-
-			blacklist = ["@","nigger","nigga"]
-			if (any (word in message for word in blacklist)):
-				await ctx.send(content="Your message will not be sent due to its contents", hidden=True)
-			else:
-				await ctx.send(content="Your message will be sent anonymously", hidden=True)
-				await client.create_thread_message(ctx.channel_id,"**Anonymous**: *" + message + "*")
-
-		except Exception as exception:
-			logger.error("Failed to run `/anonymous` message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
-
-
-	# admin_roles = [role for role in ctx.guild.roles if role.permissions.administrator]
-	@slash.slash(
-		name="purge",
-		description="Purge messages from the channel",
-		options=[
-			create_option(
-				name="count",
-				description="How many messages",
-				option_type=4,
-				required=True
-			)
-		],
-		guild_ids=guild_ids
-	)
-	async def _purge(ctx, count):
-		"""Runs on the purge slash command."""
-
-		logger.debug("`/purge` called by " + ctx.author.name)
-
-		if ctx.author.guild_permissions.administrator:
-			purge_button = create_button(style=ButtonStyle.danger, label="Purge " + str(count) + " messages?", custom_id="purge:" + str(count))
-			components = [create_actionrow(*[purge_button])]
-			await ctx.send(content="Purge " + str(count) + " messages?", components=components)
-		else:
-			await ctx.send("You do not have permissions to run this command", hidden=True)
-
-	@slash.slash(
-		name="poll",
-		description="Create anonymous poll",
-		options=[
-			create_option(
-				name="question",
-				description="The poll's question",
-				option_type=3,
-				required=True
-			),
-			create_option(
-				name="option1",
-				description="...",
-				option_type=3,
-				required=True
-			),
-			create_option(
-				name="option2",
-				description="...",
-				option_type=3,
-				required=True
-			),
-			create_option(
-				name="option3",
-				description="...",
-				option_type=3,
-				required=False
-			),
-			create_option(
-				name="option4",
-				description="...",
-				option_type=3,
-				required=False
-			),
-			create_option(
-				name="option5",
-				description="...",
-				option_type=3,
-				required=False
-			),
-			create_option(
-				name="option6",
-				description="...",
-				option_type=3,
-				required=False
-			),
-			create_option(
-				name="option7",
-				description="...",
-				option_type=3,
-				required=False
-			),
-			create_option(
-				name="option8",
-				description="...",
-				option_type=3,
-				required=False
-			),
-			create_option(
-				name="option9",
-				description="...",
-				option_type=3,
-				required=False
-			)
-		],
-		guild_ids=guild_ids
-	)
-	async def _poll(ctx, question, option1, option2, option3=None, option4=None, option5=None, option6=None,option7=None, option8=None, option9=None):
-		"""Poll command."""
-
-		logger.debug(f"`/poll` called by {ctx.author.name}")
-		try:
-			embed = discord.Embed(title=f"> {question}", description="Select or unselect an option below:",colour=int(client.get_server_colour(ctx.guild.id)))
-			options = list(
-				filter(None, [option1, option2, option3, option4, option5, option6, option7, option8, option9]))
-			buttons = []
-			for option in options:
-				buttons.append(create_button(style=ButtonStyle.blue, label=option, custom_id="poll:" + option))
-			components = populate_actionrows(buttons)
-			poll_message = await ctx.send(embed=embed, components=components)
-
-			# Setup candidates dict for recording votes so people can't vote multiple times
-			candidates = {} # Options dictionary
-			for option in options:
-				candidates[option] = {"name": option, "voters": []}
-
-			client.poll[str(ctx.guild.id)].update(
-				{
-					str(poll_message.id): {
-						"title": question,
-						"voters": {},
-						"config":
-							{
-								"winner": "highest",
-								"anonymous": True,
-								"multi": False
-							}
-					}
-				}
-			)
-			logger.debug(f"New poll:{client.poll[str(ctx.guild.id)]}")
-
-		except Exception as exception:
-			logger.error(f"Failed to run `/poll` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
-			await ctx.send("Failed to create poll. Check there are no duplicate values!",hidden=True)
-
-	@slash.slash(
-		name="multi_poll",
-		description="Create anonymous multi poll. (Users can vote for multiple options)",
-		options=[
-			create_option(
-				name="question",
-				description="The poll's question",
-				option_type=3,
-				required=True
-			),
-			create_option(
-				name="option1",
-				description="...",
-				option_type=3,
-				required=True
-			),
-			create_option(
-				name="option2",
-				description="...",
-				option_type=3,
-				required=True
-			),
-			create_option(
-				name="option3",
-				description="...",
-				option_type=3,
-				required=False
-			),
-			create_option(
-				name="option4",
-				description="...",
-				option_type=3,
-				required=False
-			),
-			create_option(
-				name="option5",
-				description="...",
-				option_type=3,
-				required=False
-			),
-			create_option(
-				name="option6",
-				description="...",
-				option_type=3,
-				required=False
-			),
-			create_option(
-				name="option7",
-				description="...",
-				option_type=3,
-				required=False
-			),
-			create_option(
-				name="option8",
-				description="...",
-				option_type=3,
-				required=False
-			),
-			create_option(
-				name="option9",
-				description="...",
-				option_type=3,
-				required=False
-			)
-		],
-		guild_ids=guild_ids
-	)
-	async def _multi_poll(ctx, question, option1, option2, option3=None, option4=None, option5=None, option6=None,option7=None, option8=None, option9=None):
-		"""Poll command."""
-
-		logger.debug(f"`/multi_poll` called by {ctx.author.name}")
-		try:
-			embed = discord.Embed(title=f"> {question}", description="Select or unselect an option below:",colour=int(client.get_server_colour(ctx.guild.id)))
-			options = list(
-				filter(None, [option1, option2, option3, option4, option5, option6, option7, option8, option9]))
-			buttons = []
-			for option in options:
-				buttons.append(create_button(style=ButtonStyle.blue, label=option, custom_id="poll:" + option))
-			components = populate_actionrows(buttons)
-			poll_message = await ctx.send(embed=embed, components=components)
-
-			# Setup candidates dict for recording votes so people can't vote multiple times
-			candidates = {} # Options dictionary
-			for option in options:
-				candidates[option] = {"name": option, "voters": []}
-
-			client.poll[str(ctx.guild.id)].update(
-				{
-					str(poll_message.id): {
-						"title": question,
-						"voters": {},
-						"config":
-							{
-								"winner": "highest",
-								"anonymous": True,
-								"multi": True
-							}
-					}
-				}
-			)
-			logger.debug(f"New poll:{client.poll[str(ctx.guild.id)]}")
-
-		except Exception as exception:
-			logger.error(f"Failed to run `/multi_poll` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
-			await ctx.send("Failed to create multi poll. Check there are no duplicate values!",hidden=True)
-
-
-	@slash.context_menu(
-		target=ContextMenuType.MESSAGE,
-		name="Close Poll",
-		guild_ids=guild_ids
-	)
-	async def _close_poll(ctx: MenuContext):
-		if str(ctx.target_id) in client.poll[str(ctx.target_message.guild.id)]: # Checks message is in self.poll
-			poll = client.poll[str(ctx.guild.id)][str(ctx.target_id)]
-			counts = []
-			highest_option = ""
-			highest_count = 0
-			results_dict = {}
-			# Compiles results for each option
-			for voter in poll["voters"]:
-				if poll["config"]["multi"]:
-					selected_options = poll["voters"][voter]  # Option(s) selected by voter
-				else:
-					selected_options = [poll["voters"][voter]]  # Makes option into list
-				for selected_option in selected_options:
-					if selected_option not in results_dict:
-						results_dict[selected_option] = 0
-					results_dict[selected_option] += 1
-
-			# Uses results dict to find highest scorer
-			for option in results_dict:
-				count = results_dict[option]
-				counts.append(str(count))
-				if count > highest_count:
-					highest_count = count
-					highest_option = option
-
-			title = str(poll["title"])
-			if title == "Embed.Empty":
-				title = ""
-			embed_results = discord.Embed(title=f"Results of: \"{title}\"",colour=client.get_server_colour(ctx.guild_id))
-			embed_results.add_field(name="Options", value="\n".join(results_dict.keys()), inline=True)
-			embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
-			if poll["config"]["winner"] == "highest":  # Winner is shown as the highest scoring candidate
-				embed_results.add_field(name="Winner", value=(highest_option + " Score: " + str(highest_count)), inline=False)
-			client.poll[str(ctx.guild.id)].pop(str(ctx.target_id))  # Removes poll entry from dictionary
-			await ctx.send(embeds=[embed_results])  # Sends the results embed
-		else:
-			await ctx.send(content="This is not a poll", hidden=True)
-
-
-	# Buttons...
-	# The following must be tested:
-	#     - Bots cannot press buttons
-	#     - What happens when the bot isn't in the guild or the guild isn't cached (see
-	#       on_raw_reaction_add for details)
-	@client.event
-	async def on_component(ctx):
-		"""Runs on component use."""
-		logger.debug("Component used by " + ctx.author.name)
-
-		guild = ctx.origin_message.guild
-
-		if ctx.custom_id.startswith("poll"):
-
-			logger.debug(f"Anonymous poll vote by {ctx.author.name}")
-			option = ctx.custom_id[len("poll:"):]
-
-			if str(ctx.origin_message.id) in client.poll[str(guild.id)]:
-				poll = client.poll[str(guild.id)][str(ctx.origin_message.id)]
-			else:
-				await ctx.send(content=f"This poll is closed", hidden=True)
-				return
-
-			# If the user hasn't voted before
-			if ctx.author.id not in poll["voters"]:
-				if poll["config"]["multi"]:
-					poll["voters"][ctx.author.id] = [option]
-					await ctx.send(content=f"Gave a vote to {option}", hidden=True)
-				else:
-					poll["voters"][ctx.author.id] = option
-					await ctx.send(content=f"Gave your vote to {option}", hidden=True)
-			else:
-				if poll["config"]["multi"]:
-					if option in poll["voters"][ctx.author.id]:
-						poll["voters"][ctx.author.id].remove(option)
-						await ctx.send(content=f"Removed your vote for {option}", hidden=True)
-					else:
-						poll["voters"][ctx.author.id].append(option)
-						await ctx.send(content=f"Gave a vote to {option}", hidden=True)
-				else:
-					# If the user is changing their vote
-					if poll["voters"][ctx.author.id] != option:
-						poll["voters"][ctx.author.id] = option
-						await ctx.send(content=f"Changed your vote to {option}", hidden=True)
-					# If the user is removing their vote
-					else:
-						del poll["voters"][ctx.author.id]
-						await ctx.send(content=f"Removed your vote for {option}", hidden=True)
-
-
-		elif ctx.custom_id.startswith("confession"):
-			id = ctx.custom_id[len("confession:"):]
-			# Placeholder for other buttons functionality. Do not remove without consulting Pablo's forboding psionic foresight
-			if "confessions" in client.data["servers"][str(guild.id)]:
-				if ctx.author.guild_permissions.administrator:
-					logger.debug("Checking confessions about button press")
-					if id in client.data["servers"][str(guild.id)]["confessions"]["messages"]:  # Checks the button relates to a post stored in data
-						del client.data["servers"][str(guild.id)]["confessions"]["messages"][id]  # Removes the confession
-						logger.info("Confession No." + id + " removed from guild " + guild.name + " by " + ctx.author.name)
-						client.update_data()
-						await ctx.edit_origin(content="**This message has been removed by " + ctx.author.name + "**")
-					else:
-						await ctx.reply(content="This confession is not in data so has likely already been posted!")
-				else:
-					await ctx.edit_origin(content="**" + ctx.author.name + " **tried to remove this message without permissions!")
-
-		elif ctx.custom_id.startswith("purge"):
-			if ctx.author.guild_permissions.administrator:
-				count = int(ctx.custom_id[len("purge:"):])
-				await ctx.channel.purge(limit=count)
-				logger.info("Purge complete in " + ctx.channel.name + " < " + ctx.guild.name)
-				await ctx.channel.send("Channel purged " + str(count) + " messages")
-			else:
-				await ctx.send("You do not have permissions to press this button", hidden=True)
-				logger.info(ctx.author.name + " tried to purge messages")
-
-		elif ctx.custom_id.startswith("settings"):
-			config = client.data["servers"][str(guild.id)]["config"]
-			setting = ctx.custom_id[len("settings:"):]
-			logger.debug("Server setting '" + setting + "' of '" + guild.name + "' changed by " + ctx.author.name)
-			if ctx.author.guild_permissions.administrator:
-				if ctx.values == None:
-					config[setting] = None
-				else:
-					config[setting] = int(ctx.values[0])
-				await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))  # Makes first character capital of setting and shows the new setting
-				client.data["servers"][str(guild.id)]["config"] = config
-				client.update_data()
-				return
-
-		elif ctx.custom_id.startswith("config"):
-			setting = ctx.custom_id[len("config:"):]
-			logger.debug("A config button pressed by " + ctx.author.name)
-			if ctx.author.id in DEVELOPERS:
-				if setting.startswith("send:"):  # All send file buttons dealt with here
-					setting = setting[len("send:"):]
-					await ctx.reply(content="File: " + setting, file=discord.File(r'' + setting))
-				if setting.startswith("modal:"):
-					print("there")
-					setting = setting[len("modal:"):]
-					class activity_modal(discord.ui.Modal):
-						def __init__(self, title, custom_id, current_activity):
-							super().__init__(title, custom_id)
-							self.add_item(discord.ui.InputText(label="Activity", value=current_activity.name))
-
-						async def callback(self, ctx):
-							await ctx.reply("Activity updated", hidden=True)
-					print("here")
-					activity_modal = activity_modal(client.user.name + "'s Activity", "config:activity", client.activity)
-					await ctx.interaction.send_modal(activity_modal)
-				elif setting == "kill":
-					logger.info("`kill` called by " + ctx.author.name)  # Event log
-					if client.data["bot settings"]["jokes"] is True:
-						await ctx.channel.send("Doggie down")
-
-					reason = "Killed from config panel"
-					death_note = "**" + client.user.name + " offline**\nReason for shutdown: " + reason
-
-					# Send kill announcement
-					await client.announce(death_note, announcement_type="kill")
-
-					await ctx.send(death_note + "\n" + "Uptime: " + client.get_uptime() + ".")
-					await client.close()
-				else:  # Toggle boolean commands here
-					bot_settings = client.data["bot settings"]
-					if setting not in bot_settings:
-						bot_settings[setting] = False
-					bot_settings[setting] = not bot_settings[setting]  # Toggles boolean value
-					logger.info("Config:" + setting + " changed to " + str(bot_settings[setting]))
-					client.update_data()
-					await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(bot_settings[setting]))  # Makes first character capital of setting and shows the new setting
-			else:
-				await ctx.send("You do not have permissions to press this button", hidden=True)
-				logger.info(ctx.author.name + " tried to change config")
-				return
-
-		# If the roles functionality is enabled. THIS IS FUCKING BROKEN PABLO. WHY ARE YOU RETURNING WHEN IT COULD NOT BE ROLES!!!
-		elif "roles" in client.data["servers"][str(guild.id)]:
 			try:
+				await ctx.send(content=str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5]+"s")
+			except Exception as exception:
+				logger.error("Failed to run `/ping` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
 
-				# Checks if the message is one of the server's roles messages
-				message_relevant = False
-				for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
-					if ctx.origin_message_id == client.data["servers"][str(guild.id)]["roles"]["categories"][category]["message id"]:
-						message_relevant = True
-						break
 
-				# Checks if the role ID is one of the server's roles
-				role_id_found = False
-				for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
-					if ctx.custom_id in client.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:
-						role_id_found = True
-						break
-				if role_id_found is False:
-					return
+		@slash.slash(
+			name="confess",
+			description="Use the command to send an anonymous message to be posted later",
+			options=[
+				create_option(
+					name="confession",
+					description="Your message",
+					option_type=3,
+					required=True
+				)
+			],
+			guild_ids=guild_ids
+		)
+		async def _confess(ctx, confession, image=None):
+			"""Runs on the confession slash command."""
 
-				# Checks if the role exists and is valid
-				role = guild.get_role(int(ctx.custom_id))
-				if role is None:
-					logger.debug("Could not get role with id: " + ctx.custom_id)
-					return
+			logger.debug("`/confess` called anonymously")
 
-				# Adds the role if the user doesn't have it
-				if role not in ctx.author.roles:
-					await ctx.author.add_roles(role)
-					logger.debug(f"Added role `{role.name}` added to {ctx.author.name}")
-					await ctx.send(content="Added role: " + role.name, hidden=True)
+			try:
+				server_data = client.data["servers"][str(ctx.guild.id)]  # Used for easy reference
 
-				# Removes the role if the user already has it
-				else:
-					await ctx.author.remove_roles(role)
-					logger.debug(f"Removed role `{role.name}` from {ctx.author.name}")
-					await ctx.send(content="Removed role: " + role.name, hidden=True)
+				if "confessions" not in server_data:
+					server_data.update({"confessions": {"metadata": {"count": 0}, "messages": {}}})
+				server_data["confessions"]["metadata"]["count"] += 1
+				confession_data = {str(server_data["confessions"]["metadata"]["count"]): confession}
+				server_data["confessions"]["messages"].update(confession_data)
 
-				""""# Send Pong response. Incipit Helminth...
-				with open("config.json") as file:
-					url = "https://discordapp.com/api/channels/{}/messages".format(ctx.origin_message.channel.id)
-					headers = {
-						"Authorization": "Bot {}".format(file.read()["token"]),
-						"Content-Type": "application/json"
-					}
-					JSON = {
-						"type": 1
-					}
-					r = requests.post(url, headers=headers, data=json.dumps(JSON))
-				logger.debug(r.status_code, r.reason)"""
-				return
+				client.data["servers"][str(ctx.guild.id)] = server_data
+				client.update_data()
+
+				await ctx.defer(hidden=True)
+				await ctx.send(content="Thank you for your confession. The content may be reviewed before posting but will remain anonymous.", hidden=True)
 
 			except Exception as exception:
-				logger.error("Failed to add role " + role.name + " to " + ctx.author.name + ". Exception: " + str(exception))  # Error: this may run even if the intention of the button press isn't to add a role
-			finally:
+				logger.error("Failed to run `/confess` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+
+		@slash.slash(
+			name="question",
+			description="Ask Sirius a question",
+			options=[
+				create_option(
+					name="question",
+					description="Your question",
+					option_type=3,
+					required=True
+				)
+			],
+			guild_ids=guild_ids
+		)
+		async def _question(ctx, question):
+			"""Runs on the question slash command."""
+
+			logger.debug("`/question` called by " + ctx.author.name)
+
+			try:
+				reply = "**" + ctx.author.name + "**: *" + question + "*\n\n"
+				await ctx.send(content=reply + AI.question(question))
+
+			except Exception as exception:
+				logger.error("Failed to run `/question` message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+
+		@slash.slash(
+			name="anonymous",
+			description="Say something in the channel anonymously",
+			options=[
+				create_option(
+					name="message",
+					description="Your message",
+					option_type=3,
+					required=True
+				)
+			],
+			guild_ids=guild_ids
+		)
+		async def _anonymous(ctx, message):
+			"""Runs on the anonymous message slash command."""
+
+			logger.debug("`/anonymous` called by " + ctx.author.name)
+
+			try:
+
+				blacklist = ["@","nigger","nigga"]
+				if (any (word in message for word in blacklist)):
+					await ctx.send(content="Your message will not be sent due to its contents", hidden=True)
+				else:
+					await ctx.send(content="Your message will be sent anonymously", hidden=True)
+					await client.create_thread_message(ctx.channel_id,"**Anonymous**: *" + message + "*")
+
+			except Exception as exception:
+				logger.error("Failed to run `/anonymous` message in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
+
+
+		# admin_roles = [role for role in ctx.guild.roles if role.permissions.administrator]
+		@slash.slash(
+			name="purge",
+			description="Purge messages from the channel",
+			options=[
+				create_option(
+					name="count",
+					description="How many messages",
+					option_type=4,
+					required=True
+				)
+			],
+			guild_ids=guild_ids
+		)
+		async def _purge(ctx, count):
+			"""Runs on the purge slash command."""
+
+			logger.debug("`/purge` called by " + ctx.author.name)
+
+			if ctx.author.guild_permissions.administrator:
+				purge_button = create_button(style=ButtonStyle.danger, label="Purge " + str(count) + " messages?", custom_id="purge:" + str(count))
+				components = [create_actionrow(*[purge_button])]
+				await ctx.send(content="Purge " + str(count) + " messages?", components=components)
+			else:
+				await ctx.send("You do not have permissions to run this command", hidden=True)
+
+		@slash.slash(
+			name="poll",
+			description="Create anonymous poll",
+			options=[
+				create_option(
+					name="question",
+					description="The poll's question",
+					option_type=3,
+					required=True
+				),
+				create_option(
+					name="option1",
+					description="...",
+					option_type=3,
+					required=True
+				),
+				create_option(
+					name="option2",
+					description="...",
+					option_type=3,
+					required=True
+				),
+				create_option(
+					name="option3",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option4",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option5",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option6",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option7",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option8",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option9",
+					description="...",
+					option_type=3,
+					required=False
+				)
+			],
+			guild_ids=guild_ids
+		)
+		async def _poll(ctx, question, option1, option2, option3=None, option4=None, option5=None, option6=None,option7=None, option8=None, option9=None):
+			"""Poll command."""
+
+			logger.debug(f"`/poll` called by {ctx.author.name}")
+			try:
+				embed = discord.Embed(title=f"> {question}", description="Select or unselect an option below:",colour=int(client.get_server_colour(ctx.guild.id)))
+				options = list(
+					filter(None, [option1, option2, option3, option4, option5, option6, option7, option8, option9]))
+				buttons = []
+				for option in options:
+					buttons.append(create_button(style=ButtonStyle.blue, label=option, custom_id="poll:" + option))
+				components = populate_actionrows(buttons)
+				poll_message = await ctx.send(embed=embed, components=components)
+
+				# Setup candidates dict for recording votes so people can't vote multiple times
+				candidates = {} # Options dictionary
+				for option in options:
+					candidates[option] = {"name": option, "voters": []}
+
+				client.poll[str(ctx.guild.id)].update(
+					{
+						str(poll_message.id): {
+							"title": question,
+							"voters": {},
+							"config":
+								{
+									"winner": "highest",
+									"anonymous": True,
+									"multi": False
+								}
+						}
+					}
+				)
+				logger.debug(f"New poll:{client.poll[str(ctx.guild.id)]}")
+
+			except Exception as exception:
+				logger.error(f"Failed to run `/poll` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
+				await ctx.send("Failed to create poll. Check there are no duplicate values!",hidden=True)
+
+		@slash.slash(
+			name="multi_poll",
+			description="Create anonymous multi poll. (Users can vote for multiple options)",
+			options=[
+				create_option(
+					name="question",
+					description="The poll's question",
+					option_type=3,
+					required=True
+				),
+				create_option(
+					name="option1",
+					description="...",
+					option_type=3,
+					required=True
+				),
+				create_option(
+					name="option2",
+					description="...",
+					option_type=3,
+					required=True
+				),
+				create_option(
+					name="option3",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option4",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option5",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option6",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option7",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option8",
+					description="...",
+					option_type=3,
+					required=False
+				),
+				create_option(
+					name="option9",
+					description="...",
+					option_type=3,
+					required=False
+				)
+			],
+			guild_ids=guild_ids
+		)
+		async def _multi_poll(ctx, question, option1, option2, option3=None, option4=None, option5=None, option6=None,option7=None, option8=None, option9=None):
+			"""Poll command."""
+
+			logger.debug(f"`/multi_poll` called by {ctx.author.name}")
+			try:
+				embed = discord.Embed(title=f"> {question}", description="Select or unselect an option below:",colour=int(client.get_server_colour(ctx.guild.id)))
+				options = list(
+					filter(None, [option1, option2, option3, option4, option5, option6, option7, option8, option9]))
+				buttons = []
+				for option in options:
+					buttons.append(create_button(style=ButtonStyle.blue, label=option, custom_id="poll:" + option))
+				components = populate_actionrows(buttons)
+				poll_message = await ctx.send(embed=embed, components=components)
+
+				# Setup candidates dict for recording votes so people can't vote multiple times
+				candidates = {} # Options dictionary
+				for option in options:
+					candidates[option] = {"name": option, "voters": []}
+
+				client.poll[str(ctx.guild.id)].update(
+					{
+						str(poll_message.id): {
+							"title": question,
+							"voters": {},
+							"config":
+								{
+									"winner": "highest",
+									"anonymous": True,
+									"multi": True
+								}
+						}
+					}
+				)
+				logger.debug(f"New poll:{client.poll[str(ctx.guild.id)]}")
+
+			except Exception as exception:
+				logger.error(f"Failed to run `/multi_poll` in {ctx.guild.name} ({ctx.guild.id}). Exception: {exception}")
+				await ctx.send("Failed to create multi poll. Check there are no duplicate values!",hidden=True)
+
+
+		@slash.context_menu(
+			target=ContextMenuType.MESSAGE,
+			name="Close Poll",
+			guild_ids=guild_ids
+		)
+		async def _close_poll(ctx: MenuContext):
+			if str(ctx.target_id) in client.poll[str(ctx.target_message.guild.id)]: # Checks message is in self.poll
+				poll = client.poll[str(ctx.guild.id)][str(ctx.target_id)]
+				counts = []
+				highest_option = ""
+				highest_count = 0
+				results_dict = {}
+				# Compiles results for each option
+				for voter in poll["voters"]:
+					if poll["config"]["multi"]:
+						selected_options = poll["voters"][voter]  # Option(s) selected by voter
+					else:
+						selected_options = [poll["voters"][voter]]  # Makes option into list
+					for selected_option in selected_options:
+						if selected_option not in results_dict:
+							results_dict[selected_option] = 0
+						results_dict[selected_option] += 1
+
+				# Uses results dict to find highest scorer
+				for option in results_dict:
+					count = results_dict[option]
+					counts.append(str(count))
+					if count > highest_count:
+						highest_count = count
+						highest_option = option
+
+				title = str(poll["title"])
+				if title == "Embed.Empty":
+					title = ""
+				embed_results = discord.Embed(title=f"Results of: \"{title}\"",colour=client.get_server_colour(ctx.guild_id))
+				embed_results.add_field(name="Options", value="\n".join(results_dict.keys()), inline=True)
+				embed_results.add_field(name="Count", value="\n".join(counts), inline=True)
+				if poll["config"]["winner"] == "highest":  # Winner is shown as the highest scoring candidate
+					embed_results.add_field(name="Winner", value=(highest_option + " Score: " + str(highest_count)), inline=False)
+				client.poll[str(ctx.guild.id)].pop(str(ctx.target_id))  # Removes poll entry from dictionary
+				await ctx.send(embeds=[embed_results])  # Sends the results embed
+			else:
+				await ctx.send(content="This is not a poll", hidden=True)
+
+
+		# Buttons...
+		# The following must be tested:
+		#     - Bots cannot press buttons
+		#     - What happens when the bot isn't in the guild or the guild isn't cached (see
+		#       on_raw_reaction_add for details)
+		@client.event
+		async def on_component(ctx):
+			"""Runs on component use."""
+			logger.debug("Component used by " + ctx.author.name)
+
+			guild = ctx.origin_message.guild
+
+			if ctx.custom_id.startswith("poll"):
+
+				logger.debug(f"Anonymous poll vote by {ctx.author.name}")
+				option = ctx.custom_id[len("poll:"):]
+
+				if str(ctx.origin_message.id) in client.poll[str(guild.id)]:
+					poll = client.poll[str(guild.id)][str(ctx.origin_message.id)]
+				else:
+					await ctx.send(content=f"This poll is closed", hidden=True)
+					return
+
+				# If the user hasn't voted before
+				if ctx.author.id not in poll["voters"]:
+					if poll["config"]["multi"]:
+						poll["voters"][ctx.author.id] = [option]
+						await ctx.send(content=f"Gave a vote to {option}", hidden=True)
+					else:
+						poll["voters"][ctx.author.id] = option
+						await ctx.send(content=f"Gave your vote to {option}", hidden=True)
+				else:
+					if poll["config"]["multi"]:
+						if option in poll["voters"][ctx.author.id]:
+							poll["voters"][ctx.author.id].remove(option)
+							await ctx.send(content=f"Removed your vote for {option}", hidden=True)
+						else:
+							poll["voters"][ctx.author.id].append(option)
+							await ctx.send(content=f"Gave a vote to {option}", hidden=True)
+					else:
+						# If the user is changing their vote
+						if poll["voters"][ctx.author.id] != option:
+							poll["voters"][ctx.author.id] = option
+							await ctx.send(content=f"Changed your vote to {option}", hidden=True)
+						# If the user is removing their vote
+						else:
+							del poll["voters"][ctx.author.id]
+							await ctx.send(content=f"Removed your vote for {option}", hidden=True)
+
+
+			elif ctx.custom_id.startswith("confession"):
+				id = ctx.custom_id[len("confession:"):]
+				# Placeholder for other buttons functionality. Do not remove without consulting Pablo's forboding psionic foresight
+				if "confessions" in client.data["servers"][str(guild.id)]:
+					if ctx.author.guild_permissions.administrator:
+						logger.debug("Checking confessions about button press")
+						if id in client.data["servers"][str(guild.id)]["confessions"]["messages"]:  # Checks the button relates to a post stored in data
+							del client.data["servers"][str(guild.id)]["confessions"]["messages"][id]  # Removes the confession
+							logger.info("Confession No." + id + " removed from guild " + guild.name + " by " + ctx.author.name)
+							client.update_data()
+							await ctx.edit_origin(content="**This message has been removed by " + ctx.author.name + "**")
+						else:
+							await ctx.reply(content="This confession is not in data so has likely already been posted!")
+					else:
+						await ctx.edit_origin(content="**" + ctx.author.name + " **tried to remove this message without permissions!")
+
+			elif ctx.custom_id.startswith("purge"):
+				if ctx.author.guild_permissions.administrator:
+					count = int(ctx.custom_id[len("purge:"):])
+					await ctx.channel.purge(limit=count)
+					logger.info("Purge complete in " + ctx.channel.name + " < " + ctx.guild.name)
+					await ctx.channel.send("Channel purged " + str(count) + " messages")
+				else:
+					await ctx.send("You do not have permissions to press this button", hidden=True)
+					logger.info(ctx.author.name + " tried to purge messages")
+
+			elif ctx.custom_id.startswith("settings"):
+				config = client.data["servers"][str(guild.id)]["config"]
+				setting = ctx.custom_id[len("settings:"):]
+				logger.debug("Server setting '" + setting + "' of '" + guild.name + "' changed by " + ctx.author.name)
+				if ctx.author.guild_permissions.administrator:
+					if ctx.values == None:
+						config[setting] = None
+					else:
+						config[setting] = int(ctx.values[0])
+					await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))  # Makes first character capital of setting and shows the new setting
+					client.data["servers"][str(guild.id)]["config"] = config
+					client.update_data()
+					return
+
+			elif ctx.custom_id.startswith("config"):
+				setting = ctx.custom_id[len("config:"):]
+				logger.debug("A config button pressed by " + ctx.author.name)
+				if ctx.author.id in DEVELOPERS:
+					if setting.startswith("send:"):  # All send file buttons dealt with here
+						setting = setting[len("send:"):]
+						await ctx.reply(content="File: " + setting, file=discord.File(r'' + setting))
+					if setting.startswith("modal:"):
+						print("there")
+						setting = setting[len("modal:"):]
+						class activity_modal(discord.ui.Modal):
+							def __init__(self, title, custom_id, current_activity):
+								super().__init__(title, custom_id)
+								self.add_item(discord.ui.InputText(label="Activity", value=current_activity.name))
+
+							async def callback(self, ctx):
+								await ctx.reply("Activity updated", hidden=True)
+						print("here")
+						activity_modal = activity_modal(client.user.name + "'s Activity", "config:activity", client.activity)
+						await ctx.interaction.send_modal(activity_modal)
+					elif setting == "kill":
+						logger.info("`kill` called by " + ctx.author.name)  # Event log
+						if client.data["bot settings"]["jokes"] is True:
+							await ctx.channel.send("Doggie down")
+
+						reason = "Killed from config panel"
+						death_note = "**" + client.user.name + " offline**\nReason for shutdown: " + reason
+
+						# Send kill announcement
+						await client.announce(death_note, announcement_type="kill")
+
+						await ctx.send(death_note + "\n" + "Uptime: " + client.get_uptime() + ".")
+						await client.close()
+					else:  # Toggle boolean commands here
+						bot_settings = client.data["bot settings"]
+						if setting not in bot_settings:
+							bot_settings[setting] = False
+						bot_settings[setting] = not bot_settings[setting]  # Toggles boolean value
+						logger.info("Config:" + setting + " changed to " + str(bot_settings[setting]))
+						client.update_data()
+						await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(bot_settings[setting]))  # Makes first character capital of setting and shows the new setting
+				else:
+					await ctx.send("You do not have permissions to press this button", hidden=True)
+					logger.info(ctx.author.name + " tried to change config")
+					return
+
+			# If the roles functionality is enabled. THIS IS FUCKING BROKEN PABLO. WHY ARE YOU RETURNING WHEN IT COULD NOT BE ROLES!!!
+			elif "roles" in client.data["servers"][str(guild.id)]:
 				try:
-					verify_role = client.data["servers"][str(guild.id)]["roles"]["verify role"]
-					if verify_role != 0:
-						role = guild.get_role(verify_role)
+
+					# Checks if the message is one of the server's roles messages
+					message_relevant = False
+					for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
+						if ctx.origin_message_id == client.data["servers"][str(guild.id)]["roles"]["categories"][category]["message id"]:
+							message_relevant = True
+							break
+
+					# Checks if the role ID is one of the server's roles
+					role_id_found = False
+					for category in client.data["servers"][str(guild.id)]["roles"]["categories"]:
+						if ctx.custom_id in client.data["servers"][str(guild.id)]["roles"]["categories"][category]["list"]:
+							role_id_found = True
+							break
+					if role_id_found is False:
+						return
+
+					# Checks if the role exists and is valid
+					role = guild.get_role(int(ctx.custom_id))
+					if role is None:
+						logger.debug("Could not get role with id: " + ctx.custom_id)
+						return
+
+					# Adds the role if the user doesn't have it
+					if role not in ctx.author.roles:
 						await ctx.author.add_roles(role)
-						logger.debug("Verified " + ctx.author.name + " on " + guild.name)
-				except KeyError:
-					logger.debug("No verification role found in " + guild.name)
+						logger.debug(f"Added role `{role.name}` added to {ctx.author.name}")
+						await ctx.send(content="Added role: " + role.name, hidden=True)
+
+					# Removes the role if the user already has it
+					else:
+						await ctx.author.remove_roles(role)
+						logger.debug(f"Removed role `{role.name}` from {ctx.author.name}")
+						await ctx.send(content="Removed role: " + role.name, hidden=True)
+
+					""""# Send Pong response. Incipit Helminth...
+					with open("config.json") as file:
+						url = "https://discordapp.com/api/channels/{}/messages".format(ctx.origin_message.channel.id)
+						headers = {
+							"Authorization": "Bot {}".format(file.read()["token"]),
+							"Content-Type": "application/json"
+						}
+						JSON = {
+							"type": 1
+						}
+						r = requests.post(url, headers=headers, data=json.dumps(JSON))
+					logger.debug(r.status_code, r.reason)"""
+					return
+
 				except Exception as exception:
-					logger.error("Verification failed: " + str(exception))
-				return
+					logger.error("Failed to add role " + role.name + " to " + ctx.author.name + ". Exception: " + str(exception))  # Error: this may run even if the intention of the button press isn't to add a role
+				finally:
+					try:
+						verify_role = client.data["servers"][str(guild.id)]["roles"]["verify role"]
+						if verify_role != 0:
+							role = guild.get_role(verify_role)
+							await ctx.author.add_roles(role)
+							logger.debug("Verified " + ctx.author.name + " on " + guild.name)
+					except KeyError:
+						logger.debug("No verification role found in " + guild.name)
+					except Exception as exception:
+						logger.error("Verification failed: " + str(exception))
+					return
 
-	client.run(TOKEN)
+		client.run(TOKEN)
 
-	#except Exception as exception:
-	#	logger.error(f"Exception \"{type(exception).__name__}\" : {exception.args[0]}\n")  # Event log
+	except Exception as exception:
+		logger.error(f"Exception \"{type(exception).__name__}\" : {exception.args[0]}\n")  # Event log
