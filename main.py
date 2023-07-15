@@ -32,7 +32,7 @@ DEFAULT_REPORT_CHANNEL = None
 DEFAULT_DEVELOPERS = [241772848564142080, 258284765776576512]
 DEFAULT_DEFAULT_COLOUR = 0xffc000 # Default
 
-hostname = socket.gethostbyname("")
+hostname = socket.gethostname()
 
 VERSION = "1.3.4 beta"
 SERVER_STRUCTURE = \
@@ -349,7 +349,10 @@ class MyClient(discord.ext.commands.Bot):
 			logger.debug("Loaded data.json")  # Event log
 		except Exception as exception:
 			logger.critical(f"Failed to load data.json. Exception: {exception}. Attempting to make new data.")  # Event log
-			self.data = {"servers":{},"bot settings":{}}
+			self.data = {"servers":{},"bot settings":{
+				"jokes": False,
+				"safety": True,
+				"add info": True}}
 			self.update_data()
 
 		# Check if the bot has been added to a guild while offline
