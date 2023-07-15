@@ -701,7 +701,7 @@ class MyClient(discord.ext.commands.Bot):
 					# try:
 
 					# Creates and sends the roles messages
-					await message.channel.send("🗒️ **Role selection**\nReact to get a role, unreact to remove it.")
+					await message.channel.send("🗒️ **Role selection**\nClick the button to get a role, click again to remove it.")
 					for category in self.data["servers"][str(message.guild.id)]["roles"]["categories"]:
 						buttons = []
 						for role in self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"]:
