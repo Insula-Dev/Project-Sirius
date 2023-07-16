@@ -1230,6 +1230,18 @@ class MyClient(discord.ext.commands.Bot):
 			await member.create_dm()
 			await member.dm_channel.send("Welcome to " + member.guild.name + ", " + member.name + ".")
 			logger.debug("Sent welcome message for " + member.guild.name + " to " + member.name)  # Event log
+
+			# Checks if user has roles archived
+			if "member archive" in self.data["servers"][str(member.guild.id)]:
+				if str(member.id) in self.data["servers"][str(member.guild.id)]["member archive"]:
+					rolesList = self.data["servers"][str(member.guild.id)]["member archive"][str(member.id)]
+					logger.debug(f"Adding {len(rolesList)} roles to {member.name} that were saved on {member.guild.name}")
+					for r in rolesList:
+						role = member.guild.get_role(r)
+						await member.add_roles(role)
+					del self.data["servers"][str(member.guild.id)]["member archive"][str(member.id)] # Removes archived data now that the user has rejoined
+					self.update_data()
+
 		except Exception as exception:
 			# If user has impeded direct messages
 			logger.debug("Failed to send welcome message for " + member.guild.name + " to " + member.name + ". Exception: " + str(exception))  # Event log
@@ -1241,8 +1253,20 @@ class MyClient(discord.ext.commands.Bot):
 		logger.debug("Member " + member.name + " left guild " + member.guild.name)  # Event log
 		try:
 			await member.create_dm()
-			await member.dm_channel.send("Goodbye ;)")
+			await member.dm_channel.send(f"Goodbye. We'll try and save your roles on {member.guild.name} in case you return ;)")
 			logger.debug("Sent goodbye message for " + member.guild.name + " to " + member.name)  # Event log
+
+			# Saves the leaving user's roles in data.json
+			roleList = member.roles
+			if "member archive" not in self.data["servers"][str(member.guild.id)]:
+				self.data["servers"][str(member.guild.id)]["member archive"] = {}
+			formattedRoleList = []
+			for role in roleList:
+				if role.name != "@everyone":
+					formattedRoleList.append(role.id)
+			self.data["servers"][str(member.guild.id)]["member archive"][str(member.id)] = formattedRoleList
+			self.update_data()
+
 		except Exception as exception:
 			# If the user has impeded direct messages
 			logger.debug("Failed to send goodbye message for " + member.guild.name + " to " + member.name)  # Event log
