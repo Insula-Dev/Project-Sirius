@@ -1226,25 +1226,34 @@ class MyClient(discord.ext.commands.Bot):
 		Sends the member a message welcome message."""
 
 		logger.debug("Member " + member.name + " joined guild " + member.guild.name)  # Event log
-		try:
-			await member.create_dm()
-			await member.dm_channel.send("Welcome to " + member.guild.name + ", " + member.name + ".")
-			logger.debug("Sent welcome message for " + member.guild.name + " to " + member.name)  # Event log
+		# Checks if user has roles archived
+		if "member archive" in self.data["servers"][str(member.guild.id)]:
+			if str(member.id) in self.data["servers"][str(member.guild.id)]["member archive"]:
+				# Returning member
 
-			# Checks if user has roles archived
-			if "member archive" in self.data["servers"][str(member.guild.id)]:
-				if str(member.id) in self.data["servers"][str(member.guild.id)]["member archive"]:
+				try:
+					await member.create_dm()
+					await member.dm_channel.send(f"Welcome back to {member.guild.name}, {member.name}. You should get all your old roles back!")
+					logger.debug("Sent welcome message for " + member.guild.name + " to " + member.name)  # Event log
 					rolesList = self.data["servers"][str(member.guild.id)]["member archive"][str(member.id)]
 					logger.debug(f"Adding {len(rolesList)} roles to {member.name} that were saved on {member.guild.name}")
 					for r in rolesList:
 						role = member.guild.get_role(r)
 						await member.add_roles(role)
-					del self.data["servers"][str(member.guild.id)]["member archive"][str(member.id)] # Removes archived data now that the user has rejoined
+					del self.data["servers"][str(member.guild.id)]["member archive"][str(member.id)]  # Removes archived data now that the user has rejoined
 					self.update_data()
-
-		except Exception as exception:
-			# If user has impeded direct messages
-			logger.debug("Failed to send welcome message for " + member.guild.name + " to " + member.name + ". Exception: " + str(exception))  # Event log
+				except Exception as exception:
+					# If user has impeded direct messages
+					logger.debug("Failed to send welcome message for " + member.guild.name + " to " + member.name + ". Exception: " + str(exception))  # Event log
+			else:
+				# New member
+				try:
+					await member.create_dm()
+					await member.dm_channel.send("Welcome to " + member.guild.name + ", " + member.name + ".")
+					logger.debug("Sent welcome message for " + member.guild.name + " to " + member.name)  # Event log
+				except Exception as exception:
+					# If user has impeded direct messages
+					logger.debug("Failed to send welcome message for " + member.guild.name + " to " + member.name + ". Exception: " + str(exception))  # Event log
 
 	async def on_member_remove(self, member):
 		"""Runs when a member leaves.
