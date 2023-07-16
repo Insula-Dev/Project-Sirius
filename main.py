@@ -1003,7 +1003,12 @@ class MyClient(discord.ext.commands.Bot):
 				logger.info("`review confessions` called by " + message.author.name)  # Event log
 				if "confessions" in self.data["servers"][str(guild.id)]:
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
-						confession_embed = discord.Embed(title="Review Confession No." + confession, description="> " + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=0XF57E3D)
+						confession_message = client.data["servers"][str(guild.id)]["confessions"]["messages"][confession]
+						image_url = re.match("^[https:\/\/|http:\/\/].*[gif|png|jpg|jpeg|webp]$",confession_message)
+
+						confession_embed = discord.Embed(title="Review Confession No." + confession, description="> " + confession_message, colour=0XF57E3D)
+						if image_url != None:
+							confession_embed.set_image(url=image_url.string)
 						confession_embed.set_footer(text="This message is here to be reviewed. Please say if the content is inappropriate!", icon_url=guild.icon_url_as(size=128))
 						button = (create_button(style=ButtonStyle.red, label="Remove", custom_id="confession:" + confession))
 						components = [create_actionrow(*[button])]
@@ -1023,7 +1028,13 @@ class MyClient(discord.ext.commands.Bot):
 						else:
 							con_number = confession
 							con_start = "> "
+
+						confession_message = client.data["servers"][str(guild.id)]["confessions"]["messages"][confession]
+						image_url = re.match("^[https:\/\/|http:\/\/].*[gif|png|jpg|jpeg|webp]$", confession_message)
+
 						confession_embed = discord.Embed(title="Confession No." + con_number, description= con_start + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=self.get_server_colour(guild.id))
+						if image_url != None:
+							confession_embed.set_image(url=image_url.string)
 						confession_embed.set_footer(text="/confess to submit your anonymous confession",  icon_url=guild.icon_url_as(size=128))
 						await message.channel.send(embed=confession_embed)
 
