@@ -1052,6 +1052,7 @@ class MyClient(discord.ext.commands.Bot):
 				else:
 					channels = guild.text_channels
 
+				# Announcement channel selection
 				# Run for 25 channel blocks
 				for x in range(len(guild.text_channels)//25):
 					channel_options = []
@@ -1080,7 +1081,7 @@ class MyClient(discord.ext.commands.Bot):
 				components = [create_actionrow(*[no_announcement_button])]
 				await message.channel.send(content="Announcement Channel:", components=components)
 
-
+				# Colour theme selection
 				colour_options = []
 				for colour in colours:
 					colour_options.append(create_select_option(label=colour, value=str(colours[colour])))
@@ -1096,6 +1097,10 @@ class MyClient(discord.ext.commands.Bot):
 				dlogging_select = create_select(dlogging_options, custom_id="settings:delete_logging")
 				components = [create_actionrow(*[dlogging_select])]
 				await message.channel.send(content="Delete logging options:", components=components)
+
+				toggle_role_archiving = create_button(style=ButtonStyle.blue, label="Toggle role archiving", emoji="❎", custom_id="settings:role archiving")
+				components = [create_actionrow(*[toggle_role_archiving])]
+				await message.channel.send(content="Role Archiving:", components=components)
 
 		# If the message was sent by the developers
 		if message.author.id in DEVELOPERS:
@@ -1238,10 +1243,10 @@ class MyClient(discord.ext.commands.Bot):
 
 		logger.debug("Member " + member.name + " joined guild " + member.guild.name)  # Event log
 		# Checks if user has roles archived
-		if "member archive" in self.data["servers"][str(member.guild.id)]:
+		config = client.data["servers"][str(member.guild.id)]["config"]
+		if "member archive" in self.data["servers"][str(member.guild.id)] and config["role archiving"] == True:
 			if str(member.id) in self.data["servers"][str(member.guild.id)]["member archive"]:
 				# Returning member
-
 				try:
 					await member.create_dm()
 					await member.dm_channel.send(f"Welcome back to {member.guild.name}, {member.name}. You should get all your old roles back!")
@@ -1256,15 +1261,19 @@ class MyClient(discord.ext.commands.Bot):
 				except Exception as exception:
 					# If user has impeded direct messages
 					logger.debug("Failed to send welcome message for " + member.guild.name + " to " + member.name + ". Exception: " + str(exception))  # Event log
-			else:
-				# New member
-				try:
-					await member.create_dm()
-					await member.dm_channel.send("Welcome to " + member.guild.name + ", " + member.name + ".")
-					logger.debug("Sent welcome message for " + member.guild.name + " to " + member.name)  # Event log
-				except Exception as exception:
-					# If user has impeded direct messages
-					logger.debug("Failed to send welcome message for " + member.guild.name + " to " + member.name + ". Exception: " + str(exception))  # Event log
+				return
+		else:
+			logger.debug(f"{member.name} will not be given back any roles they may have had previously due to settings or lack of their existence")
+		# Default no-role archiving response
+		try:
+			await member.create_dm()
+			await member.dm_channel.send("Welcome to " + member.guild.name + ", " + member.name + ".")
+			logger.debug("Sent welcome message for " + member.guild.name + " to " + member.name)  # Event log
+		except Exception as exception:
+			# If user has impeded direct messages
+			logger.debug(
+				"Failed to send welcome message for " + member.guild.name + " to " + member.name + ". Exception: " + str(
+					exception))  # Event log
 
 	async def on_member_remove(self, member):
 		"""Runs when a member leaves.
@@ -1272,20 +1281,26 @@ class MyClient(discord.ext.commands.Bot):
 
 		logger.debug("Member " + member.name + " left guild " + member.guild.name)  # Event log
 		try:
-			await member.create_dm()
-			await member.dm_channel.send(f"Goodbye. We'll try and save your roles on {member.guild.name} in case you return ;)")
-			logger.debug("Sent goodbye message for " + member.guild.name + " to " + member.name)  # Event log
 
-			# Saves the leaving user's roles in data.json
-			roleList = member.roles
-			if "member archive" not in self.data["servers"][str(member.guild.id)]:
-				self.data["servers"][str(member.guild.id)]["member archive"] = {}
-			formattedRoleList = []
-			for role in roleList:
-				if role.name != "@everyone":
-					formattedRoleList.append(role.id)
-			self.data["servers"][str(member.guild.id)]["member archive"][str(member.id)] = formattedRoleList
-			self.update_data()
+			config = client.data["servers"][str(member.guild.id)]["config"]
+			if config["role archiving"] == True:
+				await member.create_dm()
+				await member.dm_channel.send(f"Goodbye. We'll try and save your roles on {member.guild.name} in case you return ;)")
+				logger.debug("Sent goodbye message for " + member.guild.name + " to " + member.name)  # Event log
+				# Saves the leaving user's roles in data.json
+				roleList = member.roles
+				if "member archive" not in self.data["servers"][str(member.guild.id)]:
+					self.data["servers"][str(member.guild.id)]["member archive"] = {}
+				formattedRoleList = []
+				for role in roleList:
+					if role.name != "@everyone":
+						formattedRoleList.append(role.id)
+				self.data["servers"][str(member.guild.id)]["member archive"][str(member.id)] = formattedRoleList
+				self.update_data()
+			else:
+				await member.create_dm()
+				await member.dm_channel.send(f"Goodbye {member.guild.name} ;)")
+				logger.debug("Sent goodbye message for " + member.guild.name + " to " + member.name)  # Event log
 
 		except Exception as exception:
 			# If the user has impeded direct messages
@@ -1974,7 +1989,13 @@ if __name__ == "__main__":
 				logger.debug("Server setting '" + setting + "' of '" + guild.name + "' changed by " + ctx.author.name)
 				if ctx.author.guild_permissions.administrator:
 					if ctx.values == None:
-						config[setting] = None
+						if setting == "announcements channel id":
+							config[setting] = None
+						else: # Defaults to boolean toggle
+							if setting not in config:
+								config[setting] = False
+							config[setting] = not config[setting]  # Toggles boolean value
+							logger.info(f"Settings: {setting} changed to {str(config[setting])}")
 					else:
 						config[setting] = int(ctx.values[0])
 					await ctx.edit_origin(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))  # Makes first character capital of setting and shows the new setting
