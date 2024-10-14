@@ -1,0 +1,3 @@
+FROM python:3.12
+
+RUN pip discord.py:2.3.2 install discord-py-slash-command:3.0.3
