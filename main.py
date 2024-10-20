@@ -1199,7 +1199,7 @@ class MyClient(discord.ext.commands.Bot):
 				if "add info" in self.data["bot settings"] and self.data["bot settings"]["add info"]:
 					additional_info = f"\nLatency: {str(int(client.latency // 1)) }.{str(client.latency % 1)[2:5] }s\nUptime: {self.get_uptime() }.\nLast disconnect: {str(self.last_disconnect)[0:16]}"
 					locate_embed = discord.Embed(title="Additional Info:", description=additional_info, colour=int(self.get_server_colour(message.guild.id)))
-					locate_embed.set_footer(text=f"Command called by {message.author.name}", icon_url=guild.icon_url_as(size=128))
+					locate_embed.set_footer(text=f"Command called by {message.author.name}", icon_url=guild.icon.with_size(128))
 					await message.channel.send(content=main_info,embed=locate_embed)
 				else:
 					await message.channel.send(content=main_info)
