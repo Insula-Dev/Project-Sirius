@@ -529,7 +529,7 @@ class MyClient(discord.ext.commands.Bot):
 			else:
 				rank = 0
 				percentage = 0
-			generate_level_card(message.author.avatar_url_as(size=256,format="webp"), message.author.name, rank, percentage, server_picture=guild.icon_url_as(size=128,format="webp"))
+			generate_level_card(message.author.avatar_url_as(size=256,format="webp"), message.author.name, rank, percentage, server_picture=guild.icon)
 
 			# Create the rank embed
 			embed_level = discord.Embed()
@@ -672,7 +672,7 @@ class MyClient(discord.ext.commands.Bot):
 
 					# Create the rules embed
 					embed_rules = discord.Embed(title=self.data["servers"][str(guild.id)]["rules"]["title"], description=self.data["servers"][str(guild.id)]["rules"]["description"], colour=self.get_server_colour(guild.id), inline=False)
-					embed_rules.set_footer(text="Rules updated • " + date.today().strftime("%d/%m/%Y"),  icon_url=guild.icon_url_as(size=128))
+					embed_rules.set_footer(text="Rules updated • " + date.today().strftime("%d/%m/%Y"),  icon_url=guild.icon(size=128))
 					embed_rules.add_field(name="Rules", value="\n".join(self.data["servers"][str(guild.id)]["rules"]["list"]), inline=True)
 					embed_image = discord.Embed(description="That's all.", colour=self.get_server_colour(guild.id))
 					image = self.data["servers"][str(guild.id)]["rules"]["image link"]
@@ -830,7 +830,7 @@ class MyClient(discord.ext.commands.Bot):
 						birth = guild.created_at
 						embed_general.add_field(name="Server Birth", value=str(birth.day) + "." + str(birth.month) + "." + str(birth.year))
 						embed_general.add_field(name="Total Messages", value=total_messages)
-						embed_general.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"),  icon_url=guild.icon_url_as(size=128))
+						embed_general.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"),  icon_url=guild.icon)
 						await message.channel.send(embed=embed_general)
 
 						# Create and send channel statistics embed
@@ -839,14 +839,14 @@ class MyClient(discord.ext.commands.Bot):
 							# print("------\nChannels in set:\n" + str(channel_statistics[x]))
 							logger.debug("------\nChannels in set:\n" + str(channel_statistics[x]))
 							embed_channel.add_field(name="Channels", value=str(channel_statistics[x]))
-							embed_channel.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"),  icon_url=guild.icon_url_as(size=128))
+							embed_channel.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"),  icon_url=guild.icon)
 						await message.channel.send(embed=embed_channel)
 
 						# Create and send members statistics embed
 						embed_member = discord.Embed(title="📈 Member Statistics for " + guild.name, colour=self.get_server_colour(guild.id))
 						for x in range(len(member_statistics) // 10 + 1):
 							embed_member.add_field(name="Members", value=str(member_statistics[x]))
-							embed_member.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"),  icon_url=guild.icon_url_as(size=128))
+							embed_member.set_footer(text="Statistics updated • " + date.today().strftime("%d/%m/%Y"),  icon_url=guild.icon)
 						await message.channel.send(embed=embed_member)
 
 				except discord.errors.HTTPException as exception:
@@ -1009,7 +1009,7 @@ class MyClient(discord.ext.commands.Bot):
 						confession_embed = discord.Embed(title="Review Confession No." + confession, description="> " + confession_message, colour=0XF57E3D)
 						if image_url != None:
 							confession_embed.set_image(url=image_url.string)
-						confession_embed.set_footer(text="This message is here to be reviewed. Please say if the content is inappropriate!", icon_url=guild.icon_url_as(size=128))
+						confession_embed.set_footer(text="This message is here to be reviewed. Please say if the content is inappropriate!", icon_url=guild.icon)
 						button = (create_button(style=ButtonStyle.red, label="Remove", custom_id="confession:" + confession))
 						components = [create_actionrow(*[button])]
 						await message.channel.send(embed=confession_embed, components=components)
@@ -1035,7 +1035,7 @@ class MyClient(discord.ext.commands.Bot):
 						confession_embed = discord.Embed(title="Confession No." + con_number, description= con_start + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=self.get_server_colour(guild.id))
 						if image_url != None:
 							confession_embed.set_image(url=image_url.string)
-						confession_embed.set_footer(text="/confess to submit your anonymous confession",  icon_url=guild.icon_url_as(size=128))
+						confession_embed.set_footer(text="/confess to submit your anonymous confession",  icon_url=guild.icon)
 						await message.channel.send(embed=confession_embed)
 
 					self.data["servers"][str(guild.id)]["confessions"]["messages"] = {}
@@ -1159,7 +1159,7 @@ class MyClient(discord.ext.commands.Bot):
 				if "add info" in self.data["bot settings"] and self.data["bot settings"]["add info"]:
 					additional_info = f"\nLatency: {str(int(client.latency // 1))}.{str(client.latency % 1)[2:5]}s\nUptime: {self.get_uptime()}.\nLast disconnect: {str(self.last_disconnect)[0:16]}"
 					locate_embed = discord.Embed(title="Additional Info:", description=additional_info,colour=int(self.get_server_colour(message.guild.id)))
-					locate_embed.set_footer(text=f"Command called by {message.author.name}",icon_url=guild.icon_url_as(size=128))
+					locate_embed.set_footer(text=f"Command called by {message.author.name}",icon_url=guild.icon)
 					await message.channel.send(content=f"This instance of {VERSION} is being run on **{hostname}**, IP address **{socket.gethostbyname(hostname)}**",embed=locate_embed)
 
 				joke_button = create_button(style=ButtonStyle.blue, label="Jokes", emoji="😂", custom_id="config:jokes")
