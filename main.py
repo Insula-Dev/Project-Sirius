@@ -529,7 +529,7 @@ class MyClient(discord.ext.commands.Bot):
 			else:
 				rank = 0
 				percentage = 0
-			generate_level_card(message.author.avatar_url_as(size=256,format="webp"), message.author.name, rank, percentage, server_picture=guild.icon)
+			generate_level_card(message.author.avatar.url, message.author.name, rank, percentage, server_picture=guild.icon)
 
 			# Create the rank embed
 			embed_level = discord.Embed()
