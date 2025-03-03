@@ -15,6 +15,10 @@ import discord.ext.commands
 # from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle, create_select, create_select_option
 # from discord_slash.model import SlashCommandPermissionType, ContextMenuType
 # import interactions
+from discord import app_commands
+intents = discord.Intents.default()
+client = discord.Client(intents=intents)
+tree = app_commands.CommandTree(client)
 
 # Local imports
 from log_handling import *
@@ -426,21 +430,24 @@ class MyClient(discord.ext.commands.Bot):
 		guild = self.get_guild(message.guild.id)
 
 		# Update the user's experience
-		if (message.author.id not in self.cache[str(guild.id)]) or (((datetime.now().minute + datetime.now().hour * 60) - self.cache[str(guild.id)][message.author.id]) > 60):  # This is the longest like of code I've ever seen survive a scrutinised and picky merge from me. Well played.
+		try:
+			if (message.author.id not in self.cache[str(guild.id)]) or (((datetime.now().minute + datetime.now().hour * 60) - self.cache[str(guild.id)][message.author.id]) > 60):  # This is the longest like of code I've ever seen survive a scrutinised and picky merge from me. Well played.
 
-			logger.debug("Adding experience to " + message.author.name)  # Event log
+				logger.debug("Adding experience to " + message.author.name)  # Event log
 
-			# Update the cache and increment the user's experience
-			self.cache[str(guild.id)][message.author.id] = datetime.now().minute + datetime.now().hour * 60
-			try:
-				self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] += 1
-			except KeyError:
-				self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] = 1
+				# Update the cache and increment the user's experience
+				self.cache[str(guild.id)][message.author.id] = datetime.now().minute + datetime.now().hour * 60
+				try:
+					self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] += 1
+				except KeyError:
+					self.data["servers"][str(guild.id)]["ranks"][str(message.author.id)] = 1
 
-			# Write the updated data
-			self.update_data()
-		else:
-			logger.debug("Not adding experience to " + message.author.name)  # Event log
+				# Write the updated data
+				self.update_data()
+			else:
+				logger.debug("Not adding experience to " + message.author.name)  # Event log
+		except KeyError:
+			logger.debug("Failed to add experience to " + message.author.name)
 
 		if not message.content.startswith(PREFIX):
 			# Joke functionality
@@ -1492,13 +1499,24 @@ if __name__ == "__main__":
 		setup_config()
 		intents = discord.Intents.all()
 		intents.members = True
-		client = MyClient(intents=intents)
+		client = MyClient(intents=intents, application_id=844950029369737238)
 		# slash = SlashCommand(client, sync_commands=True)
 
 		guild_ids = []
 		for guild in client.guilds:
 			guild_ids += guild.id
 
+		@tree.command(
+			name="ping2",
+			description=f"Ping the bot to obtain latency."
+		)
+		async def _ping(interaction):
+			logger.debug("`/ping` called by " + interaction.author.name)
+			await interaction.response.send_message(content=str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5]+"s")
+		# @client.event
+		# async def on_ready():
+		# 	await tree.sync()
+		# 	print("Ready!")
 		# @slash.slash(
 		# 	name="ping",
 		# 	description="Ping the bot to obtain latency.",
