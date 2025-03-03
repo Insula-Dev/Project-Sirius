@@ -660,6 +660,30 @@ class MyClient(discord.ext.commands.Bot):
 			embed_help.add_field(name=str(PREFIX + "__kill__"), value="Ends the instance of " + self.user.name + ".\n**Dev only feature.**")
 			await message.channel.send(embed=embed_help)
 
+		# Set Challenge command
+		if message.content.startswith("set challenges"):
+
+			logger.info("`set challenges` called by " + message.author.name)  # Event log
+			if "challenges" not in self.data["servers"][str(guild.id)]:
+				self.data["servers"][str(guild.id)]["challenges"] = []
+			content = message.content[len("set challenges "):]
+			challenges = re.split(r",| ,",content)
+			challenges = [challenge.strip() for challenge in challenges]
+			self.data["servers"][str(guild.id)]["challenges"] = challenges
+			self.update_data()
+			await message.channel.send(f"{len(challenges)} challenges set!")
+
+		# Challenge command
+		if message.content == "challenge":
+
+			logger.info("`challenge` called by " + message.author.name)  # Event log
+			if "challenges" not in self.data["servers"][str(guild.id)]:
+				await message.channel.send("No challenges have been added. Please ask an admin to set them up!")
+			else:
+				challengesList = self.data["servers"][str(guild.id)]["challenges"]
+				challenge = challengesList[randint(0, len(challengesList) - 1)]
+				await message.channel.send(challenge)
+
 		# If the message was sent by the admins
 		if message.author.guild_permissions.administrator:
 
