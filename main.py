@@ -1,6 +1,6 @@
 # Imports
 from math import ceil
-from random import randint
+from random import randint, random, shuffle
 from os import path
 from datetime import date, datetime
 import json
@@ -21,6 +21,7 @@ client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
 # Local imports
+from challenge_parser import getChallenge
 from log_handling import *
 from imaging import generate_level_card
 import AI
@@ -667,7 +668,7 @@ class MyClient(discord.ext.commands.Bot):
 			if "challenges" not in self.data["servers"][str(guild.id)]:
 				self.data["servers"][str(guild.id)]["challenges"] = []
 			content = message.content[len("set challenges "):]
-			challenges = re.split(r",| ,",content)
+			challenges = re.split(r"\n|\r",content)
 			challenges = [challenge.strip() for challenge in challenges]
 			self.data["servers"][str(guild.id)]["challenges"] = challenges
 			self.update_data()
