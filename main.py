@@ -21,7 +21,7 @@ client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
 # Local imports
-from challenge_parser import getChallenge
+from challenge_parser import formatChallenge
 from log_handling import *
 from imaging import generate_level_card
 import AI
@@ -685,7 +685,7 @@ class MyClient(discord.ext.commands.Bot):
 				# Randomise the order of the challenges
 				shuffle(challengesList)
 				
-				await message.channel.send(getChallenge(challengesList[0]))
+				await message.channel.send(formatChallenge(challengesList[0]))
 
 		# If the message was sent by the admins
 		if message.author.guild_permissions.administrator:

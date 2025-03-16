@@ -2,7 +2,7 @@ from random import random, randint, choice
 import re
 
 
-def getChallenge(rawText: str):
+def formatChallenge(rawText: str):
     # Get all cases of [] in the text
     dynamicComponents = re.findall(r'\[.*?\]', rawText)
 
@@ -39,6 +39,6 @@ def getChallenge(rawText: str):
     
     return rawText
 
-print(getChallenge("Round closest to £[20-30] (no tipping allowed)"))
-print(getChallenge("Round closest to [2.5-3.5]L (based on full drinks as bought)"))
-print(getChallenge("Number of different [Norfolk,Non\-European] made drinks in a round"))
+print(formatChallenge("Round closest to £[20-30] (no tipping allowed)"))
+print(formatChallenge("Round closest to [2.5-3.5]L (based on full drinks as bought)"))
+print(formatChallenge("Number of different [Norfolk,Non\-European] made drinks in a round"))
