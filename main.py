@@ -682,8 +682,10 @@ class MyClient(discord.ext.commands.Bot):
 				await message.channel.send("No challenges have been added. Please ask an admin to set them up!")
 			else:
 				challengesList = self.data["servers"][str(guild.id)]["challenges"]
-				challenge = challengesList[randint(0, len(challengesList) - 1)]
-				await message.channel.send(challenge)
+				# Randomise the order of the challenges
+				shuffle(challengesList)
+				
+				await message.channel.send(getChallenge(challengesList[0]))
 
 		# If the message was sent by the admins
 		if message.author.guild_permissions.administrator:
