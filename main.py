@@ -673,7 +673,19 @@ class MyClient(discord.ext.commands.Bot):
 			content = message.content[len("set challenges "):]
 			challenges = re.split(r"\n|\r",content)
 			challenges = [challenge.strip() for challenge in challenges]
-			self.data["servers"][str(guild.id)]["challenges"] = challenges
+			# Find every line beginning with * and have everything under this as a new set
+			setIndexes = []
+			for i in range(len(challenges)):
+				if challenges[i].startswith("*"):
+					setIndexes.append(i)
+			challengeSets = {} # JSON pointing to lists of challenges
+			for i in range(len(setIndexes)):
+				if i == len(setIndexes) - 1:
+					challengeSets[challenges[setIndexes[i]][1:]] = challenges[setIndexes[i]+1:]
+				else:
+					challengeSets[challenges[setIndexes[i]][1:]] = challenges[setIndexes[i]+1:setIndexes[i+1]]
+	
+			self.data["servers"][str(guild.id)]["challenges"] = challengeSets
 			self.update_data()
 			await message.channel.send(f"{len(challenges)} challenges set!")
 
@@ -684,7 +696,11 @@ class MyClient(discord.ext.commands.Bot):
 			if "challenges" not in self.data["servers"][str(guild.id)]:
 				await message.channel.send("No challenges have been added. Please ask an admin to set them up!")
 			else:
-				challengesList = self.data["servers"][str(guild.id)]["challenges"]
+				challengesSets = self.data["servers"][str(guild.id)]["challenges"]
+				# Joing all lists together
+				challengesList = []
+				for challenges in challengesSets.values():
+					challengesList.extend(challenges)
 				# Randomise the order of the challenges
 				shuffle(challengesList)
 				
