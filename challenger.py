@@ -1,5 +1,6 @@
 from random import random, randint, choice
 import re
+from venv import logger
 
 
 def formatChallenge(rawText: str):
@@ -34,11 +35,15 @@ def formatChallenge(rawText: str):
             # Replace the [] with the random number
             rawText = rawText.replace(dyn, str(randomValue))
         else:
-            print("Invalid format")
+            logger.error("Invalid format")
             return f"Invalid format for {rawText}. Perform manual duties."
     
     return rawText
 
-print(formatChallenge("Round closest to £[20-30] (no tipping allowed)"))
-print(formatChallenge("Round closest to [2.5-3.5]L (based on full drinks as bought)"))
-print(formatChallenge("Number of different [Norfolk,Non\-European] made drinks in a round"))
+def pubCrawl():
+    print("hi")
+
+if __name__ == "__main__":
+    print(formatChallenge("Round closest to £[20-30] (no tipping allowed)"))
+    print(formatChallenge("Round closest to [2.5-3.5]L (based on full drinks as bought)"))
+    print(formatChallenge("Number of different [Norfolk,Non\-European] made drinks in a round"))
