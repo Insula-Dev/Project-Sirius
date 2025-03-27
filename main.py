@@ -1,4 +1,5 @@
 # Imports
+import asyncio
 from math import ceil
 from random import randint, random, shuffle
 from os import path
@@ -709,9 +710,55 @@ class MyClient(discord.ext.commands.Bot):
 		# Pub crawl top trumps command
 		if message.content == "pub":
 			logger.info("`pub` called by " + message.author.name)  # Event log
+
+			taskNumber = 0
+			challengeSets = self.data["servers"][str(guild.id)]["challenges"]
+			challengeSetA = challengeSets[list(challengeSets.keys())[0]]
+			shuffle(challengeSetA)
+			challengeSetB = challengeSets[list(challengeSets.keys())[1]]
+			shuffle(challengeSetB)
 			# Run function at 17:00
 			s = sched.scheduler(time.time, time.sleep)
-			s.enterabs(datetime.now().replace(hour=22, minute=23, second=0, microsecond=0).timestamp(), 1, challenger.pubCrawl)
+			# 1 - 5pm
+			s.enterabs(datetime.now().replace(hour=17, minute=00, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetA[taskNumber])))
+			s.enterabs(datetime.now().replace(hour=17, minute=00, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetB[taskNumber])))
+			taskNumber += 1
+
+			# 2 - 6pm
+			s.enterabs(datetime.now().replace(hour=18, minute=00, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetA[taskNumber])))
+			s.enterabs(datetime.now().replace(hour=18, minute=00, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetB[taskNumber])))
+
+			taskNumber += 1
+			# 3 - 6:45pm
+			s.enterabs(datetime.now().replace(hour=18, minute=45, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetA[taskNumber])))
+			s.enterabs(datetime.now().replace(hour=18, minute=45, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetB[taskNumber])))
+
+			taskNumber += 1
+			# 4 - 7:30pm
+			s.enterabs(datetime.now().replace(hour=19, minute=30, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetA[taskNumber])))
+			s.enterabs(datetime.now().replace(hour=19, minute=30, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetB[taskNumber])))
+
+			taskNumber += 1
+			# 5 - 8:15pm
+			s.enterabs(datetime.now().replace(hour=20, minute=15, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetA[taskNumber])))
+			s.enterabs(datetime.now().replace(hour=20, minute=15, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetB[taskNumber])))
+
+			taskNumber += 1
+			# 6 - 9pm
+			s.enterabs(datetime.now().replace(hour=21, minute=00, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetA[taskNumber])))
+			s.enterabs(datetime.now().replace(hour=21, minute=00, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetB[taskNumber])))
+
+			taskNumber += 1
+			# 7 - 9:30pm
+			s.enterabs(datetime.now().replace(hour=21, minute=30, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetA[taskNumber])))
+			s.enterabs(datetime.now().replace(hour=21, minute=30, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetB[taskNumber])))
+
+			taskNumber += 1
+			# 8 - 10pm
+			s.enterabs(datetime.now().replace(hour=23, minute=23, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetA[taskNumber])))
+			s.enterabs(datetime.now().replace(hour=23, minute=23, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetB[taskNumber])))
+
+
 			s.run()
 
 			await message.channel.send("Pub crawl top trumps started!")

@@ -40,8 +40,9 @@ def formatChallenge(rawText: str):
     
     return rawText
 
-def pubCrawl():
+async def pubCrawl(originalMessage,challenge):
     print("hi")
+    await originalMessage.channel.send(formatChallenge(challenge))
 
 if __name__ == "__main__":
     print(formatChallenge("Round closest to £[20-30] (no tipping allowed)"))
