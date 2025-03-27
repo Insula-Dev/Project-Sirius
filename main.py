@@ -3,6 +3,7 @@ from math import ceil
 from random import randint, random, shuffle
 from os import path
 from datetime import date, datetime
+import sched, time
 import json
 import re
 import requests
@@ -16,12 +17,14 @@ import discord.ext.commands
 # from discord_slash.model import SlashCommandPermissionType, ContextMenuType
 # import interactions
 from discord import app_commands
+
+import challenger
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
 # Local imports
-from challenge_parser import formatChallenge
+from challenger import formatChallenge
 from log_handling import *
 from imaging import generate_level_card
 import AI
@@ -686,6 +689,17 @@ class MyClient(discord.ext.commands.Bot):
 				shuffle(challengesList)
 				
 				await message.channel.send(formatChallenge(challengesList[0]))
+		
+		# Pub crawl top trumps command
+		if message.content == "pub":
+			logger.info("`pub` called by " + message.author.name)  # Event log
+			# Run function at 17:00
+			s = sched.scheduler(time.time, time.sleep)
+			s.enterabs(datetime.now().replace(hour=22, minute=23, second=0, microsecond=0).timestamp(), 1, challenger.pubCrawl)
+			s.run()
+
+			await message.channel.send("Pub crawl top trumps started!")
+
 
 		# If the message was sent by the admins
 		if message.author.guild_permissions.administrator:
