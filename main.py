@@ -717,30 +717,30 @@ class MyClient(discord.ext.commands.Bot):
 			global challengeSetB
 			taskNumber = 0
 			challengeSets = self.data["servers"][str(guild.id)]["challenges"]
-			challengeSetA = challengeSets[list(challengeSets.keys())[0]]
+			challengeSetA = challengeSets[list(challengeSets.keys())[0]] # Drinks Challenges
 			shuffle(challengeSetA)
-			challengeSetB = challengeSets[list(challengeSets.keys())[1]]
+			challengeSetB = challengeSets[list(challengeSets.keys())[1]] # Other challenges
 			shuffle(challengeSetB)
 			# Run function at 17:00
 			s1 = sched.scheduler(time.time, time.sleep)
 			now = datetime.now()
 			# 1 - 5pm
-			task_1_time = now.replace(hour=19, minute=28, second=30, microsecond=0).timestamp()
+			task_1_time = now.replace(hour=23, minute=44, second=00, microsecond=0).timestamp()
 			if task_1_time > time.time():
 				s1.enterabs(task_1_time,1, challenger.doNothing)
 				s1.enterabs(task_1_time,1, challenger.doNothing)
-			s1.run()
+			s1.run(False)
 			print("Got here")
 			await challenger.pubCrawl(message,challengeSetA[0])
 			await challenger.pubCrawl(message,challengeSetB[0])
 			taskNumber += 1
 			# 2 - 6pm
 			s2 = sched.scheduler(time.time, time.sleep)
-			task_2_time = now.replace(hour=19, minute=29, second=0, microsecond=0).timestamp()
+			task_2_time = now.replace(hour=23, minute=45, second=0, microsecond=0).timestamp()
 			if task_2_time > time.time():
 				s2.enterabs(task_2_time,1,challenger.doNothing)
 				s2.enterabs(task_2_time,1,challenger.doNothing)
-			s2.run()
+			s2.run(False)
 			print("Got to 2")
 			await challenger.pubCrawl(message,challengeSetA[1])
 			await challenger.pubCrawl(message,challengeSetB[1])
