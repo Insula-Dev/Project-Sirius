@@ -722,9 +722,11 @@ class MyClient(discord.ext.commands.Bot):
 			shuffle(challengeSetB)
 			
 			# Find the challenge in challengeSetB that has the word "mascot" and move it to position 1 in the array
+			posOfMascot = [1,2]
+			shuffle(posOfMascot)
 			for i in range(len(challengeSetB)):
 				if "mascot" in challengeSetB[i]:
-					challengeSetB.insert(1,challengeSetB.pop(i))
+					challengeSetB.insert(posOfMascot[0],challengeSetB.pop(i))
 					break
 
 			self.loop.create_task(challenger.pubCrawl(challengeSetA,challengeSetB,message))
