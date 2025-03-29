@@ -721,65 +721,8 @@ class MyClient(discord.ext.commands.Bot):
 			shuffle(challengeSetA)
 			challengeSetB = challengeSets[list(challengeSets.keys())[1]] # Other challenges
 			shuffle(challengeSetB)
-			# Run function at 17:00
-			s1 = sched.scheduler(time.time, time.sleep)
-			now = datetime.now()
-			# 1 - 5pm
-			task_1_time = now.replace(hour=23, minute=44, second=00, microsecond=0).timestamp()
-			if task_1_time > time.time():
-				s1.enterabs(task_1_time,1, challenger.doNothing)
-				s1.enterabs(task_1_time,1, challenger.doNothing)
-			s1.run(False)
-			print("Got here")
-			await challenger.pubCrawl(message,challengeSetA[0])
-			await challenger.pubCrawl(message,challengeSetB[0])
-			taskNumber += 1
-			# 2 - 6pm
-			s2 = sched.scheduler(time.time, time.sleep)
-			task_2_time = now.replace(hour=23, minute=45, second=0, microsecond=0).timestamp()
-			if task_2_time > time.time():
-				s2.enterabs(task_2_time,1,challenger.doNothing)
-				s2.enterabs(task_2_time,1,challenger.doNothing)
-			s2.run(False)
-			print("Got to 2")
-			await challenger.pubCrawl(message,challengeSetA[1])
-			await challenger.pubCrawl(message,challengeSetB[1])
-			taskNumber += 1
-			'''
-			# 3 - 6:45pm
-			s.enterabs(datetime.now().replace(hour=18, minute=45, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetA[taskNumber])))
-			s.enterabs(datetime.now().replace(hour=18, minute=45, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetB[taskNumber])))
+			self.loop.create_task(challenger.pubCrawl(challengeSetA,challengeSetB,message))
 
-			taskNumber += 1
-			# 4 - 7:30pm
-			s.enterabs(datetime.now().replace(hour=19, minute=30, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetA[taskNumber])))
-			s.enterabs(datetime.now().replace(hour=19, minute=30, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetB[taskNumber])))
-
-			taskNumber += 1
-			# 5 - 8:15pm
-			s.enterabs(datetime.now().replace(hour=20, minute=15, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetA[taskNumber])))
-			s.enterabs(datetime.now().replace(hour=20, minute=15, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetB[taskNumber])))
-
-			taskNumber += 1
-			# 6 - 9pm
-			s.enterabs(datetime.now().replace(hour=21, minute=00, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetA[taskNumber])))
-			s.enterabs(datetime.now().replace(hour=21, minute=00, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetB[taskNumber])))
-
-			taskNumber += 1
-			# 7 - 9:30pm
-			#s.enterabs(datetime.now().replace(hour=22, minute=00, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetA[taskNumber])))
-			#s.enterabs(datetime.now().replace(hour=22, minute=00, second=00, microsecond=0).timestamp(),1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetB[taskNumber])))
-
-			s.enterabs(datetime.now().replace(hour=21, minute=36, second=00, microsecond=0).timestamp(),1,challenger.pubCrawl)
-
-			taskNumber += 1
-			# 8 - 10pm
-			scheduledTime = datetime.now().replace(hour=23, minute=29, second=00, microsecond=0).timestamp()
-			if time.time() < scheduledTime:
-				s.enterabs(scheduledTime,1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetA[taskNumber])))
-				s.enterabs(scheduledTime,1,lambda: asyncio.create_task(challenger.pubCrawl(message,challengeSetB[taskNumber])))
-
-			'''
 
 			await message.channel.send("Pub crawl top trumps started!")
 

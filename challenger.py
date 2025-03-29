@@ -1,5 +1,9 @@
+import asyncio
+from datetime import datetime
 from random import random, randint, choice
 import re
+import sched
+import time
 from venv import logger
 
 
@@ -40,13 +44,68 @@ def formatChallenge(rawText: str):
     
     return rawText
 
-async def pubCrawl(originalMessage=None,challenge="not much"):
-    print("hi")
-    if originalMessage is None:
-        print("no message")
-        return
-    await originalMessage.channel.send(formatChallenge(challenge))
+async def pubCrawl(challengeSetA, challengeSetB, originalMessage):
+    taskNumber = 0
+    # Run function at 17:00
+    s1 = sched.scheduler(time.time, time.sleep)
+    now = datetime.now()
+    # 1 - 5pm
+    await originalMessage.channel.send(f"# Pub Crawl Commencing...")
+    await originalMessage.channel.send(f"## Round {taskNumber+1}")
+    await originalMessage.channel.send(f"**Drink Challenge {taskNumber+1}**: {formatChallenge(challengeSetA[taskNumber])}")
+    await originalMessage.channel.send(f"**Random Challenge {taskNumber+1}**: {formatChallenge(challengeSetB[taskNumber])}")
 
+    taskNumber += 1
+    # 2 - 6pm
+    await asyncio.sleep(60*0.5)
+    await originalMessage.channel.send(f"## Round {taskNumber+1}")
+    await originalMessage.channel.send(f"**Drink Challenge {taskNumber+1}**: {formatChallenge(challengeSetA[taskNumber])}")
+    await originalMessage.channel.send(f"**Random Challenge {taskNumber+1}**: {formatChallenge(challengeSetB[taskNumber])}")
+    
+    taskNumber += 1
+    # 3 - 6:45pm
+    await asyncio.sleep(60*0.5)
+    await originalMessage.channel.send(f"## Round {taskNumber+1}")
+    await originalMessage.channel.send(f"**Drink Challenge {taskNumber+1}**: {formatChallenge(challengeSetA[taskNumber])}")
+    await originalMessage.channel.send(f"**Random Challenge {taskNumber+1}**: {formatChallenge(challengeSetB[taskNumber])}")
+
+    taskNumber += 1
+    # 4 - 7:30pm
+    await asyncio.sleep(60*0.5)
+    await originalMessage.channel.send(f"## Round {taskNumber+1}")
+    await originalMessage.channel.send(f"**Drink Challenge {taskNumber+1}**: {formatChallenge(challengeSetA[taskNumber])}")
+    await originalMessage.channel.send(f"**Random Challenge {taskNumber+1}**: {formatChallenge(challengeSetB[taskNumber])}")
+
+    taskNumber += 1
+    # 5 - 8:15pm
+    await asyncio.sleep(60*0.5)
+    await originalMessage.channel.send(f"## Round {taskNumber+1}")
+    await originalMessage.channel.send(f"**Drink Challenge {taskNumber+1}**: {formatChallenge(challengeSetA[taskNumber])}")
+    await originalMessage.channel.send(f"**Random Challenge {taskNumber+1}**: {formatChallenge(challengeSetB[taskNumber])}")
+
+    taskNumber += 1
+    # 6 - 9pm
+    await asyncio.sleep(60*0.5)
+    await originalMessage.channel.send(f"## Round {taskNumber+1}")
+    await originalMessage.channel.send(f"**Drink Challenge {taskNumber+1}**: {formatChallenge(challengeSetA[taskNumber])}")
+    await originalMessage.channel.send(f"**Random Challenge {taskNumber+1}**: {formatChallenge(challengeSetB[taskNumber])}")
+
+    taskNumber += 1
+    # 7 - 9:30pm
+    await asyncio.sleep(60*0.5)
+    await originalMessage.channel.send(f"## Round {taskNumber+1}")
+    await originalMessage.channel.send(f"**Drink Challenge {taskNumber+1}**: {formatChallenge(challengeSetA[taskNumber])}")
+    await originalMessage.channel.send(f"**Random Challenge {taskNumber+1}**: {formatChallenge(challengeSetB[taskNumber])}")
+
+    taskNumber += 1
+    # 8 - 10pm
+    await asyncio.sleep(60*0.5)
+    await originalMessage.channel.send(f"## Round {taskNumber+1}")
+    await originalMessage.channel.send(f"**Drink Challenge {taskNumber+1}**: {formatChallenge(challengeSetA[taskNumber])}")
+    await originalMessage.channel.send(f"**Random Challenge {taskNumber+1}**: {formatChallenge(challengeSetB[taskNumber])}")
+
+    taskNumber += 1
+    await originalMessage.channel.send(f"That was the last challenge. Good luck!")
 def doNothing():
     print("Nothing done")
 
