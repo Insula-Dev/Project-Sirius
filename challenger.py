@@ -13,7 +13,7 @@ def formatChallenge(rawText: str):
 
     for dyn in dynamicComponents:
         # Get the text inside the []
-        if "-" in dyn and not "\-" in dyn:
+        if "-" in dyn and not "\-" in dyn and dyn.split("-")[0][1:].isdigit() and dyn.split("-")[1][:-1].isdigit():
             parts = dyn.split("-")
             if "." in parts[0] or "." in parts[1]:
                 left = float(parts[0][1:])
