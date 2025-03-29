@@ -715,12 +715,18 @@ class MyClient(discord.ext.commands.Bot):
 			logger.info("`pub` called by " + message.author.name)  # Event log
 			global challengeSetA
 			global challengeSetB
-			taskNumber = 0
 			challengeSets = self.data["servers"][str(guild.id)]["challenges"]
 			challengeSetA = challengeSets[list(challengeSets.keys())[0]] # Drinks Challenges
 			shuffle(challengeSetA)
 			challengeSetB = challengeSets[list(challengeSets.keys())[1]] # Other challenges
 			shuffle(challengeSetB)
+			
+			# Find the challenge in challengeSetB that has the word "mascot" and move it to position 1 in the array
+			for i in range(len(challengeSetB)):
+				if "mascot" in challengeSetB[i]:
+					challengeSetB.insert(1,challengeSetB.pop(i))
+					break
+
 			self.loop.create_task(challenger.pubCrawl(challengeSetA,challengeSetB,message))
 
 
