@@ -590,7 +590,7 @@ class MyClient(discord.ext.commands.Bot):
 
 			try:
 				argument_string = message.content[len("embed "):]
-				arguments = re.split(",(?!\s)", argument_string)  # Splits arguments when there is not a space after the comma, if there is, it is assumed to be part of a sentance.
+				arguments = re.split(",(?!\\s)", argument_string)  # Splits arguments when there is not a space after the comma, if there is, it is assumed to be part of a sentance.
 				title = discord.Embed.Empty
 				description = discord.Embed.Empty
 				colour = self.get_server_colour(guild.id)
@@ -993,7 +993,7 @@ class MyClient(discord.ext.commands.Bot):
 				if len(argument_string) < 2:
 					logger.debug("Poll command had no viable arguments - cancelled")
 					return
-				arguments = re.split("\,\s|\,", argument_string)  # Replace with arguments = argument.split(", ")
+				arguments = re.split("\\,\\s|\\,", argument_string)  # Replace with arguments = argument.split(", ")
 				candidates = {}  # Dictionary of candidates that can be voted for
 				candidates_string = ""
 
