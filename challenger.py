@@ -83,7 +83,7 @@ async def pubCrawl(challengeSetA, challengeSetB, originalMessage):
 
     taskNumber += 1
     # 6 - 9pm
-    await asyncio.sleep(60*45)
+    await asyncio.sleep(60*30)
     await originalMessage.channel.send(f"## Round {taskNumber+1}")
     await originalMessage.channel.send(f"**Drink Challenge {taskNumber+1}**: {formatChallenge(challengeSetA[taskNumber])}")
     await originalMessage.channel.send(f"**Random Challenge {taskNumber+1}**: {formatChallenge(challengeSetB[taskNumber])}")
