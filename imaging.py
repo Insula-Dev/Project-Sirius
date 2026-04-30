@@ -1,5 +1,6 @@
 # Imports
 import time
+from io import BytesIO
 
 import requests
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageStat
@@ -50,15 +51,11 @@ def mask_circle_solid(pil_img, background_colour, blur_radius, offset=0):
 	return Image.composite(pil_img, background, mask)
 
 def get_picture(url):
-	# Request profile picture and save it as card.png
-	with requests.get(url) as request:
-		with open("card.png", "wb") as file:
-			file.write(request.content)
-
-	image = None # To let card get closed
-	with Image.open("card.png") as picture:
-		image = picture
-	return image
+	# Load directly from bytes so the returned image is not tied to a closed file handle.
+	request = requests.get(str(url), timeout=15)
+	request.raise_for_status()
+	with Image.open(BytesIO(request.content)) as picture:
+		return picture.copy()
 
 def generate_level_card(profile_picture_url, name, rank, percentage, server_picture=None):
 	"""Generates the level card."""
