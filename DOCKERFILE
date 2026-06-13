@@ -1,3 +1,18 @@
-FROM python:3.12
+FROM python:3.12-slim
 
-RUN pip discord.py:2.5.0 install discord-py-slash-command:3.0.3
+# Set the working directory in the container
+WORKDIR /usr/src/app
+
+# Copy the current directory contents into the container at /usr/src/app
+COPY . .
+
+# Upadte packages and ensure cv2 runs
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+# RUN pip discord.py:2.5.0 install discord-py-slash-command:3.0.3
+
+# Run app.py when the container launches
+CMD ["python", "./main.py"]
