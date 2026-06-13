@@ -158,6 +158,239 @@ def setup_config():
 setup_config()
 
 # Functions
+async def handle_component_interaction(interaction: discord.Interaction):
+	"""Routes component interactions for dynamic buttons and selects."""
+
+	data = interaction.data or {}
+	custom_id = data.get("custom_id")
+	if custom_id is None:
+		await interaction.response.send_message("Unsupported interaction.", ephemeral=True)
+		return
+
+	if custom_id.startswith("poll:"):
+		option = custom_id[len("poll:"):]
+		guild = interaction.guild
+		if guild is None or interaction.message is None:
+			await interaction.response.send_message("This poll is unavailable.", ephemeral=True)
+			return
+
+		polls = interaction.client.poll.get(str(guild.id), {})
+		poll = polls.get(str(interaction.message.id))
+		if poll is None:
+			await interaction.response.send_message("This poll is closed.", ephemeral=True)
+			return
+
+		voters = poll["voters"]
+		voter_id = str(interaction.user.id)
+		multi = poll["config"].get("multi", False)
+
+		if voter_id not in voters:
+			if multi:
+				voters[voter_id] = [option]
+				await interaction.response.send_message(f"Gave a vote to {option}", ephemeral=True)
+			else:
+				voters[voter_id] = option
+				await interaction.response.send_message(f"Gave your vote to {option}", ephemeral=True)
+			return
+
+		if multi:
+			if option in voters[voter_id]:
+				voters[voter_id].remove(option)
+				await interaction.response.send_message(f"Removed your vote for {option}", ephemeral=True)
+			else:
+				voters[voter_id].append(option)
+				await interaction.response.send_message(f"Gave a vote to {option}", ephemeral=True)
+		else:
+			if voters[voter_id] != option:
+				voters[voter_id] = option
+				await interaction.response.send_message(f"Changed your vote to {option}", ephemeral=True)
+			else:
+				del voters[voter_id]
+				await interaction.response.send_message(f"Removed your vote for {option}", ephemeral=True)
+		return
+
+	if custom_id.startswith("confession:"):
+		confession_id = custom_id[len("confession:"):]
+		guild = interaction.guild
+		if guild is None:
+			await interaction.response.send_message("This confession is unavailable.", ephemeral=True)
+			return
+
+		server_data = interaction.client.data["servers"][str(guild.id)]
+		if "confessions" not in server_data:
+			await interaction.response.send_message("No confessions were found.", ephemeral=True)
+			return
+
+		if not interaction.user.guild_permissions.administrator:
+			await interaction.response.send_message("You do not have permissions to remove this confession.", ephemeral=True)
+			return
+
+		messages = server_data["confessions"]["messages"]
+		if confession_id in messages:
+			del messages[confession_id]
+			interaction.client.update_data()
+			await interaction.response.edit_message(content=f"**This message has been removed by {interaction.user.name}**", embed=None, view=None)
+		else:
+			await interaction.response.send_message("This confession has likely already been posted or removed.", ephemeral=True)
+		return
+
+	if custom_id.startswith("settings:"):
+		guild = interaction.guild
+		if guild is None:
+			await interaction.response.send_message("Settings are unavailable here.", ephemeral=True)
+			return
+
+		if not interaction.user.guild_permissions.administrator:
+			await interaction.response.send_message("You do not have permissions to change settings.", ephemeral=True)
+			logger.info(interaction.user.name + " tried to change settings")
+			return
+
+		setting = custom_id[len("settings:"):]
+		config = interaction.client.data["servers"][str(guild.id)]["config"]
+		values = data.get("values")
+
+		if values is None:
+			if setting == "announcements channel id":
+				config[setting] = 0
+			else:
+				if setting not in config:
+					config[setting] = False
+				config[setting] = not config[setting]
+		else:
+			config[setting] = int(values[0])
+
+		interaction.client.data["servers"][str(guild.id)]["config"] = config
+		interaction.client.update_data()
+		await interaction.response.edit_message(content=setting[0].upper() + setting[1:] + ": " + str(config[setting]))
+		return
+
+	if custom_id.startswith("config:"):
+		setting = custom_id[len("config:"):]
+		if interaction.user.id not in DEVELOPERS:
+			await interaction.response.send_message("You do not have permissions to press this button", ephemeral=True)
+			logger.info(interaction.user.name + " tried to change config")
+			return
+
+		if setting.startswith("send:"):
+			filename = setting[len("send:"):]
+			if path.exists(filename):
+				await interaction.response.send_message(content="File: " + filename, file=discord.File(filename), ephemeral=True)
+			else:
+				await interaction.response.send_message(content="File not found: " + filename, ephemeral=True)
+			return
+
+		if setting == "kill":
+			if interaction.client.data["bot settings"]["jokes"] is True and interaction.channel is not None:
+				await interaction.channel.send("Doggie down")
+
+			reason = "Killed from config panel"
+			death_note = "**" + interaction.client.user.name + " offline**\nReason for shutdown: " + reason
+			await interaction.client.announce(death_note, announcement_type="kill")
+			await interaction.response.send_message(death_note + "\n" + "Uptime: " + interaction.client.get_uptime() + ".")
+			await interaction.client.close()
+			return
+
+		bot_settings = interaction.client.data["bot settings"]
+		if setting not in bot_settings:
+			bot_settings[setting] = False
+		bot_settings[setting] = not bot_settings[setting]
+		interaction.client.update_data()
+		await interaction.response.edit_message(content=setting[0].upper() + setting[1:] + ": " + str(bot_settings[setting]))
+		return
+
+	if custom_id.isdigit():
+		guild = interaction.guild
+		if guild is None or interaction.message is None:
+			await interaction.response.send_message("Role action is unavailable.", ephemeral=True)
+			return
+
+		categories = interaction.client.data["servers"][str(guild.id)]["roles"]["categories"]
+		message_relevant = False
+		role_id_found = False
+		for category in categories:
+			if interaction.message.id == categories[category]["message id"]:
+				message_relevant = True
+			if custom_id in categories[category]["list"]:
+				role_id_found = True
+
+		if (not message_relevant) or (not role_id_found):
+			await interaction.response.send_message("This role button is no longer valid.", ephemeral=True)
+			return
+
+		role = guild.get_role(int(custom_id))
+		if role is None:
+			await interaction.response.send_message("Role not found.", ephemeral=True)
+			return
+
+		member = guild.get_member(interaction.user.id)
+		if member is None:
+			await interaction.response.send_message("Member not found.", ephemeral=True)
+			return
+
+		if role not in member.roles:
+			await member.add_roles(role)
+			response = "Added role: " + role.name
+		else:
+			await member.remove_roles(role)
+			response = "Removed role: " + role.name
+
+		try:
+			verify_role = interaction.client.data["servers"][str(guild.id)]["roles"]["verify role"]
+			if verify_role != 0:
+				verify = guild.get_role(verify_role)
+				if verify is not None:
+					await member.add_roles(verify)
+		except KeyError:
+			pass
+
+		await interaction.response.send_message(content=response, ephemeral=True)
+		return
+
+	await interaction.response.send_message("Unsupported component interaction.", ephemeral=True)
+
+
+async def component_callback(interaction: discord.Interaction):
+	await handle_component_interaction(interaction)
+
+
+class ButtonStyle:
+	blue = discord.ButtonStyle.primary
+	red = discord.ButtonStyle.danger
+	grey = discord.ButtonStyle.secondary
+	green = discord.ButtonStyle.success
+	danger = discord.ButtonStyle.danger
+
+
+def create_button(style, label=None, emoji=None, custom_id=None):
+	button = discord.ui.Button(style=style, label=label, emoji=emoji, custom_id=custom_id)
+	button.callback = component_callback
+	return button
+
+
+def create_select(options, custom_id=None):
+	select = discord.ui.Select(options=options, custom_id=custom_id)
+	select.callback = component_callback
+	return select
+
+
+def create_select_option(label, value, default=False):
+	return discord.SelectOption(label=str(label), value=str(value), default=default)
+
+
+def create_actionrow(*items):
+	return list(items)
+
+
+def build_component_view(components):
+	view = discord.ui.View(timeout=None)
+	for row_index, row in enumerate(components):
+		items = row if isinstance(row, (list, tuple)) else [row]
+		for item in items:
+			item.row = row_index
+			view.add_item(item)
+	return view
+
+
 def populate_actionrows(button_list):
 	"""Returns a list of actionrows of 5 or fewer buttons."""
 
@@ -789,7 +1022,7 @@ class MyClient(discord.ext.commands.Bot):
 						for role in self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"]:
 							buttons.append(create_button(style=ButtonStyle.blue, emoji=await self.get_formatted_emoji(self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role]["emoji"], guild), label=self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["list"][role]["name"], custom_id=role))
 						components = populate_actionrows(buttons) # Puts buttons in to rows of 5 or less
-						category_message = await message.channel.send(content="## " + category + "\n" + "Select the roles for this category!", components=components)
+						category_message = await message.channel.send(content="## " + category + "\n" + "Select the roles for this category!", view=build_component_view(components))
 
 						# Updates the category's message id
 						self.data["servers"][str(message.guild.id)]["roles"]["categories"][category]["message id"] = category_message.id
@@ -1045,7 +1278,7 @@ class MyClient(discord.ext.commands.Bot):
 					for candidate in candidates:
 						buttons.append(create_button(style=ButtonStyle.blue, label=candidates[candidate], emoji=candidate, custom_id="poll:" + candidate))
 					components = populate_actionrows(buttons) # Puts buttons in to rows of 5 or less
-					poll_message = await message.channel.send(embed=embed_poll, components=components)
+					poll_message = await message.channel.send(embed=embed_poll, view=build_component_view(components))
 
 					# Setup candidates dict for recording votes so people can't vote multiple times
 					#for candidate in candidates:
@@ -1094,7 +1327,7 @@ class MyClient(discord.ext.commands.Bot):
 						confession_embed.set_footer(text="This message is here to be reviewed. Please say if the content is inappropriate!", icon_url=guild.icon)
 						button = (create_button(style=ButtonStyle.red, label="Remove", custom_id="confession:" + confession))
 						components = [create_actionrow(*[button])]
-						await message.channel.send(embed=confession_embed, components=components)
+						await message.channel.send(embed=confession_embed, view=build_component_view(components))
 					if len(client.data["servers"][str(guild.id)]["confessions"]["messages"]) != 0:
 						return
 				await message.channel.send("No confessions to review")
@@ -1145,7 +1378,7 @@ class MyClient(discord.ext.commands.Bot):
 							channel_options.append(create_select_option(label=channel.name, value=str(channel.id)))
 					announcement_channel_select = create_select(channel_options, custom_id="settings:announcements channel id")
 					components = [create_actionrow(*[announcement_channel_select])]
-					await message.channel.send(content="Announcement Channel:", components=components)
+					await message.channel.send(content="Announcement Channel:", view=build_component_view(components))
 
 				# Final run
 				channel_options = []
@@ -1157,11 +1390,11 @@ class MyClient(discord.ext.commands.Bot):
 						channel_options.append(create_select_option(label=channel.name, value=str(channel.id)))
 				announcement_channel_select = create_select(channel_options,custom_id="settings:announcements channel id")
 				components = [create_actionrow(*[announcement_channel_select])]
-				await message.channel.send(content="Announcement Channel:", components=components)
+				await message.channel.send(content="Announcement Channel:", view=build_component_view(components))
 
 				no_announcement_button = create_button(style=ButtonStyle.red, label="Turn off announcements", emoji="❎", custom_id="settings:announcements channel id")
 				components = [create_actionrow(*[no_announcement_button])]
-				await message.channel.send(content="Announcement Channel:", components=components)
+				await message.channel.send(content="Announcement Channel:", view=build_component_view(components))
 
 				# Colour theme selection
 				colour_options = []
@@ -1169,7 +1402,7 @@ class MyClient(discord.ext.commands.Bot):
 					colour_options.append(create_select_option(label=colour, value=str(colours[colour])))
 				colour_select = create_select(colour_options, custom_id="settings:colour theme")
 				components = [create_actionrow(*[colour_select])]
-				await message.channel.send(content="Server Colour Theme:", components=components)
+				await message.channel.send(content="Server Colour Theme:", view=build_component_view(components))
 
 				# Delete logging
 				dlogging_options = []
@@ -1178,11 +1411,11 @@ class MyClient(discord.ext.commands.Bot):
 				dlogging_options.append(create_select_option(label="All messages (as if I would do this)", value=2))
 				dlogging_select = create_select(dlogging_options, custom_id="settings:delete_logging")
 				components = [create_actionrow(*[dlogging_select])]
-				await message.channel.send(content="Delete logging options:", components=components)
+				await message.channel.send(content="Delete logging options:", view=build_component_view(components))
 
 				toggle_role_archiving = create_button(style=ButtonStyle.blue, label="Toggle role archiving", emoji="❎", custom_id="settings:role archiving")
 				components = [create_actionrow(*[toggle_role_archiving])]
-				await message.channel.send(content="Role Archiving:", components=components)
+				await message.channel.send(content="Role Archiving:", view=build_component_view(components))
 
 		# If the message was sent by the developers
 		if message.author.id in DEVELOPERS:
@@ -1246,27 +1479,27 @@ class MyClient(discord.ext.commands.Bot):
 
 				joke_button = create_button(style=ButtonStyle.blue, label="Jokes", emoji="😂", custom_id="config:jokes")
 				components = [create_actionrow(*[joke_button])]
-				await message.channel.send(content="Jokes: " + str(self.data["bot settings"]["jokes"]), components=components)
+				await message.channel.send(content="Jokes: " + str(self.data["bot settings"]["jokes"]), view=build_component_view(components))
 
 				safety_button = create_button(style=ButtonStyle.blue, label="safety", emoji="🦺", custom_id="config:safety")
 				components = [create_actionrow(*[safety_button])]
-				await message.channel.send(content="safety: " + str(self.data["bot settings"]["safety"]), components=components)
+				await message.channel.send(content="safety: " + str(self.data["bot settings"]["safety"]), view=build_component_view(components))
 
 				add_info_button = create_button(style=ButtonStyle.blue, label="Show Additional Info", emoji="🩺",custom_id="config:add info")
 				components = [create_actionrow(*[add_info_button])]
 				if "add info" in self.data["bot settings"]:
-					await message.channel.send(content="Add info: " + str(self.data["bot settings"]["add info"]),components=components)
+					await message.channel.send(content="Add info: " + str(self.data["bot settings"]["add info"]), view=build_component_view(components))
 				else:
-					await message.channel.send(content="Add info: False", components=components)
+					await message.channel.send(content="Add info: False", view=build_component_view(components))
 
 				upload_data_button = create_button(style=ButtonStyle.grey, label="Data", emoji="🔡", custom_id="config:send:data.json")
 				upload_log_button = create_button(style=ButtonStyle.grey, label="Log", emoji="📄", custom_id="config:send:log_file.log")
 				components = [create_actionrow(*[upload_data_button, upload_log_button])]
-				await message.channel.send(content="Files: ", components=components)
+				await message.channel.send(content="Files: ", view=build_component_view(components))
 
 				kill_button = create_button(style=ButtonStyle.red, label="Kill", emoji="🔪",custom_id="config:kill")
 				components = [create_actionrow(*[kill_button])]
-				await message.channel.send(content="Control: ", components=components)
+				await message.channel.send(content="Control: ", view=build_component_view(components))
 
 				#activity_button = create_button(style=ButtonStyle.green, label="Activity", emoji="🏃‍♀️", custom_id="config:modal:activity")
 				#components = [create_actionrow(*[activity_button])]
