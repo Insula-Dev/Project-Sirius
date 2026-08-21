@@ -731,6 +731,12 @@ class MyClient(discord.ext.commands.Bot):
 							"Pycharm enthusiasts vs Sublime Text enjoyers: https://youtu.be/HrkNwjruz5k")
 						await message.channel.send(
 							"85 commits in and haha bot print funny is still our sense of humour.")
+						
+					# Question mark mention
+					if "?" in message.content:
+						if randint(1, 2) == 1:
+							logger.debug("`?` mentioned by " + message.author.name)  # Event log
+							await message.channel.send(AI.question(message.content))
 
 				# Token command
 				if message.content == "token":
@@ -871,6 +877,15 @@ class MyClient(discord.ext.commands.Bot):
 				det = cv2.QRCodeDetector()
 				val, pts, st_code = det.detectAndDecode(img)
 				await message.channel.send(val)
+
+		# Question command
+		if message.content.startswith("question"):
+
+			logger.info("`question` called by " + message.author.name)  # Event log
+
+			argument_string = message.content[len("question "):]
+
+			await message.channel.send(AI.question(argument_string))
 
 		# Help command
 		if message.content == "help":
