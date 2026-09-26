@@ -12,6 +12,7 @@ import socket
 import cv2
 import discord
 import discord.ext.commands
+from discord import app_commands
 # from discord.ui import Modal, InputText
 # from discord_slash.utils.manage_commands import create_option, create_permission, remove_all_commands
 # from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle, create_select, create_select_option
@@ -165,6 +166,33 @@ async def handle_component_interaction(interaction: discord.Interaction):
 	custom_id = data.get("custom_id")
 	if custom_id is None:
 		await interaction.response.send_message("Unsupported interaction.", ephemeral=True)
+		return
+
+	if custom_id.startswith("purge:"):
+		guild = interaction.guild
+		if guild is None or not interaction.user.guild_permissions.administrator:
+			await interaction.response.send_message("You need server administrator permissions to purge messages.", ephemeral=True)
+			return
+
+		try:
+			count = int(custom_id[len("purge:"):])
+		except ValueError:
+			await interaction.response.send_message("This purge confirmation is invalid.", ephemeral=True)
+			return
+
+		channel = interaction.channel
+		if not 1 <= count <= 100 or channel is None or not hasattr(channel, "purge"):
+			await interaction.response.send_message("Messages cannot be purged in this channel.", ephemeral=True)
+			return
+
+		await interaction.response.defer()
+		try:
+			deleted = await channel.purge(limit=count)
+		except discord.HTTPException:
+			logger.exception("Failed to purge messages after slash command confirmation")
+			await interaction.edit_original_response(content="The channel could not be purged. Check the bot's permissions and message age.", view=None)
+			return
+		await interaction.edit_original_response(content=f"Deleted {len(deleted)} messages.", view=None)
 		return
 
 	if custom_id.startswith("poll:"):
@@ -1855,7 +1883,6 @@ if __name__ == "__main__":
 				logger.warning("Invalid application id in config.json. Slash command sync will be skipped.")
 
 		client = MyClient(intents=intents, application_id=application_id)
-		# slash = SlashCommand(client, sync_commands=True)
 
 		guild_ids = []
 		for guild in client.guilds:
@@ -1871,22 +1898,219 @@ if __name__ == "__main__":
 		@client.tree.command(name="hello", description="Say hello")
 		async def hello(interaction: discord.Interaction):
 			await interaction.response.send_message(f"Hello there, {interaction.user.mention}!")
-		# @slash.slash(
-		# 	name="ping",
-		# 	description="Ping the bot to obtain latency.",
-		# 	guild_ids=guild_ids
-		# )
-		# async def _ping(ctx):
-		# 	"""Runs on the ping slash command."""
-		#
-		# 	logger.debug("`/ping` called by " + ctx.author.name)
-		#
-		# 	try:
-		# 		await ctx.send(content=str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5]+"s")
-		# 	except Exception as exception:
-		# 		logger.error("Failed to run `/ping` in " + ctx.guild.name + " (" + str(ctx.guild.id) + "). Exception: " + str(exception))
-		#
-		#
+
+		@client.tree.command(name="confess", description="Submit an anonymous confession for review")
+		async def confess(interaction: discord.Interaction, confession: str):
+			if interaction.guild is None:
+				await interaction.response.send_message("Confessions can only be submitted in a server.", ephemeral=True)
+				return
+
+			server_data = client.data["servers"].setdefault(str(interaction.guild.id), SERVER_STRUCTURE.copy())
+			confessions = server_data.setdefault("confessions", {"metadata": {"count": 0}, "messages": {}})
+			metadata = confessions.setdefault("metadata", {"count": 0})
+			messages = confessions.setdefault("messages", {})
+			count = int(metadata.get("count", 0))
+			flag_spam = False
+			if str(count) in messages and confession == messages[str(count)]:
+				if str(count - 1) in messages and confession == messages[str(count - 1)]:
+					await interaction.response.send_message(
+						"Repeated spam confessions were detected. Please do not submit this again.",
+						ephemeral=True,
+					)
+					return
+				flag_spam = True
+
+			metadata["count"] = count + 1
+			messages[str(count + 1)] = confession
+			client.update_data()
+			if flag_spam:
+				response = "This confession was flagged as a repeat. Further attempts may be reported to admins."
+			else:
+				response = "Thank you. Your confession may be reviewed before posting and will remain anonymous."
+			await interaction.response.send_message(response, ephemeral=True)
+
+		@client.tree.command(name="question", description="Ask Sirius a question")
+		async def question(interaction: discord.Interaction, question: str):
+			try:
+				answer = AI.question(question)
+			except Exception:
+				logger.exception("Failed to answer slash command question")
+				await interaction.response.send_message("I couldn't answer that just now.", ephemeral=True)
+				return
+
+			response = f"**{interaction.user.name}**: *{question}*\n\n{answer}"
+			await interaction.response.send_message(response)
+
+		@client.tree.command(name="anonymous", description="Post a message anonymously in this channel")
+		async def anonymous(interaction: discord.Interaction, message: str):
+			channel = interaction.channel
+			if interaction.guild is None or channel is None:
+				await interaction.response.send_message("Anonymous messages can only be posted in a server channel.", ephemeral=True)
+				return
+			if "@" in message:
+				await interaction.response.send_message("Your message cannot contain mentions.", ephemeral=True)
+				return
+
+			await interaction.response.defer(ephemeral=True)
+			try:
+				await channel.send(f"**Anonymous**: *{message}*", allowed_mentions=discord.AllowedMentions.none())
+			except discord.HTTPException:
+				logger.exception("Failed to post anonymous slash command message")
+				await interaction.followup.send("Your message could not be posted.", ephemeral=True)
+				return
+			await interaction.followup.send("Your message was posted anonymously.", ephemeral=True)
+
+		@client.tree.command(name="purge", description="Delete recent messages from this channel")
+		async def purge(interaction: discord.Interaction, count: app_commands.Range[int, 1, 100]):
+			if interaction.guild is None or not interaction.user.guild_permissions.administrator:
+				await interaction.response.send_message("You need server administrator permissions to purge messages.", ephemeral=True)
+				return
+
+			channel = interaction.channel
+			if channel is None or not hasattr(channel, "purge"):
+				await interaction.response.send_message("Messages cannot be purged in this channel.", ephemeral=True)
+				return
+
+			purge_button = create_button(
+				style=ButtonStyle.red,
+				label=f"Purge {count} messages",
+				custom_id=f"purge:{count}",
+			)
+			view = build_component_view([create_actionrow(purge_button)])
+			await interaction.response.send_message(
+				content=f"Confirm deletion of {count} recent messages?",
+				view=view,
+				ephemeral=True,
+			)
+
+		async def create_button_poll(interaction, question_text, options, multi):
+			if interaction.guild is None or interaction.channel is None:
+				await interaction.response.send_message("Polls can only be created in a server channel.", ephemeral=True)
+				return
+
+			options = [option.strip() for option in options if option is not None]
+			if len(options) < 2 or len(options) > 9 or any(not option or len(option) > 80 for option in options):
+				await interaction.response.send_message("Provide 2 to 9 non-empty options, each no longer than 80 characters.", ephemeral=True)
+				return
+			if len(set(options)) != len(options):
+				await interaction.response.send_message("Poll options must be unique.", ephemeral=True)
+				return
+
+			buttons = [
+				create_button(style=ButtonStyle.blue, label=option, custom_id="poll:" + option)
+				for option in options
+			]
+			view = build_component_view(populate_actionrows(buttons))
+			embed = discord.Embed(
+				title=question_text,
+				description="Select an option below:" if not multi else "Select or unselect options below:",
+				colour=client.get_server_colour(interaction.guild.id),
+			)
+
+			await interaction.response.defer(ephemeral=True)
+			try:
+				poll_message = await interaction.channel.send(embed=embed, view=view)
+			except discord.HTTPException:
+				logger.exception("Failed to create slash command poll")
+				await interaction.followup.send("The poll could not be created.", ephemeral=True)
+				return
+
+			guild_polls = client.poll.setdefault(str(interaction.guild.id), {})
+			guild_polls[str(poll_message.id)] = {
+				"title": question_text,
+				"options": options,
+				"voters": {},
+				"config": {"winner": "highest", "anonymous": True, "multi": multi},
+			}
+			await interaction.followup.send("Poll created.", ephemeral=True)
+
+		@client.tree.command(name="poll", description="Create an anonymous single-choice poll")
+		async def poll(
+			interaction: discord.Interaction,
+			question: str,
+			option1: str,
+			option2: str,
+			option3: str = None,
+			option4: str = None,
+			option5: str = None,
+			option6: str = None,
+			option7: str = None,
+			option8: str = None,
+			option9: str = None,
+		):
+			await create_button_poll(
+				interaction,
+				question,
+				(option1, option2, option3, option4, option5, option6, option7, option8, option9),
+				False,
+			)
+
+		@client.tree.command(name="multi_poll", description="Create an anonymous poll allowing multiple choices")
+		async def multi_poll(
+			interaction: discord.Interaction,
+			question: str,
+			option1: str,
+			option2: str,
+			option3: str = None,
+			option4: str = None,
+			option5: str = None,
+			option6: str = None,
+			option7: str = None,
+			option8: str = None,
+			option9: str = None,
+		):
+			await create_button_poll(
+				interaction,
+				question,
+				(option1, option2, option3, option4, option5, option6, option7, option8, option9),
+				True,
+			)
+
+		@client.tree.context_menu(name="Close Poll")
+		async def close_poll(interaction: discord.Interaction, message: discord.Message):
+			guild = interaction.guild
+			if guild is None or not interaction.user.guild_permissions.administrator:
+				await interaction.response.send_message("You need server administrator permissions to close a poll.", ephemeral=True)
+				return
+
+			guild_polls = client.poll.get(str(guild.id), {})
+			poll_data = guild_polls.get(str(message.id))
+			if poll_data is None:
+				await interaction.response.send_message("This poll is closed or unavailable.", ephemeral=True)
+				return
+
+			options = poll_data.get("options", [])
+			counts = {option: 0 for option in options}
+			for selected in poll_data["voters"].values():
+				selected_options = selected if isinstance(selected, list) else [selected]
+				for selected_option in selected_options:
+					if selected_option in counts:
+						counts[selected_option] += 1
+
+			if not options:
+				await interaction.response.send_message("This poll has no registered options.", ephemeral=True)
+				return
+
+			embed = discord.Embed(
+				title=f"Results: {poll_data['title']}",
+				colour=client.get_server_colour(guild.id),
+			)
+			embed.add_field(
+				name="Options and votes",
+				value="\n".join(f"{option}: {counts[option]}" for option in options),
+				inline=False,
+			)
+			if poll_data["config"].get("winner") == "highest" and sum(counts.values()) > 0:
+				winner = max(options, key=counts.get)
+				embed.add_field(name="Winner", value=f"{winner} ({counts[winner]} votes)", inline=False)
+
+			await interaction.response.send_message(embed=embed)
+			guild_polls.pop(str(message.id), None)
+			try:
+				await message.edit(view=None)
+			except discord.HTTPException:
+				logger.warning("Could not remove buttons from closed poll %s", message.id)
+		
 		# @slash.slash(
 		# 	name="confess",
 		# 	description="Use the command to send an anonymous message to be posted later",
