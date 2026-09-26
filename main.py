@@ -17,12 +17,9 @@ import discord.ext.commands
 # from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle, create_select, create_select_option
 # from discord_slash.model import SlashCommandPermissionType, ContextMenuType
 # import interactions
-from discord import app_commands
 
 import challenger
 intents = discord.Intents.default()
-client = discord.Client(intents=intents)
-tree = app_commands.CommandTree(client)
 
 # Local imports
 from challenger import formatChallenge
@@ -32,7 +29,8 @@ import AI
 from colours import colours
 
 # Loads config CONST variables
-DEFAULT_TOKEN = "ENTER TOKEN HERE"
+DEFAULT_TOKEN = "ENTER TOKEN IN config.json"
+DEFAULT_APPLICATION_ID = "ENTER APPLICATION ID IN config.json"
 DEFAULT_PREFIX = "-"
 DEFAULT_DEBUG = True
 DEFAULT_LEVEL = "INFO"
@@ -63,6 +61,7 @@ SERVER_STRUCTURE = \
 	}
 
 TOKEN = DEFAULT_TOKEN
+APPLICATION_ID = DEFAULT_APPLICATION_ID
 PREFIX = DEFAULT_PREFIX
 DEBUG = DEFAULT_DEBUG
 LEVEL = DEFAULT_LEVEL
@@ -127,7 +126,7 @@ def create_config():
 		print("Additional config can be written in config.json")
 
 def setup_config():
-	global TOKEN, PREFIX, DEBUG, LEVEL, JOKE_SERVERS, REPORT_CHANNEL, DEVELOPERS, DEFAULT_COLOUR
+	global TOKEN, APPLICATION_ID, PREFIX, DEBUG, LEVEL, JOKE_SERVERS, REPORT_CHANNEL, DEVELOPERS, DEFAULT_COLOUR
 
 	def initiate_const(name, default, dictionary):
 		try:
@@ -147,6 +146,7 @@ def setup_config():
 		if TOKEN == DEFAULT_TOKEN:
 			create_config()
 			print("config.json setup")
+		APPLICATION_ID = initiate_const("application id", APPLICATION_ID, data)
 		PREFIX = initiate_const("prefix", DEFAULT_PREFIX, data)
 		DEBUG = initiate_const("debug", DEFAULT_DEBUG, data)
 		LEVEL = initiate_const("level", DEFAULT_LEVEL, data)
@@ -416,7 +416,7 @@ class MyClient(discord.ext.commands.Bot):
 		self.cache = {}
 		self.poll = {}
 		self.purge_messages = {}
-		self.activity = discord.Activity(type=discord.ActivityType.listening, name="the rain")  # There is no room for purple gods here
+		self.activity = discord.Activity(type=discord.ActivityType.streaming, name="the rain", )  # There is no room for purple gods here
 
 		# Prints logs to the console
 		if DEBUG is True:
@@ -632,6 +632,30 @@ class MyClient(discord.ext.commands.Bot):
 		guild_ids = []
 		for guild in self.guilds:
 			guild_ids.append(guild.id)
+
+		# Sync slash commands with discord if application_id is configured.
+		if self.application_id is None:
+			logger.warning("Skipping slash command sync: application_id is not set.")
+		elif DEBUG is True:
+			# Get dev guild from REPORT_CHANNEL
+			report_channel = self.get_channel(int(REPORT_CHANNEL))
+			if report_channel is None:
+				try:
+					report_channel = await self.fetch_channel(int(REPORT_CHANNEL))
+				except Exception as exception:
+					logger.warning(f"Failed to fetch REPORT_CHANNEL ({REPORT_CHANNEL}): {exception}")
+
+			dev_guild = report_channel.guild if report_channel is not None else None
+			if dev_guild is not None:
+				self.tree.copy_global_to(guild=dev_guild)
+				synced_commands = await self.tree.sync(guild=dev_guild)
+				command_names = ", ".join(command.name for command in synced_commands)
+				print(f"Synced slash commands with dev guild: {dev_guild.name} (ID: {dev_guild.id}): {command_names}")
+			else:
+				logger.warning("Could not resolve dev guild from REPORT_CHANNEL. Syncing globally instead.")
+				await self.tree.sync()
+		else:
+			await self.tree.sync()
 
 	async def on_disconnect(self):
 		"""Runs on disconnection.
@@ -1822,24 +1846,31 @@ if __name__ == "__main__":
 		setup_config()
 		intents = discord.Intents.all()
 		intents.members = True
-		client = MyClient(intents=intents, application_id=844950029369737238)
+
+		application_id = None
+		if APPLICATION_ID != DEFAULT_APPLICATION_ID:
+			try:
+				application_id = int(APPLICATION_ID)
+			except (TypeError, ValueError):
+				logger.warning("Invalid application id in config.json. Slash command sync will be skipped.")
+
+		client = MyClient(intents=intents, application_id=application_id)
 		# slash = SlashCommand(client, sync_commands=True)
 
 		guild_ids = []
 		for guild in client.guilds:
-			guild_ids += guild.id
-
-		@tree.command(
-			name="ping2",
+			guild_ids.append(guild.id)
+		@client.tree.command(
+			name="ping",
 			description=f"Ping the bot to obtain latency."
 		)
 		async def _ping(interaction):
-			logger.debug("`/ping` called by " + interaction.author.name)
+			logger.debug("`/ping` called by " + interaction.user.name)
 			await interaction.response.send_message(content=str(int(client.latency // 1)) + "." + str(client.latency % 1)[2:5]+"s")
-		# @client.event
-		# async def on_ready():
-		# 	await tree.sync()
-		# 	print("Ready!")
+
+		@client.tree.command(name="hello", description="Say hello")
+		async def hello(interaction: discord.Interaction):
+			await interaction.response.send_message(f"Hello there, {interaction.user.mention}!")
 		# @slash.slash(
 		# 	name="ping",
 		# 	description="Ping the bot to obtain latency.",
