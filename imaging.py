@@ -51,11 +51,23 @@ def mask_circle_solid(pil_img, background_colour, blur_radius, offset=0):
 	return Image.composite(pil_img, background, mask)
 
 def get_picture(url):
-	# Load directly from bytes so the returned image is not tied to a closed file handle.
-	request = requests.get(str(url), timeout=15)
-	request.raise_for_status()
-	with Image.open(BytesIO(request.content)) as picture:
-		return picture.copy()
+	try:
+		# Request profile picture and save it as card.png
+		response = requests.get(url)
+		response.raise_for_status()  # Raise an HTTPError for bad responses
+		with open("card.png", "wb") as file:
+			file.write(response.content)
+
+		# Open the image file
+		with Image.open("card.png") as picture:
+			image = picture.copy()  # Copy the image to avoid closing it
+		return image
+	except requests.RequestException as e:
+		print(f"Error downloading image: {e}")
+		return None
+	except IOError as e:
+		print(f"Error opening image: {e}")
+		return None
 
 def generate_level_card(profile_picture_url, name, rank, percentage, server_picture=None):
 	"""Generates the level card."""
@@ -121,7 +133,7 @@ Problems:
 
 
 if __name__ == '__main__':
-	im = get_picture("https://cdn.discordapp.com/icons/755420029482303488/a_c96342be77385d12d99d8b07c1d622d0.webp?size=96")
+	im = get_picture("https://cdn.discordapp.com/avatars/258284765776576512/691bedaf9b64b6b3ad6bc98eb69806cb.webp?size=80")
 	im.show()
 	#generate_level_card("https://cdn.discordapp.com/guilds/834213187468394517/users/258284765776576512/avatars/5e3a063c3b7bcb5366d514cf08ad9272.webp?size=80","Arun",1,20)
 
