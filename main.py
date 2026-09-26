@@ -1334,7 +1334,7 @@ class MyClient(discord.ext.commands.Bot):
 				if "confessions" in self.data["servers"][str(guild.id)]:
 					for confession in client.data["servers"][str(guild.id)]["confessions"]["messages"]:
 						confession_message = client.data["servers"][str(guild.id)]["confessions"]["messages"][confession]
-						image_url = re.match("^[https:\/\/|http:\/\/].*[gif|png|jpg|jpeg|webp]$",confession_message)
+						image_url = re.match(r"https?://.*\.(?:gif|png|jpe?g|webp)$", confession_message, re.IGNORECASE)
 
 						confession_embed = discord.Embed(title="Review Confession No." + confession, description="> " + confession_message, colour=0XF57E3D)
 						if image_url != None:
@@ -1360,7 +1360,7 @@ class MyClient(discord.ext.commands.Bot):
 							con_start = "> "
 
 						confession_message = client.data["servers"][str(guild.id)]["confessions"]["messages"][confession]
-						image_url = re.match("^[https:\/\/|http:\/\/].*[gif|png|jpg|jpeg|webp]$", confession_message)
+						image_url = re.match(r"https?://.*\.(?:gif|png|jpe?g|webp)$", confession_message, re.IGNORECASE)
 
 						confession_embed = discord.Embed(title="Confession No." + con_number, description= con_start + client.data["servers"][str(guild.id)]["confessions"]["messages"][confession], colour=self.get_server_colour(guild.id))
 						if image_url != None:
