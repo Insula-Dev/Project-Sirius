@@ -1,4 +1,5 @@
 # Imports
+import math
 import time
 from io import BytesIO
 
@@ -120,9 +121,6 @@ def generate_level_card(profile_picture_url, name, rank, percentage, server_pict
 		card.paste(server_picture, (445 * card_scale, 25 * card_scale))
 	card.save("card.png")
 
-"""
-Lossy compress the image badly. This is a joke function more than something useful.
-"""
 def lossy(image: Image.Image, quality: int = 10) -> Image.Image:
 	"""Lossy compress the image badly. This is a joke function more than something useful."""
 
@@ -135,6 +133,71 @@ def lossy(image: Image.Image, quality: int = 10) -> Image.Image:
 	compressed_image = Image.open(buffer)
 
 	return compressed_image
+
+def wave(
+		image: Image.Image,
+		horizontal_amplitude: int = 10,
+		horizontal_wavelength: int = 100,
+		vertical_amplitude: int = 5,
+		vertical_wavelength: int = 150,
+	) -> Image.Image:
+		if horizontal_wavelength <= 0 or vertical_wavelength <= 0:
+			raise ValueError("Wave wavelengths must be greater than zero")
+		# Shift each row horizontally according to its y position.
+		if horizontal_amplitude:
+			horizontally_waved = Image.new("RGB", image.size, (255, 255, 255))
+			for y in range(image.height):
+				offset = round(horizontal_amplitude * math.sin(2 * math.pi * y / horizontal_wavelength))
+				row = image.crop((0, y, image.width, y + 1))
+				horizontally_waved.paste(row, (offset, y))
+		else:
+			horizontally_waved = image
+	
+		# Shift each column vertically according to its x position.
+		if vertical_amplitude:
+			vertically_waved = Image.new("RGB", image.size, (255, 255, 255))
+			for x in range(image.width):
+				offset = round(vertical_amplitude * math.sin(2 * math.pi * x / vertical_wavelength))
+				column = horizontally_waved.crop((x, 0, x + 1, image.height))
+				vertically_waved.paste(column, (x, offset))
+			image = vertically_waved
+		else:
+			image = horizontally_waved
+
+		return image
+
+def flagify(
+		image: Image.Image
+	) -> Image.Image:
+	"""Turn an image into a flag with independently adjustable horizontal and vertical waves."""
+
+	# Load the flagpost image
+	try:
+		flagpost = Image.open("flagpost.png")
+	except FileNotFoundError:
+		print("Error: flagpost.png not found.")
+		return image
+
+	# Resize image to be 1/3 the height of the flagpost
+	desired_height = flagpost.height // 3
+	image = image.resize((int(image.width * desired_height / image.height), desired_height), Image.NEAREST)
+
+	# Create a new image with a white background
+	flag_width = image.width + flagpost.width  # Add space for the flagpole (flagpost.png is 150px x 989px)
+	flagged_image = Image.new("RGB", (flag_width, flagpost.height), (255, 255, 255))  # White background
+	flagged_image.paste(flagpost, (0, 0))  # Paste the flagpost onto the new image
+
+	# Apply the wave effect
+	image = wave(image, horizontal_amplitude=2, horizontal_wavelength=90, vertical_amplitude=7, vertical_wavelength=image.width//4)
+	
+	# Paste the original image onto the new image
+	flagged_image.paste(image, (flagpost.width-60, 20))  # Paste the image on, adjusting it to put it near the stalk of the flagpost
+
+
+	# Paste the flagpost onto the new image
+	flagged_image.paste(flagged_image, (0, 0))
+
+	return flagged_image
 
 """
 Problems:
@@ -150,12 +213,17 @@ Problems:
 if __name__ == '__main__':
 	im = get_picture("https://cdn.discordapp.com/guilds/834213187468394517/users/258284765776576512/avatars/5e3a063c3b7bcb5366d514cf08ad9272.webp?size=80")
 	# im.show()
-	generate_level_card("https://cdn.discordapp.com/guilds/834213187468394517/users/258284765776576512/avatars/5e3a063c3b7bcb5366d514cf08ad9272.webp?size=160","Arun",1,20)
+	card_image = Image.open("card.png")
+	
+	# Flagify the card.png image
+	card_image = flagify(card_image)
+	card_image.show()
 
 	# Test compressing the card.png image
-	card_image = Image.open("card.png")
-	compressed_card = lossy(card_image, quality=2)
-	compressed_card.show()
+	card_image = lossy(card_image, quality=2)
+
+
+	card_image.close()
 
 	# Average 0.12635878966666664 for scale 2
 	# Average 0.10261608966666663 for scale 1

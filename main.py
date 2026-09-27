@@ -27,7 +27,7 @@ intents = discord.Intents.default()
 # Local imports
 from challenger import formatChallenge
 from log_handling import *
-from imaging import generate_level_card, lossy
+from imaging import generate_level_card, lossy, flagify
 import AI
 from colours import colours
 
@@ -970,6 +970,35 @@ class MyClient(discord.ext.commands.Bot):
 				output.seek(0)
 				await message.channel.send(file=discord.File(output, filename="compressed.jpg"))
 
+		# Flagify image command
+		if message.content.startswith("flagify"):
+
+			logger.info("`flagify` called by " + message.author.name)  # Event log
+
+			target_message = None
+			if len(message.attachments) == 1:
+				target_message = message
+			else:
+				# Look at the message before this one in the channel
+				async for msg in message.channel.history(before=message, limit=2):
+					if len(msg.attachments) == 1:
+						target_message = msg
+						break
+			if target_message is None:
+				await message.channel.send("No attachment found in this or the previous message.")
+				return
+			try:
+				with Image.open(BytesIO(await target_message.attachments[0].read())) as image:
+					flagifyed_image = flagify(image)  # Blue flag
+			except (UnidentifiedImageError, OSError):
+				await message.channel.send("The attachment could not be opened as an image.")
+				return
+
+			with BytesIO() as output:
+				flagifyed_image.save(output, format="PNG")
+				output.seek(0)
+				await message.channel.send(file=discord.File(output, filename="flagifyed.png"))
+
 		# Help command
 		if message.content == "help":
 
@@ -982,6 +1011,7 @@ class MyClient(discord.ext.commands.Bot):
 			embed_help.add_field(name=str(PREFIX + "__help__"), value="Creates the bot's help embed, listing the bot's commands.")
 			embed_help.add_field(name=str(PREFIX + "__embed__"), value="Creates an embed. Arguments: title=,description=,colour=[a colour],[name of field]=[string (Do not include commas or =)] (or just write and it'll be put in the description by deafult)")
 			embed_help.add_field(name=str(PREFIX + "__lossy__"), value="Lossy compresses an image attachment or the previous message's image attachment")
+			embed_help.add_field(name=str(PREFIX + "__flagify__"), value="Flagifies an image attachment or the previous message's image attachment")
 			embed_help.add_field(name=str(PREFIX + "__(/)poll__"), value="Creates a poll embed. Arguments: title=, colour=[a colour], anonymous(anon)=[true/false], [name of candidate]=[emoji]. All paramaters are optional. Admins react with 🔚 (end) to end poll) or right click>Apps>Close poll for anon poll")
 			embed_help.add_field(name=str("__(/)question__"), value="Asks Sirius a question. Don't expect a very insightful response...")
 			embed_help.add_field(name=str("__/confess__"), value="Send your confession to the database anonymously for admins to review and post")
