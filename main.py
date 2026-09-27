@@ -1,5 +1,6 @@
 # Imports
 import asyncio
+from io import BytesIO
 from math import ceil
 from random import randint, random, shuffle
 from os import path
@@ -13,6 +14,7 @@ import cv2
 import discord
 import discord.ext.commands
 from discord import app_commands
+from PIL import Image, UnidentifiedImageError
 # from discord.ui import Modal, InputText
 # from discord_slash.utils.manage_commands import create_option, create_permission, remove_all_commands
 # from discord_slash.utils.manage_components import create_button, create_actionrow, ButtonStyle, create_select, create_select_option
@@ -25,7 +27,7 @@ intents = discord.Intents.default()
 # Local imports
 from challenger import formatChallenge
 from log_handling import *
-from imaging import generate_level_card
+from imaging import generate_level_card, lossy
 import AI
 from colours import colours
 
@@ -938,6 +940,24 @@ class MyClient(discord.ext.commands.Bot):
 			argument_string = message.content[len("question "):]
 
 			await message.channel.send(AI.question(argument_string))
+
+		# Lossy compression command
+		if message.content.startswith("lossy"):
+
+			logger.info("`lossy` called by " + message.author.name)  # Event log
+
+			if len(message.attachments) == 1:
+				try:
+					with Image.open(BytesIO(await message.attachments[0].read())) as image:
+						compressed_image = lossy(image)
+				except (UnidentifiedImageError, OSError):
+					await message.channel.send("The attachment could not be opened as an image.")
+					return
+
+				with BytesIO() as output:
+					compressed_image.save(output, format="JPEG")
+					output.seek(0)
+					await message.channel.send(file=discord.File(output, filename="compressed.jpg"))
 
 		# Help command
 		if message.content == "help":

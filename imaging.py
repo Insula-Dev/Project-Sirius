@@ -120,6 +120,21 @@ def generate_level_card(profile_picture_url, name, rank, percentage, server_pict
 		card.paste(server_picture, (445 * card_scale, 25 * card_scale))
 	card.save("card.png")
 
+"""
+Lossy compress the image badly. This is a joke function more than something useful.
+"""
+def lossy(image: Image.Image, quality: int = 10) -> Image.Image:
+	"""Lossy compress the image badly. This is a joke function more than something useful."""
+
+	# Save the image to a BytesIO object with lossy compression
+	buffer = BytesIO()
+	image.convert("RGB").save(buffer, format="JPEG", quality=quality)
+	buffer.seek(0)
+
+	# Open the compressed image from the BytesIO object
+	compressed_image = Image.open(buffer)
+
+	return compressed_image
 
 """
 Problems:
@@ -133,9 +148,14 @@ Problems:
 
 
 if __name__ == '__main__':
-	im = get_picture("https://cdn.discordapp.com/avatars/258284765776576512/691bedaf9b64b6b3ad6bc98eb69806cb.webp?size=80")
-	im.show()
-	#generate_level_card("https://cdn.discordapp.com/guilds/834213187468394517/users/258284765776576512/avatars/5e3a063c3b7bcb5366d514cf08ad9272.webp?size=80","Arun",1,20)
+	im = get_picture("https://cdn.discordapp.com/guilds/834213187468394517/users/258284765776576512/avatars/5e3a063c3b7bcb5366d514cf08ad9272.webp?size=80")
+	# im.show()
+	generate_level_card("https://cdn.discordapp.com/guilds/834213187468394517/users/258284765776576512/avatars/5e3a063c3b7bcb5366d514cf08ad9272.webp?size=160","Arun",1,20)
+
+	# Test compressing the card.png image
+	card_image = Image.open("card.png")
+	compressed_card = lossy(card_image, quality=2)
+	compressed_card.show()
 
 	# Average 0.12635878966666664 for scale 2
 	# Average 0.10261608966666663 for scale 1
