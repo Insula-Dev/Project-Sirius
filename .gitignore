@@ -10,3 +10,4 @@ card.png
 channel_statistics.csv
 member_statistics.csv
 config-dev.json
+config-prod.json
