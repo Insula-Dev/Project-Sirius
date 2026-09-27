@@ -9,3 +9,4 @@ log_file.log
 card.png
 channel_statistics.csv
 member_statistics.csv
+config-dev.json

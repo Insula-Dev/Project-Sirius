@@ -915,7 +915,7 @@ class MyClient(discord.ext.commands.Bot):
 				await message.channel.send(embed=embed)
 				await message.delete()
 			except Exception as exception:
-				logger.error(f"Failed understand embed command. Exception: \"{type(exception).__name__}\" : {exception.args[0]}")
+				logger.error(f"Failed to understand embed command. Exception: \"{type(exception).__name__}\" : {exception.args[0]}")
 				await message.channel.send("Embed Failed: Check you put something to embed and that it's under 1024 character.\n" + str(exception))
 
 		# QR command
