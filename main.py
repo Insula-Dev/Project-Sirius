@@ -946,18 +946,29 @@ class MyClient(discord.ext.commands.Bot):
 
 			logger.info("`lossy` called by " + message.author.name)  # Event log
 
+			target_message = None
 			if len(message.attachments) == 1:
-				try:
-					with Image.open(BytesIO(await message.attachments[0].read())) as image:
-						compressed_image = lossy(image)
-				except (UnidentifiedImageError, OSError):
-					await message.channel.send("The attachment could not be opened as an image.")
-					return
+				target_message = message
+			else:
+				# Look at the message before this one in the channel
+				async for msg in message.channel.history(before=message, limit=2):
+					if len(msg.attachments) == 1:
+						target_message = msg
+						break
+			if target_message is None:
+				await message.channel.send("No attachment found in this or the previous message.")
+				return
+			try:
+				with Image.open(BytesIO(await target_message.attachments[0].read())) as image:
+					compressed_image = lossy(image)
+			except (UnidentifiedImageError, OSError):
+				await message.channel.send("The attachment could not be opened as an image.")
+				return
 
-				with BytesIO() as output:
-					compressed_image.save(output, format="JPEG")
-					output.seek(0)
-					await message.channel.send(file=discord.File(output, filename="compressed.jpg"))
+			with BytesIO() as output:
+				compressed_image.save(output, format="JPEG")
+				output.seek(0)
+				await message.channel.send(file=discord.File(output, filename="compressed.jpg"))
 
 		# Help command
 		if message.content == "help":
