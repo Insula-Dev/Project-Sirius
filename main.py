@@ -446,7 +446,7 @@ class MyClient(discord.ext.commands.Bot):
 		self.cache = {}
 		self.poll = {}
 		self.purge_messages = {}
-		self.activity = discord.Activity(type=discord.ActivityType.streaming, name="the rain", )  # There is no room for purple gods here
+		self.activity = discord.Activity(type=discord.ActivityType.streaming, name="Listening to the rain")
 
 		# Prints logs to the console
 		if DEBUG is True:
