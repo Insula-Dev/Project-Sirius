@@ -145,7 +145,7 @@ def wave(
 			raise ValueError("Wave wavelengths must be greater than zero")
 		# Shift each row horizontally according to its y position.
 		if horizontal_amplitude:
-			horizontally_waved = Image.new("RGB", image.size, (255, 255, 255))
+			horizontally_waved = Image.new("RGBA", image.size, (255, 255, 255, 0))
 			for y in range(image.height):
 				offset = round(horizontal_amplitude * math.sin(2 * math.pi * y / horizontal_wavelength))
 				row = image.crop((0, y, image.width, y + 1))
@@ -155,7 +155,7 @@ def wave(
 	
 		# Shift each column vertically according to its x position.
 		if vertical_amplitude:
-			vertically_waved = Image.new("RGB", image.size, (255, 255, 255))
+			vertically_waved = Image.new("RGBA", image.size, (255, 255, 255, 0))
 			for x in range(image.width):
 				offset = round(vertical_amplitude * math.sin(2 * math.pi * x / vertical_wavelength))
 				column = horizontally_waved.crop((x, 0, x + 1, image.height))
@@ -182,20 +182,21 @@ def flagify(
 	desired_height = flagpost.height // 3
 	image = image.resize((int(image.width * desired_height / image.height), desired_height), Image.NEAREST)
 
+	# Paste the image onto a slightly larger canvas to accommodate the waving effect
+	image_with_space_around = Image.new("RGBA", (image.width + 20, image.height + 20), (255, 255, 255, 0))
+	image_with_space_around.paste(image, (10, 10))
+	image = image_with_space_around
+
 	# Create a new image with a white background
 	flag_width = image.width + flagpost.width  # Add space for the flagpole (flagpost.png is 150px x 989px)
-	flagged_image = Image.new("RGB", (flag_width, flagpost.height), (255, 255, 255))  # White background
-	flagged_image.paste(flagpost, (0, 0))  # Paste the flagpost onto the new image
+	flagged_image = Image.new("RGBA", (flag_width, flagpost.height), (255, 255, 255, 255))  # White background
+	flagged_image.paste(flagpost, (10, 0), flagpost)  # Preserve flagpost transparency when compositing
 
 	# Apply the wave effect
 	image = wave(image, horizontal_amplitude=2, horizontal_wavelength=90, vertical_amplitude=7, vertical_wavelength=image.width//4)
 	
-	# Paste the original image onto the new image
-	flagged_image.paste(image, (flagpost.width-60, 20))  # Paste the image on, adjusting it to put it near the stalk of the flagpost
-
-
-	# Paste the flagpost onto the new image
-	flagged_image.paste(flagged_image, (0, 0))
+	# Paste the flagpost, then overlay the waved image so the image is on top
+	flagged_image.paste(image, (flagpost.width-60, 20), image)  # Use image alpha as mask so transparent pixels don't erase backdrop
 
 	return flagged_image
 
