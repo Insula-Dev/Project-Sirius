@@ -884,8 +884,8 @@ class MyClient(discord.ext.commands.Bot):
 			try:
 				argument_string = message.content[len("embed "):]
 				arguments = re.split(",(?!\\s)", argument_string)  # Splits arguments when there is not a space after the comma, if there is, it is assumed to be part of a sentance.
-				title = discord.Embed.Empty
-				description = discord.Embed.Empty
+				title = ""
+				description = ""
 				colour = self.get_server_colour(guild.id)
 				fields = []
 
@@ -910,7 +910,7 @@ class MyClient(discord.ext.commands.Bot):
 
 				# Create and send user's embed
 				embed = discord.Embed(title=title, description=description, colour=colour)
-				embed.set_author(name=message.author.name, url=discord.Embed.Empty, icon_url=message.author.avatar_url)
+				embed.set_author(name=message.author.name, url="", icon_url=message.author.avatar)
 				for field in fields:
 					embed.add_field(name=list(field.keys())[0], value=field[list(field.keys())[0]])
 
@@ -1360,7 +1360,7 @@ class MyClient(discord.ext.commands.Bot):
 				candidates_string = ""
 
 				# Embed
-				title = discord.Embed.Empty
+				title = ""
 				colour = self.get_server_colour(guild.id)
 
 				# Config
