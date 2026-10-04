@@ -183,7 +183,7 @@ async def handle_component_interaction(interaction: discord.Interaction):
 			return
 
 		channel = interaction.channel
-		if not 1 <= count <= 100 or channel is None or not hasattr(channel, "purge"):
+		if not 1 <= count <= 100 or channel is None or not hasattr(channel, "purge"): # There may be no channel if someone DMs the bot, for example
 			await interaction.response.send_message("Messages cannot be purged in this channel.", ephemeral=True)
 			return
 
@@ -1042,6 +1042,7 @@ class MyClient(discord.ext.commands.Bot):
 			embed_help.add_field(name=str(PREFIX + "__embed__"), value="Creates an embed. Arguments: title=,description=,colour=[a colour],[name of field]=[string (Do not include commas or =)] (or just write and it'll be put in the description by deafult)")
 			embed_help.add_field(name=str(PREFIX + "__lossy__"), value="Lossy compresses an image attachment or the previous message's image attachment")
 			embed_help.add_field(name=str(PREFIX + "__flagify__"), value="Flagifies an image attachment or the previous message's image attachment")
+			embed_help.add_field(name=str(PREFIX + "__wobble__"), value="Randomly wobbles the image attachment or the previous message's image attachment like jelly")
 			embed_help.add_field(name=str(PREFIX + "__(/)poll__"), value="Creates a poll embed. Arguments: title=, colour=[a colour], anonymous(anon)=[true/false], [name of candidate]=[emoji]. All paramaters are optional. Admins react with 🔚 (end) to end poll) or right click>Apps>Close poll for anon poll")
 			embed_help.add_field(name=str("__(/)question__"), value="Asks Sirius a question. Don't expect a very insightful response...")
 			embed_help.add_field(name=str("__/confess__"), value="Send your confession to the database anonymously for admins to review and post")
@@ -2036,7 +2037,7 @@ if __name__ == "__main__":
 		@client.tree.command(name="anonymous", description="Post a message anonymously in this channel")
 		async def anonymous(interaction: discord.Interaction, message: str):
 			channel = interaction.channel
-			if interaction.guild is None or channel is None:
+			if interaction.guild is None or channel is None: # There may be no channel if someone DMs the bot, for example
 				await interaction.response.send_message("Anonymous messages can only be posted in a server channel.", ephemeral=True)
 				return
 			if "@" in message:
@@ -2076,7 +2077,7 @@ if __name__ == "__main__":
 			)
 
 		async def create_button_poll(interaction, question_text, options, multi):
-			if interaction.guild is None or interaction.channel is None:
+			if interaction.guild is None or interaction.channel is None: # There may be no channel if someone DMs the bot, for example
 				await interaction.response.send_message("Polls can only be created in a server channel.", ephemeral=True)
 				return
 
@@ -2202,6 +2203,8 @@ if __name__ == "__main__":
 				await message.edit(view=None)
 			except discord.HTTPException:
 				logger.warning("Could not remove buttons from closed poll %s", message.id)
+
+		# TODO: REmove these old slash command#s code and transfer comments descriptions accross to new ones
 		
 		# @slash.slash(
 		# 	name="confess",
