@@ -2,6 +2,7 @@
 import math
 import time
 from io import BytesIO
+import random
 
 import requests
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageStat
@@ -166,6 +167,19 @@ def wave(
 
 		return image
 
+def wobble(image: Image.Image) -> Image.Image:
+	"""Randomly waves image with moderate amplitude and wavelength and crops in to keep the central portion."""
+
+	cropped_width = int(image.width // 1.2)
+	cropped_height = int(image.height // 1.2)
+	image = wave(image, horizontal_amplitude=random.randint(3, 7), horizontal_wavelength=random.randint(40, 80), vertical_amplitude=random.randint(3, 7), vertical_wavelength=random.randint(40, 80))
+	image = wave(image, horizontal_amplitude=random.randint(3, 7), horizontal_wavelength=random.randint(40, 80), vertical_amplitude=random.randint(3, 7), vertical_wavelength=random.randint(40, 80))
+	left = int((image.width - cropped_width) // 1.2)
+	top = int((image.height - cropped_height) // 1.2)
+	right = left + cropped_width
+	bottom = top + cropped_height
+	return image.crop((left, top, right, bottom))
+
 def flagify(
 		image: Image.Image
 	) -> Image.Image:
@@ -217,7 +231,7 @@ if __name__ == '__main__':
 	card_image = Image.open("card.png")
 	
 	# Flagify the card.png image
-	card_image = flagify(card_image)
+	card_image = wobble(card_image)
 	card_image.show()
 
 	# Test compressing the card.png image

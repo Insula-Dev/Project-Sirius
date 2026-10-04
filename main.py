@@ -27,7 +27,7 @@ intents = discord.Intents.default()
 # Local imports
 from challenger import formatChallenge
 from log_handling import *
-from imaging import generate_level_card, lossy, flagify
+from imaging import generate_level_card, lossy, flagify, wave, wobble
 import AI
 from colours import colours
 
@@ -941,6 +941,7 @@ class MyClient(discord.ext.commands.Bot):
 
 			await message.channel.send(AI.question(argument_string))
 
+		# TODO: Make all the image commands use the same handler for images
 		# Lossy compression command
 		if message.content.startswith("lossy"):
 
@@ -998,6 +999,35 @@ class MyClient(discord.ext.commands.Bot):
 				flagifyed_image.save(output, format="PNG")
 				output.seek(0)
 				await message.channel.send(file=discord.File(output, filename="flagifyed.png"))
+
+		# Wobble image command
+		if message.content.startswith("wobble"):
+
+			logger.info("`wobble` called by " + message.author.name)  # Event log
+
+			target_message = None
+			if len(message.attachments) == 1:
+				target_message = message
+			else:
+				# Look at the message before this one in the channel
+				async for msg in message.channel.history(before=message, limit=2):
+					if len(msg.attachments) == 1:
+						target_message = msg
+						break
+			if target_message is None:
+				await message.channel.send("No attachment found in this or the previous message.")
+				return
+			try:
+				with Image.open(BytesIO(await target_message.attachments[0].read())) as image:
+					wobbled_image = wobble(image)  # Blue flag
+			except (UnidentifiedImageError, OSError):
+				await message.channel.send("The attachment could not be opened as an image.")
+				return
+
+			with BytesIO() as output:
+				wobbled_image.save(output, format="PNG")
+				output.seek(0)
+				await message.channel.send(file=discord.File(output, filename="wobbled.png"))
 
 		# Help command
 		if message.content == "help":
