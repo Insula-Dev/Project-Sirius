@@ -67,6 +67,12 @@ Dev only feature.
 9. Only release content is ran on Sirius III.
 10. Never remove features because you broke them.
 
+### Dockerisation
+1. Run `docker buildx build --platform linux/arm64 -t project-sirius:latest --load .` to build it as an arm compatable version (for rapberry pi)
+2. To package for transfer, save it as a tar with `docker save project-sirius:latest -o ../project-sirius-arm64.tar`
+3. To unpack run `docker load -i ./project-sirius-arm64.tar`
+4. Start the container
+
 ### FAQs
 
 **Q**: What constitutes a review?
