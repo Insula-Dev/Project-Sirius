@@ -214,6 +214,15 @@ def flagify(
 
 	return flagged_image
 
+def pixelate(image: Image.Image, pixel_size: int=10) -> Image.Image:
+	# Resize the image to a smaller size and then scale it back up
+	small = image.resize(
+		(image.width // pixel_size, image.height // pixel_size),
+		Image.NEAREST
+	)
+	pixelated = small.resize(image.size, Image.NEAREST)
+	return pixelated
+
 """
 Problems:
 
@@ -231,7 +240,7 @@ if __name__ == '__main__':
 	card_image = Image.open("card.png")
 	
 	# Flagify the card.png image
-	card_image = wobble(card_image)
+	card_image = pixelate(card_image)
 	card_image.show()
 
 	# Test compressing the card.png image
