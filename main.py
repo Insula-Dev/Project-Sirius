@@ -712,9 +712,19 @@ class MyClient(discord.ext.commands.Bot):
 		logger.info(f"`{command_name}` called by " + message.author.name)  # Event log
 
 		target_message = None
-		if len(message.attachments) == 1:
+		if message.reference is not None:
+			referenced_message = message.reference.resolved
+			if not isinstance(referenced_message, discord.Message) and message.reference.message_id is not None:
+				try:
+					referenced_message = await message.channel.fetch_message(message.reference.message_id)
+				except discord.HTTPException as exception:
+					logger.warning(f"Failed to fetch referenced message for `{command_name}`: {exception}")
+			if isinstance(referenced_message, discord.Message) and len(referenced_message.attachments) == 1:
+				target_message = referenced_message
+
+		if target_message is None and len(message.attachments) == 1:
 			target_message = message
-		else:
+		elif target_message is None:
 			# Look at the message before this one in the channel
 			async for msg in message.channel.history(before=message, limit=2):
 				if len(msg.attachments) == 1:
