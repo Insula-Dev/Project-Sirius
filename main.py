@@ -759,12 +759,15 @@ class MyClient(discord.ext.commands.Bot):
 
 				# Shut up Pablo
 				if message.author.id == 241772848564142080 or message.author.id == 842479806217060363:
-					if randint(1, 25) == 1:
+					if randint(1, 140) == 1:
 						logger.debug("Shut up Pablo triggered by " + message.author.name)  # Event log
-						if randint(1, 2) == 1:
+						r_choice = randint(1, 3)
+						if r_choice == 1:
 							await message.channel.send("un-shut up pablo")
-						else:
+						elif r_choice == 2:
 							await message.channel.send("pablo, put that big brain back on sleep mode")
+						elif r_choice == 3:
+							await message.channel.send("I agree")
 
 				if guild.id in JOKE_SERVERS:
 					# Gameboy mention
