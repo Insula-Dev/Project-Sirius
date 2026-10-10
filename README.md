@@ -68,7 +68,7 @@ Dev only feature.
 10. Never remove features because you broke them.
 
 ### Dockerisation
-1. Run `docker buildx build --platform linux/arm64 -t project-sirius:latest --load .` to build it as an arm compatable version (for rapberry pi)
+1. Run `docker buildx build --platform linux/arm64 -t project-sirius:latest --load .` to build it as an arm compatable version (for rapberry pi). This can take around 10 minutes when building on Windows.
 2. To package for transfer, save it as a tar with `docker save project-sirius:latest -o ../project-sirius-arm64.tar`
 3. To unpack run `docker load -i ./project-sirius-arm64.tar`
 4. Start the container
