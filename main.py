@@ -708,6 +708,34 @@ class MyClient(discord.ext.commands.Bot):
 
 		await guild.text_channels[0].send(f"Oh this place looks nice. Setup my settings by doing {PREFIX}settings if you have admin permissions.\nIf you need help with anything else {PREFIX}help is the way to go!")
 
+	async def handle_image_command(self, message, command_name, image_function, filename, image_format, **image_kwargs):
+		logger.info(f"`{command_name}` called by " + message.author.name)  # Event log
+
+		target_message = None
+		if len(message.attachments) == 1:
+			target_message = message
+		else:
+			# Look at the message before this one in the channel
+			async for msg in message.channel.history(before=message, limit=2):
+				if len(msg.attachments) == 1:
+					target_message = msg
+					break
+		if target_message is None:
+			await message.channel.send("No attachment found in this or the previous message.")
+			return False
+		try:
+			with Image.open(BytesIO(await target_message.attachments[0].read())) as image:
+				processed_image = image_function(image, **image_kwargs)
+		except (UnidentifiedImageError, OSError):
+			await message.channel.send("The attachment could not be opened as an image.")
+			return False
+
+		with BytesIO() as output:
+			processed_image.save(output, format=image_format)
+			output.seek(0)
+			await message.channel.send(file=discord.File(output, filename=filename))
+		return True
+
 	async def on_message(self, message):
 		"""Runs on message."""
 
@@ -944,124 +972,26 @@ class MyClient(discord.ext.commands.Bot):
 
 			await message.channel.send(AI.question(argument_string))
 
-		# TODO: Make all the image commands use the same handler for images
 		# Lossy compression command
 		if message.content.startswith("lossy"):
-
-			logger.info("`lossy` called by " + message.author.name)  # Event log
-
-			target_message = None
-			if len(message.attachments) == 1:
-				target_message = message
-			else:
-				# Look at the message before this one in the channel
-				async for msg in message.channel.history(before=message, limit=2):
-					if len(msg.attachments) == 1:
-						target_message = msg
-						break
-			if target_message is None:
-				await message.channel.send("No attachment found in this or the previous message.")
+			if not await self.handle_image_command(message, "lossy", lossy, "compressed.jpg", "JPEG"):
 				return
-			try:
-				with Image.open(BytesIO(await target_message.attachments[0].read())) as image:
-					compressed_image = lossy(image)
-			except (UnidentifiedImageError, OSError):
-				await message.channel.send("The attachment could not be opened as an image.")
-				return
-
-			with BytesIO() as output:
-				compressed_image.save(output, format="JPEG")
-				output.seek(0)
-				await message.channel.send(file=discord.File(output, filename="compressed.jpg"))
 
 		# Flagify image command
 		if message.content.startswith("flagify"):
-
-			logger.info("`flagify` called by " + message.author.name)  # Event log
-
-			target_message = None
-			if len(message.attachments) == 1:
-				target_message = message
-			else:
-				# Look at the message before this one in the channel
-				async for msg in message.channel.history(before=message, limit=2):
-					if len(msg.attachments) == 1:
-						target_message = msg
-						break
-			if target_message is None:
-				await message.channel.send("No attachment found in this or the previous message.")
+			if not await self.handle_image_command(message, "flagify", flagify, "flagifyed.png", "PNG"):
 				return
-			try:
-				with Image.open(BytesIO(await target_message.attachments[0].read())) as image:
-					flagifyed_image = flagify(image)  # Blue flag
-			except (UnidentifiedImageError, OSError):
-				await message.channel.send("The attachment could not be opened as an image.")
-				return
-
-			with BytesIO() as output:
-				flagifyed_image.save(output, format="PNG")
-				output.seek(0)
-				await message.channel.send(file=discord.File(output, filename="flagifyed.png"))
 
 		# Wobble image command
 		if message.content.startswith("wobble"):
-
-			logger.info("`wobble` called by " + message.author.name)  # Event log
-
-			target_message = None
-			if len(message.attachments) == 1:
-				target_message = message
-			else:
-				# Look at the message before this one in the channel
-				async for msg in message.channel.history(before=message, limit=2):
-					if len(msg.attachments) == 1:
-						target_message = msg
-						break
-			if target_message is None:
-				await message.channel.send("No attachment found in this or the previous message.")
+			if not await self.handle_image_command(message, "wobble", wobble, "wobbled.png", "PNG"):
 				return
-			try:
-				with Image.open(BytesIO(await target_message.attachments[0].read())) as image:
-					wobbled_image = wobble(image)  # Blue flag
-			except (UnidentifiedImageError, OSError):
-				await message.channel.send("The attachment could not be opened as an image.")
-				return
-
-			with BytesIO() as output:
-				wobbled_image.save(output, format="PNG")
-				output.seek(0)
-				await message.channel.send(file=discord.File(output, filename="wobbled.png"))
 
 		# Pixelate image command
 		if message.content.startswith("pixelate"):
-
-			logger.info("`pixelate` called by " + message.author.name)  # Event log
-
 			scale = message.content.split(" ")[1] if len(message.content.split(" ")) > 1 else 10
-
-			target_message = None
-			if len(message.attachments) == 1:
-				target_message = message
-			else:
-				# Look at the message before this one in the channel
-				async for msg in message.channel.history(before=message, limit=2):
-					if len(msg.attachments) == 1:
-						target_message = msg
-						break
-			if target_message is None:
-				await message.channel.send("No attachment found in this or the previous message.")
+			if not await self.handle_image_command(message, "pixelate", pixelate, "pixelated.png", "PNG", pixel_size=int(scale)):
 				return
-			try:
-				with Image.open(BytesIO(await target_message.attachments[0].read())) as image:
-					pixelated_image = pixelate(image, pixel_size=int(scale))  # Pixelate the image
-			except (UnidentifiedImageError, OSError):
-				await message.channel.send("The attachment could not be opened as an image.")
-				return
-
-			with BytesIO() as output:
-				pixelated_image.save(output, format="PNG")
-				output.seek(0)
-				await message.channel.send(file=discord.File(output, filename="pixelated.png"))
 
 		# Help command
 		if message.content == "help":
